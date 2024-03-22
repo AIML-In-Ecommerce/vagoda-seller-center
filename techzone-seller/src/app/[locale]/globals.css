@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bg-theme {
+  background-color: #2776a4;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px; /* Đặt chiều rộng cho thanh cuộn ngang */
+}
+
+/* Tùy chỉnh kiểu dáng của thanh cuộn ngang khi được hover */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2); /* Màu nền của thanh cuộn */
+  border-radius: 4px; /* Độ cong viền của thanh cuộn */
+}
+
+/* Tùy chỉnh kiểu dáng của thanh cuộn ngang khi được hover */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4); /* Màu nền của thanh cuộn khi hover */
+}
