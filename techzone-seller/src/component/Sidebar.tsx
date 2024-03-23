@@ -2,7 +2,7 @@
 import { Button, Input, Layout, Menu, MenuProps, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
-import React, { useState } from "react";
+import React, { createRef, useEffect, useRef, useState } from "react";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { BsHouseHeart, BsPersonVideo, BsShop } from "react-icons/bs";
 import { GoSearch } from "react-icons/go";
@@ -28,10 +28,23 @@ function getItem(
   } as MenuItem;
 }
 
-const Sidebar = () => {
+interface SidebarProps
+{
+
+  noticeCollapsingCallback: any
+}
+
+const Sidebar = ({noticeCollapsingCallback}: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [searchVisible, setSearchVisible] = useState(false);
+
+  //watch changes of the variable 'collapsed', if it changes, call the noticeCollapsingCallback function
+  useEffect(() =>
+  {
+    noticeCollapsingCallback(collapsed)
+  },
+  [collapsed])
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -154,7 +167,7 @@ const Sidebar = () => {
       theme="light"
       mode="inline"
       defaultSelectedKeys={["1"]}
-      style={{ height: "75vh", overflowY: "auto" }}
+      style={{ height: "75vh", overflowY: "auto", width: "100%"}}
       className=" text-xs overflow-auto custom-scrollbar"
     >
       {/* Filter menu items based on search text */}
