@@ -1,1 +1,23 @@
-{}
+{
+  "BoothDecoratorPage": {
+    "booth_decorator": "Trang trí gian hàng",
+    "edit_avatar": "Thay đổi ảnh đại diện",
+    "edit_banner": "Thay đổi ảnh nền",
+    "edit_name": "Chỉnh sửa tên",
+    "preview_btn": "Xem trước gian hàng",
+    "save_btn": "Lưu thay đổi",
+    "upload_tab": "Đăng tải ảnh",
+    "color_tab": "Chọn màu",
+    "default_tab": "Cơ bản",
+    "black": "Đen",
+    "red": "Đỏ",
+    "orange": "Cam",
+    "yellow": "Vàng",
+    "cyan": "Xanh da trời",
+    "blue": "Xanh nước biển",
+    "green": "Xanh lá",
+    "magenta": "Màu cánh sen",
+    "purple": "Tím",
+    "upload": "Đăng tải"
+  }
+}

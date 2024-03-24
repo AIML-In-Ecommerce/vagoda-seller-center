@@ -28,23 +28,19 @@ function getItem(
   } as MenuItem;
 }
 
-interface SidebarProps
-{
-
-  noticeCollapsingCallback: any
+interface SidebarProps {
+  noticeCollapsingCallback: any;
 }
 
-const Sidebar = ({noticeCollapsingCallback}: SidebarProps) => {
+const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [searchVisible, setSearchVisible] = useState(false);
 
   //watch changes of the variable 'collapsed', if it changes, call the noticeCollapsingCallback function
-  useEffect(() =>
-  {
-    noticeCollapsingCallback(collapsed)
-  },
-  [collapsed])
+  useEffect(() => {
+    noticeCollapsingCallback(collapsed);
+  }, [collapsed]);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -104,7 +100,7 @@ const Sidebar = ({noticeCollapsingCallback}: SidebarProps) => {
       key: "8",
       icon: <BsHouseHeart />,
       label: "Thiết kế gian hàng",
-      children: ["Trang trí gian hàng", "Bổ sưu tập"],
+      children: ["Trang trí gian hàng", "Bộ sưu tập"],
     },
     { key: "9", icon: <BsPersonVideo />, label: "Thông tin nhà bán" },
   ];
@@ -135,7 +131,7 @@ const Sidebar = ({noticeCollapsingCallback}: SidebarProps) => {
   //     getItem("Quản lý tài chính", "15", <LiaWalletSolid />),
   //     getItem("Thiết kế gian hàng", "sub5", <BsHouseHeart />, [
   //       getItem("Trang trí gian hàng", "16"),
-  //       getItem("Bổ sưu tập", "17"),
+  //       getItem("Bộ sưu tập", "17"),
   //     ]),
   //     getItem("Thông tin nhà bán", "18", <BsPersonVideo />),
   //   ];
@@ -167,7 +163,7 @@ const Sidebar = ({noticeCollapsingCallback}: SidebarProps) => {
       theme="light"
       mode="inline"
       defaultSelectedKeys={["1"]}
-      style={{ height: "75vh", overflowY: "auto", width: "100%"}}
+      style={{ height: "75vh", overflowY: "auto", width: "100%" }}
       className=" text-xs overflow-auto custom-scrollbar"
     >
       {/* Filter menu items based on search text */}
