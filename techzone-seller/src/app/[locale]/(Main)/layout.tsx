@@ -5,7 +5,7 @@ import "../globals.css";
 // import { AuthProvider } from "@/context/AuthContext";
 // import StyledComponentsRegistry from "../../../lib/AntdRegistry";
 import Navbar from "@/component/Navbar";
-import Sidebar from "@/component/Sidebar";
+import SidebarContentReactiveLayout from "@/component/SidebarContentReactiveLayout";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { ReactNode } from "react";
 
@@ -28,6 +28,7 @@ export default function RootLayout({
   params: { locale },
 }: RootLayoutProps) {
   const messages = useMessages();
+
   return (
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
@@ -42,11 +43,10 @@ export default function RootLayout({
               {" "}
               <Navbar />
             </div>
-
             <div className="flex mt-16">
-              {" "}
-              <Sidebar />
-              <div className="ml-24">{children}</div>
+              <SidebarContentReactiveLayout>
+                {children}
+              </SidebarContentReactiveLayout>
             </div>
           </div>
         </NextIntlClientProvider>
