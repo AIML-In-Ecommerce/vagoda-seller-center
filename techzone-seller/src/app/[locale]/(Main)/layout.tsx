@@ -46,7 +46,7 @@ export default function RootLayout({
             <div className="flex mt-16">
               {" "}
               <Sidebar />
-              {children}
+              <div className="ml-24">{children}</div>
             </div>
           </div>
         </NextIntlClientProvider>
