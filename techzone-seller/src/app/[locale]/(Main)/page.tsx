@@ -1,5 +1,3 @@
-import Image from "next/image";
-import logo from "../../../../public/asset/logo.png";
 export default function Home() {
   return (
     // <div className=" text-red underline font-bold text-center">
@@ -19,9 +17,7 @@ export default function Home() {
     //   />
     // </div>
     <>
-      <div>
-        Hello Moasfojasfasjfoaskfokasofko
-      </div>
+      <div>Hello Moasfojasfasjfoaskfokasofko</div>
     </>
   );
 }

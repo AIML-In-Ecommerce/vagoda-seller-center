@@ -136,28 +136,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   //     getItem("Thông tin nhà bán", "18", <BsPersonVideo />),
   //   ];
 
-  //   const filteredMenuItems = (
-  //     <Menu
-  //       theme="light"
-  //       mode="inline"
-  //       defaultSelectedKeys={["1"]}
-  //       style={{ height: "" }}
-  //       className="h-screen"
-  //     >
-  //       {/* Filter menu items based on search text */}
-  //       {menuItems
-  //         .filter((item) =>
-  //           item.label.toLowerCase().includes(searchText.toLowerCase())
-  //         )
-  //         .map((item) => (
-  //           <Menu.Item key={item.key} icon={item.icon}>
-  //             {item.label}
-
-  //           </Menu.Item>
-  //         ))}
-  //     </Menu>
-  //   );
-
   const filteredMenuItems = (
     <Menu
       theme="light"
@@ -196,31 +174,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     </Menu>
   );
 
-  // const filteredMenuItems = (
-  //     <Menu
-  //       theme="light"
-  //       mode="inline"
-  //       defaultSelectedKeys={["1"]}
-  //       style={{ height: "" }}
-  //       className="h-screen"
-  //     >
-  //       {/* Filter menu items based on search text */}
-  //       {menuItems
-  //   .filter((item): item is MenuItemType => "label" in item)
-  //   .filter((item) =>
-  //     typeof searchText === "string" &&
-  //     item &&
-  //     item.label &&
-  //     item.label.toString().toLowerCase().includes(searchText.toLowerCase())
-  //   )
-  //   .map((item) => (
-  //     <Menu.Item key={item.key} icon={item.icon}>
-  //       {item.label}
-  //     </Menu.Item>
-  //   ))}
-
-  //     </Menu>
-  //   );
   return (
     <div className="relative">
       <div className="fixed h-full items-center justify-center bg-white shadow-lg">
