@@ -4,15 +4,15 @@ import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { Avatar, Flex, message, Upload } from "antd";
 import type { GetProp, UploadProps } from "antd";
 
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
-const getBase64 = (img: FileType, callback: (url: string) => void) => {
+export const getBase64 = (img: FileType, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => callback(reader.result as string));
   reader.readAsDataURL(img);
 };
 
-const beforeUpload = (file: FileType) => {
+export const beforeUpload = (file: FileType) => {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
   if (!isJpgOrPng) {
     message.error("You can only upload JPG/PNG file!");
@@ -24,7 +24,11 @@ const beforeUpload = (file: FileType) => {
   return isJpgOrPng && isLt2M;
 };
 
-export default function AvatarForm() {
+interface FormProps {
+  setImageUrl: (url: string) => void;
+}
+
+export default function AvatarForm(formProps: FormProps) {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
 
@@ -38,6 +42,7 @@ export default function AvatarForm() {
       getBase64(info.file.originFileObj as FileType, (url) => {
         setLoading(false);
         setImageUrl(url);
+        formProps.setImageUrl(url);
       });
     }
   };

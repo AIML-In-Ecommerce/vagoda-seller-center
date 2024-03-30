@@ -4,7 +4,7 @@
     "edit_avatar": "Thay đổi ảnh đại diện",
     "edit_banner": "Thay đổi ảnh nền",
     "edit_name": "Chỉnh sửa tên",
-    "preview_btn": "Xem trước gian hàng",
+    "preview_btn": "Xem trước",
     "save_btn": "Lưu thay đổi",
     "upload_tab": "Đăng tải ảnh",
     "color_tab": "Chọn màu",
@@ -16,8 +16,10 @@
     "cyan": "Xanh da trời",
     "blue": "Xanh nước biển",
     "green": "Xanh lá",
-    "magenta": "Màu cánh sen",
+    "pink": "Hồng",
     "purple": "Tím",
-    "upload": "Đăng tải"
+    "upload": "Đăng tải",
+    "general_info": "Thông tin chung",
+    "design_pattern": "Mẫu thiết kế"
   }
 }

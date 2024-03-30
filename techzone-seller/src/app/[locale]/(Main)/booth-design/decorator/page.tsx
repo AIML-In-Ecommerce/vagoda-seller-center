@@ -1,139 +1,224 @@
 "use client";
-import AvatarForm from "@/component/booth-design/decorator/AvatarForm";
-import BannerForm from "@/component/booth-design/decorator/BannerForm";
-import {
-  Badge,
-  Button,
-  Flex,
-  Input,
-  Radio,
-  RadioChangeEvent,
-  Tooltip,
-} from "antd";
-import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
 
-type TabPosition = "upload" | "color" | "default";
-type Colors =
-  | "white"
-  | "black"
-  | "red"
-  | "orange"
-  | "yellow"
-  | "cyan"
-  | "blue"
-  | "green"
-  | "magenta"
-  | "purple";
+import { Button, Drawer, Flex, Tabs } from "antd";
+import { useState } from "react";
+import {
+  CloseOutlined,
+  GroupOutlined,
+  InsertRowBelowOutlined,
+  PicLeftOutlined,
+  PercentageOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import Banner from "@/component/booth-design/decorator/mini/Banner";
+import Search from "antd/es/transfer/search";
+import MiniDesignPattern from "@/component/booth-design/decorator/mini/MiniDesignPattern";
+import WidgetEditorBar from "@/component/booth-design/decorator/WidgetEditorBar";
 
 export default function BoothDecoratorPage() {
-  //banner mode
-  const [mode, setMode] = useState<TabPosition>("default");
-  const handleModeChange = (e: RadioChangeEvent) => {
-    setMode(e.target.value);
-  };
+  // mock data
+  const shopInfo = { color: "white", name: "TechZone Shop", avatarUrl: "" };
 
-  //banner color
-  const [color, setColor] = useState<Colors>("white");
-  const handleColorChange = (e: RadioChangeEvent) => {
-    setColor(e.target.value);
-  };
+  // variables n methods
+  const tabItems = [
+    {
+      label: "Cửa Hàng",
+    },
+    {
+      label: "Tất Cả Sản Phẩm",
+    },
+    {
+      label: "Bộ sưu tập",
+    },
+    {
+      label: "Hồ Sơ Cửa Hàng",
+    },
+  ];
 
-  const [avatarUrl, setAvatarUrl] = useState();
-  const [bannerUrl, setBannerUrl] = useState(); // ?
-  const [name, setName] = useState("");
+  // widget drawer
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+  const drawerBannerItems = [
+    {
+      title: "Băng chuyền",
+      icon: (
+        <InsertRowBelowOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+    {
+      title: "Hình & chữ",
+      icon: (
+        <PicLeftOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+  ];
+  const drawerCategoryItems = [
+    {
+      title: "Danh mục dạng lưới",
+      icon: (
+        <GroupOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+    {
+      title: "Danh mục hình & chữ",
+      icon: (
+        <PicLeftOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+  ];
+  const drawerProductItems = [
+    {
+      title: "Sản phẩm dạng lưới",
+      icon: (
+        <GroupOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+    {
+      title: "Sản phẩm dạng băng chuyền",
+      icon: (
+        <InsertRowBelowOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+    {
+      title: "Sản phẩm, hình & chữ",
+      icon: (
+        <PicLeftOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+  ];
+  const drawerPromotionItems = [
+    {
+      title: "Mã giảm giá",
+      icon: (
+        <PercentageOutlined
+          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
+        />
+      ),
+    },
+  ];
 
   return (
-    <div className="m-10 z-0">
-      <div className="m-5 text-2xl font-semibold flex justify-center">
-        Trang trí gian hàng
+    <div className="m-10 grid grid-cols-3">
+      <div className="col-span-2">
+        <Banner
+          color={shopInfo.color}
+          name={shopInfo.name}
+          avatarUrl={shopInfo.avatarUrl}
+        />
+        <Tabs
+          defaultActiveKey="0"
+          size="middle"
+          style={{ marginLeft: 10, marginRight: 10, marginTop: 10 }}
+          items={tabItems.map((item, i) => {
+            return {
+              label: item.label,
+              key: i.toString(),
+              children: <div />,
+              disabled: true,
+            };
+          })}
+          tabBarExtraContent={
+            <Search disabled placeholder="Tìm tại cửa hàng" />
+          }
+        />
+        <Button
+          block
+          onClick={() => {
+            setOpenDrawer(true);
+          }}
+        >
+          {/* <PlusOutlined style={{ marginBottom: "10px", fontSize: "12px" }} /> */}
+          + Thêm widget
+        </Button>
       </div>
-      <Flex vertical gap="large">
-        {/* avatar */}
-        <Flex vertical gap="large">
-          <div className="font-semibold">Thay đổi ảnh đại diện</div>
-          <AvatarForm />
-        </Flex>
+      <div className="col-span-1">
+        <WidgetEditorBar />
+      </div>
 
-        {/* banner */}
-        <Flex vertical gap="small">
-          <div className="font-semibold">Thay đổi ảnh nền</div>
-          <Radio.Group
-            onChange={handleModeChange}
-            value={mode}
-            style={{ marginBottom: 8 }}
-          >
-            <Radio.Button value="upload" onClick={() => setColor("white")}>
-              Đăng tải ảnh
-            </Radio.Button>
-            <Radio.Button value="color">Chọn màu</Radio.Button>
-            <Radio.Button value="default" onClick={() => setColor("white")}>
-              Cơ bản
-            </Radio.Button>
-          </Radio.Group>
+      <Drawer
+        title="Mẫu thiết kế"
+        placement="left"
+        width={400}
+        closeIcon={false}
+        open={openDrawer}
+        extra={
+          <CloseOutlined
+            onClick={() => {
+              setOpenDrawer(false);
+            }}
+            style={{ cursor: "pointer" }}
+          />
+        }
+      >
+        <div className="overflow-y-auto overflow-x-hidden">
+          <div className="font-semibold uppercase">banner</div>
+          <Flex>
+            {drawerBannerItems.map((drawerItem, i) => (
+              <div key={i}>
+                <MiniDesignPattern
+                  title={drawerItem.title}
+                  icon={drawerItem.icon}
+                  previewImageUrl={""}
+                />
+              </div>
+            ))}
+          </Flex>
 
-          {mode === "upload" && <BannerForm />}
-          {mode === "color" && (
-            <Radio.Group
-              onChange={handleColorChange}
-              value={color}
-              style={{ marginBottom: 8 }}
-            >
-              <Radio.Button className="black" value="black">
-                <Badge color="black" /> Đen
-              </Radio.Button>
-              <Radio.Button value="red">
-                <Badge color="red" /> Đỏ
-              </Radio.Button>
-              <Radio.Button value="orange">
-                <Badge color="orange" /> Cam
-              </Radio.Button>
-              <Radio.Button value="yellow">
-                <Badge color="yellow" /> Vàng
-              </Radio.Button>
-              <Radio.Button value="cyan">
-                <Badge color="cyan" /> Xanh da trời
-              </Radio.Button>
-              <Radio.Button value="blue">
-                <Badge color="blue" /> Xanh nước biển
-              </Radio.Button>
-              <Radio.Button value="green">
-                <Badge color="green" /> Xanh lá
-              </Radio.Button>
-              <Radio.Button value="magenta">
-                <Badge color="magenta" /> Màu cánh sen
-              </Radio.Button>
-              <Radio.Button value="purple">
-                <Badge color="purple" /> Tím
-              </Radio.Button>
-            </Radio.Group>
-          )}
-        </Flex>
+          <div className="font-semibold uppercase">danh mục</div>
+          <Flex>
+            {drawerCategoryItems.map((drawerItem, i) => (
+              <div key={i}>
+                <MiniDesignPattern
+                  title={drawerItem.title}
+                  icon={drawerItem.icon}
+                  previewImageUrl={""}
+                />
+              </div>
+            ))}
+          </Flex>
 
-        {/* name */}
-        <Flex gap="large">
-          <div className="font-semibold">Chỉnh sửa tên</div>
-          <div className="w-1/2">
-            <Input
-              placeholder="Điền tên"
-              prefix={<UserOutlined className="site-form-item-icon" />}
-              suffix={
-                <Tooltip title="Giới hạn n kí tự">
-                  <InfoCircleOutlined style={{ color: "rgba(0,0,0,.45)" }} />
-                </Tooltip>
-              }
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-        </Flex>
+          <div className="font-semibold uppercase">sản phẩm</div>
+          <Flex>
+            {drawerProductItems.map((drawerItem, i) => (
+              <div key={i}>
+                <MiniDesignPattern
+                  title={drawerItem.title}
+                  icon={drawerItem.icon}
+                  previewImageUrl={""}
+                />
+              </div>
+            ))}
+          </Flex>
+          <div className="font-semibold uppercase">bộ sưu tập</div>
 
-        {/* Preview Booth */}
-        <Flex gap="large">
-          <Button size="large">Xem trước gian hàng</Button>
-          <Button size="large">Lưu thay đổi</Button>
-        </Flex>
-      </Flex>
+          <div className="font-semibold uppercase">khuyến mãi</div>
+          <Flex>
+            {drawerPromotionItems.map((drawerItem, i) => (
+              <div key={i}>
+                <MiniDesignPattern
+                  title={drawerItem.title}
+                  icon={drawerItem.icon}
+                  previewImageUrl={""}
+                />
+              </div>
+            ))}
+          </Flex>
+        </div>
+      </Drawer>
     </div>
   );
 }
