@@ -44,7 +44,7 @@ function SidebarContentReactiveLayout({children}: SidebarContentReactiveLayoutPr
               {" "}
               <Sidebar noticeCollapsingCallback={handleSidebarCollapsingNotice}/>
               <div className="invisible" style={hiddenBlockStyle}>hidden block</div>
-              <Content>
+              <Content className="py-2">
                 {children}
               </Content>
         </>
