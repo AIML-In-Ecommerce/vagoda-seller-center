@@ -15,7 +15,7 @@ function filterFunction(dataSource: OrderPropType[], targetData: string)
     //targetData now is the expected time to confirm the delivery that you want to search,
     //but first, we have to convert it into Date type
     //targetData variable will follow YYYY-MM-DD date-string format
-    const targetDate = new Date(targetData)
+    const targetDate = new Date(targetData).setHours(0,0,0,0)
 
     let result: OrderPropType[] = []
 
@@ -23,7 +23,7 @@ function filterFunction(dataSource: OrderPropType[], targetData: string)
     dataSource.forEach((value: OrderPropType) =>
     {
         const latestStatusIndex = value.orderStatus.length - 1
-        const time = new Date(new Date(value.orderStatus[latestStatusIndex].time).setHours(0,0,0,0))
+        const time = new Date(value.orderStatus[latestStatusIndex].time * 1000).setHours(0,0,0,0)
 
         if(targetDate == time)
         {
@@ -36,7 +36,7 @@ function filterFunction(dataSource: OrderPropType[], targetData: string)
 
 function getTagLabel(params: string)
 {
-    let result = "Dự kiến giao hàng vào ".concat(params)
+    let result = "Dự kiến vào ".concat(params)
 
     return result
 }

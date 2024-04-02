@@ -23,16 +23,13 @@ function getAttributeToFilter(item: any)
 
 function filterToDay(dataSource: any[])
 {
-    console.log(dataSource.length)
     let result: OrderPropType[] = []
     const today = new Date(new Date().setHours(0, 0, 0, 0))
-    console.log(today)
+
     dataSource.forEach((value: any) =>
     {
-        const timestamp = getAttributeToFilter(value)
+        const timestamp = getAttributeToFilter(value) * 1000
         const date = new Date(new Date(timestamp).setHours(0,0,0,0))
-        console.log(date)
-        console.log(date == today)
         if(date == today)
         {
             const castedValue = value as OrderPropType
@@ -62,12 +59,10 @@ function filter7Days(dataSource: any[])
     let result: OrderPropType[] = []
     const today = new Date(new Date().setHours(0, 0, 0, 0))
     const sevenDayBefore = new Date(new Date(today).setDate(today.getDate() - 7))
-    console.log("today: " + today)
-    console.log("seven: " + sevenDayBefore)
 
     dataSource.forEach((value: any) =>
     {
-        const timestamp = getAttributeToFilter(value)
+        const timestamp = getAttributeToFilter(value)*1000
         const date = new Date(new Date(timestamp).setHours(0,0,0,0))
         if(date <= today && date >= sevenDayBefore)
         {
@@ -99,12 +94,10 @@ function filter30Days(dataSource: any[])
     let result: OrderPropType[] = []
     const today = new Date(new Date().setHours(0, 0, 0, 0))
     const thirtyDayBefore = new Date(new Date(today).setDate(today.getDate() - 30))
-    console.log("today: " + today)
-    console.log("30: " + thirtyDayBefore)
 
     dataSource.forEach((value: any) =>
     {
-        const timestamp = getAttributeToFilter(value)
+        const timestamp = getAttributeToFilter(value)*1000
         const date = new Date(new Date(timestamp).setHours(0,0,0,0))
         if(date <= today && date >= thirtyDayBefore)
         {

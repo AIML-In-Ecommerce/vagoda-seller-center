@@ -4,9 +4,8 @@ import { OrderPropType } from "@/model/OrderPropType";
 import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd";
 import { useEffect, useState } from "react";
 import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool";
-import OrderDatePickerFilter from "../util/OrderDatePickerFilter";
 import { ProcessingOrderPoolSetting } from "@/component_config/order/filter_pool/ProcessingOrderPoolSetting";
-import { currencyFormater, datetimeFormaterLong, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater";
+import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater";
 import { BiInfoCircle } from "react-icons/bi";
 import OrderDetailDrawer from "../util/OrderDetailDrawer";
 import { TableRowSelection } from "antd/es/table/interface";
@@ -33,7 +32,7 @@ interface DisplayStatus
 interface ProcessingOrder
 {
     key: string,
-    status: DisplayStatus[],
+    status: DisplayStatus,
     delivery:
     {
         receiverName: string,
@@ -83,34 +82,34 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         {
             title: "Mã đơn hàng",
             dataIndex: "key",
-            render: (value: any, record: ProcessingOrder) =>
+            render: (value: any, record: ProcessingOrder, index: number) =>
             {
                 if(value)
                 {}
-                const displays = record.status.map((value: DisplayStatus, index: number) =>
+                const display = () =>
                 {
                     let statusDisplay = <></>
-                    switch(value.type)
+                    switch(record.status.type)
                     {
                         case StatusType.PENDING:
                             {
-                                statusDisplay = <Tag key={value.name+index.toString()+"-"+Date.now().toString()} color={"geekblue"}>{value.name}</Tag>
+                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"geekblue"}>{record.status.name}</Tag>
                                 break;
                             }
                         case StatusType.EXPIRED:
                             {
-                                statusDisplay = <Tag key={value.name+index.toString()+"-"+Date.now().toString()} color={"orange"}>{value.name}</Tag>
+                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"orange"}>{record.status.name}</Tag>
                             }
                     }
                     return statusDisplay
-                })
+                }
                 
                 return(
                     <Flex vertical wrap={"wrap"} gap={4} justify="center" align="center">
                         <Typography.Text>
                             {record.key}
                         </Typography.Text>
-                        {displays}
+                        {display()}
                     </Flex>
                 )
             }
@@ -146,7 +145,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
             }
         },
         {
-            title: "Thời gian lấy hang dự kiến",
+            title: "Thời gian lấy hàng dự kiến",
             dataIndex: "time",
             render: (value:any, record: ProcessingOrder) =>
             {
@@ -236,29 +235,24 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
                 totalProducts += selection.quantity
             })
 
-            let orderStatus: DisplayStatus[] = []
-            const today = new Date(Date.now())
-
-            value.orderStatus.forEach((value) =>
+            let orderStatus: DisplayStatus =
             {
-                const time = new Date(value.deadline)
-                let status: DisplayStatus =
-                {
-                    name: "Đang chờ",
-                    type: StatusType.PENDING
-                }
+                name: "Đang chờ",
+                type: StatusType.PENDING
+            }
+            const today = Date.now()
 
-                if(today > time)
-                {
-                    status =
-                    {
-                        name: "Đang chờ và đã quá hạn",
-                        type: StatusType.EXPIRED
-                    }
-                }
+            const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
 
-                orderStatus.push(status)
-            })
+
+            if(today > time)
+            {
+                orderStatus =
+                {
+                    name: "Đang chờ và đã quá hạn",
+                    type: StatusType.EXPIRED
+                }
+            }
 
             const item: ProcessingOrder =
             {

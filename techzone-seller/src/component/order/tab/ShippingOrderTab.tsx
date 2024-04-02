@@ -1,17 +1,17 @@
 'use client'
 
-import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd";
-import React, { useEffect, useState } from "react";
-import { OrderPropType } from "@/model/OrderPropType";
-import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool";
-import { WaitingOrderFilterPoolSetting } from "../../../component_config/order/filter_pool/WaitingOrderFilterPoolSetting";
-import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater";
-import { BiInfoCircle } from "react-icons/bi";
-import OrderDetailDrawer from "../util/OrderDetailDrawer";
-import { TableRowSelection } from "antd/es/table/interface";
+import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
+import { OrderPropType } from "@/model/OrderPropType"
+import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd"
+import { useEffect, useState } from "react"
+import { BiInfoCircle } from "react-icons/bi"
+import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool"
+import { TableRowSelection } from "antd/es/table/interface"
+import OrderDetailDrawer from "../util/OrderDetailDrawer"
+import { ShippingOrderPoolSetting } from "@/component_config/order/filter_pool/ShippingOrderPoolSetting"
 
 
-interface WaitingOrderTabProps
+interface ShippingOrderTabProps
 {
     dataSource: OrderPropType[]
 }
@@ -28,7 +28,7 @@ interface DisplayStatus
     type: StatusType
 }
 
-interface WaitingOrder
+interface ShippingOrder
 {
     key: string,
     status: DisplayStatus,
@@ -60,27 +60,28 @@ interface WaitingOrder
 
 }
 
+const filterPoolSetting = ShippingOrderPoolSetting
 
-const filterPoolSetting = WaitingOrderFilterPoolSetting
-
-export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
+export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 {
-    const waitingTabFilterPoolKey = "waiting-tab-filter-pool-key"
+    const processingTabFilterPoolKey = "processing-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
-    const [dataToDisplay, setDataToDisplay] = useState<WaitingOrder[]>([])
+    const [dataToDisplay, setDataToDisplay] = useState<ShippingOrder[]>([])
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
+
     const [selectedOrderDetail, setSelectedOrderDetail] = useState<OrderPropType | null>(null)
-    const [orderDetailOpen, setOrderDetailOpen] = useState<boolean>(false)
-    
+    const [orderDetailOpen, setOrderDetailOpen] = useState<boolean>(false) 
+
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
-    const dataColumns: TableColumnType<WaitingOrder>[] = 
+
+    const dataColumns: TableColumnType<ShippingOrder>[] = 
     [
         {
             title: "Mã đơn hàng",
             dataIndex: "key",
-            render: (value: any, record: WaitingOrder, index: number) =>
+            render: (value: any, record: ShippingOrder, index: number) =>
             {
                 if(value)
                 {}
@@ -115,7 +116,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
         {
             title: "Vận chuyển đến",
             dataIndex: "delivery",
-            render: (value: any, record:WaitingOrder) =>
+            render: (value: any, record: ShippingOrder) =>
             {
                 if(value)
                 {}
@@ -143,9 +144,9 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
             }
         },
         {
-            title: "Thời gian xác nhận",
+            title: "Thời gian vận chuyển dự kiến",
             dataIndex: "time",
-            render: (value:any, record: WaitingOrder) =>
+            render: (value:any, record: ShippingOrder) =>
             {
                 if(value){}
 
@@ -153,7 +154,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
                     <Flex vertical className="w-full" justify="start" align="start" gap={4}>
                         <Flex align="center">
                             <Tag color={"blue-inverse"}>
-                                Nhận
+                                Dự kiến
                             </Tag>
                             <Typography.Text>
                                 {record.time.orderTime}
@@ -179,7 +180,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
                     </Tooltip>
                 </Flex>,
             dataIndex: "price",
-            render: (value: any, record: WaitingOrder) =>
+            render: (value: any, record: ShippingOrder) =>
             {
                 if(value){}
 
@@ -210,7 +211,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
             title: "Thao tác",
             dataIndex: "",
             key: "action",
-            render: (record: WaitingOrder) =>
+            render: (record: ShippingOrder) =>
             {
                 return(
                     <Flex vertical justify="start" align="center">
@@ -242,8 +243,6 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
 
             const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
 
-            console.log(today)
-            console.log(time)
 
             if(today > time)
             {
@@ -254,7 +253,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
                 }
             }
 
-            const item: WaitingOrder =
+            const item: ShippingOrder =
             {
                 key: value._id,
                 status: orderStatus,
@@ -288,10 +287,9 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
     },
     [data])
 
-
-    function handleFilterCallback(result: OrderFilterPoolCallbackProps)
-    {        
-        setData(result.filterData)
+    function handleFilterCallback(resutl: OrderFilterPoolCallbackProps)
+    {
+        setData(resutl.filterData)
     }
 
     function handleOpenOrderDetail(selectedOrderId: string)
@@ -328,10 +326,10 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
         //TODO: call api to update order status here
     }
 
-    function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: WaitingOrder[])
+    function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: ShippingOrder[])
     {
         setSelectedRowKeys(newSelectedRowKeys)
-        const selectedOrderIds: string[] = selectedRows.map((value: WaitingOrder) =>
+        const selectedOrderIds: string[] = selectedRows.map((value: ShippingOrder) =>
         {
             return value.key
         })
@@ -345,7 +343,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
         //TODO: call api to update order status here
     }
 
-    const rowSelection: TableRowSelection<WaitingOrder> = 
+    const rowSelection: TableRowSelection<ShippingOrder> = 
     {
         selectedRowKeys: selectedRowKeys,
         onChange: handleSelectedRowKeysOnChange
@@ -354,10 +352,8 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
     return(
         <>
             <Flex vertical className="w-full mb-2" justify="center" align="center">
-                <OrderFilterPool poolKey={waitingTabFilterPoolKey} filterPoolSetting={filterPoolSetting} dataSource={dataSource} filterCallback={handleFilterCallback}/>
+                <OrderFilterPool poolKey={processingTabFilterPoolKey} filterPoolSetting={filterPoolSetting} dataSource={dataSource} filterCallback={handleFilterCallback} />
             </Flex>
-
-            <Divider />
 
             <Flex justify="start" align="center" gap={6}>
                 <Flex justify="start" align="baseline" gap={4}>
@@ -376,8 +372,9 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
                 }
             </Flex>
 
-            <Table rowSelection={rowSelection} columns={dataColumns} dataSource={dataToDisplay}/>
+            <Table rowSelection={rowSelection} columns={dataColumns} dataSource={dataToDisplay} showHeader/>
 
+            
             <OrderDetailDrawer open={orderDetailOpen} orderProps={selectedOrderDetail} onCloseCallback={handleOrderDetailDrawerOnClose} 
             confirmButtonActive cancelButtonActive
             confirmButtonOnClick={handleConfirmOrderOnClick} cancelButtonOnClick={handleCancelOrderOnClick}

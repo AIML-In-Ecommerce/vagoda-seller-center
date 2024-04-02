@@ -76,7 +76,7 @@ export type OrderPropType =
             lng: number,
             lat: number
         },
-        label: "HOME",
+        label: string,
         isDefault: boolean
     }
     orderStatus: OrderStatus[]
