@@ -1,21 +1,21 @@
 'use client'
 
-import { OrderPropType } from "@/model/OrderPropType";
-import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd";
-import { useEffect, useState } from "react";
-import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool";
-import { ProcessingOrderPoolSetting } from "@/component_config/order/filter_pool/ProcessingOrderPoolSetting";
-import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater";
-import { BiInfoCircle } from "react-icons/bi";
-import OrderDetailDrawer from "../util/OrderDetailDrawer";
-import { TableRowSelection } from "antd/es/table/interface";
+import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
+import { OrderPropType } from "@/model/OrderPropType"
+import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd"
+import { useEffect, useState } from "react"
+import { BiInfoCircle } from "react-icons/bi"
+import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool"
+import { TableRowSelection } from "antd/es/table/interface"
+import OrderDetailDrawer from "../util/OrderDetailDrawer"
+import { CompletedOrderPoolSetting } from "@/component_config/order/filter_pool/CompletedOrderPoolSetting"
 
 
-
-interface ProcessingOrderTabProps
+interface CompletedOrderTabProps
 {
     dataSource: OrderPropType[]
 }
+
 
 enum StatusType
 {
@@ -29,7 +29,7 @@ interface DisplayStatus
     type: StatusType
 }
 
-interface ProcessingOrder
+interface CompletedOrder
 {
     key: string,
     status: DisplayStatus,
@@ -61,13 +61,14 @@ interface ProcessingOrder
 
 }
 
-const filterPoolSetting = ProcessingOrderPoolSetting
 
-export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps)
+const filterPoolSetting = CompletedOrderPoolSetting
+
+export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
 {
-    const processingTabFilterPoolKey = "processing-tab-filter-pool-key"
+    const completedTabFilterPoolKey = "completed-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
-    const [dataToDisplay, setDataToDisplay] = useState<ProcessingOrder[]>([])
+    const [dataToDisplay, setDataToDisplay] = useState<CompletedOrder[]>([])
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
 
 
@@ -77,12 +78,12 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
 
-    const dataColumns: TableColumnType<ProcessingOrder>[] = 
+    const dataColumns: TableColumnType<CompletedOrder>[] = 
     [
         {
             title: "Mã đơn hàng",
             dataIndex: "key",
-            render: (value: any, record: ProcessingOrder, index: number) =>
+            render: (value: any, record: CompletedOrder, index: number) =>
             {
                 if(value)
                 {}
@@ -117,7 +118,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         {
             title: "Vận chuyển đến",
             dataIndex: "delivery",
-            render: (value: any, record: ProcessingOrder) =>
+            render: (value: any, record: CompletedOrder) =>
             {
                 if(value)
                 {}
@@ -145,9 +146,9 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
             }
         },
         {
-            title: "Thời gian lấy hàng dự kiến",
+            title: "Thời gian xác nhận",
             dataIndex: "time",
-            render: (value:any, record: ProcessingOrder) =>
+            render: (value:any, record: CompletedOrder) =>
             {
                 if(value){}
 
@@ -181,7 +182,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
                     </Tooltip>
                 </Flex>,
             dataIndex: "price",
-            render: (value: any, record: ProcessingOrder) =>
+            render: (value: any, record: CompletedOrder) =>
             {
                 if(value){}
 
@@ -212,7 +213,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
             title: "Thao tác",
             dataIndex: "",
             key: "action",
-            render: (value: any, record: ProcessingOrder, index: number) =>
+            render: (record: CompletedOrder) =>
             {
                 return(
                     <Flex vertical justify="start" align="center">
@@ -254,7 +255,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
                 }
             }
 
-            const item: ProcessingOrder =
+            const item: CompletedOrder =
             {
                 key: value._id,
                 status: orderStatus,
@@ -327,10 +328,10 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         //TODO: call api to update order status here
     }
 
-    function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: ProcessingOrder[])
+    function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: CompletedOrder[])
     {
         setSelectedRowKeys(newSelectedRowKeys)
-        const selectedOrderIds: string[] = selectedRows.map((value: ProcessingOrder) =>
+        const selectedOrderIds: string[] = selectedRows.map((value: CompletedOrder) =>
         {
             return value.key
         })
@@ -344,7 +345,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         //TODO: call api to update order status here
     }
 
-    const rowSelection: TableRowSelection<ProcessingOrder> = 
+    const rowSelection: TableRowSelection<CompletedOrder> = 
     {
         selectedRowKeys: selectedRowKeys,
         onChange: handleSelectedRowKeysOnChange
@@ -353,7 +354,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
     return(
         <>
             <Flex vertical className="w-full mb-2" justify="center" align="center">
-                <OrderFilterPool poolKey={processingTabFilterPoolKey} filterPoolSetting={filterPoolSetting} dataSource={dataSource} filterCallback={handleFilterCallback} />
+                <OrderFilterPool poolKey={completedTabFilterPoolKey} filterPoolSetting={filterPoolSetting} dataSource={dataSource} filterCallback={handleFilterCallback} />
             </Flex>
 
             <Divider />

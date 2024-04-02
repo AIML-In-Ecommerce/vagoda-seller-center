@@ -359,7 +359,7 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
 
             <Divider />
 
-            <Flex justify="start" align="center" gap={6}>
+            <Flex className="mb-3" justify="start" align="center" gap={6}>
                 <Flex justify="start" align="baseline" gap={4}>
                     <Typography.Text className="text-lg font-semibold">
                         Đơn hàng:

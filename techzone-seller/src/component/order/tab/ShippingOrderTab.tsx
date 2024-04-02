@@ -64,7 +64,7 @@ const filterPoolSetting = ShippingOrderPoolSetting
 
 export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 {
-    const processingTabFilterPoolKey = "processing-tab-filter-pool-key"
+    const shippingTabFilterPoolKey = "shipping-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
     const [dataToDisplay, setDataToDisplay] = useState<ShippingOrder[]>([])
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
@@ -352,10 +352,12 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
     return(
         <>
             <Flex vertical className="w-full mb-2" justify="center" align="center">
-                <OrderFilterPool poolKey={processingTabFilterPoolKey} filterPoolSetting={filterPoolSetting} dataSource={dataSource} filterCallback={handleFilterCallback} />
+                <OrderFilterPool poolKey={shippingTabFilterPoolKey} filterPoolSetting={filterPoolSetting} dataSource={dataSource} filterCallback={handleFilterCallback} />
             </Flex>
 
-            <Flex justify="start" align="center" gap={6}>
+            <Divider />
+
+            <Flex className="mb-3" justify="start" align="center" gap={6}>
                 <Flex justify="start" align="baseline" gap={4}>
                     <Typography.Text className="text-lg font-semibold">
                         Đơn hàng:
