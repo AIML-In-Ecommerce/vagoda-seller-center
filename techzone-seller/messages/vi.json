@@ -20,6 +20,23 @@
     "purple": "Tím",
     "upload": "Đăng tải",
     "general_info": "Thông tin chung",
-    "design_pattern": "Mẫu thiết kế"
+    "design_pattern": "Mẫu thiết kế",
+    "banner_carousel": "Băng chuyền",
+    "category_grid": "Danh mục dạng lưới",
+    "product_grid": "Sản phẩm dạng lưới",
+    "product_carousel": "Sản phẩm dạng băng chuyền",
+    "discount_grid": "Mã giảm giá",
+    "reply_rate": "Phản hồi chat: ",
+    "shop": "Cửa Hàng",
+    "all_products": "Tất Cả Sản Phẩm",
+    "collection": "Bộ Sưu Tập",
+    "about_shop": "Hồ Sơ Cửa Hàng",
+    "search_in_shop": "Tìm tại cửa hàng",
+    "add_widget": "Thêm widget",
+    "widgets": "Widget đang dùng",
+    "title": "Tiêu đề",
+    "title_help": "Chọn tối đa 4 danh mục để hiện thị ở trang gian hàng",
+    "title_limit": "",
+    "empty": "Không có"
   }
 }

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   DeleteOutlined,
   MenuOutlined,
@@ -16,18 +16,22 @@ import {
 
 // import axios from "axios";
 // import { useAuth } from "@/context/AuthContext";
-import { WidgetType } from "@/model/WidgetType";
-import { Card, Switch } from "antd";
+import { WidgetCategoryType, WidgetType } from "@/model/WidgetType";
+import { Card } from "antd";
+import CustomSwitch from "./CustomSwitch";
+import WidgetTypeIcon from "./WidgetTypeIcon";
 
 interface SortableListProps {
   items: WidgetType[];
   setWidgets: (widgets: WidgetType[]) => void;
+  setSelectedWidget: (widget: WidgetType) => void;
 }
 
 interface SortableItemProps {
   widget: WidgetType;
   setWidgets: (widgets: WidgetType[]) => void;
   handleUpdate: (updatedRubric: WidgetType) => void;
+  setSelectedWidget: (widget: WidgetType) => void;
 }
 const DragHandle = SortableHandle(() => <MenuOutlined />);
 
@@ -46,7 +50,8 @@ const SortableItem: React.ComponentClass<
   const handleDeleteModal = () => {
     setDeleteShowModal(!showDeleteModal);
   };
-  const handleDeleteGrade = async (widget_id: string) => {
+
+  const handleDeleteWidget = async (widget_id: string) => {
     // try {
     //   const response = await axios.delete(
     //     `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}widget/${widget_id}`,
@@ -82,7 +87,7 @@ const SortableItem: React.ComponentClass<
     handleDeleteModal();
   };
 
-  const handleEditGrade = async (gradeName: string, gradeScale: number) => {
+  const handleEditWidget = async (gradeName: string, gradeScale: number) => {
     // const newRubric: WidgetType = {
     //   _id: props.widget._id,
     //   classId: props.widget.classId,
@@ -96,34 +101,30 @@ const SortableItem: React.ComponentClass<
   };
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
-  const onChangeSwitch = (checked: boolean) => {
-    console.log(`switch to ${checked}`);
-    setIsSwitched(checked);
-  };
-
-  const switchColor = useMemo(() => {
-    if (isSwitched) {
-      return "#1677ff";
-    } else return "lightGray";
-  }, [isSwitched]);
 
   return (
-    <div className="px-5 pb-2 flex flex-row justify-center align-middle">
-      <Card hoverable style={{ width: "100%", height: "70%" }}>
+    <div className="px-5 pb-2 flex flex-row justify-center align-middle z-0">
+      <Card
+        hoverable
+        style={{ width: "100%", height: "70%" }}
+        onClick={() => props.setSelectedWidget(props.widget)}
+      >
         <div className="m-2 grid grid-cols-9">
-          {/* TODO: use icon based on type */}
-          <InsertRowBelowOutlined style={{ fontSize: "20px" }} />
-          <div className="col-span-4">{props.widget.pattern}</div>
-          <div className="col-span-2">
-            <Switch
-              checked={isSwitched}
-              checkedChildren="Hiện"
-              unCheckedChildren="Ẩn"
-              style={{ borderColor: "black", backgroundColor: switchColor }}
-              onChange={onChangeSwitch}
+          <WidgetTypeIcon
+            type={props.widget.type}
+            element={props.widget.element}
+          />
+
+          {/* revise this */}
+          <div className="col-span-4">{props.widget._id}</div>
+          <div className="col-span-2 z-10" onClick={(e) => e.stopPropagation()}>
+            <CustomSwitch
+              isSwitched={isSwitched}
+              setIsSwitched={setIsSwitched}
             />
           </div>
-          <div className="col-span-1">
+          {/* TODO: replace w delete foo */}
+          <div className="col-span-1" onClick={(e) => e.stopPropagation()}>
             <DeleteOutlined
               onClick={handleDeleteModal}
               style={{ fontSize: "20px" }}
@@ -139,24 +140,6 @@ const SortableItem: React.ComponentClass<
       </Card>
     </div>
   );
-  //   return (
-  //     <div className="flex flex-row items-center my-2 p-2 bg-gray-100 rounded mx-auto max-w-3xl">
-  //       <div className="flex-shrink-0 cursor-grab">
-  //         <DragHandle />
-  //       </div>
-
-  //       <div className="flex-1 max-w-64 mx-4">
-  //         <div>{props.widget.pattern}</div>
-  //       </div>
-
-  //       <div className="flex flex-row space-x-4">
-  //         <div className="" onClick={handleEditModal}>
-  //           <MdOutlineModeEditOutline />
-  //         </div>
-  //         <div className="" onClick={handleDeleteModal}>
-  //           <RiDeleteBinLine color="red" />
-  //         </div>
-  //       </div>
 
   //       {/* Delete Modal */}
   //       <dialog className={`modal ${showDeleteModal ? "modal-open" : ""}`}>
@@ -181,8 +164,6 @@ const SortableItem: React.ComponentClass<
   //           <button onClick={handleDeleteModal}>close</button>
   //         </form>
   //       </dialog>
-  //     </div>
-  //   );
 });
 
 const SortableList: React.ComponentClass<
@@ -208,11 +189,16 @@ const SortableList: React.ComponentClass<
               widget={value}
               setWidgets={props.setWidgets}
               handleUpdate={handleUpdate}
+              setSelectedWidget={props.setSelectedWidget}
+              element={undefined}
               _id={""}
-              pattern={""}
-              type={""}
+              type={WidgetCategoryType.PRODUCT}
               order={0}
               visibility={true}
+              // _id={value._id}
+              // type={value.type}
+              // order={value.order}
+              // visibility={value.visibility}
             />
           ))}
       </ul>
