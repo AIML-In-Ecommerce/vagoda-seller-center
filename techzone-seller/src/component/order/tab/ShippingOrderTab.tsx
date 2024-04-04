@@ -85,7 +85,6 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
-
     const dataColumns: TableColumnType<ShippingOrder>[] = 
     [
         {

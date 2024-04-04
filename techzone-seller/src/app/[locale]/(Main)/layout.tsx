@@ -10,6 +10,7 @@ import { NextIntlClientProvider, useMessages } from "next-intl";
 import { ReactNode } from "react";
 import { Content } from "antd/es/layout/layout";
 import SidebarContentReactiveLayout from "@/component/SidebarContentReactiveLayout";
+import SocketProvider from "@/socket/SocketProvider";
 
 // import UserLayout from "@/component/UserLayout";
 
@@ -37,23 +38,25 @@ export default function RootLayout({
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
       <body className="w-full">
+      <SocketProvider>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* <AuthProvider> */}
           {/* <UserLayout children={children} locale={locale} /> */}
           {/* <UserLayout locale={locale}>{children}</UserLayout> */}
           {/* </AuthProvider> */}
           <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-            <div className="fixed w-full ">
-              {" "}
-              <Navbar />
-            </div>
-            <div className="flex mt-16">
-              <SidebarContentReactiveLayout>
-                {children}
-              </SidebarContentReactiveLayout>
-            </div>
+              <div className="fixed w-full ">
+                {" "}
+                <Navbar />
+              </div>
+              <div className="flex mt-16">
+                <SidebarContentReactiveLayout>
+                  {children}
+                </SidebarContentReactiveLayout>
+              </div>
           </div>
         </NextIntlClientProvider>
+        </SocketProvider>
       </body>
     </html>
   );
