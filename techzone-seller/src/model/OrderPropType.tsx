@@ -27,6 +27,12 @@ export interface PromotionInOrder
     expiredDate: EpochTimeStamp
 }
 
+export const PromotionTypeConvention = 
+{
+    PERCENTAGE: "PERCENTAGE",
+    DIRECT_PRICE: "DIRECT_PRICE" 
+}
+
 export interface OrderStatus
 {
     status: string,

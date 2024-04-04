@@ -62,6 +62,16 @@ interface ShippingOrder
 
 const filterPoolSetting = ShippingOrderPoolSetting
 
+const OrderValueTooltip = 
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Giá trị = Tổng giá trị đơn hàng + Phí ship - Giảm giá
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Doanh thu = Giá trị - Phí nền tảng
+    </Typography.Text>
+</Flex>
+
 export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 {
     const shippingTabFilterPoolKey = "shipping-tab-filter-pool-key"
@@ -144,7 +154,7 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
             }
         },
         {
-            title: "Thời gian vận chuyển dự kiến",
+            title: "Thời gian nhận vận chuyển",
             dataIndex: "time",
             render: (value:any, record: ShippingOrder) =>
             {
@@ -154,20 +164,20 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
                     <Flex vertical className="w-full" justify="start" align="start" gap={4}>
                         <Flex align="center">
                             <Tag color={"blue-inverse"}>
-                                Dự kiến
+                                Bắt đầu
                             </Tag>
                             <Typography.Text>
                                 {record.time.orderTime}
                             </Typography.Text>
                         </Flex>
-                        <Flex align="center">
+                        {/* <Flex align="center">
                             <Tag color={"orange-inverse"}>
                                 Hạn
                             </Tag>
                             <Typography.Text>
                                 {record.time.deadline}
                             </Typography.Text>
-                        </Flex>
+                        </Flex> */}
                     </Flex>
                 )
             }
@@ -175,7 +185,7 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
         {
             title: <Flex align="center" gap={4}>
                     <Typography.Text>Giá trị</Typography.Text>
-                    <Tooltip title={"Giá trị = Tổng giá trị đơn hàng - Giảm giá\n Doanh thu = Giá trị - phí nền tảng"}>
+                    <Tooltip title={OrderValueTooltip}>
                         <BiInfoCircle />
                     </Tooltip>
                 </Flex>,

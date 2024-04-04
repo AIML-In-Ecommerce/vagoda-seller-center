@@ -36,7 +36,7 @@ function filterFunction(dataSource: OrderPropType[], targetData: string)
 
 function getTagLabel(params: string)
 {
-    let result = "Dự kiến vào ".concat(params)
+    let result = "Vào ".concat(params)
 
     return result
 }

@@ -61,6 +61,16 @@ interface ProcessingOrder
 
 }
 
+const OrderValueTooltip = 
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Giá trị = Tổng giá trị đơn hàng + Phí ship - Giảm giá
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Doanh thu = Giá trị - Phí nền tảng
+    </Typography.Text>
+</Flex>
+
 const filterPoolSetting = ProcessingOrderPoolSetting
 
 export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps)
@@ -145,7 +155,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
             }
         },
         {
-            title: "Thời gian lấy hàng dự kiến",
+            title: "Thời gian lấy hàng",
             dataIndex: "time",
             render: (value:any, record: ProcessingOrder) =>
             {
@@ -155,7 +165,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
                     <Flex vertical className="w-full" justify="start" align="start" gap={4}>
                         <Flex align="center">
                             <Tag color={"blue-inverse"}>
-                                Dự kiến
+                                Bắt đầu
                             </Tag>
                             <Typography.Text>
                                 {record.time.orderTime}
@@ -176,7 +186,7 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         {
             title: <Flex align="center" gap={4}>
                     <Typography.Text>Giá trị</Typography.Text>
-                    <Tooltip title={"Giá trị = Tổng giá trị đơn hàng - Giảm giá\n Doanh thu = Giá trị - phí nền tảng"}>
+                    <Tooltip title={OrderValueTooltip}>
                         <BiInfoCircle />
                     </Tooltip>
                 </Flex>,

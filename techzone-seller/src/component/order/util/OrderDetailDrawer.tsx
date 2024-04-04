@@ -1,7 +1,7 @@
 'use client'
 
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
-import { OrderPropType, OrderStatus, OrderStatusValues, ProductInOrder, PromotionInOrder } from "@/model/OrderPropType"
+import { OrderPropType, OrderStatus, OrderStatusValues, ProductInOrder, PromotionInOrder, PromotionTypeConvention } from "@/model/OrderPropType"
 import { Button, Card, Col, Divider, Drawer, Flex, Image, Row, Tag, Timeline, TimelineItemProps, Typography } from "antd"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -29,7 +29,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
     {
         let result: any[] = []
 
-        statusList.forEach((value: OrderStatus, index: number) =>
+        statusList.forEach((value: OrderStatus) =>
         {
             let label = ""
             let color = "blue"
@@ -90,6 +90,44 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
         return result
     }
 
+    function getCurrentOrderStatus(orderStatus: OrderStatus[])
+    {
+        const latestStatus = orderStatus[orderStatus.length - 1].status
+
+        if(latestStatus == OrderStatusValues.PENDING)
+        {
+            return "Chờ xác nhận"
+        }
+        else if(latestStatus == OrderStatusValues.PROCESSING)
+        {
+            return "Chờ xử lý"
+        }
+        else if(latestStatus == OrderStatusValues.SHIPPING)
+        {
+            return "Chờ vận chuyển"
+        }
+        else if(latestStatus == OrderStatusValues.COMPLETED)
+        {
+            return "Đã giao"
+        }
+        else if(latestStatus == OrderStatusValues.CANCELLED)
+        {
+            return "Đã hủy"
+        }
+    }
+
+    function getDiscountType(type: string)
+    {
+        if(type == PromotionTypeConvention.DIRECT_PRICE)
+        {
+            return "Giảm trực tiếp"
+        }
+        else if(type == PromotionTypeConvention.PERCENTAGE)
+        {
+            return "Giảm theo %"
+        }
+    }
+
     useEffect(() =>
     {
         if(orderProps == null)
@@ -118,7 +156,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                             Trạng thái:
                         </Typography.Text>
                         <Tag className="max-w-1/2">
-                            {orderProps.orderStatus[orderProps.orderStatus.length - 1].status}
+                            {getCurrentOrderStatus(orderProps.orderStatus)}
                         </Tag>
                     </Flex>
                     <Timeline className="w-full" mode="left" items={orderStatusTimeline}/>
@@ -229,7 +267,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                                             <Typography.Text>{currencyFormater(MyLocaleRef.VN, promotion.discountValue)}</Typography.Text>
                                         </Col>
                                         <Col span={4}>
-                                            <Typography.Text>{promotion.discountType}</Typography.Text>
+                                            <Typography.Text>{getDiscountType(promotion.discountType)}</Typography.Text>
                                         </Col>
                                     </Row>
                                 </>

@@ -61,6 +61,15 @@ interface CompletedOrder
 
 }
 
+const OrderValueTooltip = 
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Giá trị = Tổng giá trị đơn hàng + Phí ship - Giảm giá
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Doanh thu = Giá trị - Phí nền tảng
+    </Typography.Text>
+</Flex>
 
 const filterPoolSetting = CompletedOrderPoolSetting
 
@@ -156,7 +165,7 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
                     <Flex vertical className="w-full" justify="start" align="start" gap={4}>
                         <Flex align="center">
                             <Tag color={"blue-inverse"}>
-                                Dự kiến
+                                Giao lúc
                             </Tag>
                             <Typography.Text>
                                 {record.time.orderTime}
@@ -164,7 +173,7 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
                         </Flex>
                         <Flex align="center">
                             <Tag color={"orange-inverse"}>
-                                Hạn
+                                Hạn xác nhận
                             </Tag>
                             <Typography.Text>
                                 {record.time.deadline}
@@ -177,7 +186,7 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
         {
             title: <Flex align="center" gap={4}>
                     <Typography.Text>Giá trị</Typography.Text>
-                    <Tooltip title={"Giá trị = Tổng giá trị đơn hàng - Giảm giá\n Doanh thu = Giá trị - phí nền tảng"}>
+                    <Tooltip title={OrderValueTooltip}>
                         <BiInfoCircle />
                     </Tooltip>
                 </Flex>,

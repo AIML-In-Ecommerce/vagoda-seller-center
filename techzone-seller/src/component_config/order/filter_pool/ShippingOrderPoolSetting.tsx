@@ -5,15 +5,15 @@ import OrderShippingFilter from "@/component/order/util/OrderShippingFilter";
 import { OrderShippingOptions } from "../props/OrderShipppingFilter";
 import OrderLateConfirmFilter from "@/component/order/util/OrderLateConfirmFilter";
 import { OrderLateConfirmFilterOption } from "../props/OrderLateConfirmFilter";
-import OrderStatusFilter from "@/component/order/util/OrderStatusFilter";
-import { OrderStatusFilterOptions } from "../props/OrderStatusFilter";
 import { OrderDatePickerFilterOption } from "../props/OrderDatePickerFilter";
 import OrderDatePickerFilter from "@/component/order/util/OrderDatePickerFilter";
+import OrderTimeFilter from "@/component/order/util/OrderTimeFilter";
+import { OrderTimeOptions } from "../props/OrderTimeFilter";
 
 
 const OrderSearchOptionsSetting = OrderSearchOptions
 const OrderShippingOptionSetting = OrderShippingOptions
-const OrderStatusFilterOptionSetting = OrderStatusFilterOptions
+const OrderTimeFilterOptionSetting = OrderTimeOptions
 const OrderLateConfirmOptionSetting = OrderLateConfirmFilterOption
 const OrderDatePickerOptionSetting = OrderDatePickerFilterOption
 
@@ -33,18 +33,18 @@ export const ShippingOrderPoolSetting: FilterSetting[] =
     },
     {
         key: "ft-02",
-        defaultIndex: 0,
-        filter: OrderStatusFilter,
-        options: OrderStatusFilterOptionSetting
+        defaultIndex: 3,
+        filter: OrderTimeFilter,
+        options: OrderTimeFilterOptionSetting
     },
     {
-        key: "ft-03",
+        key: "ft-02",
         defaultIndex: 0,
         filter: OrderDatePickerFilter,
         options: OrderDatePickerOptionSetting
     },
     {
-        key: "ft-04",
+        key: "ft-03",
         defaultIndex: 0,
         filter: OrderLateConfirmFilter,
         options: OrderLateConfirmOptionSetting
