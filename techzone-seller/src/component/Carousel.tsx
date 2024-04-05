@@ -1,13 +1,44 @@
 "use client";
-import { Carousel } from 'antd';
+import { Carousel, Col, Row } from 'antd';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import styled from 'styled-components';
 
-interface ArrowProps {
-    color?: string;
-    height?: number;
-    margin?: number;
-    //...
+
+const SampleNextArrow = (props: any) => {
+    const { className, style, onClick, icon } = props
+    return (
+        <div
+            className={className}
+            style={{
+                ...style, color: 'white',
+                fontSize: '32px',
+                lineHeight: '1.5715',
+                'margin-right': '50px',
+            }}
+            onClick={onClick}
+        >
+            {icon ?? <FaAngleRight />}
+        </div>
+    )
+}
+
+const SamplePrevArrow = (props: any) => {
+    const { className, style, onClick, icon } = props
+    return (
+        <div
+            className={className}
+            style={{
+                ...style, color: 'white',
+                fontSize: '32px',
+                lineHeight: '1.5715',
+                'margin-left': '40px',
+            }}
+            onClick={onClick}
+        >
+            {icon ?? <FaAngleLeft />}
+
+        </div>
+    )
 }
 
 interface CarouselProps {
@@ -15,42 +46,58 @@ interface CarouselProps {
     arrows?: boolean;
     prevArrow?: JSX.Element;
     nextArrow?: JSX.Element;
-    arrowProps?: ArrowProps;
+    prevArrowStyles?: any;
+    nextArrowStyles?: any;
     contents: any;
 }
 
-export default function CustomCarousel(props: CarouselProps) {
-    const CarouselWrapper = styled.div`
+const CarouselWrapper = styled.div`
+    .ant-carousel {
+        .slick-next {
+        &::before {
+            content: '';
+        }
+        }
+        .slick-prev { 
+        &::before {
+            content: '';
+        }
+        }
+    }
     .ant-carousel .slick-prev,
+    .ant-carousel .slick-next {
+        color: unset;
+        font-size: unset;
+        z-index: 2;
+    }
+
     .ant-carousel .slick-prev:hover,
-    .ant-carousel .slick-prev:focus {
-        font-size: 20px;
-        height: ${props.arrowProps?.height ?? 30}px;
-        left: ${props.arrowProps?.margin ?? 10}px;
-        z-index: 2;
-        color: ${props.arrowProps?.color ?? 'black'};
-    }
-
-    .ant-carousel .slick-next,
     .ant-carousel .slick-next:hover,
+    .ant-carousel .slick-prev:focus,
     .ant-carousel .slick-next:focus {
-        font-size: 20px;
-        height: ${props.arrowProps?.height ?? 30}px;
-        right: ${props.arrowProps?.margin ?? 10}px;
+        color: unset;
         z-index: 2;
-        color: ${props.arrowProps?.color ?? 'black'};
-    }
-    `;
+}
+`;
 
+
+export default function CustomCarousel(props: CarouselProps) {
+    const settings = {
+        nextArrow: <SampleNextArrow icon={props.nextArrow} style={props.nextArrowStyles}/>,
+        prevArrow: <SamplePrevArrow icon={props.prevArrow} style={props.prevArrowStyles}/>,
+    }
     return (
-        <CarouselWrapper>
-            <Carousel
-                autoplay={props.autoplay ?? false}
-                arrows={props.arrows ?? false}
-                prevArrow={props.prevArrow ?? <FaAngleLeft />}
-                nextArrow={props.nextArrow ?? <FaAngleRight />}>
-                {props.contents}
-            </Carousel>
-        </CarouselWrapper>
+        <div>
+            <CarouselWrapper>
+                <Row justify="center">
+                    <Col span={24}>
+                        <Carousel autoplay={props.autoplay ?? false}
+                            arrows={props.arrows ?? false} {...settings}>
+                            {props.contents}
+                        </Carousel>
+                    </Col>
+                </Row>
+            </CarouselWrapper>
+        </div>
     )
 }
