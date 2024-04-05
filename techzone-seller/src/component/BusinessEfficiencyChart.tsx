@@ -33,7 +33,9 @@ ChartJS.register(
 
 interface BEChartProps {
     filterBy: string,
-    dateRange: (Date | null)[];
+    dateRange: (Date | null)[],
+    setTotalOrderQuantity: (total: number) => void,
+    setTotalRevenue: (total: number) => void,
 }
 
 interface Product {
@@ -340,6 +342,11 @@ const getTotalPricesInRange = (products: Product[], startDate: Date, endDate: Da
     return totalPrices;
 };
 
+function calculateTotals(array: number[]) {
+    return array.reduce((total, current) => total + current, 0);
+}
+
+
 export function BEChart(props: BEChartProps) {
     // Generate 1000 random products
     const [products, setProducts] = useState<Product[]>([]);
@@ -371,10 +378,12 @@ export function BEChart(props: BEChartProps) {
 
     const quantityData = useMemo(() => {
         const result = getTotalQuantitiesInRange(products, dateFrom, dateTo, filterBy);
+        props.setTotalOrderQuantity(calculateTotals(result));
         return result;
     }, [products, dateFrom, dateTo, filterBy]);
     const revenueData = useMemo(() => {
         const result = getTotalPricesInRange(products, dateFrom, dateTo, filterBy);
+        props.setTotalRevenue(calculateTotals(result));
         return result;
     }, [products, dateFrom, dateTo, filterBy]);
 

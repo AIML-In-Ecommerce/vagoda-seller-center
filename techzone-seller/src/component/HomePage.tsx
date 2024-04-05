@@ -1,6 +1,6 @@
 "use client";
 import { formatDate, getPreviousWeekDateRange } from "@/utils/DateFormatter"
-import { Rate, Empty, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps } from "antd"
+import { Rate, Empty, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Divider } from "antd"
 import React, { useEffect, useState } from "react"
 import { FaRegCalendarAlt, FaStar, FaBookmark, FaAngleRight, FaRegQuestionCircle } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
@@ -10,8 +10,6 @@ import dayjs from 'dayjs';
 import { TbFilter } from "react-icons/tb";
 import { FaCircleLeft, FaCircleRight } from "react-icons/fa6";
 
-
-
 const bannerContent = [
     { title: 'Quản lý đơn hàng', description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi." },
     { title: 'Tạo sản phẩm', description: "Cửa hàng của bạn đã sẵn sàng để nhận các đơn hàng. Hãy bắt đầu tạo sản phẩm nào!" },
@@ -20,6 +18,69 @@ const bannerContent = [
     { title: 'Xem công cụ khuyến mãi', description: "Tăng doanh số bằng cách sử dụng các công cụ khuyến mãi và quảng cáo." },
     { title: 'Thiết kế gian hàng', description: "Tạo ra một gian hàng độc đáo và chuyên nghiệp để thu hút khách hàng." },
 ];
+
+const qosComment = [
+    {
+        score: [5],
+        rating: "Xuất sắc",
+        ratingColor: "#4CAF50",
+        message: {
+            firstPart: "Tuyệt vời! Bạn đang xử lý đơn hàng",
+            highlightWord: "xuất sắc",
+            secondPart: "trong tuần vừa qua!",
+            content: "Hãy giữ vững phong độ để có thêm thật nhiều đánh giá 5 sao và nhận thêm nhiều đặc quyền từ Techzone nhé!"
+        }
+    },
+    {
+        score: [3, 4],
+        rating: "Tốt",
+        ratingColor: "#FFC107",
+        message: {
+            firstPart: "Bạn đang xử lý đơn hàng",
+            highlightWord: "khá tốt",
+            secondPart: ".",
+            content: "Tăng tốc độ thêm 1 chút xíu nữa để trở thành Nhà Bán xử lý đơn hàng xuất sắc và tối ưu tỷ lệ chuyển đổi nhé!"
+        }
+    },
+    {
+        score: [1, 2],
+        rating: "Chưa tốt",
+        ratingColor: "#F44336",
+        message: {
+            firstPart: "Ôi không… Hiệu suất vận hành của bạn đang",
+            highlightWord: "không ổn",
+            secondPart: ".",
+            content: "Hãy tập trung cải thiện tốc độ xử lý đơn hàng nhé!"
+        }
+    },
+    {
+        score: [0],
+        rating: "Tạm tắt gian hàng",
+        ratingColor: "#FF9800",
+        message: {
+            firstPart: "Rất tiếc! Techzone phải",
+            highlightWord: "tạm tắt gian hàng",
+            secondPart: "trong 7 ngày.",
+            content: "Hãy tham khảo các giải pháp cải thiện điểm số và chất lượng vận hành tại đây để sẵn sàng khi gian hàng mở cửa trở lại nhé!"
+        }
+    },
+    //   {
+    //     score: "Tạm tắt gian hàng (lần 2)",
+    //     rating: "Đây đã là lần thứ 2 bạn đạt điểm vận hành bằng 0!",
+    //     message: {
+    //       firstPart: "Tiki phải tạm tắt gian hàng trong 14 ngày.",
+    //       content: "Lưu ý: Sau 2 lần bị khóa gian do điểm vận hành, lần thứ 3 gian hàng của bạn sẽ bị khóa vĩnh viễn."
+    //     }
+    //   },
+    //   {
+    //     score: "Tạm tắt gian hàng (vĩnh viễn)",
+    //     rating: "Rất tiếc! Tiki phải tắt gian hàng hàng vĩnh viễn.",
+    //     message: {
+    //       firstPart: "Đây đã là lần thứ 3 bạn đạt điểm vận hành bằng 0!",
+    //       content: "Vì vậy, Tiki rất tiếc phải tắt gian hàng vĩnh viễn."
+    //     }
+    //   }
+]
 
 //Operational Efficiency
 interface OEProps {
@@ -165,7 +226,8 @@ const rangeDefaultsForFilter = (filterBy: string): [Dayjs, Dayjs] => {
 export default function HomePage() {
     const [filterValue, setFilterValue] = useState<string>('date');
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
-
+    const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
+    const [totalRevenue, setTotalRevenue] = useState<number>(0);
     const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
         return dates.map(item => {
             if (item === null) {
@@ -206,18 +268,19 @@ export default function HomePage() {
                 <div className="col-start-1 col-span-4 mx-auto mt-10 w-10/12">
                     <CustomCarousel arrows={true}
                         autoplay={true}
-                        prevArrow={<FaCircleLeft/>} 
-                        nextArrow={<FaCircleRight/>}
-                        prevArrowStyles={{
-                            color: 'black',
-                            fontSize: '36px',
-                            lineHeight: '1.5715'
-                        }}
-                        nextArrowStyles={{
-                            color: 'black',
-                            fontSize: '36px',
-                            lineHeight: '1.5715'
-                        }}
+                        prevArrow={<FaCircleLeft />}
+                        nextArrow={<FaCircleRight />}
+                        //does not change anything :(
+                        // prevArrowStyles={{
+                        //     color: 'black',
+                        //     fontSize: '36px',
+                        //     lineHeight: '1.5715'
+                        // }}
+                        // nextArrowStyles={{  
+                        //     color: 'black',
+                        //     fontSize: '36px',
+                        //     lineHeight: '1.5715'
+                        // }}
 
                         contents={
                             bannerContent.map((item, key) => {
@@ -241,13 +304,12 @@ export default function HomePage() {
                     <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div>
                 </div>
 
-
                 <div className="col-start-1 lg:col-span-3 col-span-4 mx-10 lg:mx-0 lg:col-start-4 lg:col-span-1 lg:row-span-4 lg:mt-10">
                     {/* <Affix offsetTop={100}> */}
                     <div className="flex flex-col">
                         <div className="border flex flex-col relative mx-5 rounded-xl shadow-lg">
-                            <div className="mt-10 mx-5 font-semibold text-lg">Điểm chất lượng vận hành</div>
-                            <div className="mx-5 flex flex=row gap-2 items-center text-sm">
+                            <div className="mt-10 sm:mt-5 mx-5 sm:text-center font-semibold text-lg">Điểm chất lượng vận hành</div>
+                            <div className="mx-5 sm:mt-2 flex sm:justify-center flex-row gap-2 items-center text-sm">
                                 <FaRegCalendarAlt />
                                 <div>Tuần trước {
                                     getPreviousWeekDateRange()
@@ -255,15 +317,22 @@ export default function HomePage() {
                             </div>
                             <div className="absolute top-2 left-2.5 z-[1] text-white"><FaStar /></div>
                             <div className="absolute top-0 left-0 text-4xl z-[0] text-green-500"><FaBookmark /></div>
-                            <div className="mx-auto my-5 flex gap-5 items-center">
+                            <div className="mx-auto my-5 flex lg:flex-row flex-col gap-5 items-center">
                                 <Rate value={qosScore} count={5} disabled allowHalf />
                                 <div><span className="text-yellow-500 text-lg font-bold">{qosScore} </span>/ 5.0 sao</div>
                             </div>
-                            <div className="bg-green-200 text-black border border-green-400 p-4 mx-10 rounded-xl text-sm mb-5">
-                                <div className="font-semibold">Tuyệt vời! Bạn đang xử lý đơn hàng <span className="font-bold text-green-500">xuất sắc</span> trong tuần vừa qua!</div>
-                                <div>
-                                    Hãy giữ vững phong độ để có thêm thật nhiều đánh giá 5 sao và nhận thêm nhiều đặc quyền từ Techzone nhé!</div>
-                            </div>
+                            {
+                                qosComment.map(item => {
+                                    if (!(item.score.includes(Math.floor(qosScore)))) return null;
+                                    return (<div>
+                                        <div className={`bg-[${item.ratingColor}] text-black border border-[${item.ratingColor}] p-4 lg:mx-5 mx-10 rounded-xl text-sm mb-5`}>
+                                            <div className="font-semibold">{item.message.firstPart} <span className={`font-bold text-[${item.ratingColor}]`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
+                                            <div className="font-light">
+                                                {item.message.content}</div>
+                                        </div>
+                                    </div>)
+                                })
+                            }
                             <div className="text-sky-500 flex flex-row mx-auto items-center mb-5">
                                 <span>Xem chi tiết</span>
                                 <span><FaAngleRight /></span>
@@ -350,11 +419,28 @@ export default function HomePage() {
                                         />
                                     )}
                                 </div>
-
+                                <div className="flex lg:flex-col flex-row justify-between">
+                                    <div>
+                                        <div className="mt-8 w-14 h-1 bg-red-500"></div>
+                                        <div className="font-semibold mt-2 text-lg">Đơn hàng</div>
+                                        <div className="mt-1 mr-3 font-light text-2xl">{totalOrderQuantity}</div>
+                                    </div>
+                                    <div>
+                                        <div className="mt-3 sm:mt-8 w-14 h-1 bg-teal-500"></div>
+                                        <div className="font-semibold mt-2 text-lg">Doanh số</div>
+                                        <div className="mt-1 mr-3 font-light text-2xl">
+                                            {totalRevenue.toLocaleString('vi-VN',
+                                                { style: 'currency', currency: 'VND' })
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div className="lg:w-3/5">
                                 <BEChart filterBy={filterValue}
-                                    dateRange={Array.from(DayjsToDate(selectedDates))} />
+                                    dateRange={Array.from(DayjsToDate(selectedDates))}
+                                    setTotalOrderQuantity={setTotalOrderQuantity}
+                                    setTotalRevenue={setTotalRevenue} />
                             </div>
                         </div>
                     </div>
