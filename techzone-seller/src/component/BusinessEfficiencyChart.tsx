@@ -465,7 +465,7 @@ export function BEChart(props: BEChartProps) {
 
 
     return (
-        <div id="chart-container" className="w-[100%] h-[45vh]">
+        <div id="chart-container" className="w-[100%] h-[100%]">
             <Chart type='bar' data={data} options={options} />
         </div>
     );

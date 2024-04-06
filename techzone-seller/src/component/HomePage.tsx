@@ -2,13 +2,14 @@
 import { formatDate, getPreviousWeekDateRange } from "@/utils/DateFormatter"
 import { Rate, Empty, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Divider } from "antd"
 import React, { useEffect, useState } from "react"
-import { FaRegCalendarAlt, FaStar, FaBookmark, FaAngleRight, FaRegQuestionCircle } from "react-icons/fa"
+import { FaRegCalendarAlt, FaStar, FaBookmark, FaRegQuestionCircle } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
 import CustomCarousel from "./Carousel"
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { TbFilter } from "react-icons/tb";
 import { FaCircleLeft, FaCircleRight } from "react-icons/fa6";
+import { SlArrowRight } from "react-icons/sl";
 
 const bannerContent = [
     { title: 'Quản lý đơn hàng', description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi." },
@@ -23,7 +24,6 @@ const qosComment = [
     {
         score: [5],
         rating: "Xuất sắc",
-        ratingColor: "#4CAF50",
         message: {
             firstPart: "Tuyệt vời! Bạn đang xử lý đơn hàng",
             highlightWord: "xuất sắc",
@@ -34,7 +34,6 @@ const qosComment = [
     {
         score: [3, 4],
         rating: "Tốt",
-        ratingColor: "#FFC107",
         message: {
             firstPart: "Bạn đang xử lý đơn hàng",
             highlightWord: "khá tốt",
@@ -45,7 +44,6 @@ const qosComment = [
     {
         score: [1, 2],
         rating: "Chưa tốt",
-        ratingColor: "#F44336",
         message: {
             firstPart: "Ôi không… Hiệu suất vận hành của bạn đang",
             highlightWord: "không ổn",
@@ -56,7 +54,6 @@ const qosComment = [
     {
         score: [0],
         rating: "Tạm tắt gian hàng",
-        ratingColor: "#FF9800",
         message: {
             firstPart: "Rất tiếc! Techzone phải",
             highlightWord: "tạm tắt gian hàng",
@@ -93,8 +90,6 @@ interface OEProps {
     rating?: number;
     totalRatings?: number;
 }
-
-const qosScore = 4.3;
 
 const columns: TableColumnsType<OEProps> = [
     {
@@ -222,12 +217,37 @@ const rangeDefaultsForFilter = (filterBy: string): [Dayjs, Dayjs] => {
             filterBy === 'quarter' ? [dayjs().startOf('year'), dayjs()] : [dayjs().subtract(5, 'year'), dayjs()]
 }
 
+const handleRatingColor = (rating: number, intensity: number, prefix: string) => {
+    let actualRating = Math.floor(rating);
+    let color: string;
+    switch (actualRating) {
+        case 0:
+            color = 'orange';
+            break;
+        case 1: case 2:
+            color = 'red';
+            break;
+        case 3: case 4:
+            color = 'amber';
+            break;
+        case 5:
+            color = 'green';
+            break;
+        default:
+            color = 'gray';
+            break;
+    }
+    return `${prefix}-${color}-${intensity}`;
+}
+
 //HomePage 
 export default function HomePage() {
     const [filterValue, setFilterValue] = useState<string>('date');
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
     const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
     const [totalRevenue, setTotalRevenue] = useState<number>(0);
+    const [qosScore, setQosScore] = useState<number>(5);
+
     const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
         return dates.map(item => {
             if (item === null) {
@@ -263,13 +283,13 @@ export default function HomePage() {
 
     return (
         <React.Fragment>
-            <div className="container grid grid-cols-4">
+            <div className="container flex flex-col px-20 mx-auto">
                 {/* slider */}
-                <div className="col-start-1 col-span-4 mx-auto mt-10 w-10/12">
+                <div className="mt-10 w-[100%] ">
                     <CustomCarousel arrows={true}
                         autoplay={true}
-                        prevArrow={<FaCircleLeft />}
-                        nextArrow={<FaCircleRight />}
+                        // prevArrow={<FaCircleLeft />}
+                        // nextArrow={<FaCircleRight />}
                         //does not change anything :(
                         // prevArrowStyles={{
                         //     color: 'black',
@@ -297,171 +317,177 @@ export default function HomePage() {
                         }
                     />
                 </div>
+                <div className="grid grid-cols-4 gap-x-5">
+                    {/* Thông tin đơn hàng */}
+                    <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 flex flex-col gap-5 my-10">
+                        <div className="font-semibold text-xl">Đơn hàng</div>
+                        <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div>
+                    </div>
 
-                {/* Thông tin đơn hàng */}
-                <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 mx-20 flex flex-col gap-5 my-10">
-                    <div className="font-semibold text-xl">Đơn hàng</div>
-                    <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div>
-                </div>
-
-                <div className="col-start-1 lg:col-span-3 col-span-4 mx-10 lg:mx-0 lg:col-start-4 lg:col-span-1 lg:row-span-4 lg:mt-10">
-                    {/* <Affix offsetTop={100}> */}
-                    <div className="flex flex-col">
-                        <div className="border flex flex-col relative mx-5 rounded-xl shadow-lg">
-                            <div className="mt-10 sm:mt-5 mx-5 sm:text-center font-semibold text-lg">Điểm chất lượng vận hành</div>
-                            <div className="mx-5 sm:mt-2 flex sm:justify-center flex-row gap-2 items-center text-sm">
-                                <FaRegCalendarAlt />
-                                <div>Tuần trước {
-                                    getPreviousWeekDateRange()
-                                }</div>
+                    <div className="col-start-1 lg:col-span-3 col-span-4 lg:mx-0 lg:col-start-4 lg:col-span-1 lg:row-span-4 lg:mt-10">
+                        {/* <Affix offsetTop={100}> */}
+                        <div className="flex flex-col">
+                            <div className="border flex flex-col relative ml-5 rounded-xl shadow-lg">
+                                <div className="mt-10 sm:mt-5 mx-5 sm:text-center font-semibold text-lg">Điểm chất lượng vận hành</div>
+                                <div className="mx-5 sm:mt-2 flex sm:justify-center flex-row gap-2 items-center sm:text-sm lg:text-xs">
+                                    <FaRegCalendarAlt />
+                                    <div>Tuần trước {
+                                        getPreviousWeekDateRange()
+                                    }</div>
+                                </div>
+                                <div className="absolute top-2 left-2.5 z-[1] text-white"><FaStar /></div>
+                                <div className={`absolute top-0 left-0 text-4xl z-[0] ${handleRatingColor(qosScore, 500, "text")}`}><FaBookmark /></div>
+                                <div className="mx-auto my-5 flex lg:flex-row flex-col gap-5 items-center">
+                                    <Rate value={qosScore} count={5} disabled allowHalf />
+                                    <div><span className="text-yellow-500 text-lg font-bold">{qosScore} </span>/ 5.0 sao</div>
+                                </div>
+                                {
+                                    qosComment.map(item => {
+                                        if (!(item.score.includes(Math.floor(qosScore)))) return null;
+                                        return (<div>
+                                            <div className={`${handleRatingColor(qosScore, 200, "bg")} text-black border ${handleRatingColor(qosScore, 500, "border")} p-4 lg:mx-5 mx-10 rounded-xl text-sm mb-5`}>
+                                                <div className="font-semibold">{item.message.firstPart} <span className={`${handleRatingColor(qosScore, 500, "text")} font-bold`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
+                                                <div className="font-light">
+                                                    {item.message.content}</div>
+                                            </div>
+                                        </div>)
+                                    })
+                                }
+                                <a className="text-sky-500 flex flex-row mx-auto items-center mb-5 gap-1">
+                                    <span>Xem chi tiết</span>
+                                    <span><SlArrowRight /></span>
+                                </a>
                             </div>
-                            <div className="absolute top-2 left-2.5 z-[1] text-white"><FaStar /></div>
-                            <div className="absolute top-0 left-0 text-4xl z-[0] text-green-500"><FaBookmark /></div>
-                            <div className="mx-auto my-5 flex lg:flex-row flex-col gap-5 items-center">
-                                <Rate value={qosScore} count={5} disabled allowHalf />
-                                <div><span className="text-yellow-500 text-lg font-bold">{qosScore} </span>/ 5.0 sao</div>
-                            </div>
-                            {
-                                qosComment.map(item => {
-                                    if (!(item.score.includes(Math.floor(qosScore)))) return null;
-                                    return (<div>
-                                        <div className={`bg-[${item.ratingColor}] text-black border border-[${item.ratingColor}] p-4 lg:mx-5 mx-10 rounded-xl text-sm mb-5`}>
-                                            <div className="font-semibold">{item.message.firstPart} <span className={`font-bold text-[${item.ratingColor}]`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
-                                            <div className="font-light">
-                                                {item.message.content}</div>
-                                        </div>
-                                    </div>)
-                                })
-                            }
-                            <div className="text-sky-500 flex flex-row mx-auto items-center mb-5">
-                                <span>Xem chi tiết</span>
-                                <span><FaAngleRight /></span>
+                            <div className="border flex flex-col relative mt-10 ml-5 rounded-xl shadow-lg">
+                                <div className="text-center my-5 font-semibold text-xl">Thông báo!</div>
+                                <div> <Empty description={"Không có thông báo mới!"} /></div>
+                                <a className="text-sky-500 flex flex-row mx-auto items-center my-5 gap-1">
+                                    <span>Xem tất cả</span>
+                                    <span><SlArrowRight /></span>
+                                </a>
                             </div>
                         </div>
-                        <div className="border flex flex-col relative mt-10 mx-5 rounded-xl shadow-lg">
-                            <div className="text-center my-5 font-semibold text-xl">Thông báo!</div>
-                            <div> <Empty description={"Không có thông báo mới!"} /></div>
-                            <div className="text-sky-500 flex flex-row mx-auto items-center my-5">
-                                <span>Xem tất cả</span>
-                                <span><FaAngleRight /></span>
+                        {/* </Affix> */}
+                    </div>
+
+                    {/* Hiệu quả kinh doanh */}
+                    <div className="col-start-1 lg:col-span-3 col-span-4 mt-10">
+                        <div className="flex flex-col container">
+                            <div className="flex flex-row justify-between">
+                                <div className="font-semibold text-xl flex flex-col lg:flex-row">
+                                    <div>Hiệu quả kinh doanh</div>
+                                    {/* <div className="text-base font-normal lg:mx-2 self-center">
+                                    {selectedDates[0]?.diff(selectedDates[1])}
+                                    {filterValue === 'date' ? "ngày" :
+                                        filterValue === 'month' ? "tháng" :
+                                            filterValue === 'quarter' ? "quý" : "năm"
+                                    } qua: {}</div> */}
+                                </div>
+                                <a className="font-medium text-sky-500 flex flex-row items-center gap-1">
+                                    <span>Xem chi tiết</span>
+                                    <span><SlArrowRight /></span>
+                                </a>
+                            </div>
+                            <div className="flex lg:flex-row mt-5 flex-col relative">
+                                <div className="lg:w-2/5 flex-col flex">
+                                    <div className="flex flex-row items-center">
+                                        <div className="mr-2 text-2xl"><TbFilter /></div>
+                                        <div className="mr-5 text-semibold">Lọc</div>
+                                        <Select
+                                            defaultValue="date"
+                                            style={{ width: 120 }}
+                                            onChange={(value: string) => { handleFilterChange(value) }}
+                                            options={[
+                                                { value: 'date', label: 'Theo Ngày' },
+                                                { value: 'month', label: 'Theo Tháng' },
+                                                { value: 'quarter', label: 'Theo Quý' },
+                                                { value: 'year', label: 'Theo Năm' },
+                                            ]}
+                                        />
+                                    </div>
+                                    <div className="mt-5">
+                                        {filterValue === 'date' && (
+                                            <RangePicker
+                                                picker="date"
+                                                defaultValue={[dayjs().subtract(6, 'day'), dayjs()]}
+                                                value={selectedDates}
+                                                onChange={onRangeChange}
+                                                maxDate={dayjs(new Date())}
+                                                format="DD/MM/YYYY"
+                                            />
+                                        )}
+                                        {filterValue === 'month' && (
+                                            <RangePicker
+                                                picker="month"
+                                                value={selectedDates}
+                                                onChange={onRangeChange}
+                                                maxDate={dayjs(new Date())}
+                                                format="MM/YYYY"
+                                            />
+                                        )}
+                                        {filterValue === 'quarter' && (
+                                            <RangePicker
+                                                picker="quarter"
+                                                value={selectedDates}
+                                                onChange={onRangeChange}
+                                                maxDate={dayjs(new Date())}
+                                                format={quarterFormat}
+                                            />
+                                        )}
+                                        {filterValue === 'year' && (
+                                            <RangePicker
+                                                picker="year"
+                                                value={selectedDates}
+                                                onChange={onRangeChange}
+                                                maxDate={dayjs(new Date())}
+                                                format="YYYY"
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="flex lg:flex-col flex-row justify-between">
+                                        <div>
+                                            <div className="mt-8 w-14 h-1 bg-red-500"></div>
+                                            <div className="font-semibold mt-2 text-lg">Đơn hàng</div>
+                                            <div className="mt-1 mr-3 font-light text-2xl">{totalOrderQuantity}</div>
+                                        </div>
+                                        <div>
+                                            <div className="mt-3 sm:mt-8 w-14 h-1 bg-teal-500"></div>
+                                            <div className="font-semibold mt-2 text-lg">Doanh số</div>
+                                            <div className="mt-1 mr-3 font-light text-2xl">
+                                                {totalRevenue.toLocaleString('vi-VN',
+                                                    { style: 'currency', currency: 'VND' })
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="lg:w-3/5">
+                                    <BEChart filterBy={filterValue}
+                                        dateRange={Array.from(DayjsToDate(selectedDates))}
+                                        setTotalOrderQuantity={setTotalOrderQuantity}
+                                        setTotalRevenue={setTotalRevenue} />
+                                </div>
                             </div>
                         </div>
                     </div>
-                    {/* </Affix> */}
-                </div>
 
-                {/* Hiệu quả kinh doanh */}
-                <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 mx-20">
-                    <div className="flex flex-col container">
+                    {/* Hiệu quả vận hành */}
+                    <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 ">
                         <div className="flex flex-row justify-between">
-                            <div className="font-semibold text-xl flex flex-col lg:flex-row">
-                                <div>Hiệu quả kinh doanh</div>
-                                <div className="text-base font-normal lg:mx-2 self-center">7 ngày qua: {getPreviousWeekDateRange()}</div>
-                            </div>
-                            <div className="font-medium text-sky-500 flex flex-row items-center">
+                            <div className="font-semibold text-xl">Hiệu quả vận hành</div>
+                            <a className="font-medium text-sky-500 flex flex-row items-center gap-1">
                                 <span>Xem chi tiết</span>
-                                <span><FaAngleRight /></span>
-                            </div>
-                        </div>
-                        <div className="flex lg:flex-row mt-5 flex-col relative">
-                            <div className="lg:w-2/5 flex-col flex">
-                                <div className="flex flex-row items-center">
-                                    <div className="mr-2 text-2xl"><TbFilter /></div>
-                                    <div className="mr-5 text-semibold">Lọc</div>
-                                    <Select
-                                        defaultValue="date"
-                                        style={{ width: 120 }}
-                                        onChange={(value: string) => { handleFilterChange(value) }}
-                                        options={[
-                                            { value: 'date', label: 'Theo Ngày' },
-                                            { value: 'month', label: 'Theo Tháng' },
-                                            { value: 'quarter', label: 'Theo Quý' },
-                                            { value: 'year', label: 'Theo Năm' },
-                                        ]}
-                                    />
-                                </div>
-                                <div className="mt-5">
-                                    {filterValue === 'date' && (
-                                        <RangePicker
-                                            picker="date"
-                                            defaultValue={[dayjs().subtract(6, 'day'), dayjs()]}
-                                            value={selectedDates}
-                                            onChange={onRangeChange}
-                                            maxDate={dayjs(new Date())}
-                                            format="DD/MM/YYYY"
-                                        />
-                                    )}
-                                    {filterValue === 'month' && (
-                                        <RangePicker
-                                            picker="month"
-                                            value={selectedDates}
-                                            onChange={onRangeChange}
-                                            maxDate={dayjs(new Date())}
-                                            format="MM/YYYY"
-                                        />
-                                    )}
-                                    {filterValue === 'quarter' && (
-                                        <RangePicker
-                                            picker="quarter"
-                                            value={selectedDates}
-                                            onChange={onRangeChange}
-                                            maxDate={dayjs(new Date())}
-                                            format={quarterFormat}
-                                        />
-                                    )}
-                                    {filterValue === 'year' && (
-                                        <RangePicker
-                                            picker="year"
-                                            value={selectedDates}
-                                            onChange={onRangeChange}
-                                            maxDate={dayjs(new Date())}
-                                            format="YYYY"
-                                        />
-                                    )}
-                                </div>
-                                <div className="flex lg:flex-col flex-row justify-between">
-                                    <div>
-                                        <div className="mt-8 w-14 h-1 bg-red-500"></div>
-                                        <div className="font-semibold mt-2 text-lg">Đơn hàng</div>
-                                        <div className="mt-1 mr-3 font-light text-2xl">{totalOrderQuantity}</div>
-                                    </div>
-                                    <div>
-                                        <div className="mt-3 sm:mt-8 w-14 h-1 bg-teal-500"></div>
-                                        <div className="font-semibold mt-2 text-lg">Doanh số</div>
-                                        <div className="mt-1 mr-3 font-light text-2xl">
-                                            {totalRevenue.toLocaleString('vi-VN',
-                                                { style: 'currency', currency: 'VND' })
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="lg:w-3/5">
-                                <BEChart filterBy={filterValue}
-                                    dateRange={Array.from(DayjsToDate(selectedDates))}
-                                    setTotalOrderQuantity={setTotalOrderQuantity}
-                                    setTotalRevenue={setTotalRevenue} />
-                            </div>
+                                <span><SlArrowRight /></span>
+                            </a>
                         </div>
                     </div>
-                </div>
-
-                {/* Hiệu quả vận hành */}
-                <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 mx-20">
-                    <div className="flex flex-row justify-between">
-                        <div className="font-semibold text-xl">Hiệu quả vận hành</div>
-                        <div className="font-medium text-sky-500 flex flex-row items-center">
-                            <span>Xem chi tiết</span>
-                            <span><FaAngleRight /></span>
+                    <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10  flex flex-col">
+                        <div className="border border-2 shadow-lg rounded-xl">
+                            <Table columns={columns} dataSource={OEDataSources} pagination={false} />
                         </div>
-                    </div>
-                </div>
-                <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10 mx-20 flex flex-col">
-                    <div className="border border-2 shadow-lg rounded-xl">
-                        <Table columns={columns} dataSource={OEDataSources} pagination={false} />
-                    </div>
-                    <div className="border border-2 shadow-lg rounded-xl">
-                        <Table columns={ratingColumn} dataSource={RatingDataSources} pagination={false} />
+                        <div className="border border-2 shadow-lg rounded-xl">
+                            <Table columns={ratingColumn} dataSource={RatingDataSources} pagination={false} />
+                        </div>
                     </div>
                 </div>
             </div>

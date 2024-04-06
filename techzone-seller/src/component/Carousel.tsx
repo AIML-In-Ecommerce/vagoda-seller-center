@@ -13,7 +13,7 @@ const SampleNextArrow = (props: any) => {
                 ...style, color: 'white',
                 fontSize: '32px',
                 lineHeight: '1.5715',
-                'margin-right': '50px',
+                marginRight: '50px'
             }}
             onClick={onClick}
         >
@@ -31,12 +31,11 @@ const SamplePrevArrow = (props: any) => {
                 ...style, color: 'white',
                 fontSize: '32px',
                 lineHeight: '1.5715',
-                'margin-left': '40px',
+                marginLeft: '40px',
             }}
             onClick={onClick}
         >
             {icon ?? <FaAngleLeft />}
-
         </div>
     )
 }
@@ -83,20 +82,16 @@ const CarouselWrapper = styled.div`
 
 export default function CustomCarousel(props: CarouselProps) {
     const settings = {
-        nextArrow: <SampleNextArrow icon={props.nextArrow} style={props.nextArrowStyles}/>,
-        prevArrow: <SamplePrevArrow icon={props.prevArrow} style={props.prevArrowStyles}/>,
+        nextArrow: <SampleNextArrow icon={props.nextArrow} style={props.nextArrowStyles} />,
+        prevArrow: <SamplePrevArrow icon={props.prevArrow} style={props.prevArrowStyles} />,
     }
     return (
         <div>
             <CarouselWrapper>
-                <Row justify="center">
-                    <Col span={24}>
-                        <Carousel autoplay={props.autoplay ?? false}
-                            arrows={props.arrows ?? false} {...settings}>
-                            {props.contents}
-                        </Carousel>
-                    </Col>
-                </Row>
+                <Carousel autoplay={props.autoplay ?? false}
+                    arrows={props.arrows ?? false} {...settings}>
+                    {props.contents}
+                </Carousel>
             </CarouselWrapper>
         </div>
     )
