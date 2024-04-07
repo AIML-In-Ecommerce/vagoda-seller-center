@@ -288,20 +288,6 @@ export default function HomePage() {
                 <div className="mt-10 w-[100%] ">
                     <CustomCarousel arrows={true}
                         autoplay={true}
-                        // prevArrow={<FaCircleLeft />}
-                        // nextArrow={<FaCircleRight />}
-                        //does not change anything :(
-                        // prevArrowStyles={{
-                        //     color: 'black',
-                        //     fontSize: '36px',
-                        //     lineHeight: '1.5715'
-                        // }}
-                        // nextArrowStyles={{  
-                        //     color: 'black',
-                        //     fontSize: '36px',
-                        //     lineHeight: '1.5715'
-                        // }}
-
                         contents={
                             bannerContent.map((item, key) => {
                                 return (
@@ -342,15 +328,16 @@ export default function HomePage() {
                                     <div><span className="text-yellow-500 text-lg font-bold">{qosScore} </span>/ 5.0 sao</div>
                                 </div>
                                 {
-                                    qosComment.map(item => {
-                                        if (!(item.score.includes(Math.floor(qosScore)))) return null;
-                                        return (<div>
-                                            <div className={`${handleRatingColor(qosScore, 200, "bg")} text-black border ${handleRatingColor(qosScore, 500, "border")} p-4 lg:mx-5 mx-10 rounded-xl text-sm mb-5`}>
-                                                <div className="font-semibold">{item.message.firstPart} <span className={`${handleRatingColor(qosScore, 500, "text")} font-bold`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
-                                                <div className="font-light">
-                                                    {item.message.content}</div>
+                                    qosComment.filter((item) => item.score.includes(Math.floor(qosScore))).map(item => {
+                                        return (
+                                            <div>
+                                                <div className={`${handleRatingColor(qosScore, 200, "bg")} text-black border ${handleRatingColor(qosScore, 500, "border")} p-4 lg:mx-5 mx-10 rounded-xl text-sm mb-5`}>
+                                                    <div className="font-semibold">{item.message.firstPart} <span className={`${handleRatingColor(qosScore, 500, "text")} font-bold`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
+                                                    <div className="font-light">
+                                                        {item.message.content}</div>
+                                                </div>
                                             </div>
-                                        </div>)
+                                        )
                                     })
                                 }
                                 <a className="text-sky-500 flex flex-row mx-auto items-center mb-5 gap-1">
