@@ -182,25 +182,23 @@ const SortableList: React.ComponentClass<
       <ul>
         {props.items &&
           props.items.length > 0 &&
-          props.items.map((value, index) => (
-            <SortableItem
-              key={`item-${value._id}`}
-              index={index}
-              widget={value}
-              setWidgets={props.setWidgets}
-              handleUpdate={handleUpdate}
-              setSelectedWidget={props.setSelectedWidget}
-              element={undefined}
-              _id={""}
-              type={WidgetCategoryType.PRODUCT}
-              order={0}
-              visibility={true}
-              // _id={value._id}
-              // type={value.type}
-              // order={value.order}
-              // visibility={value.visibility}
-            />
-          ))}
+          props.items
+            .sort((a, b) => a.order - b.order)
+            .map((value, index) => (
+              <SortableItem
+                key={`item-${value._id}`}
+                index={index}
+                widget={value}
+                setWidgets={props.setWidgets}
+                handleUpdate={handleUpdate}
+                setSelectedWidget={props.setSelectedWidget}
+                element={undefined}
+                _id={""}
+                type={WidgetCategoryType.PRODUCT}
+                order={0}
+                visibility={true}
+              />
+            ))}
       </ul>
     </div>
   );

@@ -20,65 +20,12 @@ import ProductWidget from "./widgetEditorForm/ProductWidget";
 import CategoryWidget from "./widgetEditorForm/CategoryWidget";
 import PromotionWidget from "./widgetEditorForm/PromotionWidget";
 
-export default function WidgetEditorBar() {
-  // mock data
-  const [widgets, setWidgets] = useState<WidgetType[]>([
-    {
-      _id: "category_ID",
-      type: WidgetCategoryType.CATEGORY,
-      order: 1,
-      visibility: false,
-      element: {
-        pattern: CategoryPatternType.GRID,
-        title: "",
-        categoryIdList: [],
-      },
-    },
-    {
-      _id: "product_ID",
-      type: WidgetCategoryType.PRODUCT,
-      order: 2,
-      visibility: true,
-      element: {
-        pattern: ProductPatternType.GRID,
-        title: "",
-        collectionId: "",
-      },
-    },
-    {
-      _id: "product_ID2",
-      type: WidgetCategoryType.PRODUCT,
-      order: 4,
-      visibility: true,
-      element: {
-        pattern: ProductPatternType.CAROUSEL,
-        title: "",
-        collectionId: "",
-      },
-    },
-    {
-      _id: "promotion_ID",
-      type: WidgetCategoryType.PROMOTION,
-      order: 3,
-      visibility: false,
-      element: {
-        pattern: PromotionPatternType.GRID,
-        title: "",
-        promotionIdList: [],
-      },
-    },
-    {
-      _id: "banner_ID",
-      type: WidgetCategoryType.BANNER,
-      order: 0,
-      visibility: true,
-      element: {
-        pattern: BannerPatternType.CAROUSEL,
-        images: [],
-      },
-    },
-  ]);
+interface WidgetEditorBarProps {
+  widgets: WidgetType[];
+  setWidgets(widgets: WidgetType[]): void;
+}
 
+export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   // var
   const [currentForm, setCurrentForm] = useState("");
 
@@ -142,8 +89,8 @@ export default function WidgetEditorBar() {
       {/* widgets */}
       {currentForm === "" && (
         <SortableComponent
-          widgets={widgets}
-          setWidgets={setWidgets}
+          widgets={props.widgets}
+          setWidgets={props.setWidgets}
           setSelectedWidget={setSelectedWidget}
         />
       )}
