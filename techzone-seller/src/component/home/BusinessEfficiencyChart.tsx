@@ -103,9 +103,9 @@ const generateUniqueId = (): string => {
 // Function to generate a random product
 const generateRandomProduct = (): Product => {
     const productName = `Product ${Math.floor(Math.random() * 1000)}`;
-    const price = Math.round(Math.random() * 2000000) + 100000;
+    const price = Math.round(Math.random() * 30000000) + 100000;
 
-    const quantity = Math.round(Math.random() * 200) + 10;
+    const quantity = Math.round(Math.random() * 15) + 10;
     const startDate = new Date('2020-01-01');
     const endDate = new Date(); // Current date
     endDate.setUTCHours(0, 0, 0, 0);

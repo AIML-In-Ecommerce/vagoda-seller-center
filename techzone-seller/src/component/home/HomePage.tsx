@@ -1,16 +1,17 @@
 "use client";
-import { formatDate, getPreviousWeekDateRange } from "@/utils/DateFormatter"
-import { Rate, Empty, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Divider, Card } from "antd"
-import React, { useEffect, useState } from "react"
+import { getPreviousWeekDateRange } from "@/utils/DateFormatter"
+import { Rate, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Card } from "antd"
+import React, { useState } from "react"
 import { FaRegCalendarAlt, FaStar, FaBookmark } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
-import CustomCarousel from "./Carousel"
+import CustomCarousel from "../Carousel"
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { TbFilter } from "react-icons/tb";
 import { SlArrowRight } from "react-icons/sl";
-import NotificationList, { NotificationType } from "./NotificationList";
+import NotificationList, { NotificationType } from "../notification/NotificationList";
 import { TbInfoCircle } from "react-icons/tb";
+import TodoTasks, { Task, TaskType } from "./TodoTasks";
 
 const bannerContent = [
     { title: 'Quản lý đơn hàng', description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi." },
@@ -97,12 +98,46 @@ const notificationData: NotificationType[] = [
     }
 ]
 
+const statisticData: Task[] = [
+    {
+        title: "Đơn hàng chờ xác nhận",
+        tooltip: "",
+        value: 7,
+        type: TaskType.INFO,
+    },
+    {
+        title: "Đơn hàng đang xử lý",
+        tooltip: "",
+        value: 12,
+        type: TaskType.WARNING,
+    },
+    {
+        title: "Đơn hàng đang vận chuyển",
+        tooltip: "",
+        value: 42,
+        type: TaskType.INFO,
+    },
+    {
+        title: "Sản phẩm hết hàng",
+        tooltip: "",
+        value: 23,
+        type: TaskType.WARNING,
+    },
+    {
+        title: "Sản phẩm bị đánh giá thấp",
+        tooltip: "",
+        value: 2,
+        type: TaskType.DANGER,
+    },
+]
+
 //Operational Efficiency
 interface OEProps {
     key: React.Key;
     index?: string;
     index_description?: string;
     index_tooltip?: string;
+    threshole?: number,
     score?: number;
     status?: string;
 }
@@ -144,6 +179,8 @@ const OEDataSources: OEProps[] = [
         index: "Tỉ lệ hủy đơn",
         index_description: "Chỉ tiêu <= 2%",
         index_tooltip: "Số đơn bị hủy (lỗi nhà bán) / Tổng số đơn đã nhận trong 4 tuần qua.",
+        // threshold: 0.2,
+
         score: 0,
         status: '----'
     },
@@ -174,8 +211,6 @@ const OEDataSources: OEProps[] = [
 
 ]
 
-
-
 const productRatingData = {
     rating: 4.6,
     totalRatings: 540,
@@ -189,6 +224,8 @@ const quarterFormat: DatePickerProps['format'] = (value) =>
 const getCorrectInterval = (startDate: Date, endDate: Date, filterBy: string) => {
     let _start = new Date(startDate);
     let _end = new Date(endDate);
+
+    _start.setUTCHours(0,0,0,0);
 
     switch (filterBy) {
         case 'date':
@@ -204,7 +241,7 @@ const getCorrectInterval = (startDate: Date, endDate: Date, filterBy: string) =>
             return [_start, _end];
         case 'quarter':
             const quarterStartMonth = Math.floor(_start.getMonth() / 3) * 3; // Get the starting month of the quarter
-            const quarterEndMonth = quarterStartMonth + 2; // Get the ending month of the quarter
+            const quarterEndMonth = quarterStartMonth + 3; // Get the ending month of the quarter
             _start = new Date(_start.getFullYear(), quarterStartMonth, 1); // First day of the quarter
             _end = new Date(_end.getFullYear(), quarterEndMonth + 1, 0); // Last day of the quarter
             return [_start, _end];
@@ -248,7 +285,7 @@ export default function HomePage() {
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
     const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
     const [totalRevenue, setTotalRevenue] = useState<number>(0);
-    const [qosScore, setQosScore] = useState<number>(4.6);
+    const [qosScore, setQosScore] = useState<number>(5);
 
     const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
         return dates.map(item => {
@@ -309,8 +346,9 @@ export default function HomePage() {
                 <div className="grid grid-cols-4 gap-x-5 gap-y-2">
                     {/* Thông tin đơn hàng */}
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 flex flex-col gap-5 my-10">
-                        <div className="font-semibold text-xl">Đơn hàng</div>
-                        <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div>
+                        <div className="font-semibold text-xl">Thống kê nhanh</div>
+                        {/* <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div> */}
+                        <TodoTasks data={statisticData}/>
                     </div>
 
                     <div className="col-start-1 lg:col-span-3 col-span-4 lg:mx-0 lg:col-start-4 lg:col-span-1 lg:row-span-4 lg:mt-10">
@@ -475,10 +513,9 @@ export default function HomePage() {
                     </div>
                     <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10 flex lg:grid lg:grid-cols-6 sm:flex-col">
                         <div className="lg:col-start-1 lg:col-span-4 border border-2 shadow-lg rounded-xl">
-                            <Table columns={columns} dataSource={OEDataSources} pagination={false} />
+                            <Table  columns={columns} dataSource={OEDataSources} pagination={false} />
                         </div>
                         <div className="lg:col-start-5 lg:col-span-2 border border-2 shadow-lg rounded-xl">
-                            {/* <Table className="p-2" columns={ratingColumn} dataSource={RatingDataSources} pagination={false} /> */}
                             <Card className="h-full" title={
                                 <div className="font-semibold flex flex-row items-center text-sm justify-center gap-1">
                                     <div>Đánh giá sản phẩm</div>

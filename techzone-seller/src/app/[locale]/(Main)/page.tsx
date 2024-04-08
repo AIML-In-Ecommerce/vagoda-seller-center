@@ -1,6 +1,5 @@
-"use client";
 import React from "react";
-import HomePage from "@/component/HomePage";
+import HomePage from "@/component/home/HomePage";
 
 
 export default function Home() {
