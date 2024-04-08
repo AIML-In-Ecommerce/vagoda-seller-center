@@ -1,9 +1,7 @@
-import React from "react";
 import HomePage from "@/component/home/HomePage";
-
+import React from "react";
 
 export default function Home() {
-
   //Home overview:
   // + Banner (slider): Hiển thị các chức năng nhanh.
   // + Thông tin đơn hàng mới nhất.
