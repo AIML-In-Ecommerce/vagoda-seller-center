@@ -149,8 +149,8 @@ export default function Navbar() {
   ];
   return (
     <>
-      <header className="navbar border-bottom shadow-lg  bg-white items-center space-x-8 w-full border-2">
-        <header className="flex items-center  h-30 space-x-4 justify-between ">
+      <header className="navbar border-bottom shadow-lg bg-white items-center space-x-8 w-full border-2 z-50">
+        <header className="flex items-center h-30 space-x-4 justify-between ">
           <div className="flex items-center space-x-1">
             <div className="mb-0 ml-4">
               <Image src={logo} width={50} height={30} alt="Logo" />
@@ -158,16 +158,16 @@ export default function Navbar() {
             <p className="uppercase font-bold text-md">seller center</p>
           </div>
 
-          <div className="right-0  flex space-x-4 mt-1">
+          <div className="right-0 flex space-x-4 mt-1">
             <div className="right-0 justify-end flex space-x-4">
-              <div className="flex items-center justify-center  hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
+              <div className="flex items-center justify-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
                 <IoChatbubbleEllipsesOutline
                   size={40}
                   className=" border rounded-full p-2"
                 />
               </div>
 
-              <div className="flex items-center justify-center   hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
+              <div className="flex items-center justify-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
                 <Badge
                   className="site-badge-count-109"
                   count={countItemsCart > 100 ? 109 : 10}

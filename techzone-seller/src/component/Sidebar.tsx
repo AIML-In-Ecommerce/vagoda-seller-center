@@ -168,7 +168,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   //     getItem("Quản lý tài chính", "15", <LiaWalletSolid />),
   //     getItem("Thiết kế gian hàng", "sub5", <BsHouseHeart />, [
   //       getItem("Trang trí gian hàng", "16"),
-  //       getItem("Bổ sưu tập", "17"),
+  //       getItem("Bộ sưu tập", "17"),
   //     ]),
   //     getItem("Thông tin nhà bán", "18", <BsPersonVideo />),
   //   ];

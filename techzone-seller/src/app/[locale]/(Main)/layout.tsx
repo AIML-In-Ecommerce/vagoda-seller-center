@@ -41,8 +41,7 @@ export default function RootLayout({
             {/* <UserLayout locale={locale}>{children}</UserLayout> */}
             {/* </AuthProvider> */}
             <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-              <div className="fixed w-full ">
-                {" "}
+              <div className="fixed w-full z-50">
                 <Navbar />
               </div>
               <div className="flex flex-row mt-16">
