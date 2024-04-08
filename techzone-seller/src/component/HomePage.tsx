@@ -1,15 +1,16 @@
 "use client";
 import { formatDate, getPreviousWeekDateRange } from "@/utils/DateFormatter"
-import { Rate, Empty, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Divider } from "antd"
+import { Rate, Empty, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Divider, Card } from "antd"
 import React, { useEffect, useState } from "react"
-import { FaRegCalendarAlt, FaStar, FaBookmark, FaRegQuestionCircle } from "react-icons/fa"
+import { FaRegCalendarAlt, FaStar, FaBookmark } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
 import CustomCarousel from "./Carousel"
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { TbFilter } from "react-icons/tb";
-import { FaCircleLeft, FaCircleRight } from "react-icons/fa6";
 import { SlArrowRight } from "react-icons/sl";
+import NotificationList, { NotificationType } from "./NotificationList";
+import { TbInfoCircle } from "react-icons/tb";
 
 const bannerContent = [
     { title: 'Quản lý đơn hàng', description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi." },
@@ -79,6 +80,23 @@ const qosComment = [
     //   }
 ]
 
+const notificationData: NotificationType[] = [
+    {
+        _id: '1',
+        title: 'Báo cáo doanh thu tuần',
+        image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
+        description: "Xin chào Thảo Lăng, Doanh thu của bạn tuần vừa qua đạt 13.360.783đ",
+        timestamp: new Date(2024, 2, 31, 12, 24, 52)
+    },
+    {
+        _id: '2',
+        title: 'Thông báo từ hệ thống',
+        image: 'https://cdn-icons-png.flaticon.com/512/1169/1169118.png',
+        description: "Xin chào Thảo Lăng, Điều khoản & Điều kiện của bạn đã được chấp nhận & thành công. Cảm ơn bạn đã hợp tác cùng chúng tôi",
+        timestamp: new Date(2024, 2, 31, 12, 24, 52)
+    }
+]
+
 //Operational Efficiency
 interface OEProps {
     key: React.Key;
@@ -87,8 +105,6 @@ interface OEProps {
     index_tooltip?: string;
     score?: number;
     status?: string;
-    rating?: number;
-    totalRatings?: number;
 }
 
 const columns: TableColumnsType<OEProps> = [
@@ -97,28 +113,28 @@ const columns: TableColumnsType<OEProps> = [
         dataIndex: 'index',
         render: (index: string, item: OEProps) =>
             <div className="flex flex-col px-4">
-                <div className="flex-row flex gap-1">
+                <div className="flex-row flex gap-1 items-center">
                     <div className="font-semibold">{item.index}</div>
                     <div className="text-sm">
                         <Tooltip title={item.index_tooltip}>
-                            <div><FaRegQuestionCircle /></div></Tooltip>
+                            <div><TbInfoCircle /></div></Tooltip>
                     </div>
                 </div>
                 <div>{item.index_description}</div>
             </div>,
-        width: '50vw'
+        width: '46%'
     },
     {
         title: <div className="font-semibold">Điểm hiện tại</div>,
         dataIndex: 'score',
         render: (score: number) =>
             score > 0 ? score : <div>---</div>,
-        width: '25vw'
+        width: '27%'
     },
     {
         title: <div className="font-semibold">Trạng thái</div>,
         dataIndex: 'status',
-        width: '25vw'
+        width: '27%'
     },
 ];
 
@@ -158,26 +174,12 @@ const OEDataSources: OEProps[] = [
 
 ]
 
-const ratingColumn: TableColumnsType<OEProps> = [
-    {
-        title: <div className="text-center font-semibold lg:text-lg">Đánh giá sản phẩm</div>,
-        dataIndex: 'rating',
-        render: (rating: number, item: OEProps) =>
-            <div className="flex flex-col items-center justify-center space-y-1 px-5">
-                <div className="text-slate-500 text-lg font-semibold">{rating ? rating : '--'}/5</div>
-                <div>{`(${item.totalRatings} đánh giá)`}</div>
-                <Rate value={rating} count={5} disabled allowHalf />
-            </div>,
-    },
-];
 
-const RatingDataSources: OEProps[] = [
-    {
-        key: '1',
-        rating: 4.6,
-        totalRatings: 540,
-    }
-]
+
+const productRatingData = {
+    rating: 4.6,
+    totalRatings: 540,
+}
 
 const { RangePicker } = DatePicker;
 
@@ -285,8 +287,9 @@ export default function HomePage() {
         <React.Fragment>
             <div className="container flex flex-col px-20 mx-auto">
                 {/* slider */}
-                <div className="mt-10 w-[100%] ">
-                    <CustomCarousel arrows={true}
+                <div className="mt-10 w-[100%]">
+                    <CustomCarousel
+                        arrows
                         autoplay={true}
                         contents={
                             bannerContent.map((item, key) => {
@@ -303,7 +306,7 @@ export default function HomePage() {
                         }
                     />
                 </div>
-                <div className="grid grid-cols-4 gap-x-5">
+                <div className="grid grid-cols-4 gap-x-5 gap-y-2">
                     {/* Thông tin đơn hàng */}
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 flex flex-col gap-5 my-10">
                         <div className="font-semibold text-xl">Đơn hàng</div>
@@ -325,12 +328,12 @@ export default function HomePage() {
                                 <div className={`absolute top-0 left-0 text-4xl z-[0] ${handleRatingColor(qosScore, 500, "text")}`}><FaBookmark /></div>
                                 <div className="mx-auto my-5 flex lg:flex-row flex-col gap-5 items-center">
                                     <Rate value={qosScore} count={5} disabled allowHalf />
-                                    <div><span className="text-yellow-500 text-lg font-bold">{qosScore} </span>/ 5.0 sao</div>
+                                    <div><span className={`${handleRatingColor(qosScore, 500, "text")} text-lg font-bold`}>{qosScore} </span>/ 5 sao</div>
                                 </div>
                                 {
-                                    qosComment.filter((item) => item.score.includes(Math.floor(qosScore))).map(item => {
+                                    qosComment.filter((item) => item.score.includes(Math.floor(qosScore))).map((item, index) => {
                                         return (
-                                            <div>
+                                            <div key={index}>
                                                 <div className={`${handleRatingColor(qosScore, 200, "bg")} text-black border ${handleRatingColor(qosScore, 500, "border")} p-4 lg:mx-5 mx-10 rounded-xl text-sm mb-5`}>
                                                     <div className="font-semibold">{item.message.firstPart} <span className={`${handleRatingColor(qosScore, 500, "text")} font-bold`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
                                                     <div className="font-light">
@@ -347,7 +350,9 @@ export default function HomePage() {
                             </div>
                             <div className="border flex flex-col relative mt-10 ml-5 rounded-xl shadow-lg">
                                 <div className="text-center my-5 font-semibold text-xl">Thông báo!</div>
-                                <div> <Empty description={"Không có thông báo mới!"} /></div>
+                                <div>
+                                    <NotificationList data={notificationData} />
+                                </div>
                                 <a className="text-sky-500 flex flex-row mx-auto items-center my-5 gap-1">
                                     <span>Xem tất cả</span>
                                     <span><SlArrowRight /></span>
@@ -468,12 +473,25 @@ export default function HomePage() {
                             </a>
                         </div>
                     </div>
-                    <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10  flex flex-col">
-                        <div className="border border-2 shadow-lg rounded-xl">
+                    <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10 flex lg:grid lg:grid-cols-6 sm:flex-col">
+                        <div className="lg:col-start-1 lg:col-span-4 border border-2 shadow-lg rounded-xl">
                             <Table columns={columns} dataSource={OEDataSources} pagination={false} />
                         </div>
-                        <div className="border border-2 shadow-lg rounded-xl">
-                            <Table columns={ratingColumn} dataSource={RatingDataSources} pagination={false} />
+                        <div className="lg:col-start-5 lg:col-span-2 border border-2 shadow-lg rounded-xl">
+                            {/* <Table className="p-2" columns={ratingColumn} dataSource={RatingDataSources} pagination={false} /> */}
+                            <Card className="h-full" title={
+                                <div className="font-semibold flex flex-row items-center text-sm justify-center gap-1">
+                                    <div>Đánh giá sản phẩm</div>
+                                    <Tooltip title={"Trung bình tất cả các đánh giá sản phẩm của nhà bán"}>
+                                        <div><TbInfoCircle /></div></Tooltip>
+                                </div>
+                            }>
+                                <div className="flex flex-col items-center justify-center space-y-1 px-5 h-full ant-card-body">
+                                    <div className="text-slate-500 text-3xl font-semibold">{productRatingData.rating ? productRatingData.rating : '--'}/5</div>
+                                    <div>{`(${productRatingData.totalRatings} đánh giá)`}</div>
+                                    <Rate className=" text-2xl" value={productRatingData.rating} count={5} disabled allowHalf />
+                                </div>
+                            </Card>
                         </div>
                     </div>
                 </div>
