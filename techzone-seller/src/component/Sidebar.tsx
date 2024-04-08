@@ -70,7 +70,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       icon: <RiTodoLine />,
       label: "Đơn hàng",
       children: [
-        { label: "Danh sách đơn hàng", url: "/order/list" },
+        { label: "Danh sách đơn hàng", url: "/order" },
         { label: "Đổi trả bảo hành", url: "/order/return-order" },
         { label: "Quản lý hóa đơn", url: "/order/invoice" },
       ],
@@ -129,8 +129,8 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       icon: <BsHouseHeart />,
       label: "Thiết kế gian hàng",
       children: [
-        { label: "Trang trí gian hàng", url: "/seller-store/template" },
-        { label: "Bổ sưu tập", url: "/seller-store/collection" },
+        { label: "Trang trí gian hàng", url: "/booth-design/decorator" },
+        { label: "Bộ sưu tập", url: "/booth-design/collection" },
       ],
       url: null,
     },
