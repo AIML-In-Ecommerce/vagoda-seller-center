@@ -66,16 +66,16 @@ const qosComment = [
     //     score: "Tạm tắt gian hàng (lần 2)",
     //     rating: "Đây đã là lần thứ 2 bạn đạt điểm vận hành bằng 0!",
     //     message: {
-    //       firstPart: "Tiki phải tạm tắt gian hàng trong 14 ngày.",
+    //       firstPart: "Techzone phải tạm tắt gian hàng trong 14 ngày.",
     //       content: "Lưu ý: Sau 2 lần bị khóa gian do điểm vận hành, lần thứ 3 gian hàng của bạn sẽ bị khóa vĩnh viễn."
     //     }
     //   },
     //   {
     //     score: "Tạm tắt gian hàng (vĩnh viễn)",
-    //     rating: "Rất tiếc! Tiki phải tắt gian hàng hàng vĩnh viễn.",
+    //     rating: "Rất tiếc! Techzone phải tắt gian hàng hàng vĩnh viễn.",
     //     message: {
     //       firstPart: "Đây đã là lần thứ 3 bạn đạt điểm vận hành bằng 0!",
-    //       content: "Vì vậy, Tiki rất tiếc phải tắt gian hàng vĩnh viễn."
+    //       content: "Vì vậy, Techzone rất tiếc phải tắt gian hàng vĩnh viễn."
     //     }
     //   }
 ]
@@ -248,7 +248,7 @@ export default function HomePage() {
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
     const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
     const [totalRevenue, setTotalRevenue] = useState<number>(0);
-    const [qosScore, setQosScore] = useState<number>(5);
+    const [qosScore, setQosScore] = useState<number>(4.6);
 
     const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
         return dates.map(item => {
@@ -285,7 +285,7 @@ export default function HomePage() {
 
     return (
         <React.Fragment>
-            <div className="container flex flex-col px-20 mx-auto">
+            <div className="container flex flex-col px-10 mx-auto">
                 {/* slider */}
                 <div className="mt-10 w-[100%]">
                     <CustomCarousel

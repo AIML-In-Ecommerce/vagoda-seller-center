@@ -32,18 +32,18 @@ export default function RootLayout({
   return (
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
-      <body className="w-full">
+      <body className="w-full relative">
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* <AuthProvider> */}
           {/* <UserLayout children={children} locale={locale} /> */}
           {/* <UserLayout locale={locale}>{children}</UserLayout> */}
           {/* </AuthProvider> */}
-          <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-            <div className="fixed w-full ">
+          <div className="w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
+            <div className="fixed w-full z-50">
               {" "}
               <Navbar />
             </div>
-            <div className="flex mt-16">
+            <div className="mt-16">
               <SidebarContentReactiveLayout>
                 {children}
               </SidebarContentReactiveLayout>
