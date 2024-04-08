@@ -1,6 +1,6 @@
 "use client";
 import { getPreviousWeekDateRange } from "@/utils/DateFormatter"
-import { Rate, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Card } from "antd"
+import { Rate, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Card, Tag } from "antd"
 import React, { useState } from "react"
 import { FaRegCalendarAlt, FaStar, FaBookmark } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
@@ -137,12 +137,17 @@ interface OEProps {
     index?: string;
     index_description?: string;
     index_tooltip?: string;
-    threshole?: number,
-    score?: number;
+    threshold: number,
+    isAboveThreshold: boolean;
+    score: number;
     status?: string;
 }
 
-const columns: TableColumnsType<OEProps> = [
+const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
+    return isAboveThreshold ? value >= threshold : value <= threshold;
+}
+
+const OEColumns: TableColumnsType<OEProps> = [
     {
         title: <div className="font-semibold">Chỉ số</div>,
         dataIndex: 'index',
@@ -162,13 +167,23 @@ const columns: TableColumnsType<OEProps> = [
     {
         title: <div className="font-semibold">Điểm hiện tại</div>,
         dataIndex: 'score',
-        render: (score: number) =>
-            score > 0 ? score : <div>---</div>,
+        render: (score: number) => {
+            return <div className="font-semibold text-xl">{score*100}%</div>
+        },
         width: '27%'
     },
     {
         title: <div className="font-semibold">Trạng thái</div>,
         dataIndex: 'status',
+        render: (status: number, item: OEProps) => {
+            return <div className="items-center">
+                {
+                   checkThreshold(item.score, item.threshold, item.isAboveThreshold) ? (
+                    <Tag color="#87d068" className="font-semibold">Tốt</Tag>
+                    ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
+                }
+            </div>
+        },
         width: '27%'
     },
 ];
@@ -179,34 +194,40 @@ const OEDataSources: OEProps[] = [
         index: "Tỉ lệ hủy đơn",
         index_description: "Chỉ tiêu <= 2%",
         index_tooltip: "Số đơn bị hủy (lỗi nhà bán) / Tổng số đơn đã nhận trong 4 tuần qua.",
-        // threshold: 0.2,
-
-        score: 0,
-        status: '----'
+        threshold: 0.02,
+        isAboveThreshold: false,
+        score: 0.03,
+        status: '----',
     },
     {
         key: '2',
         index: "Tỉ lệ xử lý đúng hạn",
         index_description: "Chỉ tiêu >= 97%",
         index_tooltip: "Số đơn hàng xử lý đúng hạn / Tổng số đơn đã nhận trong 4 tuần qua.",
-        score: 0,
-        status: '----'
+        threshold: 0.97,
+        isAboveThreshold: true,
+        score: 0.95,
+        status: '----',
     },
     {
         key: '3',
         index: "Tỉ lệ đổi trả",
         index_description: "Chỉ tiêu <= 2%",
         index_tooltip: "Số sản phẩm đổi trả (lỗi nhà bán) / Số sản phẩm đã bán trong 4 tuần qua.",
-        score: 0,
-        status: '----'
+        threshold: 0.02,
+        isAboveThreshold: false,
+        score: 0.03,
+        status: '----',
     },
     {
         key: '4',
         index: "Tỉ lệ phản hồi chat",
         index_description: "Chỉ tiêu >= 80%",
         index_tooltip: "Tỷ lệ phản hồi = Lượt phản hồi chat / Lượt chat nhận được. Tỷ lệ phản hồi chỉ được tính khi Nhà bán nhận được ít nhất 2 tin nhắn trong vòng 4 tuần qua.",
-        score: 0,
-        status: '----'
+        threshold: 0.8,
+        isAboveThreshold: true,
+        score: 0.81,
+        status: '----',
     },
 
 ]
@@ -225,7 +246,7 @@ const getCorrectInterval = (startDate: Date, endDate: Date, filterBy: string) =>
     let _start = new Date(startDate);
     let _end = new Date(endDate);
 
-    _start.setUTCHours(0,0,0,0);
+    _start.setUTCHours(0, 0, 0, 0);
 
     switch (filterBy) {
         case 'date':
@@ -348,7 +369,7 @@ export default function HomePage() {
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 flex flex-col gap-5 my-10">
                         <div className="font-semibold text-xl">Thống kê nhanh</div>
                         {/* <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div> */}
-                        <TodoTasks data={statisticData}/>
+                        <TodoTasks data={statisticData} />
                     </div>
 
                     <div className="col-start-1 lg:col-span-3 col-span-4 lg:mx-0 lg:col-start-4 lg:col-span-1 lg:row-span-4 lg:mt-10">
@@ -513,7 +534,7 @@ export default function HomePage() {
                     </div>
                     <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10 flex lg:grid lg:grid-cols-6 sm:flex-col">
                         <div className="lg:col-start-1 lg:col-span-4 border border-2 shadow-lg rounded-xl">
-                            <Table  columns={columns} dataSource={OEDataSources} pagination={false} />
+                            <Table columns={OEColumns} dataSource={OEDataSources} pagination={false} />
                         </div>
                         <div className="lg:col-start-5 lg:col-span-2 border border-2 shadow-lg rounded-xl">
                             <Card className="h-full" title={
@@ -526,7 +547,7 @@ export default function HomePage() {
                                 <div className="flex flex-col items-center justify-center space-y-1 px-5 h-full ant-card-body">
                                     <div className="text-slate-500 text-3xl font-semibold">{productRatingData.rating ? productRatingData.rating : '--'}/5</div>
                                     <div>{`(${productRatingData.totalRatings} đánh giá)`}</div>
-                                    <Rate className=" text-2xl" value={productRatingData.rating} count={5} disabled allowHalf />
+                                    <Rate className="text-xl" value={productRatingData.rating} count={5} disabled allowHalf />
                                 </div>
                             </Card>
                         </div>
