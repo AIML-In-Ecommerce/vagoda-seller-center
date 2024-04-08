@@ -1,18 +1,9 @@
 "use client";
 
-import { Button, Drawer, Flex, Tabs } from "antd";
+import { Button, Tabs } from "antd";
 import { useState } from "react";
-import {
-  CloseOutlined,
-  GroupOutlined,
-  InsertRowBelowOutlined,
-  PicLeftOutlined,
-  PercentageOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
 import Search from "antd/es/transfer/search";
-import MiniDesignPattern from "@/component/booth-design/decorator/mini/MiniDesignPattern";
 import WidgetEditorBar from "@/component/booth-design/decorator/WidgetEditorBar";
 // import ImageCropper from "@/component/booth-design/decorator/uploadImage/ImageCropper";
 import WidgetList from "@/component/booth-design/decorator/WidgetList";
@@ -20,10 +11,9 @@ import {
   WidgetType,
   WidgetCategoryType,
   CategoryPatternType,
-  ProductPatternType,
-  PromotionPatternType,
-  BannerPatternType,
 } from "@/model/WidgetType";
+import WidgetDrawer from "@/component/booth-design/decorator/WidgetDrawer";
+import { AddWidgetHandle } from "@/component/booth-design/decorator/widgetUtils/AddWidgetHandle";
 
 export default function BoothDecoratorPage() {
   // mock data
@@ -41,164 +31,89 @@ export default function BoothDecoratorPage() {
         categoryIdList: [],
       },
     },
-    {
-      _id: "product_ID",
-      type: WidgetCategoryType.PRODUCT,
-      order: 2,
-      visibility: true,
-      element: {
-        pattern: ProductPatternType.GRID,
-        title: "Sản phẩm mới",
-        collectionId: "",
-      },
-    },
-    {
-      _id: "product_ID2",
-      type: WidgetCategoryType.PRODUCT,
-      order: 4,
-      visibility: true,
-      element: {
-        pattern: ProductPatternType.CAROUSEL,
-        title: "Sản phẩm giá hời",
-        collectionId: "",
-      },
-    },
-    {
-      _id: "product_ID3",
-      type: WidgetCategoryType.PRODUCT,
-      order: 5,
-      visibility: true,
-      element: {
-        pattern: ProductPatternType.GRID,
-        title: "Sản phẩm nổi bật",
-        collectionId: "",
-      },
-    },
-    {
-      _id: "product_ID4",
-      type: WidgetCategoryType.PRODUCT,
-      order: 6,
-      visibility: true,
-      element: {
-        pattern: ProductPatternType.CAROUSEL,
-        title: "Sản phẩm cho bạn",
-        collectionId: "",
-      },
-    },
-    {
-      _id: "promotion_ID",
-      type: WidgetCategoryType.PROMOTION,
-      order: 3,
-      visibility: false,
-      element: {
-        pattern: PromotionPatternType.GRID,
-        title: "Voucher trao tay",
-        promotionIdList: [],
-      },
-    },
-    {
-      _id: "banner_ID",
-      type: WidgetCategoryType.BANNER,
-      order: 0,
-      visibility: true,
-      element: {
-        pattern: BannerPatternType.CAROUSEL,
-        images: [],
-      },
-    },
+    // {
+    //   _id: "product_ID",
+    //   type: WidgetCategoryType.PRODUCT,
+    //   order: 2,
+    //   visibility: true,
+    //   element: {
+    //     pattern: ProductPatternType.GRID,
+    //     title: "Sản phẩm mới",
+    //     collectionId: "",
+    //   },
+    // },
+    // {
+    //   _id: "product_ID2",
+    //   type: WidgetCategoryType.PRODUCT,
+    //   order: 4,
+    //   visibility: true,
+    //   element: {
+    //     pattern: ProductPatternType.CAROUSEL,
+    //     title: "Sản phẩm giá hời",
+    //     collectionId: "",
+    //   },
+    // },
+    // {
+    //   _id: "product_ID3",
+    //   type: WidgetCategoryType.PRODUCT,
+    //   order: 5,
+    //   visibility: true,
+    //   element: {
+    //     pattern: ProductPatternType.GRID,
+    //     title: "Sản phẩm nổi bật",
+    //     collectionId: "",
+    //   },
+    // },
+    // {
+    //   _id: "product_ID4",
+    //   type: WidgetCategoryType.PRODUCT,
+    //   order: 6,
+    //   visibility: true,
+    //   element: {
+    //     pattern: ProductPatternType.CAROUSEL,
+    //     title: "Sản phẩm cho bạn",
+    //     collectionId: "",
+    //   },
+    // },
+    // {
+    //   _id: "promotion_ID",
+    //   type: WidgetCategoryType.PROMOTION,
+    //   order: 3,
+    //   visibility: false,
+    //   element: {
+    //     pattern: PromotionPatternType.GRID,
+    //     title: "Voucher trao tay",
+    //     promotionIdList: [],
+    //   },
+    // },
+    // {
+    //   _id: "banner_ID",
+    //   type: WidgetCategoryType.BANNER,
+    //   order: 0,
+    //   visibility: true,
+    //   element: {
+    //     pattern: BannerPatternType.CAROUSEL,
+    //     images: [],
+    //   },
+    // },
   ]);
 
   // variables n methods
   const tabItems = [
-    {
-      label: "Cửa Hàng",
-    },
-    {
-      label: "Tất Cả Sản Phẩm",
-    },
-    {
-      label: "Bộ Sưu Tập",
-    },
-    {
-      label: "Hồ Sơ Cửa Hàng",
-    },
+    "Cửa Hàng",
+    "Tất Cả Sản Phẩm",
+    "Bộ Sưu Tập",
+    "Hồ Sơ Cửa Hàng",
   ];
 
   // widget drawer
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  const drawerBannerItems = [
-    {
-      title: "Băng chuyền",
-      icon: (
-        <InsertRowBelowOutlined
-          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-        />
-      ),
-    },
-    // {
-    //   title: "Hình & chữ",
-    //   icon: (
-    //     <PicLeftOutlined
-    //       style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-    //     />
-    //   ),
-    // },
-  ];
-  const drawerCategoryItems = [
-    {
-      title: "Danh mục dạng lưới",
-      icon: (
-        <GroupOutlined
-          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-        />
-      ),
-    },
-    // {
-    //   title: "Danh mục hình & chữ",
-    //   icon: (
-    //     <PicLeftOutlined
-    //       style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-    //     />
-    //   ),
-    // },
-  ];
-  const drawerProductItems = [
-    {
-      title: "Sản phẩm dạng lưới",
-      icon: (
-        <GroupOutlined
-          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-        />
-      ),
-    },
-    {
-      title: "Sản phẩm dạng băng chuyền",
-      icon: (
-        <InsertRowBelowOutlined
-          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-        />
-      ),
-    },
-    // {
-    //   title: "Sản phẩm, hình & chữ",
-    //   icon: (
-    //     <PicLeftOutlined
-    //       style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-    //     />
-    //   ),
-    // },
-  ];
-  const drawerPromotionItems = [
-    {
-      title: "Mã giảm giá",
-      icon: (
-        <PercentageOutlined
-          style={{ fontSize: "32px", marginTop: "8px", marginLeft: "8px" }}
-        />
-      ),
-    },
-  ];
+  const addWidget = (type: number, pattern: number, order: number) => {
+    let newWidget = AddWidgetHandle({ type, pattern, order });
+    setWidgets([...widgets, newWidget]);
+    setOpenDrawer(false);
+  };
 
   return (
     <div className="m-10 grid grid-cols-3">
@@ -214,7 +129,7 @@ export default function BoothDecoratorPage() {
           style={{ marginLeft: 10, marginRight: 10, marginTop: 10 }}
           items={tabItems.map((item, i) => {
             return {
-              label: item.label,
+              label: item,
               key: i.toString(),
               children: <div />,
               disabled: true,
@@ -234,7 +149,6 @@ export default function BoothDecoratorPage() {
             setOpenDrawer(true);
           }}
         >
-          {/* <PlusOutlined style={{ marginBottom: "10px", fontSize: "12px" }} /> */}
           + Thêm widget
         </Button>
       </div>
@@ -243,76 +157,12 @@ export default function BoothDecoratorPage() {
         <WidgetEditorBar widgets={widgets} setWidgets={setWidgets} />
       </div>
 
-      <Drawer
-        title="Mẫu thiết kế"
-        placement="left"
-        width={400}
-        closeIcon={false}
-        open={openDrawer}
-        extra={
-          <CloseOutlined
-            onClick={() => {
-              setOpenDrawer(false);
-            }}
-            style={{ cursor: "pointer" }}
-          />
-        }
-      >
-        <div className="overflow-y-auto overflow-x-hidden">
-          <div className="font-semibold uppercase">banner</div>
-          <Flex>
-            {drawerBannerItems.map((drawerItem, i) => (
-              <div key={i}>
-                <MiniDesignPattern
-                  title={drawerItem.title}
-                  icon={drawerItem.icon}
-                  previewImageUrl={""}
-                />
-              </div>
-            ))}
-          </Flex>
-
-          <div className="font-semibold uppercase">danh mục</div>
-          <Flex>
-            {drawerCategoryItems.map((drawerItem, i) => (
-              <div key={i}>
-                <MiniDesignPattern
-                  title={drawerItem.title}
-                  icon={drawerItem.icon}
-                  previewImageUrl={""}
-                />
-              </div>
-            ))}
-          </Flex>
-
-          <div className="font-semibold uppercase">sản phẩm</div>
-          <Flex>
-            {drawerProductItems.map((drawerItem, i) => (
-              <div key={i}>
-                <MiniDesignPattern
-                  title={drawerItem.title}
-                  icon={drawerItem.icon}
-                  previewImageUrl={""}
-                />
-              </div>
-            ))}
-          </Flex>
-          <div className="font-semibold uppercase">bộ sưu tập</div>
-
-          <div className="font-semibold uppercase">khuyến mãi</div>
-          <Flex>
-            {drawerPromotionItems.map((drawerItem, i) => (
-              <div key={i}>
-                <MiniDesignPattern
-                  title={drawerItem.title}
-                  icon={drawerItem.icon}
-                  previewImageUrl={""}
-                />
-              </div>
-            ))}
-          </Flex>
-        </div>
-      </Drawer>
+      <WidgetDrawer
+        openDrawer={openDrawer}
+        setOpenDrawer={setOpenDrawer}
+        addWidget={addWidget}
+        order={widgets.length}
+      />
 
       {/* <ImageCropper
         imageUrl={

@@ -13,6 +13,8 @@ import {
   GroupOutlined,
   InsertRowBelowOutlined,
   PercentageOutlined,
+  PicCenterOutlined,
+  FontColorsOutlined,
 } from "@ant-design/icons";
 
 interface IconProps {
@@ -32,14 +34,14 @@ export default function WidgetTypeIcon(props: IconProps) {
       {props.type === WidgetCategoryType.BANNER &&
         props.element &&
         props.element.pattern === BannerPatternType.CAROUSEL && (
-          <InsertRowBelowOutlined style={{ fontSize: "20px" }} />
+          <PicCenterOutlined style={{ fontSize: "20px" }} />
         )}
 
       {/* category element */}
       {props.type === WidgetCategoryType.CATEGORY &&
         props.element &&
         props.element.pattern === CategoryPatternType.GRID && (
-          <GroupOutlined style={{ fontSize: "20px" }} />
+          <FontColorsOutlined style={{ fontSize: "20px" }} />
         )}
 
       {/* product element */}

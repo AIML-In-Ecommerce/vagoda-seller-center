@@ -2,19 +2,11 @@
 import { Button, Card } from "antd";
 import { useEffect, useState } from "react";
 import ShopInfo from "./widgetEditorForm/ShopInfo";
-import { InsertRowBelowOutlined, PicLeftOutlined } from "@ant-design/icons";
 import { TbLayoutNavbarCollapseFilled } from "react-icons/tb";
 
 import { arrayMove } from "react-sortable-hoc";
 import SortableList from "@/component/booth-design/decorator/mini/SortableWidgetBar";
-import {
-  BannerPatternType,
-  CategoryPatternType,
-  ProductPatternType,
-  PromotionPatternType,
-  WidgetCategoryType,
-  WidgetType,
-} from "@/model/WidgetType";
+import { WidgetCategoryType, WidgetType } from "@/model/WidgetType";
 import BannerWidget from "./widgetEditorForm/BannerWidget";
 import ProductWidget from "./widgetEditorForm/ProductWidget";
 import CategoryWidget from "./widgetEditorForm/CategoryWidget";

@@ -15,6 +15,7 @@ import ProductCarousel from "./boothPattern/ProductCarousel";
 import ProductGrid from "./boothPattern/ProductGrid";
 import PromotionGrid from "./boothPattern/PromotionGrid";
 import CategoryGrid from "./boothPattern/CategoryGrid";
+import { useMemo } from "react";
 
 const MockData = [
   {
@@ -186,7 +187,7 @@ interface WidgetProps {
 }
 
 // filtering types
-function Widget(props: WidgetProps) {
+export function Widget(props: WidgetProps) {
   return (
     <div>
       {props.widget.type === WidgetCategoryType.BANNER && (
@@ -209,7 +210,9 @@ function Widget(props: WidgetProps) {
 }
 
 function ProductWidget(props: WidgetProps) {
-  const element = props.widget.element as ProductElement;
+  const element = useMemo(() => {
+    return props.widget.element as ProductElement;
+  }, [props.widget.element]);
 
   return (
     <div>
