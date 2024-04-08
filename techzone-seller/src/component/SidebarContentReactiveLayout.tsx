@@ -1,50 +1,48 @@
-'use client'
+"use client";
 
-import { Content } from "antd/es/layout/layout"
-import Sidebar from "./Sidebar"
-import { useState } from "react"
-import { Layout } from "antd"
-
+import { Content } from "antd/es/layout/layout";
+import { useState } from "react";
+import Sidebar from "./Sidebar";
 
 interface SidebarContentReactiveLayoutProps {
-    children: React.ReactNode
+  children: React.ReactNode;
 }
 
-function SidebarContentReactiveLayout({ children }: SidebarContentReactiveLayoutProps) {
-    const defaultHiddenBlockStyle: React.CSSProperties =
-    {
-        width: 100,
-        height: "100%"
+function SidebarContentReactiveLayout({
+  children,
+}: SidebarContentReactiveLayoutProps) {
+  const defaultHiddenBlockStyle: React.CSSProperties = {
+    width: 100,
+    height: "100%",
+  };
+
+  const expandedHiddenBlockStyle: React.CSSProperties = {
+    width: 220,
+    height: "100%",
+  };
+
+  const [hiddenBlockStyle, setHiddenBlockStyle] = useState<React.CSSProperties>(
+    defaultHiddenBlockStyle
+  );
+
+  function handleSidebarCollapsingNotice(value: any) {
+    if (value == true) {
+      setHiddenBlockStyle(defaultHiddenBlockStyle);
+    } else {
+      setHiddenBlockStyle(expandedHiddenBlockStyle);
     }
+  }
 
-    const expandedHiddenBlockStyle: React.CSSProperties =
-    {
-        width: 220,
-        height: "100%"
-    }
-
-
-    const [hiddenBlockStyle, setHiddenBlockStyle] = useState<React.CSSProperties>(defaultHiddenBlockStyle)
-
-    function handleSidebarCollapsingNotice(value: any) {
-        if (value == true) {
-            setHiddenBlockStyle(defaultHiddenBlockStyle)
-        }
-        else {
-            setHiddenBlockStyle(expandedHiddenBlockStyle)
-        }
-    }
-
-    return (
-        <Layout>
-            {" "}
-            <Sidebar noticeCollapsingCallback={handleSidebarCollapsingNotice} />
-            <div className="invisible" style={hiddenBlockStyle}>hidden block</div>
-            <Content>
-                {children}
-            </Content>
-        </Layout>
-    )
+  return (
+    <>
+      {" "}
+      <Sidebar noticeCollapsingCallback={handleSidebarCollapsingNotice} />
+      <div className="invisible" style={hiddenBlockStyle}>
+        hidden block
+      </div>
+      <Content>{children}</Content>
+    </>
+  );
 }
 
-export default SidebarContentReactiveLayout
+export default SidebarContentReactiveLayout;
