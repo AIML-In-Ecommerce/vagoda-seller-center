@@ -46,22 +46,12 @@ interface SidebarProps {
 const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(true);
   const [searchText, setSearchText] = useState("");
-  const [searchVisible, setSearchVisible] = useState(false);
-
-  //watch changes of the variable 'collapsed', if it changes, call the noticeCollapsingCallback function
-  useEffect(() => {
-    noticeCollapsingCallback(collapsed);
-  }, [collapsed]);
-
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-    setSearchVisible(false); // Ẩn thanh tìm kiếm khi thu gọn Sidebar
-  };
   const router = useRouter();
   const handleMenuItemClick = (url: string | null) => {
     router.push(url ? url : "/");
   };
 
+  //watch changes of the variable 'collapsed', if it changes, call the noticeCollapsingCallback function
   useEffect(() => {
     noticeCollapsingCallback(collapsed);
   }, [collapsed]);
@@ -152,6 +142,37 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     },
   ];
 
+  //   const menuItems: MenuItem[] = [
+  //     getItem("Trang chủ", "1", <HiOutlineHome />),
+  //     getItem("Đơn hàng", "sub1", <RiTodoLine />, [
+  //       getItem("Danh sách đơn hàng", "2"),
+  //       getItem("Đổi trả bảo hành", "3"),
+  //       getItem("Quản lý hóa đơn", "4"),
+  //     ]),
+  //     getItem("Sản phẩm", "sub2", <LiaBoxSolid />, [
+  //       getItem("Danh sách sản phẩm", "5"),
+  //       getItem("Tạo sản phẩm", "6"),
+  //       getItem("Quản lý đánh giá", "7"),
+  //       getItem("Lịch sử thay đổi", "8"),
+  //     ]),
+  //     getItem("Kho & hàng tồn", "9", <BsShop />),
+  //     getItem("Trung tâm phát triển", "sub3", <AiOutlineLineChart />, [
+  //       getItem("Hiệu quả kinh doanh", "10"),
+  //       getItem(" Chỉ số sản phẩm", "11"),
+  //       getItem("Chỉ số khuyến mãi", "12"),
+  //       getItem("Hiệu quả vận hành", "13"),
+  //     ]),
+  //     getItem("Trung tâm marketing", "sub4", <TbSpeakerphone />, [
+  //       getItem("Công cụ khuyến mãi", "14"),
+  //     ]),
+  //     getItem("Quản lý tài chính", "15", <LiaWalletSolid />),
+  //     getItem("Thiết kế gian hàng", "sub5", <BsHouseHeart />, [
+  //       getItem("Trang trí gian hàng", "16"),
+  //       getItem("Bổ sưu tập", "17"),
+  //     ]),
+  //     getItem("Thông tin nhà bán", "18", <BsPersonVideo />),
+  //   ];
+
   const filteredMenuItems = (
     <div className="ant-layout-sider-children bg-white">
       <Menu
@@ -179,13 +200,20 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
                   className="bg-white"
                 >
                   {item.children.map((child, index) => (
-                    <Menu.Item key={`${item.key}-${index}`}>
+                    <Menu.Item
+                      key={`${item.key}-${index}`}
+                      onClick={() => handleMenuItemClick(child.url)}
+                    >
                       {child.label}
                     </Menu.Item>
                   ))}
                 </Menu.SubMenu>
               ) : (
-                <Menu.Item key={item.key} icon={item.icon}>
+                <Menu.Item
+                  key={item.key}
+                  icon={item.icon}
+                  onClick={() => handleMenuItemClick(item.url)}
+                >
                   {item.label}
                 </Menu.Item>
               )}
@@ -231,7 +259,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
           trigger={null}
           collapsible
           collapsed={collapsed}
-          collapsedWidth={80}
           className="h-full"
         >
           {filteredMenuItems}

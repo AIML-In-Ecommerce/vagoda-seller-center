@@ -1,5 +1,6 @@
 "use client";
 
+import { Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
@@ -34,14 +35,14 @@ function SidebarContentReactiveLayout({
   }
 
   return (
-    <>
+    <Layout>
       {" "}
       <Sidebar noticeCollapsingCallback={handleSidebarCollapsingNotice} />
       <div className="invisible" style={hiddenBlockStyle}>
         hidden block
       </div>
       <Content>{children}</Content>
-    </>
+    </Layout>
   );
 }
 
