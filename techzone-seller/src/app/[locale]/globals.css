@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .bg-theme {
-  background-color: #2776a4;
+  background-color: #0ea5e9;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -19,4 +19,54 @@
 /* Tùy chỉnh kiểu dáng của thanh cuộn ngang khi được hover */
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.4); /* Màu nền của thanh cuộn khi hover */
+}
+
+.theme-button .ant-btn-primary {
+  background-color: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+.ant-table-thead .ant-table-cell {
+  background-color: #c7c8cc !important;
+}
+
+.tooltip-overlay {
+  max-width: 200px; /* Điều chỉnh chiều rộng tối đa của tooltip */
+}
+
+.tooltip-content {
+  font-size: 12px; /* Điều chỉnh kích thước font chữ */
+}
+
+.dropdown-button {
+  background-color: transparent; /* Set background color to transparent */
+  border-color: transparent; /* Set border color to transparent */
+  color: #000; /* Set text color */
+}
+
+.dropdown-button.theme-button {
+  background-color: #1890ff; /* Set background color for primary theme */
+  border-color: #1890ff; /* Set border color for primary theme */
+  color: #fff; /* Set text color */
+}
+
+.max-w-xs {
+  max-width: 200px; /* Đặt chiều rộng cố định cho danh sách */
+}
+
+/* Tạo thanh cuộn dọc */
+.text-xs {
+  overflow-y: auto; /* Tự động tạo thanh cuộn dọc */
+}
+
+/* Định dạng danh sách và tạo thanh cuộn dọc */
+.dropdown-menu {
+  max-height: 150px; /* Đặt chiều cao cố định cho danh sách */
+  overflow-y: auto; /* Tự động tạo thanh cuộn dọc */
+}
+
+/* styles.css */
+
+.small-rating .ant-rate-star {
+  font-size: 10px; /* Điều chỉnh kích thước sao đánh giá ở đây */
 }
