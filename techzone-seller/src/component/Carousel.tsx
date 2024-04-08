@@ -17,7 +17,7 @@ export default function CustomCarousel(props: CarouselProps) {
     const ref = useRef<CarouselRef>(null);
     return (
         <React.Fragment>
-            <div className="carousel-container container relative">
+            <div className="carousel-container container relative shadow-lg rounded-lg">
                 <Carousel autoplay={props.autoplay ?? false}
                     ref={ref}
                     draggable>

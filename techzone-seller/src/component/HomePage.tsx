@@ -294,7 +294,7 @@ export default function HomePage() {
                         contents={
                             bannerContent.map((item, key) => {
                                 return (
-                                    <div key={key} className="bg-sky-600 h-[240px]">
+                                    <div key={key} className="bg-sky-600 h-[240px] rounded-lg">
                                         <div className="lg:grid lg:grid-cols-2 p-10 m-5">
                                             <div className="text-2xl font-semibold text-white text-center">{item.title}</div>
                                             <div className="mt-5 lg:mt-0 lg:text-lg text-white text-center">{item.description}</div>
@@ -316,7 +316,7 @@ export default function HomePage() {
                     <div className="col-start-1 lg:col-span-3 col-span-4 lg:mx-0 lg:col-start-4 lg:col-span-1 lg:row-span-4 lg:mt-10">
                         {/* <Affix offsetTop={100}> */}
                         <div className="flex flex-col">
-                            <div className="border flex flex-col relative ml-5 rounded-xl shadow-lg">
+                            <div className="border flex flex-col relative lg:ml-5 rounded-xl shadow-lg">
                                 <div className="mt-10 sm:mt-5 mx-5 sm:text-center font-semibold text-lg">Điểm chất lượng vận hành</div>
                                 <div className="mx-5 sm:mt-2 flex sm:justify-center flex-row gap-2 items-center sm:text-sm lg:text-xs">
                                     <FaRegCalendarAlt />
@@ -348,7 +348,7 @@ export default function HomePage() {
                                     <span><SlArrowRight /></span>
                                 </a>
                             </div>
-                            <div className="border flex flex-col relative mt-10 ml-5 rounded-xl shadow-lg">
+                            <div className="border flex flex-col relative mt-10 lg:ml-5 rounded-xl shadow-lg">
                                 <div className="text-center my-5 font-semibold text-xl">Thông báo!</div>
                                 <div>
                                     <NotificationList data={notificationData} />
