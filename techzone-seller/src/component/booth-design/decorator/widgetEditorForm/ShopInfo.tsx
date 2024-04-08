@@ -13,6 +13,7 @@ import {
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import BannerModal from "@/component/booth-design/decorator/BannerModal";
+import UploadImageModal from "../uploadImage/UploadImageModal";
 
 type TabPosition = "upload" | "color" | "default";
 type Colors =
@@ -41,11 +42,15 @@ export default function ShopInfo() {
   };
 
   // data
-  const [avatarUrl, setAvatarUrl] = useState<string>();
-  const [bannerUrl, setBannerUrl] = useState<string>(); // ?
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  );
+  const [bannerUrl, setBannerUrl] = useState<string>(""); // ?
   const [name, setName] = useState("");
 
   const [openPreview, setOpenPreview] = useState(false);
+
+  const [openUploadImage, setOpenUploadImage] = useState(false);
 
   // funtions
   const handleSave = () => {
@@ -147,6 +152,11 @@ export default function ShopInfo() {
           <Button size="large" onClick={handleSave}>
             Lưu thay đổi
           </Button>
+
+          {/* test */}
+          <Button size="large" onClick={() => setOpenUploadImage(true)}>
+            Cropper
+          </Button>
         </Flex>
       </Flex>
 
@@ -156,6 +166,13 @@ export default function ShopInfo() {
         avatarUrl={avatarUrl}
         open={openPreview}
         setOpen={setOpenPreview}
+      />
+
+      <UploadImageModal
+        imageUrl={avatarUrl}
+        setImageUrl={setAvatarUrl}
+        open={openUploadImage}
+        setOpen={setOpenUploadImage}
       />
     </div>
   );
