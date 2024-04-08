@@ -1,13 +1,14 @@
 'use client'
 
 import { Flex, Tabs, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import WaitingOrderTab from "./tab/WaitingOrderTab";
 import { OrderPropType } from "@/model/OrderPropType";
 import ProcessingOrderTab from "./tab/ProcessingOrderTab";
 import ShippingOrderTab from "./tab/ShippingOrderTab";
 import CompletedOrderTab from "./tab/CompletedOrderTab";
 import CancelledOrderTab from "./tab/CancelledOrderTab";
+import { SocketIOContext } from "@/socket/SocketProvider";
 
 
 interface OrderTabsProps
@@ -499,6 +500,15 @@ export default function OrderTabs({}: OrderTabsProps)
         }
     ]
 
+    const {socket, isConnected} = useContext(SocketIOContext)
+
+    useEffect(() =>
+    {
+        console.log("socket connection ...")
+        console.log(isConnected)
+    },
+    [isConnected])
+
     useEffect(() =>
     {
         //fetch data here
@@ -515,7 +525,7 @@ export default function OrderTabs({}: OrderTabsProps)
     {
         const clonedData = [...orderCount]
         clonedData[0] = waitingData.length
-        console.log(waitingData.length)
+
         setOrderCount(clonedData)
     },
     [waitingData])

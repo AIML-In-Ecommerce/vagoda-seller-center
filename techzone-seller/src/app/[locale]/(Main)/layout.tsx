@@ -38,25 +38,25 @@ export default function RootLayout({
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
       <body className="w-full">
-      <SocketProvider>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* <AuthProvider> */}
-          {/* <UserLayout children={children} locale={locale} /> */}
-          {/* <UserLayout locale={locale}>{children}</UserLayout> */}
-          {/* </AuthProvider> */}
-          <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-              <div className="fixed w-full ">
-                {" "}
-                <Navbar />
-              </div>
-              <div className="flex mt-16">
-                <SidebarContentReactiveLayout>
-                  {children}
-                </SidebarContentReactiveLayout>
-              </div>
-          </div>
+          <SocketProvider>
+            {/* <UserLayout children={children} locale={locale} /> */}
+            {/* <UserLayout locale={locale}>{children}</UserLayout> */}
+            {/* </AuthProvider> */}
+            <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
+                <div className="fixed w-full ">
+                  {" "}
+                  <Navbar />
+                </div>
+                <div className="flex flex-row mt-16">
+                  <SidebarContentReactiveLayout>
+                    {children}
+                  </SidebarContentReactiveLayout>
+                </div>
+            </div>
+          </SocketProvider>
         </NextIntlClientProvider>
-        </SocketProvider>
       </body>
     </html>
   );

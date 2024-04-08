@@ -252,9 +252,6 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
 
             const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
 
-            console.log(today)
-            console.log(time)
-
             if(today > time)
             {
                 orderStatus =

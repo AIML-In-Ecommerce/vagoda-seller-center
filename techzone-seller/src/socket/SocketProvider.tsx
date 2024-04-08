@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useMemo, useState } from 'react'
 import {io, Socket} from 'socket.io-client'
 
 
@@ -31,9 +31,10 @@ export default function SocketProvider({children}: SocketIOProps)
     const [socketIO, setSocketIO] = useState<Socket | null>(null)
     const testingAuthentication = "sakfjaksjflask"
 
+    //start socket after authenticated, so SocketProvider should be bounded by AuthContext
     useEffect(() =>
     {
-        if(isConnected == false)
+        if(socketIO == null)
         {
             const newSocketIO = io(URL, 
                 {
@@ -43,40 +44,52 @@ export default function SocketProvider({children}: SocketIOProps)
                     },
                     autoConnect: false
                 })
-            
-            setSocketIO(newSocketIO)
-    
-            return () =>
-            {
-                socketIO?.disconnect()
-            }
+        
+                setSocketIO(newSocketIO)
         }
     },
     [])
 
-    useEffect(() =>
+    const value: SocketIOContextProps = useMemo(() =>
     {
+        console.log("inside useMemo")
+
         if(isConnected == false && socketIO != null)
         {
+
             socketIO.on("connection", (args) =>
             {
                 console.log(args)
                 setIsConnected(true)
             })
 
-            socketIO.on("disconnect", () =>
+            socketIO.on("disconnect", (reason: Socket.DisconnectReason) =>
             {
+                console.log(reason)
                 setIsConnected(false)
+                if(reason == "ping timeout")
+                {
+                    socketIO.connect()
+                }   
+                else if(reason == "io server disconnect")
+                {
+                    socketIO.disconnect()
+                    setSocketIO(null)
+                }             
             })
 
-            const newSocketIO = socketIO.connect()
-            setSocketIO(newSocketIO)
+            socketIO.connect()
+        }
+
+        return {
+            isConnected: isConnected,
+            socket: socketIO
         }
     },
-    [socketIO])
+    [isConnected, socketIO])
 
     return(
-        <SocketIOContext.Provider value={{isConnected: isConnected, socket: socketIO}}>
+        <SocketIOContext.Provider value={value}>
             {children}
         </SocketIOContext.Provider>
     )
