@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Tabs } from "antd";
+import { Button, FloatButton, Tabs } from "antd";
 import { useState } from "react";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
 import Search from "antd/es/transfer/search";
@@ -11,6 +11,9 @@ import {
   WidgetType,
   WidgetCategoryType,
   CategoryPatternType,
+  BannerPatternType,
+  ProductPatternType,
+  PromotionPatternType,
 } from "@/model/WidgetType";
 import WidgetDrawer from "@/component/booth-design/decorator/WidgetDrawer";
 import { AddWidgetHandle } from "@/component/booth-design/decorator/widgetUtils/AddWidgetHandle";
@@ -31,71 +34,71 @@ export default function BoothDecoratorPage() {
         categoryIdList: [],
       },
     },
-    // {
-    //   _id: "product_ID",
-    //   type: WidgetCategoryType.PRODUCT,
-    //   order: 2,
-    //   visibility: true,
-    //   element: {
-    //     pattern: ProductPatternType.GRID,
-    //     title: "Sản phẩm mới",
-    //     collectionId: "",
-    //   },
-    // },
-    // {
-    //   _id: "product_ID2",
-    //   type: WidgetCategoryType.PRODUCT,
-    //   order: 4,
-    //   visibility: true,
-    //   element: {
-    //     pattern: ProductPatternType.CAROUSEL,
-    //     title: "Sản phẩm giá hời",
-    //     collectionId: "",
-    //   },
-    // },
-    // {
-    //   _id: "product_ID3",
-    //   type: WidgetCategoryType.PRODUCT,
-    //   order: 5,
-    //   visibility: true,
-    //   element: {
-    //     pattern: ProductPatternType.GRID,
-    //     title: "Sản phẩm nổi bật",
-    //     collectionId: "",
-    //   },
-    // },
-    // {
-    //   _id: "product_ID4",
-    //   type: WidgetCategoryType.PRODUCT,
-    //   order: 6,
-    //   visibility: true,
-    //   element: {
-    //     pattern: ProductPatternType.CAROUSEL,
-    //     title: "Sản phẩm cho bạn",
-    //     collectionId: "",
-    //   },
-    // },
-    // {
-    //   _id: "promotion_ID",
-    //   type: WidgetCategoryType.PROMOTION,
-    //   order: 3,
-    //   visibility: false,
-    //   element: {
-    //     pattern: PromotionPatternType.GRID,
-    //     title: "Voucher trao tay",
-    //     promotionIdList: [],
-    //   },
-    // },
-    // {
-    //   _id: "banner_ID",
-    //   type: WidgetCategoryType.BANNER,
-    //   order: 0,
-    //   visibility: true,
-    //   element: {
-    //     pattern: BannerPatternType.CAROUSEL,
-    //     images: [],
-    //   },
-    // },
+    {
+      _id: "product_ID",
+      type: WidgetCategoryType.PRODUCT,
+      order: 2,
+      visibility: true,
+      element: {
+        pattern: ProductPatternType.GRID,
+        title: "Sản phẩm mới",
+        collectionId: "",
+      },
+    },
+    {
+      _id: "product_ID2",
+      type: WidgetCategoryType.PRODUCT,
+      order: 4,
+      visibility: true,
+      element: {
+        pattern: ProductPatternType.CAROUSEL,
+        title: "Sản phẩm giá hời",
+        collectionId: "",
+      },
+    },
+    {
+      _id: "product_ID3",
+      type: WidgetCategoryType.PRODUCT,
+      order: 5,
+      visibility: true,
+      element: {
+        pattern: ProductPatternType.GRID,
+        title: "Sản phẩm nổi bật",
+        collectionId: "",
+      },
+    },
+    {
+      _id: "product_ID4",
+      type: WidgetCategoryType.PRODUCT,
+      order: 6,
+      visibility: true,
+      element: {
+        pattern: ProductPatternType.CAROUSEL,
+        title: "Sản phẩm cho bạn",
+        collectionId: "",
+      },
+    },
+    {
+      _id: "promotion_ID",
+      type: WidgetCategoryType.PROMOTION,
+      order: 3,
+      visibility: false,
+      element: {
+        pattern: PromotionPatternType.GRID,
+        title: "Voucher trao tay",
+        promotionIdList: [],
+      },
+    },
+    {
+      _id: "banner_ID",
+      type: WidgetCategoryType.BANNER,
+      order: 0,
+      visibility: true,
+      element: {
+        pattern: BannerPatternType.CAROUSEL,
+        images: [],
+      },
+    },
   ]);
 
   // variables n methods
@@ -116,7 +119,7 @@ export default function BoothDecoratorPage() {
   };
 
   return (
-    <div className="m-10 grid grid-cols-3">
+    <div className="m-5 grid grid-cols-3">
       <div className="col-span-2">
         <Banner
           color={shopInfo.color}
@@ -172,6 +175,8 @@ export default function BoothDecoratorPage() {
           // throw new Error("Function not implemented.");
         }}
       /> */}
+
+      <FloatButton.BackTop tooltip={<div>Move to Top</div>} />
     </div>
   );
 }

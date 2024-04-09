@@ -39,8 +39,8 @@ export default function ProductItem(props: ProductItemProps) {
   });
 
   return (
-    <div className="container h-80 w-48 mx-4">
-      <div className=" container relative w-48 h-44 rounded-lg shadow-xl border  transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+    <div className="container h-72 w-32 mx-4">
+      <div className=" container relative w-44 h-44 rounded-lg shadow-xl border  transition-transform duration-300 hover:scale-105 hover:shadow-lg">
         <div className="relative w-full h-full overflow-hidden rounded-lg shadow-xl border">
           {props.isFlashSale && (
             <div className="absolute top-0 left-0 z-20 py-2 px-4 bg-red-500 text-white font-bold text-xs rounded-br-3xl ">
@@ -55,7 +55,7 @@ export default function ProductItem(props: ProductItemProps) {
           />
         </div>
 
-        <div className="absolute top-48 left-1/2 transform -translate-x-1/2 w-11/12 h-2/3 z-10 bg-white rounded-lg shadow-xl border">
+        <div className="absolute top-32 left-1/2 transform -translate-x-1/2 w-11/12 h-2/3 z-10 bg-white rounded-lg shadow-xl border">
           <div className="p-4 space-y-2 text-sm ">
             <p className="font-bold overflow-hidden line-clamp-2">
               {props.name}
@@ -73,11 +73,11 @@ export default function ProductItem(props: ProductItemProps) {
               </div>
               <div>{soldAmount} sold</div>
             </div>
-            <div className="flex  justify-between items-center">
+            <div className="flex justify-between items-center">
               <div className="">
-                <p className="font-semibold text-green-500">{price} </p>
+                <p className="font-semibold text-green-500 text-xs">{price} </p>
                 <div className="flex space-x-1 ">
-                  <p className="font-semibold text-gray-500 line-through text-sm">
+                  <p className="font-semibold text-gray-500 line-through text-xs">
                     {originalPrice}{" "}
                   </p>
                   <p className="text-red-500 bg-red-200 text-xs">

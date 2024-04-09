@@ -6,6 +6,7 @@ import "../globals.css";
 // import StyledComponentsRegistry from "../../../lib/AntdRegistry";
 import Navbar from "@/component/Navbar";
 import SidebarContentReactiveLayout from "@/component/SidebarContentReactiveLayout";
+import SocketProvider from "@/socket/SocketProvider";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { ReactNode } from "react";
 
@@ -32,23 +33,24 @@ export default function RootLayout({
   return (
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
-      <body className="w-full">
+      <body className="w-full relative">
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* <AuthProvider> */}
-          {/* <UserLayout children={children} locale={locale} /> */}
-          {/* <UserLayout locale={locale}>{children}</UserLayout> */}
-          {/* </AuthProvider> */}
-          <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-            <div className="fixed w-full ">
-              {" "}
-              <Navbar />
+          <SocketProvider>
+            {/* <UserLayout children={children} locale={locale} /> */}
+            {/* <UserLayout locale={locale}>{children}</UserLayout> */}
+            {/* </AuthProvider> */}
+            <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
+              <div className="fixed w-full z-50">
+                <Navbar />
+              </div>
+              <div className="flex flex-row mt-16">
+                <SidebarContentReactiveLayout>
+                  {children}
+                </SidebarContentReactiveLayout>
+              </div>
             </div>
-            <div className="flex mt-16">
-              <SidebarContentReactiveLayout>
-                {children}
-              </SidebarContentReactiveLayout>
-            </div>
-          </div>
+          </SocketProvider>
         </NextIntlClientProvider>
       </body>
     </html>

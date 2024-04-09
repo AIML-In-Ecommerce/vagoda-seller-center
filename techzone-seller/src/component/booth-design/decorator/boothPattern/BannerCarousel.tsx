@@ -187,9 +187,9 @@ export default function BannerCarousel(props: BannerCarouselProps) {
         className="w-full flex flex-col justify-end items-center relative"
         style={LargeBackground}
       >
-        <div className="flex flex-col justify-center items-center backdrop-blur-md w-full h-1/2">
+        <div className="flex flex-col justify-center items-center backdrop-blur-md w-full h-1/6">
           <div className="invisible h-10">hidden block</div>
-          <div className="w-3/4 h-1/2">
+          <div className="w-3/4 h-1/6">
             <Carousel
               autoplay={true}
               style={{ height: "100%" }}
