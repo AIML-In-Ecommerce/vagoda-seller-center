@@ -127,12 +127,12 @@ const SortableItem: React.ComponentClass<
           <div className="col-span-1" onClick={(e) => e.stopPropagation()}>
             <DeleteOutlined
               onClick={handleDeleteModal}
-              style={{ fontSize: "20px" }}
+              style={{ fontSize: "14px", marginLeft: "10px" }}
             />
           </div>
           <div
             className="col-span-1 cursor-grab z-10"
-            style={{ fontSize: "20x" }}
+            style={{ fontSize: "14px" }}
           >
             <DragHandle />
           </div>

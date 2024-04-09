@@ -164,7 +164,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
       result = result.concat(
         <div
           key={i.toString() + startIndex.toString() + endIndex.toString()}
-          className="py-3 px-6"
+          className="my-3 pr-10 flex items-center"
         >
           {rowWrapper}
         </div>
@@ -178,10 +178,10 @@ export default function ProductCarousel(props: ProductCarouselProps) {
   const element = props.widget.element as ProductElement;
 
   return (
-    <div className="w-full flex justify-center items-center bg-white py-10 my-5">
-      <div className="w-full px-2">
+    <div className="w-full flex justify-center items-center bg-white pt-5 my-5">
+      <div className="w-full">
         <Flex className="w-full mb-4 px-8" align="center">
-          <Typography.Text className="text-2xl font-semibold w-full">
+          <Typography.Text className="text-xl font-semibold w-full">
             {element.title}
           </Typography.Text>
           <Flex className="w-full px-4" justify="end" align="center" gap={6}>

@@ -15,7 +15,7 @@ export default function CategoryGrid(props: CategoryGridProps) {
 
   return (
     <div className="bg-white my-5 py-5 px-10 ">
-      <Typography.Text className="text-2xl font-semibold w-full">
+      <Typography.Text className="text-xl font-semibold w-full">
         {element.title}
       </Typography.Text>
       <div className="invisible h-5">hidden block</div>
@@ -33,7 +33,7 @@ export default function CategoryGrid(props: CategoryGridProps) {
         renderItem={(item) => (
           <List.Item>
             <Link href={""}>
-              <div className="text-center text-xl text-semibold line-clamp-2">
+              <div className="text-center text-lg text-semibold line-clamp-2">
                 {item}
               </div>
             </Link>

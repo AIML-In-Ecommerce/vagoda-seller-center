@@ -30,7 +30,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   }, [selectedWidget]);
 
   return (
-    <div className="bg-white mx-2 lg:w-[450px] max-w-[450px] z-0 pb-5">
+    <div className="bg-white mx-2 min-w-80 z-0 pb-5">
       {/* general */}
       {currentForm === "" && (
         <div className="p-5">

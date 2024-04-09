@@ -15,7 +15,7 @@ export default function ProductGrid(props: ProductGridProps) {
 
   return (
     <div className="bg-white my-5 py-5 px-10">
-      <Typography.Text className="text-2xl font-semibold w-full">
+      <Typography.Text className="text-xl font-semibold w-full">
         {element.title}
       </Typography.Text>
       <div className="invisible h-5">hidden block</div>
