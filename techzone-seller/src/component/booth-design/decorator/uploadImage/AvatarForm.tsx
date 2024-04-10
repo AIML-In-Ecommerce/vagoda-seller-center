@@ -74,7 +74,6 @@ export default function AvatarForm(formProps: FormProps) {
       <div className="w-[300px]">
         <Flex gap="small">
           <Flex gap="small" vertical>
-
             <Upload
               name="avatar"
               listType="picture-circle"
@@ -95,9 +94,16 @@ export default function AvatarForm(formProps: FormProps) {
               )}
             </Upload>
             {imageUrl ? (
-              <Button className="mt-5 rounded rounded-xl" icon={<RiImageEditLine />}
-                onClick={showModal}>Chỉnh sửa</Button>
-            ) : <></>}
+              <Button
+                className="mt-5 rounded-xl"
+                icon={<RiImageEditLine />}
+                onClick={showModal}
+              >
+                Chỉnh sửa
+              </Button>
+            ) : (
+              <></>
+            )}
           </Flex>
           {imageUrl ? (
             <Upload
@@ -112,7 +118,6 @@ export default function AvatarForm(formProps: FormProps) {
               {uploadButton}
             </Upload>
           ) : null}
-
         </Flex>
       </div>
       <ImageCropper

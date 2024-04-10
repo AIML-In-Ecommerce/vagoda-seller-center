@@ -1,7 +1,6 @@
 "use client";
-import AvatarForm from "@/component/booth-design/decorator/uploadImage/AvatarForm";
 import { BannerPatternType, WidgetType } from "@/model/WidgetType";
-import { Button, Flex, Select } from "antd";
+import { Badge, Button, Collapse, CollapseProps, Flex, Select } from "antd";
 import { useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon from "../mini/WidgetTypeIcon";
@@ -12,9 +11,44 @@ interface WidgetProps {
 
 export default function BannerWidget(props: WidgetProps) {
   // data
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  );
+  const items: CollapseProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <div>
+          Banner 1 <Badge color="green" />
+        </div>
+      ),
+      children: <p></p>,
+    },
+    {
+      key: "2",
+      label: (
+        <div>
+          Banner 2 <Badge color="green" />
+        </div>
+      ),
+      children: <p></p>,
+    },
+    {
+      key: "3",
+      label: (
+        <div>
+          Banner 3 <Badge color="gray" />
+        </div>
+      ),
+      children: <p></p>,
+    },
+    {
+      key: "4",
+      label: (
+        <div>
+          Banner 4 <Badge color="gray" />
+        </div>
+      ),
+      children: <p></p>,
+    },
+  ];
 
   // variables
   const [openUploadImage, setOpenUploadImage] = useState(false);
@@ -62,21 +96,22 @@ export default function BannerWidget(props: WidgetProps) {
           disabled
         />
 
-        {/* avatar */}
-        <Flex vertical gap="large">
-          <div className="font-semibold">Thay đổi ảnh đại diện</div>
-          <AvatarForm setImageUrl={setAvatarUrl} />
+        <Flex vertical gap="small">
+          {/* title */}
+          <div className="font-semibold">Ảnh banner</div>
+
+          <div className="font-light text-sm">
+            Chọn từ 2 đến 4 ảnh để hiển thị đẹp hơn trên gian hàng
+          </div>
+
+          {/* collapse */}
+          <Collapse items={items} />
         </Flex>
 
         {/* Buttons */}
         <Flex gap="large">
           <Button size="large" onClick={handleSave}>
             Lưu thay đổi
-          </Button>
-
-          {/* test */}
-          <Button size="large" onClick={() => setOpenUploadImage(true)}>
-            Cropper
           </Button>
         </Flex>
       </Flex>

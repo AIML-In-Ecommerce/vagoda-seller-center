@@ -15,6 +15,9 @@ import PromotionWidget from "./widgetEditorForm/PromotionWidget";
 interface WidgetEditorBarProps {
   widgets: WidgetType[];
   setWidgets(widgets: WidgetType[]): void;
+
+  toggleInvisibilityWidget: (widget: WidgetType) => void;
+  deleteWidget: (widget: WidgetType) => void;
 }
 
 export default function WidgetEditorBar(props: WidgetEditorBarProps) {
@@ -84,6 +87,8 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           widgets={props.widgets}
           setWidgets={props.setWidgets}
           setSelectedWidget={setSelectedWidget}
+          toggleInvisibilityWidget={props.toggleInvisibilityWidget}
+          deleteWidget={props.deleteWidget}
         />
       )}
     </div>
@@ -94,6 +99,9 @@ interface SortableComponentProps {
   widgets: WidgetType[];
   setWidgets: (rubrics: WidgetType[]) => void;
   setSelectedWidget: (widget: WidgetType) => void;
+
+  toggleInvisibilityWidget: (widget: WidgetType) => void;
+  deleteWidget: (widget: WidgetType) => void;
 }
 const SortableComponent = (props: SortableComponentProps) => {
   const onSortEnd = ({
@@ -134,6 +142,8 @@ const SortableComponent = (props: SortableComponentProps) => {
         throw new Error("Function not implemented.");
       }}
       setSelectedWidget={props.setSelectedWidget}
+      toggleInvisibilityWidget={props.toggleInvisibilityWidget}
+      deleteWidget={props.deleteWidget}
     />
   );
 };

@@ -16,6 +16,7 @@ import {
 } from "@/model/WidgetType";
 import WidgetDrawer from "@/component/booth-design/decorator/WidgetDrawer";
 import { AddWidgetHandle } from "@/component/booth-design/decorator/widgetUtils/AddWidgetHandle";
+import DeleteWidgetModal from "@/component/booth-design/decorator/modal/DeleteWidgetModal";
 
 export default function BoothDecoratorPage() {
   // mock data
@@ -116,6 +117,41 @@ export default function BoothDecoratorPage() {
     setWidgets([...widgets, newWidget]);
     setOpenDrawer(false);
   };
+
+  const toggleInvisibilityWidget = (widget: WidgetType) => {
+    widget.visibility = !widget.visibility;
+    setWidgets([...widgets]);
+    // TODO: toast update successfully
+  };
+
+  // delete widget
+  const tempWidget = {
+    _id: "",
+    type: 0,
+    order: 0,
+    visibility: false,
+    element: undefined,
+  };
+
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deletableWidget, setDeletableWidget] =
+    useState<WidgetType>(tempWidget);
+
+  const handleDeleteWidget = (widget: WidgetType) => {
+    setDeletableWidget(widget);
+    setOpenDeleteModal(true);
+  };
+
+  const deleteWidget = () => {
+    let newList = widgets.filter((w) => w._id !== deletableWidget._id);
+    setWidgets(newList);
+
+    setOpenDeleteModal(false);
+    setDeletableWidget(tempWidget);
+
+    // TODO: toast update successfully
+  };
+
   return (
     <div className="m-5 grid grid-cols-3">
       <div className="col-span-2">
@@ -155,7 +191,12 @@ export default function BoothDecoratorPage() {
       </div>
 
       <div className="col-span-1">
-        <WidgetEditorBar widgets={widgets} setWidgets={setWidgets} />
+        <WidgetEditorBar
+          widgets={widgets}
+          setWidgets={setWidgets}
+          toggleInvisibilityWidget={toggleInvisibilityWidget}
+          deleteWidget={handleDeleteWidget}
+        />
       </div>
 
       <WidgetDrawer
@@ -166,6 +207,12 @@ export default function BoothDecoratorPage() {
       />
 
       <FloatButton.BackTop tooltip={<div>Move to Top</div>} />
+
+      <DeleteWidgetModal
+        open={openDeleteModal}
+        handleOk={() => deleteWidget()}
+        handleCancel={() => setOpenDeleteModal(false)}
+      />
     </div>
   );
 }

@@ -175,7 +175,7 @@ export default function WidgetList(props: WidgetListProps) {
         .sort((a, b) => a.order - b.order)
         .map((item, index) => (
           <div key={index}>
-            <Widget widget={item} />
+            {item.visibility === true && <Widget widget={item} />}
           </div>
         ))}
     </div>

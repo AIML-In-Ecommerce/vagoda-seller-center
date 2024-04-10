@@ -97,7 +97,7 @@ export default function CategoryWidget(props: WidgetProps) {
         <Flex vertical gap="small">
           <div className="font-semibold">Danh mục</div>
           <div className="font-light text-sm">
-            Chọn tối đa 4 danh mục để hiện thị ở trang gian hàng
+            Chọn tối đa 4 danh mục để hiển thị ở trang gian hàng
           </div>
 
           {proxyCategory.map((item, index) => (

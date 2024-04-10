@@ -53,10 +53,6 @@ export default function BannerForm(formProps: FormProps) {
     <>
       <Flex gap="small">
         {imageUrl ? (
-          <Button className="mt-5 rounded rounded-xl" icon={<RiImageEditLine />}
-            onClick={showModal}>Chỉnh sửa</Button>
-        ) : <></>}
-        {imageUrl ? (
           <div className="mt-20">
             <Upload
               name="avatar"
@@ -81,7 +77,8 @@ export default function BannerForm(formProps: FormProps) {
           onChange={handleChange}
         >
           {imageUrl ? (
-            <div className="m-10 w-[800px] h-[200px]">
+            <div className="m-10 max-w-[200px] max-h-[50px]">
+              {/* TODO: show image file name? or full image? how to display it? */}
               <img
                 src={imageUrl}
                 alt="banner"
@@ -101,7 +98,20 @@ export default function BannerForm(formProps: FormProps) {
         }}
         onCrop={handleOk}
         onCancel={handleCancel}
-        isOpen={isModalOpen} />
+        isOpen={isModalOpen}
+      />
+
+      {imageUrl ? (
+        <Button
+          className="mt-5 rounded-xl"
+          icon={<RiImageEditLine />}
+          onClick={showModal}
+        >
+          Chỉnh sửa
+        </Button>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
