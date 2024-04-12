@@ -12,6 +12,7 @@ import { SlArrowRight } from "react-icons/sl";
 import NotificationList, { NotificationType } from "../notification/NotificationList";
 import { TbInfoCircle } from "react-icons/tb";
 import TodoTasks, { Task, TaskType } from "./TodoTasks";
+import Link from "next/link";
 
 const bannerContent = [
     { title: 'Quản lý đơn hàng', description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi." },
@@ -104,30 +105,35 @@ const statisticData: Task[] = [
         tooltip: "",
         value: 7,
         type: TaskType.INFO,
+        urlRedirect: "/order"
     },
     {
         title: "Đơn hàng đang xử lý",
         tooltip: "",
         value: 12,
         type: TaskType.WARNING,
+        urlRedirect: "/order"
     },
     {
         title: "Đơn hàng đang vận chuyển",
         tooltip: "",
         value: 42,
         type: TaskType.INFO,
+        urlRedirect: "/order"
     },
     {
         title: "Sản phẩm hết hàng",
         tooltip: "",
         value: 23,
         type: TaskType.WARNING,
+        urlRedirect: "/product/list"
     },
     {
         title: "Sản phẩm bị đánh giá thấp",
         tooltip: "",
         value: 2,
         type: TaskType.DANGER,
+        urlRedirect: "/product/list"
     },
 ]
 
@@ -307,6 +313,7 @@ export default function HomePage() {
     const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
     const [totalRevenue, setTotalRevenue] = useState<number>(0);
     const [qosScore, setQosScore] = useState<number>(5);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
         return dates.map(item => {
@@ -348,6 +355,7 @@ export default function HomePage() {
                 <div className="mt-10 w-[100%]">
                     <CustomCarousel
                         arrows
+                        loading={loading}
                         autoplay={true}
                         contents={
                             bannerContent.map((item, key) => {
@@ -402,10 +410,11 @@ export default function HomePage() {
                                         )
                                     })
                                 }
-                                <a className="text-sky-500 flex flex-row mx-auto items-center mb-5 gap-1">
+                                <Link className="text-sky-500 cursor-pointer hover:text-blue-500 flex flex-row mx-auto items-center mb-5 gap-1"
+                                href={"/report/seller-performance"}>
                                     <span>Xem chi tiết</span>
                                     <span><SlArrowRight /></span>
-                                </a>
+                                </Link>
                             </div>
                             <div className="border flex flex-col relative mt-10 lg:ml-5 rounded-xl shadow-lg">
                                 <div className="text-center my-5 font-semibold text-xl">Thông báo!</div>
@@ -434,10 +443,11 @@ export default function HomePage() {
                                             filterValue === 'quarter' ? "quý" : "năm"
                                     } qua: {}</div> */}
                                 </div>
-                                <a className="font-medium text-sky-500 flex flex-row items-center gap-1">
+                                <Link className="font-medium cursor-pointer hover:text-blue-500 text-sky-500 flex flex-row items-center gap-1"
+                                href={"/report/business-performance"}>
                                     <span>Xem chi tiết</span>
                                     <span><SlArrowRight /></span>
-                                </a>
+                                </Link>
                             </div>
                             <div className="flex lg:flex-row mt-5 flex-col relative">
                                 <div className="lg:w-2/5 flex-col flex">
@@ -524,12 +534,13 @@ export default function HomePage() {
 
                     {/* Hiệu quả vận hành */}
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 ">
-                        <div className="flex flex-row justify-between">
+                        <div className="flex flex-row justify-between items-center">
                             <div className="font-semibold text-xl">Hiệu quả vận hành</div>
-                            <a className="font-medium text-sky-500 flex flex-row items-center gap-1">
+                            <Link className="cursor-pointer hover:text-blue-500 font-medium text-sky-500 flex flex-row items-center gap-1" 
+                                href={"/report/seller-performance"}>
                                 <span>Xem chi tiết</span>
                                 <span><SlArrowRight /></span>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     <div className="col-start-1 lg:col-span-3 col-span-4 gap-5 my-10 flex lg:grid lg:grid-cols-6 sm:flex-col">
@@ -543,7 +554,7 @@ export default function HomePage() {
                                     <Tooltip title={"Trung bình tất cả các đánh giá sản phẩm của nhà bán"}>
                                         <div><TbInfoCircle /></div></Tooltip>
                                 </div>
-                            }>
+                            }>  
                                 <div className="flex flex-col items-center justify-center space-y-1 px-5 h-full ant-card-body">
                                     <div className="text-slate-500 text-3xl font-semibold">{productRatingData.rating ? productRatingData.rating : '--'}/5</div>
                                     <div>{`(${productRatingData.totalRatings} đánh giá)`}</div>

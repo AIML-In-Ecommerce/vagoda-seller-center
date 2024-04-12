@@ -33,11 +33,11 @@ export function NotificationCard(props: NotificationCardProps) {
     return (
         <React.Fragment>
             <Card size="small">
-                <Meta title={<a>{props.item.title}</a>}
+                <Meta title={<div className="cursor-pointer hover:text-blue-500">{props.item.title}</div>}
                     description=
                     {
                         <div className="flex flex-col">
-                            <a>{props.item.description}</a>
+                            <div className="cursor-pointer hover:text-blue-500">{props.item.description}</div>
                             <div className="capitalize text-xs mt-2">
                                 {props.item.timestamp.toLocaleDateString('vi-VN', {
                                     weekday: 'short',
