@@ -81,7 +81,7 @@ function getTagLabel2(params: any| null)
 {
     if(params == null)
     {
-        return "Tên người dùng"
+        return "Tên người đặt"
     }
     
     const castedParams = params as string[]

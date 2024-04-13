@@ -389,7 +389,7 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
 
             
             <OrderDetailDrawer open={orderDetailOpen} orderProps={selectedOrderDetail} onCloseCallback={handleOrderDetailDrawerOnClose} 
-            confirmButtonActive cancelButtonActive
+            confirmButtonActive cancelButtonActive={false}
             confirmButtonOnClick={handleConfirmOrderOnClick} cancelButtonOnClick={handleCancelOrderOnClick}
             />
         </>

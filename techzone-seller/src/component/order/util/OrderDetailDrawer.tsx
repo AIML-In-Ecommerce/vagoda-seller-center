@@ -2,7 +2,7 @@
 
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
 import { OrderPropType, OrderStatus, OrderStatusValues, ProductInOrder, PromotionInOrder, PromotionTypeConvention } from "@/model/OrderPropType"
-import { Button, Card, Col, Divider, Drawer, Flex, Image, Row, Tag, Timeline, TimelineItemProps, Typography } from "antd"
+import { Button, Card, Col, Divider, Drawer, Flex, Image, Row, Tag, Timeline, TimelineItemProps, Tooltip, Typography } from "antd"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { SlSizeActual, SlSizeFullscreen } from "react-icons/sl"
@@ -34,6 +34,8 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
             let label = ""
             let color = "blue"
             let childContent = ""
+            let startTime: string = datetimeFormaterShort(MyLocaleRef.VN, value.time)
+            let endTime: string = ""
 
             if(value.status == OrderStatusValues.PENDING)
             {
@@ -56,11 +58,11 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                 label = "Đã hủy"
             }
 
-            childContent = datetimeFormaterShort(MyLocaleRef.VN, value.time) + " - "
+            childContent = startTime + " - "
 
             if(value.complete != null)
             {
-                if(value.complete > value.deadline)
+                if(value.complete > value.deadline && value.status != OrderStatusValues.SHIPPING)
                 {
                     color = "orange"
                 }
@@ -68,20 +70,57 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                 {
                     color = "green"
                 }
+                
+                endTime = datetimeFormaterShort(MyLocaleRef.VN, value.complete)
 
-                childContent = childContent.concat(datetimeFormaterShort(MyLocaleRef.VN, value.complete))
+                childContent = childContent.concat(endTime)
             }
             else
             {
-                childContent = childContent.concat("...")
+                endTime = "..."
+                childContent = childContent.concat(endTime)
             }
+
+            let tooltipTitleStatusPart = <></>
+
+            if(color == "orange")
+            {
+                tooltipTitleStatusPart = <Typography.Text className="text-sm text-white">Tình trạng: bị trễ</Typography.Text>
+            }
+            else if(color == "green")
+            {
+                tooltipTitleStatusPart = <Typography.Text className="text-sm text-white">Tình trạng: đúng hạn</Typography.Text>
+            }
+            else if(color == "blue")
+            {
+                tooltipTitleStatusPart = <Typography.Text className="text-sm text-white">Tình trạng: đang chờ</Typography.Text>
+            }
+
+            
+            const tooltipTitle = 
+            <Flex vertical>
+                <Typography.Text className="text-sm text-white">
+                    {label}:
+                </Typography.Text>
+                <Typography.Text className="text-sm text-white">
+                    Bắt đầu lúc: {startTime}
+                </Typography.Text>
+                <Typography.Text className="text-sm text-white">
+                    Hoàn thành lúc: {endTime}
+                </Typography.Text>
+                {tooltipTitleStatusPart}
+            </Flex>
 
             const processingDot = 
             {
                 label: label,
                 dot: undefined,
                 color: color,
-                children: <Typography.Text className="w-full">{childContent}</Typography.Text>
+                children: <>
+                    <Tooltip trigger={"hover"} title={tooltipTitle}>
+                        <Typography.Text className="w-full">{childContent}</Typography.Text>
+                    </Tooltip>
+                </>
             }
 
             result.push(processingDot)
