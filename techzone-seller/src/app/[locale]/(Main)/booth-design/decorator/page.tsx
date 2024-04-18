@@ -112,12 +112,14 @@ export default function BoothDecoratorPage() {
   // widget drawer
   const [openDrawer, setOpenDrawer] = useState(false);
 
+  // add widget
   const addWidget = (type: number, pattern: number, order: number) => {
     let newWidget = AddWidgetHandle({ type, pattern, order });
     setWidgets([...widgets, newWidget]);
     setOpenDrawer(false);
   };
 
+  // update widget's visibility
   const toggleInvisibilityWidget = (widget: WidgetType) => {
     widget.visibility = !widget.visibility;
     setWidgets([...widgets]);

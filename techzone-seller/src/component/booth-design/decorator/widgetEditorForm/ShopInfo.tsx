@@ -47,7 +47,7 @@ export default function ShopInfo() {
 
   const [openPreview, setOpenPreview] = useState(false);
 
-  // funtions
+  // functions
   const handleSave = () => {
     //
   };

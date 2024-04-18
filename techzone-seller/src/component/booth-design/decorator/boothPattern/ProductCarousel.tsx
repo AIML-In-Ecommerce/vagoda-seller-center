@@ -1,5 +1,5 @@
 "use client";
-import { Carousel, Empty, Flex, Skeleton, Typography } from "antd";
+import { Carousel, Flex, Typography } from "antd";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AiOutlineRight } from "react-icons/ai";
@@ -7,6 +7,7 @@ import { CarouselArrow } from "@/component/utils/CarouselArrow";
 import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
 import ProductItem from "@/component/booth-design/decorator/mini/MiniProductItem";
+import CustomEmpty from "../mini/CustomEmpty";
 
 interface ProductCarouselProps {
   products: ProductType[]; // TODO: get this from collection id
@@ -76,13 +77,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
 
   const productDisplay = () => {
     if (products.length < 1) {
-      // return <Skeleton active />;
-      return (
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={<span>Không có</span>}
-        />
-      );
+      return <CustomEmpty />;
     }
 
     let result: JSX.Element[] = [];

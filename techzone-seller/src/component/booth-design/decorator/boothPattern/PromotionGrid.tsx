@@ -3,7 +3,7 @@ import { List, Typography } from "antd";
 import MiniPromotionTicket from "../mini/MiniPromotionTicket";
 import { DiscountType, PromotionType } from "@/model/PromotionType";
 import { PromotionElement, WidgetType } from "@/model/WidgetType";
-import { formatDate } from "@/component/utils/FormatDate";
+import { formatDate } from "@/utils/DateFormatter";
 
 interface PromotionGridProps {
   widget: WidgetType;

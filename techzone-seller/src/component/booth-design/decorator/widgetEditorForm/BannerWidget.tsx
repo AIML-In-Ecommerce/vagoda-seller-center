@@ -1,15 +1,23 @@
 "use client";
-import { BannerPatternType, WidgetType } from "@/model/WidgetType";
+import {
+  BannerElement,
+  BannerPatternType,
+  WidgetType,
+} from "@/model/WidgetType";
 import { Badge, Button, Collapse, CollapseProps, Flex, Select } from "antd";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import BannerForm from "../uploadImage/BannerForm";
 
 interface WidgetProps {
   widget: WidgetType;
+  updateWidgets(): void;
 }
 
 export default function BannerWidget(props: WidgetProps) {
+  // mock data
+
   // data
   const items: CollapseProps["items"] = [
     {
@@ -19,7 +27,15 @@ export default function BannerWidget(props: WidgetProps) {
           Banner 1 <Badge color="green" />
         </div>
       ),
-      children: <p></p>,
+      children: (
+        <div>
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              // throw new Error("Function not implemented.");
+            }}
+          />
+        </div>
+      ),
     },
     {
       key: "2",
@@ -28,7 +44,15 @@ export default function BannerWidget(props: WidgetProps) {
           Banner 2 <Badge color="green" />
         </div>
       ),
-      children: <p></p>,
+      children: (
+        <div>
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              // throw new Error("Function not implemented.");
+            }}
+          />
+        </div>
+      ),
     },
     {
       key: "3",
@@ -37,7 +61,15 @@ export default function BannerWidget(props: WidgetProps) {
           Banner 3 <Badge color="gray" />
         </div>
       ),
-      children: <p></p>,
+      children: (
+        <div>
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              // throw new Error("Function not implemented.");
+            }}
+          />
+        </div>
+      ),
     },
     {
       key: "4",
@@ -46,21 +78,51 @@ export default function BannerWidget(props: WidgetProps) {
           Banner 4 <Badge color="gray" />
         </div>
       ),
-      children: <p></p>,
+      children: (
+        <div>
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              // throw new Error("Function not implemented.");
+            }}
+          />
+        </div>
+      ),
     },
   ];
 
+  const [proxyBanner, setProxyBanner] = useState<Array<string>>(
+    Array.from(" ".repeat(4))
+  );
+
   // variables
+  const [proxyBannerWidget, setProxyBannerWidget] = useState(props.widget);
+
   const [openUploadImage, setOpenUploadImage] = useState(false);
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
-  // funtions
+  const element = useMemo(() => {
+    return props.widget.element as BannerElement;
+  }, [props.widget.element]);
+
+  // functions
   const handleSave = () => {
-    //
+    proxyBannerWidget.visibility = isSwitched;
+
+    // TODO: update this _ need experiment
+    element.images = [];
+    proxyBannerWidget.element = element;
+    setProxyBannerWidget(proxyBannerWidget);
+
+    props.updateWidgets();
   };
 
   const handleChangePattern = (value: string) => {
     console.log(`selected ${value}`);
+  };
+
+  const handleChangeBanner = (value: string, index: number) => {
+    proxyBanner[index] = value;
+    setProxyBanner(proxyBanner);
   };
 
   return (

@@ -23,7 +23,6 @@ interface WidgetEditorBarProps {
 export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   // var
   const [currentForm, setCurrentForm] = useState("");
-
   const [selectedWidget, setSelectedWidget] = useState<WidgetType>();
 
   useEffect(() => {
@@ -31,6 +30,18 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       setCurrentForm(selectedWidget.type.toString());
     }
   }, [selectedWidget]);
+
+  // functions
+  const returnToAll = () => {
+    setCurrentForm("");
+    setSelectedWidget(undefined);
+  };
+
+  //update widgets visually
+  const updateWidgets = () => {
+    props.setWidgets([...props.widgets]);
+    // TODO: toast update successfully
+  };
 
   return (
     <div className="bg-white mx-2 min-w-80 z-0 pb-5">
@@ -57,10 +68,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       {currentForm !== "" && (
         <Button
           style={{ marginTop: "10px", marginLeft: "10px" }}
-          onClick={() => {
-            setCurrentForm("");
-            setSelectedWidget(undefined);
-          }}
+          onClick={returnToAll}
         >
           Quay về
         </Button>
@@ -70,16 +78,33 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       {currentForm === "general_info" && <ShopInfo />}
 
       {currentForm === WidgetCategoryType.BANNER.toString() &&
-        selectedWidget && <BannerWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <BannerWidget widget={selectedWidget} updateWidgets={updateWidgets} />
+        )}
 
       {currentForm === WidgetCategoryType.PRODUCT.toString() &&
-        selectedWidget && <ProductWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <ProductWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
 
       {currentForm === WidgetCategoryType.CATEGORY.toString() &&
-        selectedWidget && <CategoryWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <CategoryWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
 
       {currentForm === WidgetCategoryType.PROMOTION.toString() &&
-        selectedWidget && <PromotionWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <PromotionWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
 
       {/* widgets */}
       {currentForm === "" && (

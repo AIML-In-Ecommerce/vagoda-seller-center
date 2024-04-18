@@ -14,8 +14,9 @@ import {
   PicCenterOutlined,
   FontColorsOutlined,
 } from "@ant-design/icons";
-import { Drawer, Empty, Flex } from "antd";
+import { Drawer, Flex } from "antd";
 import MiniDesignPattern from "./mini/MiniDesignPattern";
+import CustomEmpty from "./mini/CustomEmpty";
 
 interface DrawerProps {
   openDrawer: boolean;
@@ -197,10 +198,7 @@ export default function WidgetDrawer(props: DrawerProps) {
         </Flex>
 
         <div className="font-semibold uppercase">bộ sưu tập</div>
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={<span>Không có</span>}
-        />
+        <CustomEmpty />
 
         <div className="font-semibold uppercase">khuyến mãi</div>
         <Flex>
