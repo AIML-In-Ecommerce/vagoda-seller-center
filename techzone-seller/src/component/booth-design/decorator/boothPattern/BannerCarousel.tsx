@@ -1,27 +1,11 @@
 "use client";
-import { WidgetType } from "@/model/WidgetType";
+import { BannerElement, WidgetType } from "@/model/WidgetType";
 import { Carousel, Image, Skeleton } from "antd";
 import React, { useEffect, useState } from "react";
 
 interface BannerCarouselProps {
   widget: WidgetType;
 }
-
-const MockPictures = [
-  "https://images.unsplash.com/photo-1515940279136-2f419eea8051?q=80&w=1914&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-  "https://images.unsplash.com/photo-1591785944213-c8b5b7a75ec6?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-  "https://images.unsplash.com/photo-1503328427499-d92d1ac3d174?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-  "https://images.unsplash.com/photo-1591785944213-c8b5b7a75ec6?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-  "https://images.unsplash.com/photo-1503328427499-d92d1ac3d174?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-  "https://images.unsplash.com/photo-1591785944213-c8b5b7a75ec6?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-
-  "https://images.unsplash.com/photo-1503328427499-d92d1ac3d174?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-];
 
 export default function BannerCarousel(props: BannerCarouselProps) {
   const [largeBackgroundUrl, setLargeBackgroundUrl] = useState<string>("");
@@ -34,20 +18,22 @@ export default function BannerCarousel(props: BannerCarouselProps) {
   );
   const numberSmallEventsDisplayed = 5;
 
-  useEffect(() => {
-    //fetch data here
-
-    //testing
-    setCarouselImages(MockPictures);
-    setLargeBackgroundUrl(MockPictures[0]);
-  }, []);
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
-    //fetch data here
-    setSmallEvents(MockPictures);
-    setCurrentIndexOfSmallEvent(0);
-    handleSmallEventsChange();
-  }, []);
+    let temp = props.widget.element as BannerElement;
+    setImages(temp.images);
+  }, [props.widget.element]);
+
+  useEffect(() => {
+    if (images.length > 0) {
+      setCarouselImages(images);
+      setLargeBackgroundUrl(images[0]);
+      setSmallEvents(images);
+      setCurrentIndexOfSmallEvent(0);
+      handleSmallEventsChange();
+    }
+  }, [images, props.widget.element]);
 
   // const SmallEventCardStyle: React.CSSProperties =
   // {
@@ -139,7 +125,6 @@ export default function BannerCarousel(props: BannerCarouselProps) {
   }
 
   function afterCarouselChange(currentSlide: number) {
-    console.log(currentSlide);
     const slide = carouselImages[currentSlide];
     setLargeBackgroundUrl(slide);
     setCurrentIndexOfSmallEvent(

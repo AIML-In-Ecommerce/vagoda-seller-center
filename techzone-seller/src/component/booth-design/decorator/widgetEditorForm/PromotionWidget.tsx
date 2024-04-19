@@ -82,7 +82,7 @@ export default function PromotionWidget(props: WidgetProps) {
   ];
 
   // data
-  const [proxyPromotion, setProxyPromotion] = useState<Array<string>>(
+  const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>(
     Array.from(" ".repeat(5))
   );
 
@@ -92,9 +92,20 @@ export default function PromotionWidget(props: WidgetProps) {
   );
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
+  const [selectedPromotions, setSelectedPromotions] = useState<
+    Array<PromotionType>
+  >([]);
 
   const element = useMemo(() => {
-    return props.widget.element as PromotionElement;
+    let temp = props.widget.element as PromotionElement;
+
+    temp.promotionIdList.forEach((promotion, index) => {
+      proxyPromotionId[index] = promotion;
+    });
+
+    // call api to get promotion info
+
+    return temp;
   }, [props.widget.element]);
 
   const [title, setTitle] = useState(element.title);
@@ -104,20 +115,46 @@ export default function PromotionWidget(props: WidgetProps) {
     proxyPromotionWidget.visibility = isSwitched;
 
     element.title = title;
-    // TODO: update this _ need experiment
-    element.promotionIdList = [];
+    // TODO: need experiment
+    element.promotionIdList = proxyPromotionId.filter((id) => id !== " ");
 
     proxyPromotionWidget.element = element;
     setProxyPromotionWidget(proxyPromotionWidget);
+
+    props.updateWidgets();
   };
 
   const handleChangePattern = (value: string) => {
     console.log(`selected ${value}`);
   };
 
-  const handleChangePromotion = (value: string, index: number) => {
-    proxyPromotion[index] = value;
-    setProxyPromotion(proxyPromotion);
+  const handleAddPromotion = (value: PromotionType, index: number) => {
+    selectedPromotions.forEach((promotion) => {
+      if (promotion._id === value._id) return;
+    });
+
+    proxyPromotionId[selectedPromotions.length - 1] = value._id;
+    setProxyPromotionId(proxyPromotionId);
+
+    selectedPromotions.push(value);
+    setSelectedPromotions(selectedPromotions);
+
+    console.log(`promotions: `, selectedPromotions);
+    props.updateWidgets();
+  };
+
+  const handleRemovePromotion = (value: PromotionType, index: number) => {
+    let newIdList = proxyPromotionId.filter((id) => id !== value._id);
+    setProxyPromotionId(newIdList);
+
+    let newList = selectedPromotions.filter(
+      (promotion) => promotion._id !== value._id
+    );
+
+    setSelectedPromotions(newList);
+
+    console.log(`promotions: `, newList);
+    props.updateWidgets();
   };
 
   return (
@@ -153,7 +190,6 @@ export default function PromotionWidget(props: WidgetProps) {
           ]}
           disabled
         />
-
         {/* title */}
         <Flex vertical gap="small">
           <div className="font-semibold">
@@ -174,10 +210,13 @@ export default function PromotionWidget(props: WidgetProps) {
             />
           </div>
         </Flex>
-
         {/* select promotions */}
         <Flex vertical gap="small">
           <div className="font-semibold">Mã giảm giá</div>
+
+          <div className="font-light text-sm">
+            Chọn tối đa 5 giảm giá để hiển thị
+          </div>
 
           {/* TODO: select promotions */}
           {promotions.length > 0 && (
@@ -189,41 +228,41 @@ export default function PromotionWidget(props: WidgetProps) {
                 </Button>
               </div>
               <Card className="overflow-auto h-96">
-                {promotions.map((item) => {
+                {promotions.map((item, index) => {
                   return (
                     <PromotionCard
                       item={item}
-                      promotions={[]}
-                      applyDiscount={function (item: PromotionType): void {
-                        // throw new Error("Function not implemented.");
+                      applyDiscount={(item: PromotionType) => {
+                        handleAddPromotion(item, index);
                       }}
-                      removeDiscount={function (item: PromotionType): void {
-                        // throw new Error("Function not implemented.");
+                      removeDiscount={(item: PromotionType) => {
+                        handleRemovePromotion(item, index);
                       }}
                     />
                   );
                 })}
               </Card>
-              {/* <div className="my-5 flex flex-row justify-center items-center">
+              <div className="my-5 flex flex-row justify-center items-center">
                 <div>Bạn đã chọn &nbsp;</div>
                 <div
                   className={`${
-                    discounts.length > 0 ? "text-red-500" : ""
+                    // proxyPromotionId.filter((p) => p != " ").length > 0
+                    selectedPromotions.length > 0 ? "text-red-500" : ""
                   } font-bold text-2xl`}
                 >
-                  {discounts.length}
+                  {selectedPromotions.length}
                 </div>
-                <div>&nbsp; mã giảm giá Sản Phẩm &nbsp;</div>
-                <Tooltip title={promotion_help}>
-                  <div className="text-slate-500">
-                    <FaRegCircleQuestion />
-                  </div>
-                </Tooltip>
-              </div> */}
+                <div>&nbsp; mã giảm giá sản phẩm &nbsp;</div>
+              </div>
             </Space>
           )}
           {promotions.length == 0 && <CustomEmpty />}
         </Flex>
+
+        {/* for testing
+        {element.promotionIdList.map((item, index) => {
+          return <div>{item}</div>;
+        })} */}
 
         {/* Buttons */}
         <Flex gap="large">

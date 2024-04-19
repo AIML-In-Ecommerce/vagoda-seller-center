@@ -4,11 +4,20 @@ import {
   BannerPatternType,
   WidgetType,
 } from "@/model/WidgetType";
-import { Badge, Button, Collapse, CollapseProps, Flex, Select } from "antd";
+import {
+  Badge,
+  Button,
+  Collapse,
+  CollapseProps,
+  Flex,
+  Select,
+  Tooltip,
+} from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon from "../mini/WidgetTypeIcon";
 import BannerForm from "../uploadImage/BannerForm";
+import { FaRegHandPointer } from "react-icons/fa6";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -18,98 +27,32 @@ interface WidgetProps {
 export default function BannerWidget(props: WidgetProps) {
   // mock data
 
-  // data
-  const items: CollapseProps["items"] = [
-    {
-      key: "1",
-      label: (
-        <div>
-          Banner 1 <Badge color="green" />
-        </div>
-      ),
-      children: (
-        <div>
-          <BannerForm
-            setImageUrl={function (url: string): void {
-              // throw new Error("Function not implemented.");
-            }}
-          />
-        </div>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-        <div>
-          Banner 2 <Badge color="green" />
-        </div>
-      ),
-      children: (
-        <div>
-          <BannerForm
-            setImageUrl={function (url: string): void {
-              // throw new Error("Function not implemented.");
-            }}
-          />
-        </div>
-      ),
-    },
-    {
-      key: "3",
-      label: (
-        <div>
-          Banner 3 <Badge color="gray" />
-        </div>
-      ),
-      children: (
-        <div>
-          <BannerForm
-            setImageUrl={function (url: string): void {
-              // throw new Error("Function not implemented.");
-            }}
-          />
-        </div>
-      ),
-    },
-    {
-      key: "4",
-      label: (
-        <div>
-          Banner 4 <Badge color="gray" />
-        </div>
-      ),
-      children: (
-        <div>
-          <BannerForm
-            setImageUrl={function (url: string): void {
-              // throw new Error("Function not implemented.");
-            }}
-          />
-        </div>
-      ),
-    },
-  ];
-
+  // variables
   const [proxyBanner, setProxyBanner] = useState<Array<string>>(
     Array.from(" ".repeat(4))
   );
 
-  // variables
   const [proxyBannerWidget, setProxyBannerWidget] = useState(props.widget);
 
-  const [openUploadImage, setOpenUploadImage] = useState(false);
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
   const element = useMemo(() => {
-    return props.widget.element as BannerElement;
+    let temp = props.widget.element as BannerElement;
+
+    temp.images.forEach((image, index) => {
+      proxyBanner[index] = image;
+    });
+    setProxyBanner(proxyBanner);
+
+    return temp;
   }, [props.widget.element]);
 
   // functions
   const handleSave = () => {
     proxyBannerWidget.visibility = isSwitched;
 
-    // TODO: update this _ need experiment
-    element.images = [];
+    // TODO: need experiment
+    element.images = proxyBanner.filter((id) => id !== " ");
     proxyBannerWidget.element = element;
     setProxyBannerWidget(proxyBannerWidget);
 
@@ -124,6 +67,131 @@ export default function BannerWidget(props: WidgetProps) {
     proxyBanner[index] = value;
     setProxyBanner(proxyBanner);
   };
+
+  const checkActive = (index: number) => {
+    if (element.images[index] && element.images[index] !== " ") {
+      return <Badge color="green" />;
+    } else return <Badge color="gray" />;
+  };
+
+  const items: CollapseProps["items"] = [
+    {
+      key: "1",
+      label: <div>Banner 1 {checkActive(0)}</div>,
+      children: (
+        <Flex vertical gap="large">
+          {element.images[0] && element.images[0] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[0]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 0);
+            }}
+          />
+        </Flex>
+      ),
+    },
+    {
+      key: "2",
+      label: <div>Banner 2 {checkActive(1)}</div>,
+      children: (
+        <Flex vertical className="mb-5">
+          {element.images[1] && element.images[1] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[1]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 1);
+            }}
+          />
+        </Flex>
+      ),
+    },
+    {
+      key: "3",
+      label: <div>Banner 3 {checkActive(2)}</div>,
+      children: (
+        <Flex vertical gap="large">
+          {element.images[2] && element.images[2] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[2]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 2);
+            }}
+          />
+        </Flex>
+      ),
+    },
+    {
+      key: "4",
+      label: <div>Banner 4 {checkActive(3)}</div>,
+      children: (
+        <Flex vertical gap="large">
+          {element.images[3] && element.images[3] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[3]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 3);
+            }}
+          />
+        </Flex>
+      ),
+    },
+  ];
 
   return (
     <div className="m-5 pb-5">
