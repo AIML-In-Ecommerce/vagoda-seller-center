@@ -11,6 +11,9 @@ interface CarouselProps {
     nextArrow?: JSX.Element;
     contents: any;
     loading: boolean
+    slidesToShow?: number;
+    slidesToScroll?: number;
+    infinite?: boolean;
 }
 
 
@@ -18,11 +21,14 @@ export default function CustomCarousel(props: CarouselProps) {
     const ref = useRef<CarouselRef>(null);
     return (
         <React.Fragment>
-            <div className="carousel-container container relative shadow-lg rounded-lg">
+            <div className="relative">
                 {
                     props.loading ? <Skeleton active={props.loading} /> : (
                         <>
-                            <Carousel autoplay={props.autoplay ?? false}
+                            <Carousel slidesToShow={props.slidesToShow ?? 1}
+                                slidesToScroll={props.slidesToShow ?? 1}
+                                infinite={props.infinite ?? true}
+                                autoplay={props.autoplay ?? false}
                                 ref={ref}
                                 draggable>
                                 {props.contents}

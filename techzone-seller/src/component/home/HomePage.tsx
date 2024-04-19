@@ -352,7 +352,7 @@ export default function HomePage() {
         <React.Fragment>
             <div className="container flex flex-col px-10 mx-auto">
                 {/* slider */}
-                <div className="mt-10 w-[100%]">
+                <div className="mt-10 w-[100%] shadow-lg rounded-lg">
                     <CustomCarousel
                         arrows
                         loading={loading}
