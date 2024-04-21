@@ -95,7 +95,7 @@ const orderStatistics = [
     {
         title: <div className="font-semibold">Tổng đơn đã nhận:</div>,
         value: 0,
-        tooltip: 'Tổng số đơn Dropship ở mọi trạng thái.'
+        tooltip: 'Tổng số đơn ở mọi trạng thái.'
     },
 ];
 
@@ -123,7 +123,14 @@ const handleRatingColor = (rating: number, intensity: number, prefix: string) =>
 }
 
 export default function SellerPerformancePage() {
-    const [qosScore, setQosScore] = useState<number>(3.4);
+    const [opScore, setOpScore] = useState<number>(3.4);
+    const operationalEfficiency = {
+        'CancellationRate': [23, 1641],
+        'OntimeProcessingRate': [1632, 32],
+        'ReturnRate': [12, 1630],
+        'ChatResponseRate': [],
+        'AverageResponseTime': [],
+    }
     return (
         <React.Fragment>
             <div className="flex flex-col container">
@@ -158,15 +165,15 @@ export default function SellerPerformancePage() {
                     }>
                         <div className="flex flex-col lg:grid lg:grid-cols-8 gap-10">
                             <div className="flex flex-col lg:col-start-1 lg:col-span-4">
-                                <RatingChart score={qosScore} />
+                                <RatingChart score={opScore} />
                                 {/* slider for testing purposes */}
-                                {/* <Slider value={qosScore} step={0.1} onChange={(e) => setQosScore(e)} min={0} max={5}></Slider> */}
+                                {/* <Slider value={opScore} step={0.1} onChange={(e) => setopScore(e)} min={0} max={5}></Slider> */}
                                 {
-                                    qosComment.filter((item) => item.score.includes(Math.floor(qosScore))).map((item, index) => {
+                                    qosComment.filter((item) => item.score.includes(Math.floor(opScore))).map((item, index) => {
                                         return (
                                             <div key={index}>
-                                                <div className={`${handleRatingColor(qosScore, 200, "bg")} text-black border ${handleRatingColor(qosScore, 500, "border")} p-4 w-full rounded-xl text-sm mb-5`}>
-                                                    <div className="font-semibold">{item.message.firstPart} <span className={`${handleRatingColor(qosScore, 500, "text")} font-bold`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
+                                                <div className={`${handleRatingColor(opScore, 200, "bg")} text-black border ${handleRatingColor(opScore, 500, "border")} p-4 w-full rounded-xl text-sm mb-5`}>
+                                                    <div className="font-semibold">{item.message.firstPart} <span className={`${handleRatingColor(opScore, 500, "text")} font-bold`}>{item.message.highlightWord}</span> {item.message.secondPart}</div>
                                                     <div className="font-light">
                                                         {item.message.content}</div>
                                                 </div>
@@ -203,8 +210,8 @@ export default function SellerPerformancePage() {
                 </div>
                 <div className="mt-10 bg-white mx-5">
                     <Card title={<div>Chỉ số vận hành</div>}>
-                        <div className="grid grid-cols-2">
-                            <div className="col-start-1 col-span-1 flex flex-col border border-gray-200 p-5">
+                        <div className="lg:grid lg:grid-cols-2 flex flex-col gap-5">
+                            <div className="lg:col-start-1 lg:col-span-1 flex flex-col border border-gray-200 p-5">
                                 <div className="flex flex-row justify-between items-center">
                                     <div className="flex flex-row gap-1 items-center">
                                         <div className="font-semibold">Tỉ lệ hủy đơn</div>
@@ -219,19 +226,23 @@ export default function SellerPerformancePage() {
                                         </div>
                                     </Button>
                                 </div>
-                                <div className="w-2/3 mx-auto">
-                                    <GaugeChart />
+                                <div className="my-5">
+                                    {/* Cancellation rate gauge */}
+                                    <GaugeChart label={"Đơn hàng"}
+                                        labels={["Đơn bị hủy", "Đơn đã nhận"]}
+                                        datasets={operationalEfficiency['CancellationRate']}
+                                        isBelow={true} thresholdValue={2} />
                                 </div>
                                 <div className="flex flex-row justify-between p-4">
                                     <div>Số đơn bị hủy</div>
-                                    <div>0</div>
+                                    <div>{operationalEfficiency['CancellationRate'][0]}</div>
                                 </div>
                                 <div className="flex flex-row justify-between font-semibold bg-gray-100 p-4 border-t-2">
                                     <div>Tổng số đơn đã nhận</div>
-                                    <div>0</div>
+                                    <div>{operationalEfficiency['CancellationRate'].reduce((acc, curr) => acc + curr, 0)}</div>
                                 </div>
                             </div>
-                            <div className="col-start-2 col-span-1 flex flex-col border border-gray-200 p-5">
+                            <div className="lg:col-start-2 lg:col-span-1 flex flex-col border border-gray-200 p-5">
                                 <div className="flex flex-row justify-between items-center">
                                     <div className="flex flex-row gap-1 items-center">
                                         <div className="font-semibold">Tỉ lệ xử lý đơn đúng hạn</div>
@@ -246,24 +257,28 @@ export default function SellerPerformancePage() {
                                         </div>
                                     </Button>
                                 </div>
-                                <div className="w-2/3 mx-auto">
-                                    <GaugeChart />
+                                <div className="my-5">
+                                    {/* On-time application processing rate gauge */}
+                                    <GaugeChart label={"Đơn hàng"}
+                                        labels={["Đơn xử lý đúng hạn", "Đơn xử lý trễ hạn"]}
+                                        datasets={operationalEfficiency['OntimeProcessingRate']}
+                                        isBelow={false} thresholdValue={97} />
                                 </div>
                                 <div className="flex flex-row justify-between p-4">
                                     <div>Số đơn xử lý đúng hạn</div>
-                                    <div>0</div>
+                                    <div>{operationalEfficiency['OntimeProcessingRate'][0]}</div>
                                 </div>
                                 <div className="flex flex-row justify-between font-semibold bg-gray-100 p-4 border-t-2">
                                     <div>Tổng số đơn đã nhận</div>
-                                    <div>0</div>
+                                    <div>{operationalEfficiency['OntimeProcessingRate'].reduce((acc, curr) => acc + curr, 0)}</div>
                                 </div>
                             </div>
                         </div>
                     </Card>
                 </div>
                 <div className="mt-10 bg-white mx-5">
-                    <div className="grid grid-cols-2">
-                        <div className="col-start-1 col-span-1 flex flex-col border border-gray-200 p-5">
+                    <div className="lg:grid lg:grid-cols-2 flex flex-col gap-5">
+                        <div className="lg:col-start-1 lg:col-span-1 flex flex-col border border-gray-200 p-5">
                             <div className="flex flex-row justify-between items-center">
                                 <div className="flex flex-row gap-1 items-center">
                                     <div className="font-semibold">Tỉ lệ đổi trả</div>
@@ -278,19 +293,23 @@ export default function SellerPerformancePage() {
                                     </div>
                                 </Button>
                             </div>
-                            <div className="w-2/3 mx-auto">
-                                <GaugeChart />
+                            <div className="my-5">
+                                {/* On-time application processing rate gauge */}
+                                <GaugeChart label={"Đơn hàng"}
+                                    labels={["Sản phẩm đổi trả", "Sản phẩm không đổi trả"]}
+                                    datasets={operationalEfficiency['ReturnRate']}
+                                    isBelow={true} thresholdValue={2} />
                             </div>
                             <div className="flex flex-row justify-between p-4">
-                                <div>Số đơn bị hủy</div>
-                                <div>0</div>
+                                <div>Số sản phẩm đổi trả</div>
+                                <div>{operationalEfficiency['ReturnRate'][0]}</div>
                             </div>
                             <div className="flex flex-row justify-between font-semibold bg-gray-100 p-4 border-t-2">
-                                <div>Tổng số đơn đã nhận</div>
-                                <div>0</div>
+                                <div>Số sản phẩm đã bán</div>
+                                <div>{operationalEfficiency['ReturnRate'].reduce((acc, curr) => acc + curr, 0)}</div>
                             </div>
                         </div>
-                        <div className="col-start-2 col-span-1 flex flex-col border border-gray-200 p-5">
+                        <div className="lg:col-start-2 lg:col-span-1 flex flex-col border border-gray-200 p-5">
                             <div className="flex flex-row justify-between items-center">
                                 <div className="flex flex-row gap-1 items-center">
                                     <div className="font-semibold">Đánh giá sản phẩm</div>
