@@ -134,32 +134,34 @@ export default function SellerPerformancePage() {
     return (
         <React.Fragment>
             <div className="flex flex-col container">
-                <div className="bg-white pr-4 px-4 mb-5">
-                    <Breadcrumb
-                        className="text-xs"
-                        items={[
-                            {
-                                href: "/",
-                                title: (
-                                    <div className="flex items-center">
-                                        <HiOutlineHome size={15} />
-                                    </div>
-                                ),
-                            },
-                            {
-                                href: "/report/business-performance",
-                                title: "Trung tâm phát triển",
-                            },
-                            {
-                                title: "Hiệu quả vận hành",
-                            },
-                        ]}
-                    />
+                <div className="bg-white pr-4 px-4 mb-5 gap-5">
+                    <div className="mt-5">
+                        <Breadcrumb
+                            className="text-xs"
+                            items={[
+                                {
+                                    href: "/",
+                                    title: (
+                                        <div className="flex items-center">
+                                            <HiOutlineHome size={15} />
+                                        </div>
+                                    ),
+                                },
+                                {
+                                    href: "/report/business-performance",
+                                    title: "Trung tâm phát triển",
+                                },
+                                {
+                                    title: "Hiệu quả vận hành",
+                                },
+                            ]}
+                        />
+                    </div>
                     <div className="font-semibold text-lg uppercase">Hiệu quả vận hành</div>
                 </div>
                 <div className="mt-10 bg-white mx-5">
                     <Card title={
-                        <div>Điểm chất lượng vận hành</div>
+                        <div className="font-semibold">Điểm chất lượng vận hành</div>
                     } extra={
                         <div><RangePicker picker="date" /></div>
                     }>
@@ -200,7 +202,7 @@ export default function SellerPerformancePage() {
                             </div>
                             <div className="flex flex-col lg:col-start-8 lg:col-span-1">
                                 <Button className="cursor-pointer flex flex-row mx-auto items-center mb-5 gap-1"
-                                    href={"/report/seller-performance"}>
+                                    href={"/report/seller-operational-score"}>
                                     <span>Xem chi tiết</span>
                                     <span><SlArrowRight /></span>
                                 </Button>
@@ -219,7 +221,7 @@ export default function SellerPerformancePage() {
                                             <TbInfoCircle />
                                         </Tooltip>
                                     </div>
-                                    <Button>
+                                    <Button disabled>
                                         <div className="flex flex-row items-center gap-1">
                                             <div>Xuất các đơn bị hủy</div>
                                             <GoDownload />
@@ -250,7 +252,7 @@ export default function SellerPerformancePage() {
                                             <TbInfoCircle />
                                         </Tooltip>
                                     </div>
-                                    <Button>
+                                    <Button disabled>
                                         <div className="flex flex-row items-center gap-1">
                                             <div>Xuất các đơn trễ hạn</div>
                                             <GoDownload />
@@ -318,7 +320,7 @@ export default function SellerPerformancePage() {
                                     </Tooltip>
                                 </div>
                                 <Button
-                                    href={"/report/seller-performance"}>
+                                    href={"/product/review"}>
                                     <div className="cursor-pointer flex flex-row mx-auto items-center gap-1">
                                         <span>Xem chi tiết</span>
                                         <span><SlArrowRight /></span>
