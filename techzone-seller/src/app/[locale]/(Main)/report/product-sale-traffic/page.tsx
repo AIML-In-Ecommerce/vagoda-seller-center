@@ -1,5 +1,5 @@
-import ProductSalesTrafficPage from "@/component/report/ProductSalesTraffic";
-import RevenueAndVisits from "@/component/report/RevenueAndVisits";
+import ProductSalesTrafficPage from "@/component/report/product/ProductSalesTraffic";
+import RevenueAndVisits from "@/component/report/product/RevenueAndVisits";
 import React from "react";
 
 export default function ProductSalesTraffic() {

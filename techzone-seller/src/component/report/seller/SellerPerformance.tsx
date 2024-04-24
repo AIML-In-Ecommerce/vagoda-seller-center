@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import RatingChart from "./RatingChart";
+import RatingChart from "../RatingChart";
 import { Breadcrumb, Button, Card, DatePicker, List, Slider, Tooltip } from "antd";
 import { HiOutlineHome } from "react-icons/hi";
 import { SlArrowRight } from "react-icons/sl";
 import { TbInfoCircle } from "react-icons/tb";
 import { GoDownload } from "react-icons/go";
-import GaugeChart from "./GaugeChart";
-import RatingStatistics from "./RatingStatistics";
+import GaugeChart from "../GaugeChart";
+import RatingStatistics from "../RatingStatistics";
 
 const { RangePicker } = DatePicker;
 

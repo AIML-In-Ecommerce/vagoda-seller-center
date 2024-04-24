@@ -5,9 +5,7 @@ import { HiOutlineHome } from "react-icons/hi2";
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import LowInventory from "./LowInventory";
-import LowSales from "./LowSales";
-import RevenueAndVisits from "./RevenueAndVisits";
+import RevenueAndVisits from "@/component/report/product/RevenueAndVisits";
 import { useRouter } from "next/navigation";
 
 dayjs.extend(LocalizedFormat)

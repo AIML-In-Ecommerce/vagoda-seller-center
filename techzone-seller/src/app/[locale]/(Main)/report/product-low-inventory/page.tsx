@@ -1,5 +1,5 @@
-import LowInventory from "@/component/report/LowInventory";
-import ProductSalesTrafficPage from "@/component/report/ProductSalesTraffic";
+import LowInventory from "@/component/report/product/LowInventory";
+import ProductSalesTrafficPage from "@/component/report/product/ProductSalesTraffic";
 import React from "react";
 
 export default function ProductLowInventory() {

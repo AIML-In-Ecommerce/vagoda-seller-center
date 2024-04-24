@@ -1,4 +1,4 @@
-import CouponInsightPage from "@/component/report/CouponInsight";
+import CouponInsightPage from "@/component/report/coupon/CouponInsight";
 import React from "react";
 
 export default function CouponInsight() {

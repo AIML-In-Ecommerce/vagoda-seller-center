@@ -3,7 +3,7 @@ import { Button, DatePicker, Divider, Input, Radio,
     RadioChangeEvent, Select, Space, Table, TableColumnsType, Tooltip } from 'antd'
 import React, { useState } from 'react'
 import { GoDownload } from 'react-icons/go'
-import CheckableCard from './CheckableCard'
+import CheckableCard from '@/component/report/CheckableCard'
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';

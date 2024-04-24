@@ -1,5 +1,5 @@
-import LowSales from "@/component/report/LowSales";
-import ProductSalesTrafficPage from "@/component/report/ProductSalesTraffic";
+import LowSales from "@/component/report/product/LowSales";
+import ProductSalesTrafficPage from "@/component/report/product/ProductSalesTraffic";
 import React from "react";
 
 export default function ProductLowSales() {

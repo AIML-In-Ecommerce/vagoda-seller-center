@@ -1,4 +1,4 @@
-import SellerPerformancePage from "@/component/report/SellerPerformance";
+import SellerPerformancePage from "@/component/report/seller/SellerPerformance";
 import React from "react";
 
 export default function SellerPerformance() {

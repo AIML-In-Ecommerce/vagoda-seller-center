@@ -1,4 +1,4 @@
-import BusinessPerformancePage from "@/component/report/BusinessPerformance";
+import BusinessPerformancePage from "@/component/report/business/BusinessPerformance";
 import React from "react";
 
 export default function BusinessPerformance() {

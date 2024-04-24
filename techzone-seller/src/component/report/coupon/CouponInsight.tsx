@@ -2,9 +2,9 @@
 import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Space, Tooltip } from "antd";
 import React, { useState } from "react";
 import { HiOutlineHome } from "react-icons/hi";
-import CustomCarousel from "../Carousel";
+import CustomCarousel from "../../Carousel";
 import { TbInfoCircle } from "react-icons/tb";
-import CheckableCard from "./CheckableCard";
+import CheckableCard from "../CheckableCard";
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
@@ -67,7 +67,7 @@ const mainValues = [
 
 ]
 
-export default function BusinessPerformancePage() {
+export default function CouponInsight() {
     const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
@@ -115,11 +115,11 @@ export default function BusinessPerformancePage() {
                                 title: "Trung tâm phát triển",
                             },
                             {
-                                title: "Hiệu quả kinh doanh",
+                                title: "Chỉ số khuyến mãi",
                             },
                         ]}
                     />
-                    <div className="mt-5 uppercase text-xl font-semibold">Hiệu quả kinh doanh</div>
+                    <div className="mt-5 uppercase text-xl font-semibold">Chỉ số khuyến mãi</div>
                     <div className="mt-5">Vui lòng xem hướng dẫn chi tiết: Giới thiệu trung tâm phát triển</div>
                     <div className="mt-5">
                         <div className="flex lg:flex-row flex-col gap-5 mb-5 lg:items-center">
