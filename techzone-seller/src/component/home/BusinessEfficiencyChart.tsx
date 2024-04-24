@@ -291,7 +291,7 @@ const getTotalQuantitiesInRange = (products: Product[], startDate: Date, endDate
         currentDate = new Date(dateAfterStep);
         dateAfterStep = getDateAfterStep(dateAfterStep, step, filterBy); // Get the date after step
     }
-    console.log("Total Quantities:", totalQuantities);
+    // console.log("Total Quantities:", totalQuantities);
     return totalQuantities;
 };
 
@@ -338,7 +338,7 @@ const getTotalPricesInRange = (products: Product[], startDate: Date, endDate: Da
         totalPrices.push(totalPricePerStep);
         currentDate = new Date(dateAfterStep);
     }
-    console.log("Total Prices:", totalPrices);
+    // console.log("Total Prices:", totalPrices);
     return totalPrices;
 };
 

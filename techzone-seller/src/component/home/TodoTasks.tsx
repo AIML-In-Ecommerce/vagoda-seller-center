@@ -1,4 +1,6 @@
 import { Card, Tooltip } from "antd";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { TbInfoCircle } from "react-icons/tb";
 
@@ -15,6 +17,7 @@ export type Task = {
     value: number,
     warning_text?: string,
     type: TaskType
+    urlRedirect: string
 }
 
 interface TaskCardProps {
@@ -32,19 +35,22 @@ const handleCardColor = (type: TaskType) => {
 }
 
 export function TaskCard(props: TaskCardProps) {
+    const router = useRouter();
     return (
         <React.Fragment>
             <div className="relative">
-                <div className={`absolute z-10 top-0 h-2 w-full border rounded-xl ${handleCardColor(props.item.type)}`}></div>
-                <Card className="relative z-0 h-32 shadow-md" hoverable>
-                    <div className="absolute wrap w-2/3 top-1/6 lg:top-3 text-lg">{props.item.title}</div>
-                    <div className="absolute wrap bottom-3 text-2xl font-bold">{props.item.value}</div>
-                    <div className="absolute wrap top-3 right-2 text-lg">
-                        <Tooltip title={props.item.tooltip}>
-                            <TbInfoCircle />
-                        </Tooltip>
-                    </div>
-                </Card>
+                <Link href={props.item.urlRedirect}>
+                    <div className={`absolute z-10 top-0 h-2 w-full border rounded-xl ${handleCardColor(props.item.type)}`}></div>
+                    <Card className="relative z-0 h-32 shadow-md" hoverable>
+                        <div className="absolute wrap w-2/3 top-1/6 lg:top-3 text-lg">{props.item.title}</div>
+                        <div className="absolute wrap bottom-3 text-2xl font-bold">{props.item.value}</div>
+                        <div className="absolute wrap top-3 right-2 text-lg">
+                            <Tooltip title={props.item.tooltip}>
+                                <TbInfoCircle />
+                            </Tooltip>
+                        </div>
+                    </Card>
+                </Link>
             </div>
         </React.Fragment>
     );
