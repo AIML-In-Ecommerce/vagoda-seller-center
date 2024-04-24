@@ -1,33 +1,197 @@
 "use client";
-import AvatarForm from "@/component/booth-design/decorator/uploadImage/AvatarForm";
-import { BannerPatternType, WidgetType } from "@/model/WidgetType";
-import { Button, Flex, Select } from "antd";
-import { useState } from "react";
+import {
+  BannerElement,
+  BannerPatternType,
+  WidgetType,
+} from "@/model/WidgetType";
+import {
+  Badge,
+  Button,
+  Collapse,
+  CollapseProps,
+  Flex,
+  Select,
+  Tooltip,
+} from "antd";
+import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import BannerForm from "../uploadImage/BannerForm";
+import { FaRegHandPointer } from "react-icons/fa6";
 
 interface WidgetProps {
   widget: WidgetType;
+  updateWidgets(): void;
 }
 
 export default function BannerWidget(props: WidgetProps) {
-  // data
-  const [avatarUrl, setAvatarUrl] = useState<string>(
-    "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-  );
+  // mock data
 
   // variables
-  const [openUploadImage, setOpenUploadImage] = useState(false);
+  const [proxyBanner, setProxyBanner] = useState<Array<string>>(
+    Array.from(" ".repeat(4))
+  );
+
+  const [proxyBannerWidget, setProxyBannerWidget] = useState(props.widget);
+
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
-  // funtions
+  const element = useMemo(() => {
+    let temp = props.widget.element as BannerElement;
+
+    temp.images.forEach((image, index) => {
+      proxyBanner[index] = image;
+    });
+    setProxyBanner(proxyBanner);
+
+    return temp;
+  }, [props.widget.element]);
+
+  // functions
   const handleSave = () => {
-    //
+    proxyBannerWidget.visibility = isSwitched;
+
+    // TODO: need experiment
+    element.images = proxyBanner.filter((id) => id !== " ");
+    proxyBannerWidget.element = element;
+    setProxyBannerWidget(proxyBannerWidget);
+
+    props.updateWidgets();
   };
 
   const handleChangePattern = (value: string) => {
     console.log(`selected ${value}`);
   };
+
+  const handleChangeBanner = (value: string, index: number) => {
+    proxyBanner[index] = value;
+    setProxyBanner(proxyBanner);
+  };
+
+  const checkActive = (index: number) => {
+    if (element.images[index] && element.images[index] !== " ") {
+      return <Badge color="green" />;
+    } else return <Badge color="gray" />;
+  };
+
+  const items: CollapseProps["items"] = [
+    {
+      key: "1",
+      label: <div>Banner 1 {checkActive(0)}</div>,
+      children: (
+        <Flex vertical gap="large" className="overflow-hidden">
+          {element.images[0] && element.images[0] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[0]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 0);
+            }}
+          />
+        </Flex>
+      ),
+    },
+    {
+      key: "2",
+      label: <div>Banner 2 {checkActive(1)}</div>,
+      children: (
+        <Flex vertical gap="large" className="overflow-hidden">
+          {element.images[1] && element.images[1] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[1]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 1);
+            }}
+          />
+        </Flex>
+      ),
+    },
+    {
+      key: "3",
+      label: <div>Banner 3 {checkActive(2)}</div>,
+      children: (
+        <Flex vertical gap="large" className="overflow-hidden">
+          {element.images[2] && element.images[2] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[2]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 2);
+            }}
+          />
+        </Flex>
+      ),
+    },
+    {
+      key: "4",
+      label: <div>Banner 4 {checkActive(3)}</div>,
+      children: (
+        <Flex vertical gap="large" className="overflow-hidden">
+          {element.images[3] && element.images[3] !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={element.images[3]}
+                  alt="banner"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+          <BannerForm
+            setImageUrl={function (url: string): void {
+              handleChangeBanner(url, 3);
+            }}
+          />
+        </Flex>
+      ),
+    },
+  ];
 
   return (
     <div className="m-5 pb-5">
@@ -62,21 +226,22 @@ export default function BannerWidget(props: WidgetProps) {
           disabled
         />
 
-        {/* avatar */}
-        <Flex vertical gap="large">
-          <div className="font-semibold">Thay đổi ảnh đại diện</div>
-          <AvatarForm setImageUrl={setAvatarUrl} />
+        <Flex vertical gap="small">
+          {/* title */}
+          <div className="font-semibold">Ảnh banner</div>
+
+          <div className="font-light text-sm">
+            Chọn từ 2 đến 4 ảnh để hiển thị đẹp hơn trên gian hàng
+          </div>
+
+          {/* collapse */}
+          <Collapse items={items} />
         </Flex>
 
         {/* Buttons */}
         <Flex gap="large">
           <Button size="large" onClick={handleSave}>
             Lưu thay đổi
-          </Button>
-
-          {/* test */}
-          <Button size="large" onClick={() => setOpenUploadImage(true)}>
-            Cropper
           </Button>
         </Flex>
       </Flex>

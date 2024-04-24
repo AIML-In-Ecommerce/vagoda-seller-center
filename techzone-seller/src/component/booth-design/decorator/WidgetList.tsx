@@ -49,7 +49,7 @@ const MockData = [
     name: "Dell SuperLight",
     rating: 4.5,
     soldAmount: 10,
-    price: 22000000,
+    price: 18000000,
     flashSale: true,
     originalPrice: 20000000,
     category: "",
@@ -85,7 +85,7 @@ const MockData = [
     name: "Dell SuperLight",
     rating: 4.5,
     soldAmount: 10,
-    price: 22000000,
+    price: 18000000,
     flashSale: true,
     originalPrice: 20000000,
     category: "",
@@ -121,7 +121,7 @@ const MockData = [
     name: "Dell SuperLight",
     rating: 4.5,
     soldAmount: 10,
-    price: 22000000,
+    price: 18000000,
     flashSale: true,
     originalPrice: 20000000,
     category: "",
@@ -157,7 +157,7 @@ const MockData = [
     name: "Dell SuperLight",
     rating: 4.5,
     soldAmount: 10,
-    price: 22000000,
+    price: 18000000,
     flashSale: true,
     originalPrice: 20000000,
     category: "",
@@ -175,7 +175,7 @@ export default function WidgetList(props: WidgetListProps) {
         .sort((a, b) => a.order - b.order)
         .map((item, index) => (
           <div key={index}>
-            <Widget widget={item} />
+            {item.visibility === true && <Widget widget={item} />}
           </div>
         ))}
     </div>

@@ -15,12 +15,14 @@ import PromotionWidget from "./widgetEditorForm/PromotionWidget";
 interface WidgetEditorBarProps {
   widgets: WidgetType[];
   setWidgets(widgets: WidgetType[]): void;
+
+  toggleInvisibilityWidget: (widget: WidgetType) => void;
+  deleteWidget: (widget: WidgetType) => void;
 }
 
 export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   // var
   const [currentForm, setCurrentForm] = useState("");
-
   const [selectedWidget, setSelectedWidget] = useState<WidgetType>();
 
   useEffect(() => {
@@ -29,8 +31,20 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
     }
   }, [selectedWidget]);
 
+  // functions
+  const returnToAll = () => {
+    setCurrentForm("");
+    setSelectedWidget(undefined);
+  };
+
+  //update widgets visually
+  const updateWidgets = () => {
+    props.setWidgets([...props.widgets]);
+    // TODO: toast update successfully
+  };
+
   return (
-    <div className="bg-white mx-2 lg:w-[450px] max-w-[450px] z-0 pb-5">
+    <div className="bg-white mx-2 min-w-80 z-0 pb-5">
       {/* general */}
       {currentForm === "" && (
         <div className="p-5">
@@ -54,10 +68,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       {currentForm !== "" && (
         <Button
           style={{ marginTop: "10px", marginLeft: "10px" }}
-          onClick={() => {
-            setCurrentForm("");
-            setSelectedWidget(undefined);
-          }}
+          onClick={returnToAll}
         >
           Quay về
         </Button>
@@ -67,16 +78,33 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       {currentForm === "general_info" && <ShopInfo />}
 
       {currentForm === WidgetCategoryType.BANNER.toString() &&
-        selectedWidget && <BannerWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <BannerWidget widget={selectedWidget} updateWidgets={updateWidgets} />
+        )}
 
       {currentForm === WidgetCategoryType.PRODUCT.toString() &&
-        selectedWidget && <ProductWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <ProductWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
 
       {currentForm === WidgetCategoryType.CATEGORY.toString() &&
-        selectedWidget && <CategoryWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <CategoryWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
 
       {currentForm === WidgetCategoryType.PROMOTION.toString() &&
-        selectedWidget && <PromotionWidget widget={selectedWidget} />}
+        selectedWidget && (
+          <PromotionWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
 
       {/* widgets */}
       {currentForm === "" && (
@@ -84,6 +112,8 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           widgets={props.widgets}
           setWidgets={props.setWidgets}
           setSelectedWidget={setSelectedWidget}
+          toggleInvisibilityWidget={props.toggleInvisibilityWidget}
+          deleteWidget={props.deleteWidget}
         />
       )}
     </div>
@@ -94,6 +124,9 @@ interface SortableComponentProps {
   widgets: WidgetType[];
   setWidgets: (rubrics: WidgetType[]) => void;
   setSelectedWidget: (widget: WidgetType) => void;
+
+  toggleInvisibilityWidget: (widget: WidgetType) => void;
+  deleteWidget: (widget: WidgetType) => void;
 }
 const SortableComponent = (props: SortableComponentProps) => {
   const onSortEnd = ({
@@ -134,6 +167,8 @@ const SortableComponent = (props: SortableComponentProps) => {
         throw new Error("Function not implemented.");
       }}
       setSelectedWidget={props.setSelectedWidget}
+      toggleInvisibilityWidget={props.toggleInvisibilityWidget}
+      deleteWidget={props.deleteWidget}
     />
   );
 };

@@ -1,5 +1,5 @@
 "use client";
-import { Carousel, Empty, Flex, Skeleton, Typography } from "antd";
+import { Carousel, Flex, Typography } from "antd";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AiOutlineRight } from "react-icons/ai";
@@ -7,6 +7,7 @@ import { CarouselArrow } from "@/component/utils/CarouselArrow";
 import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
 import ProductItem from "@/component/booth-design/decorator/mini/MiniProductItem";
+import CustomEmpty from "../mini/CustomEmpty";
 
 interface ProductCarouselProps {
   products: ProductType[]; // TODO: get this from collection id
@@ -76,13 +77,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
 
   const productDisplay = () => {
     if (products.length < 1) {
-      // return <Skeleton active />;
-      return (
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={<span>Không có</span>}
-        />
-      );
+      return <CustomEmpty />;
     }
 
     let result: JSX.Element[] = [];
@@ -164,7 +159,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
       result = result.concat(
         <div
           key={i.toString() + startIndex.toString() + endIndex.toString()}
-          className="py-3 px-6"
+          className="my-3 pr-10 flex items-center"
         >
           {rowWrapper}
         </div>
@@ -178,10 +173,10 @@ export default function ProductCarousel(props: ProductCarouselProps) {
   const element = props.widget.element as ProductElement;
 
   return (
-    <div className="w-full flex justify-center items-center bg-white py-10 my-5">
-      <div className="w-full px-2">
+    <div className="w-full flex justify-center items-center bg-white pt-5 my-5">
+      <div className="w-full">
         <Flex className="w-full mb-4 px-8" align="center">
-          <Typography.Text className="text-2xl font-semibold w-full">
+          <Typography.Text className="text-xl font-semibold w-full">
             {element.title}
           </Typography.Text>
           <Flex className="w-full px-4" justify="end" align="center" gap={6}>

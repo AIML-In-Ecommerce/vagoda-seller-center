@@ -4,36 +4,100 @@ import {
   ProductPatternType,
   WidgetType,
 } from "@/model/WidgetType";
-import { Button, Empty, Flex, Input, Select, Tooltip } from "antd";
+import { Button, Flex, Input, Select, Tooltip } from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
+import { CollectionType } from "@/model/CollectionType";
+import CustomEmpty from "../mini/CustomEmpty";
 
 interface WidgetProps {
   widget: WidgetType;
+  updateWidgets(): void;
 }
 
 export default function ProductWidget(props: WidgetProps) {
+  // mock data
+  const collectionsData = [
+    {
+      _id: "1",
+      name: "collection 1",
+      productIdList: [],
+      createDate: "string",
+      isActive: true,
+    },
+    {
+      _id: "2",
+      name: "collection 2",
+      productIdList: [],
+      createDate: "string",
+      isActive: true,
+    },
+    {
+      _id: "3",
+      name: "collection 3",
+      productIdList: [],
+      createDate: "string",
+      isActive: true,
+    },
+    {
+      _id: "4",
+      name: "collection 4",
+      productIdList: [],
+      createDate: "string",
+      isActive: true,
+    },
+  ] as CollectionType[];
+
   // data
+  const collectionOptions = useMemo(() => {
+    let newData: any[] = [];
+
+    collectionsData.forEach((collection) => {
+      newData.push({
+        value: collection._id,
+        label: collection.name,
+      });
+    });
+
+    return newData;
+  }, [collectionsData]);
 
   // variables
+  const [proxyProductWidget, setProxyProductWidget] = useState(props.widget);
+
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
-
-  const [title, setTitle] = useState("");
-
-  // funtions
-  const handleSave = () => {
-    //
-  };
-
-  const handleChangePattern = (value: string) => {
-    console.log(`selected ${value}`);
-  };
 
   const element = useMemo(() => {
     return props.widget.element as ProductElement;
   }, [props.widget.element]);
+
+  const [title, setTitle] = useState(element.title);
+  const [collectionId, setCollectionId] = useState(element.collectionId);
+  const [pattern, setPattern] = useState(element.pattern);
+
+  // functions
+  const handleSave = () => {
+    proxyProductWidget.visibility = isSwitched;
+
+    element.title = title;
+    element.collectionId = collectionId;
+    element.pattern = pattern;
+
+    proxyProductWidget.element = element;
+    setProxyProductWidget(proxyProductWidget);
+
+    props.updateWidgets();
+  };
+
+  const handleChangePattern = (value: string) => {
+    setPattern(Number.parseInt(value));
+  };
+
+  const handleChangeCollection = (value: string) => {
+    setCollectionId(value);
+  };
 
   return (
     <div className="m-5 pb-5">
@@ -84,7 +148,6 @@ export default function ProductWidget(props: WidgetProps) {
             // { value: "disabled", label: "Disabled", disabled: true },
           ]}
         />
-
         {/* title */}
         <Flex vertical gap="small">
           <div className="font-semibold">
@@ -105,25 +168,15 @@ export default function ProductWidget(props: WidgetProps) {
             />
           </div>
         </Flex>
-
         {/* select collection from id */}
         <Flex vertical gap="small">
           <div className="font-semibold">Bộ sưu tập</div>
           <Select
-            defaultValue={element.collectionId}
+            value={collectionId}
             style={{ width: "100%" }}
-            onChange={handleChangePattern}
-            notFoundContent={
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={<span>Không có</span>}
-              />
-            }
-            options={
-              [
-                // { value: "disabled", label: "Disabled", disabled: true },
-              ]
-            }
+            onChange={handleChangeCollection}
+            notFoundContent={<CustomEmpty />}
+            options={collectionOptions}
           />
         </Flex>
 

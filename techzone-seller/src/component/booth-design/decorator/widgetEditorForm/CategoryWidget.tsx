@@ -4,39 +4,98 @@ import {
   CategoryPatternType,
   WidgetType,
 } from "@/model/WidgetType";
-import { Button, Empty, Flex, Input, Select, Tooltip } from "antd";
+import { Button, Flex, Input, Select, Tooltip } from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
+import { CategoryType } from "@/model/CategoryType";
+import CustomEmpty from "../mini/CustomEmpty";
 
 interface WidgetProps {
   widget: WidgetType;
+  updateWidgets(): void;
 }
 
 export default function CategoryWidget(props: WidgetProps) {
+  // mock data
+  const categories: CategoryType[] = [
+    {
+      _id: "id1",
+      key: "1",
+      urlKey: "string",
+      name: "Laptop",
+      image: "string",
+      subCategoryType: [],
+    },
+    {
+      _id: "id2",
+      key: "2",
+      urlKey: "string",
+      name: "Màn hình máy tính",
+      image: "string",
+      subCategoryType: [],
+    },
+    {
+      _id: "id3",
+      key: "3",
+      urlKey: "string",
+      name: "Ổ cứng",
+      image: "string",
+      subCategoryType: [],
+    },
+  ];
+
   // data
+  const categoryOptions = useMemo(() => {
+    let newData: any[] = [];
+
+    categories.forEach((category) => {
+      newData.push({
+        value: category._id,
+        label: category.name,
+      });
+    });
+
+    return newData;
+  }, [categories]);
+
   const [proxyCategory, setProxyCategory] = useState<Array<string>>(
-    Array.from("z".repeat(4))
+    Array.from(" ".repeat(4))
   );
 
   // variables
+  const [proxyCategoryWidget, setProxyCategoryWidget] = useState(props.widget);
+
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
-  const [title, setTitle] = useState("");
+  const element = useMemo(() => {
+    return props.widget.element as CategoryElement;
+  }, [props.widget.element]);
 
-  // funtions
+  const [title, setTitle] = useState(element.title);
+
+  // functions
   const handleSave = () => {
-    //
+    proxyCategoryWidget.visibility = isSwitched;
+
+    element.title = title;
+    element.categoryIdList = proxyCategory;
+
+    proxyCategoryWidget.element = element;
+    setProxyCategoryWidget(proxyCategoryWidget);
+
+    props.updateWidgets();
   };
 
   const handleChangePattern = (value: string) => {
     console.log(`selected ${value}`);
   };
 
-  const element = useMemo(() => {
-    return props.widget.element as CategoryElement;
-  }, [props.widget.element]);
+  const handleChangeCategory = (value: string, index: number) => {
+    proxyCategory[index] = value;
+    setProxyCategory(proxyCategory);
+  };
 
   return (
     <div className="m-5 pb-5">
@@ -93,11 +152,11 @@ export default function CategoryWidget(props: WidgetProps) {
           </div>
         </Flex>
 
-        {/* select collection from id */}
+        {/* select category from id */}
         <Flex vertical gap="small">
           <div className="font-semibold">Danh mục</div>
           <div className="font-light text-sm">
-            Chọn tối đa 4 danh mục để hiện thị ở trang gian hàng
+            Chọn tối đa 4 danh mục để hiển thị ở trang gian hàng
           </div>
 
           {proxyCategory.map((item, index) => (
@@ -105,18 +164,9 @@ export default function CategoryWidget(props: WidgetProps) {
               <Select
                 defaultValue={element.categoryIdList[index]}
                 style={{ width: "100%" }}
-                onChange={handleChangePattern}
-                notFoundContent={
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description={<span>Không có</span>}
-                  />
-                }
-                options={
-                  [
-                    // { value: "disabled", label: "Disabled", disabled: true },
-                  ]
-                }
+                onChange={(value: string) => handleChangeCategory(value, index)}
+                notFoundContent={<CustomEmpty />}
+                options={categoryOptions}
               />
             </div>
           ))}

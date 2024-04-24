@@ -1,6 +1,5 @@
 "use client";
 import { WidgetCategoryType } from "@/model/WidgetType";
-import { Widget } from "../WidgetList";
 
 interface HandleProps {
   type: number;
@@ -67,7 +66,3 @@ export const AddWidgetHandle = (props: HandleProps) => {
       };
   }
 };
-
-// export default function NewWidget(props: HandleProps) {
-//   return <Widget widget={AddWidgetHandle(props)} />;
-// }

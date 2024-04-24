@@ -47,7 +47,7 @@ export default function ShopInfo() {
 
   const [openPreview, setOpenPreview] = useState(false);
 
-  // funtions
+  // functions
   const handleSave = () => {
     //
   };
@@ -123,7 +123,7 @@ export default function ShopInfo() {
 
         {/* name */}
         <Flex gap="large">
-          <div className="font-semibold">Chỉnh sửa tên</div>
+          <div className="font-semibold mt-2">Chỉnh sửa tên</div>
           <div className="w-1/2">
             <Input
               placeholder="Điền tên"

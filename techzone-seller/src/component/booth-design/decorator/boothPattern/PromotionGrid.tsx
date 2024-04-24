@@ -3,7 +3,7 @@ import { List, Typography } from "antd";
 import MiniPromotionTicket from "../mini/MiniPromotionTicket";
 import { DiscountType, PromotionType } from "@/model/PromotionType";
 import { PromotionElement, WidgetType } from "@/model/WidgetType";
-import { formatDate } from "@/component/utils/FormatDate";
+import { formatDate } from "@/utils/DateFormatter";
 
 interface PromotionGridProps {
   widget: WidgetType;
@@ -73,21 +73,23 @@ export default function PromotionGrid(props: PromotionGridProps) {
   const element = props.widget.element as PromotionElement;
 
   return (
-    <div className="bg-white my-5 py-5 px-10 ">
-      <Typography.Text className="text-2xl font-semibold w-full">
+    <div className="bg-white my-5 py-5 px-10">
+      <Typography.Text className="text-xl font-semibold w-full">
         {element.title}
       </Typography.Text>
-      <List
-        grid={{ gutter: 16, column: 6 }}
-        dataSource={promotions}
-        renderItem={(item, i) => (
-          <div key={i}>
-            <List.Item>
-              <MiniPromotionTicket item={item} />
-            </List.Item>
-          </div>
-        )}
-      />
+      <div className="mr-16">
+        <List
+          grid={{ gutter: 16, column: 5 }}
+          dataSource={promotions}
+          renderItem={(item, i) => (
+            <div key={i}>
+              <List.Item>
+                <MiniPromotionTicket item={item} />
+              </List.Item>
+            </div>
+          )}
+        />
+      </div>
     </div>
   );
 }
