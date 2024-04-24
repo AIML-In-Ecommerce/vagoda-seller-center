@@ -212,7 +212,13 @@ export default function CreateBatchProduct() {
     {
       key: "2",
       label: "Tập tin mẫu",
-      children: "Content of Tab Pane 2",
+      children: (
+        <div>
+          <div className="font-sembold">
+            Chọn một danh mục để tải về tập tin mẫu
+          </div>
+        </div>
+      ),
     },
   ];
 
@@ -300,6 +306,10 @@ export default function CreateBatchProduct() {
   return (
     <div>
       {" "}
+      {/* <FileDownloadButton
+        templateCategory="ClassList"
+        filename="ClassList_Template"
+      /> */}
       <Collapse
         className="bg-slate-100 p-1 mt-4"
         bordered={false}

@@ -106,16 +106,16 @@ export default function CreateProductPage() {
         </>
       )}
       {!showCreateProduct && (
-        <div>
-          {/* Component của bạn khi bắt đầu tạo sản phẩm */}
-          <div className="flex items-center space-x-1">
-            <div className="" onClick={handleBack}>
-              <MdOutlineKeyboardBackspace size={25} />
-            </div>
-            <p className="font-semibold">Tạo sản phẩm mới</p>
-          </div>
-          <CreateNewProduct />
-        </div>
+        // <div>
+        //   <div className="flex items-center space-x-1">
+        //     <div className="" onClick={handleBack}>
+        //       <MdOutlineKeyboardBackspace size={25} />
+        //     </div>
+        //     <p className="font-semibold">Tạo sản phẩm mới</p>
+        //   </div>
+
+        // </div>
+        <CreateNewProduct handleBack={handleBack} />
       )}
       {!showBatchCreateProduct && (
         <div>

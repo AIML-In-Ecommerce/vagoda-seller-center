@@ -70,3 +70,12 @@
 .small-rating .ant-rate-star {
   font-size: 10px; /* Điều chỉnh kích thước sao đánh giá ở đây */
 }
+
+.dropdown-category {
+  max-height: 300px; /* Đặt chiều cao cố định cho danh sách */
+  overflow-y: auto; /* Tự động tạo thanh cuộn dọc */
+}
+
+.custom-category-scrollbar::-webkit-scrollbar {
+  width: 10px; /* Đặt chiều rộng cho thanh cuộn ngang */
+}
