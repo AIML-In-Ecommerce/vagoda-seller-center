@@ -248,9 +248,9 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
                 name: "Đang chờ",
                 type: StatusType.PENDING
             }
-            const today = Date.now()
+            // const today = Date.now()
 
-            const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
+            // const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
 
 
             // if(today > time)
