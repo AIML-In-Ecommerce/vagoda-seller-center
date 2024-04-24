@@ -1,10 +1,16 @@
 "use client";
 import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Space, Tooltip } from "antd";
-import React from "react";
+import React, { useState } from "react";
 import { HiOutlineHome } from "react-icons/hi";
 import CustomCarousel from "../Carousel";
 import { TbInfoCircle } from "react-icons/tb";
 import CheckableCard from "./CheckableCard";
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+
+dayjs.extend(LocalizedFormat)
 
 
 const { RangePicker } = DatePicker
@@ -62,8 +68,31 @@ const mainValues = [
 ]
 
 export default function BusinessPerformancePage() {
-    const onChange = (e: RadioChangeEvent) => {
-        console.log(`radio checked:${e.target.value}`);
+    const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
+    const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
+    const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
+
+    const switchPeriod = (selectedPeriod: string) => {
+        let period: [Dayjs, Dayjs] = [dayjs().startOf('date'), dayjs().endOf('date')];
+        switch (selectedPeriod) {
+            case "today":
+                break;
+            case "yesterday":
+                period = [dayjs().startOf('date').subtract(1, 'day'), dayjs().endOf('date')]
+                break;
+            case "week":
+                period = [dayjs().startOf('date').subtract(1, 'week'), dayjs().endOf('date')]
+                break;
+            case "month":
+                period = [dayjs().startOf('date').subtract(30, 'day'), dayjs().endOf('date')]
+                break;
+        }
+        setSelectedDates(period);
+    }
+
+    const onPeriodChange = (e: RadioChangeEvent) => {
+        setSelectedReportPeriod(e.target.value);
+        switchPeriod(e.target.value);
     };
 
     return (
@@ -95,14 +124,14 @@ export default function BusinessPerformancePage() {
                     <div className="mt-5">
                         <div className="flex lg:flex-row flex-col gap-5 mb-5 lg:items-center">
                             <div className="font-bold">Thời gian báo cáo:</div>
-                            <Radio.Group onChange={(e) => onChange(e)} defaultValue="today">
+                            <Radio.Group onChange={onPeriodChange} value={selectedReportPeriod}>
                                 <Radio.Button value="today">Hôm nay</Radio.Button>
                                 <Radio.Button value="yesterday">Hôm qua</Radio.Button>
                                 <Radio.Button value="week">7 ngày qua</Radio.Button>
                                 <Radio.Button value="month">30 ngày qua</Radio.Button>
                             </Radio.Group>
-                            <RangePicker picker="date" />
-                            <div>(Lần cập nhật cuối {new Date().toISOString()})</div>
+                            <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY"/>
+                            <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
                         </div>
                     </div>
                 </div>
@@ -114,10 +143,10 @@ export default function BusinessPerformancePage() {
                     <div className="w-[100%] my-10 flex flex-col gap-10">
                         <div className="lg:hidden sm:block">
                             <div className="grid grid-cols-2 gap-2">
-                                {   
+                                {
                                     mainValues.map((item, key) => {
                                         return (
-                                            <CheckableCard key={key} item={item} />
+                                            <CheckableCard id={key} item={item} checkboxVisibility={true}/>
                                         )
                                     })
                                 }
@@ -129,7 +158,7 @@ export default function BusinessPerformancePage() {
                                 contents={
                                     mainValues.map((item, key) => {
                                         return (
-                                            <CheckableCard key={key} item={item} />
+                                            <CheckableCard id={key} item={item} checkboxVisibility={true}/>
                                         )
                                     })
                                 } />

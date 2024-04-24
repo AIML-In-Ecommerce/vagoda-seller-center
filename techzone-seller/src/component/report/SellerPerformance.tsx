@@ -9,7 +9,6 @@ import { GoDownload } from "react-icons/go";
 import GaugeChart from "./GaugeChart";
 import RatingStatistics from "./RatingStatistics";
 
-
 const { RangePicker } = DatePicker;
 
 const qosComment = [
@@ -288,9 +287,9 @@ export default function SellerPerformancePage() {
                                         <TbInfoCircle />
                                     </Tooltip>
                                 </div>
-                                <Button>
+                                <Button disabled>
                                     <div className="flex flex-row items-center gap-1">
-                                        <div>Xuất các đơn bị hủy</div>
+                                        <div>Xuất các đơn đổi trả</div>
                                         <GoDownload />
                                     </div>
                                 </Button>
