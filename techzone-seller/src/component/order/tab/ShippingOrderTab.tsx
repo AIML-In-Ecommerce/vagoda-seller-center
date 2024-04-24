@@ -253,14 +253,14 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
             const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
 
 
-            if(today > time)
-            {
-                orderStatus =
-                {
-                    name: "Đang chờ và đã quá hạn",
-                    type: StatusType.EXPIRED
-                }
-            }
+            // if(today > time)
+            // {
+            //     orderStatus =
+            //     {
+            //         name: "Đang chờ và đã quá hạn",
+            //         type: StatusType.EXPIRED
+            //     }
+            // }
 
             const item: ShippingOrder =
             {
