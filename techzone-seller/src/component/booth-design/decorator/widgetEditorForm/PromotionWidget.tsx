@@ -22,7 +22,7 @@ interface WidgetProps {
 
 export default function PromotionWidget(props: WidgetProps) {
   // mock data
-  const promotions: PromotionType[] = [
+  const promotionsData: PromotionType[] = [
     {
       _id: "1",
       name: "Giảm 50%",
@@ -87,14 +87,13 @@ export default function PromotionWidget(props: WidgetProps) {
   );
 
   // variables
+  const [promotions, setPromotions] = useState(promotionsData);
+
   const [proxyPromotionWidget, setProxyPromotionWidget] = useState(
     props.widget
   );
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
-  const [selectedPromotions, setSelectedPromotions] = useState<
-    Array<PromotionType>
-  >([]);
 
   const element = useMemo(() => {
     let temp = props.widget.element as PromotionElement;
@@ -103,7 +102,10 @@ export default function PromotionWidget(props: WidgetProps) {
       proxyPromotionId[index] = promotion;
     });
 
+    setProxyPromotionId(proxyPromotionId);
+
     // call api to get promotion info
+    // setPromotions([]);
 
     return temp;
   }, [props.widget.element]);
@@ -115,7 +117,6 @@ export default function PromotionWidget(props: WidgetProps) {
     proxyPromotionWidget.visibility = isSwitched;
 
     element.title = title;
-    // TODO: need experiment
     element.promotionIdList = proxyPromotionId.filter((id) => id !== " ");
 
     proxyPromotionWidget.element = element;
@@ -128,32 +129,33 @@ export default function PromotionWidget(props: WidgetProps) {
     console.log(`selected ${value}`);
   };
 
-  const handleAddPromotion = (value: PromotionType, index: number) => {
-    selectedPromotions.forEach((promotion) => {
-      if (promotion._id === value._id) return;
-    });
+  const checkInclude = (value: string) => {
+    let check = false;
+    proxyPromotionId
+      .filter((id) => id !== " ")
+      .forEach((promotion) => {
+        if (promotion === value) {
+          check = true;
+        }
+      });
 
-    proxyPromotionId[selectedPromotions.length - 1] = value._id;
+    // console.log(`selected ${value}, ${check}`);
+    return check;
+  };
+
+  const handleAddPromotion = (value: PromotionType, index: number) => {
+    if (checkInclude(value._id)) return;
+
+    proxyPromotionId[index] = value._id;
     setProxyPromotionId(proxyPromotionId);
 
-    selectedPromotions.push(value);
-    setSelectedPromotions(selectedPromotions);
-
-    console.log(`promotions: `, selectedPromotions);
     props.updateWidgets();
   };
 
   const handleRemovePromotion = (value: PromotionType, index: number) => {
-    let newIdList = proxyPromotionId.filter((id) => id !== value._id);
-    setProxyPromotionId(newIdList);
+    proxyPromotionId[index] = " ";
+    setProxyPromotionId(proxyPromotionId);
 
-    let newList = selectedPromotions.filter(
-      (promotion) => promotion._id !== value._id
-    );
-
-    setSelectedPromotions(newList);
-
-    console.log(`promotions: `, newList);
     props.updateWidgets();
   };
 
@@ -232,6 +234,7 @@ export default function PromotionWidget(props: WidgetProps) {
                   return (
                     <PromotionCard
                       item={item}
+                      isSelected={checkInclude(item._id)}
                       applyDiscount={(item: PromotionType) => {
                         handleAddPromotion(item, index);
                       }}
@@ -246,11 +249,12 @@ export default function PromotionWidget(props: WidgetProps) {
                 <div>Bạn đã chọn &nbsp;</div>
                 <div
                   className={`${
-                    // proxyPromotionId.filter((p) => p != " ").length > 0
-                    selectedPromotions.length > 0 ? "text-red-500" : ""
+                    proxyPromotionId.filter((p) => p != " ").length > 0
+                      ? "text-red-500"
+                      : ""
                   } font-bold text-2xl`}
                 >
-                  {selectedPromotions.length}
+                  {proxyPromotionId.filter((p) => p != " ").length}
                 </div>
                 <div>&nbsp; mã giảm giá sản phẩm &nbsp;</div>
               </div>
@@ -258,11 +262,6 @@ export default function PromotionWidget(props: WidgetProps) {
           )}
           {promotions.length == 0 && <CustomEmpty />}
         </Flex>
-
-        {/* for testing
-        {element.promotionIdList.map((item, index) => {
-          return <div>{item}</div>;
-        })} */}
 
         {/* Buttons */}
         <Flex gap="large">

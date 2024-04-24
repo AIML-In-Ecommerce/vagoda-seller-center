@@ -79,7 +79,7 @@ export default function BannerWidget(props: WidgetProps) {
       key: "1",
       label: <div>Banner 1 {checkActive(0)}</div>,
       children: (
-        <Flex vertical gap="large">
+        <Flex vertical gap="large" className="overflow-hidden">
           {element.images[0] && element.images[0] !== " " && (
             <Tooltip
               title={
@@ -108,7 +108,7 @@ export default function BannerWidget(props: WidgetProps) {
       key: "2",
       label: <div>Banner 2 {checkActive(1)}</div>,
       children: (
-        <Flex vertical className="mb-5">
+        <Flex vertical gap="large" className="overflow-hidden">
           {element.images[1] && element.images[1] !== " " && (
             <Tooltip
               title={
@@ -137,7 +137,7 @@ export default function BannerWidget(props: WidgetProps) {
       key: "3",
       label: <div>Banner 3 {checkActive(2)}</div>,
       children: (
-        <Flex vertical gap="large">
+        <Flex vertical gap="large" className="overflow-hidden">
           {element.images[2] && element.images[2] !== " " && (
             <Tooltip
               title={
@@ -166,7 +166,7 @@ export default function BannerWidget(props: WidgetProps) {
       key: "4",
       label: <div>Banner 4 {checkActive(3)}</div>,
       children: (
-        <Flex vertical gap="large">
+        <Flex vertical gap="large" className="overflow-hidden">
           {element.images[3] && element.images[3] !== " " && (
             <Tooltip
               title={

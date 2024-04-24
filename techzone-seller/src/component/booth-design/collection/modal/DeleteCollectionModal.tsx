@@ -5,7 +5,7 @@ interface ModalProps {
   handleOk(): void;
   handleCancel(): void;
 }
-export default function DeleteWidgetModal(props: ModalProps) {
+export default function DeleteCollectionModal(props: ModalProps) {
   return (
     <Modal
       title="Xác nhận"
@@ -22,7 +22,7 @@ export default function DeleteWidgetModal(props: ModalProps) {
       ]}
       width={200}
     >
-      <p>Xoá Widget?</p>
+      <p>Xoá bộ sưu tập?</p>
     </Modal>
   );
 }

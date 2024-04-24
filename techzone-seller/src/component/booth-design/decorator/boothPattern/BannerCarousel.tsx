@@ -1,7 +1,7 @@
 "use client";
 import { BannerElement, WidgetType } from "@/model/WidgetType";
 import { Carousel, Image, Skeleton } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 interface BannerCarouselProps {
   widget: WidgetType;
@@ -20,10 +20,13 @@ export default function BannerCarousel(props: BannerCarouselProps) {
 
   const [images, setImages] = useState<string[]>([]);
 
-  useEffect(() => {
-    let temp = props.widget.element as BannerElement;
-    setImages(temp.images);
+  const element = useMemo(() => {
+    return props.widget.element as BannerElement;
   }, [props.widget.element]);
+
+  useEffect(() => {
+    setImages(element.images);
+  }, [element.images]);
 
   useEffect(() => {
     if (images.length > 0) {
@@ -43,7 +46,7 @@ export default function BannerCarousel(props: BannerCarouselProps) {
 
   const CarouselDisplay: any = carouselImages.map((value, index) => {
     return (
-      <div key={index} className="w-1/2 max-h-96">
+      <div key={index} className="flex max-w-1/2 max-h-96 items-center">
         <Image
           className="w-full h-full"
           src={value}
@@ -136,25 +139,29 @@ export default function BannerCarousel(props: BannerCarouselProps) {
   }
 
   return (
-    <div className="mb-10">
-      <div
-        className="w-full flex flex-col justify-end items-center relative"
-        style={LargeBackground}
-      >
-        <div className="flex flex-col justify-center items-center backdrop-blur-md w-full h-1/6">
-          <div className="invisible h-10">hidden block</div>
-          <div className="w-3/4 h-1/6">
-            <Carousel
-              autoplay={true}
-              style={{ height: "100%" }}
-              afterChange={afterCarouselChange}
-            >
-              {CarouselDisplay}
-            </Carousel>
+    <div>
+      {images.length > 0 && (
+        <div className="mb-10">
+          <div
+            className="w-full flex flex-col justify-end items-center relative"
+            style={LargeBackground}
+          >
+            <div className="flex flex-col justify-center items-center backdrop-blur-md w-full h-1/6">
+              <div className="invisible h-10">hidden block</div>
+              <div className="w-3/4 h-1/6">
+                <Carousel
+                  autoplay={true}
+                  style={{ height: "100%" }}
+                  afterChange={afterCarouselChange}
+                >
+                  {CarouselDisplay}
+                </Carousel>
+              </div>
+              <div className="invisible h-10">hidden block</div>
+            </div>
           </div>
-          <div className="invisible h-10">hidden block</div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

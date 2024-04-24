@@ -8,12 +8,17 @@ import { useEffect, useState } from "react";
 
 interface PromotionCardProps {
   item: PromotionType;
+  isSelected: boolean;
   applyDiscount: (item: PromotionType) => void;
   removeDiscount: (item: PromotionType) => void;
 }
 
 export default function PromotionCard(props: PromotionCardProps) {
-  const [isSelected, setIsSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState(props.isSelected);
+
+  useEffect(() => {
+    setIsSelected(props.isSelected);
+  }, [props.isSelected]);
 
   useEffect(() => {
     if (isSelected) {
@@ -53,14 +58,14 @@ export default function PromotionCard(props: PromotionCardProps) {
         <div className="absolute right-0 bottom-12 z-10 text-xs">
           {!isSelected ? (
             <Button
-              className="w-full bg-sky-500 text-xs text-white font-semibold text-center"
+              className="bg-sky-500 text-[9px] text-white font-semibold text-center"
               onClick={() => setIsSelected(true)}
             >
               Áp dụng
             </Button>
           ) : (
             <Button
-              className="w-full bg-gray-500 text-white font-semibold text-center"
+              className="bg-gray-500 text-white font-semibold text-center"
               onClick={() => setIsSelected(false)}
             >
               Hủy

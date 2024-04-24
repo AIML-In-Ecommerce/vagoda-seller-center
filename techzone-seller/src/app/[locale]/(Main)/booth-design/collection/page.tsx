@@ -1,10 +1,22 @@
 "use client";
 
+import DeleteCollectionModal from "@/component/booth-design/collection/modal/DeleteCollectionModal";
+import CustomEmpty from "@/component/booth-design/decorator/mini/CustomEmpty";
 import { CollectionType } from "@/model/CollectionType";
-import { TableColumnType, Flex, Button, Table, Badge, Select } from "antd";
+import { formatDate } from "@/utils/DateFormatter";
+import {
+  TableColumnType,
+  Flex,
+  Button,
+  Table,
+  Badge,
+  Select,
+  Typography,
+  Layout,
+} from "antd";
 import Search from "antd/es/input/Search";
 import { TableRowSelection } from "antd/es/table/interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface CollectionColumn {
   key: string;
@@ -16,82 +28,114 @@ interface CollectionColumn {
 
 export default function CollectionPage() {
   // mock data
-  const collections: CollectionType[] = [
+  const collectionData: CollectionType[] = [
     {
       _id: "id1",
       name: "Collection 1",
       productIdList: [],
-      createDate: "string",
+      createDate: formatDate(new Date("2024-03-24T12:30:00")),
       isActive: true,
     },
     {
       _id: "id2",
       name: "Collection 2",
       productIdList: [],
-      createDate: "string",
+      createDate: formatDate(new Date("2024-03-24T12:30:00")),
       isActive: true,
     },
     {
       _id: "id3",
       name: "Collection 3",
       productIdList: [],
-      createDate: "string",
+      createDate: formatDate(new Date("2024-03-24T12:30:00")),
       isActive: true,
     },
   ];
 
   // variables
+  const [collections, setCollections] = useState(collectionData);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+
   const [dataToDisplay, setDataToDisplay] = useState<CollectionColumn[]>([]);
+
+  // functions
+  const handleDeleteCollection = () => {
+    if (selectedOrderIds.length > 0) setOpenDeleteModal(true);
+  };
+
+  const deleteCollection = () => {
+    let newList = [...collections];
+    selectedOrderIds.forEach((selectedId) => {
+      newList = newList.filter((w) => w._id !== selectedId);
+    });
+    setCollections(newList);
+
+    // TODO: update using api
+
+    setOpenDeleteModal(false);
+    setSelectedRowKeys([]);
+    setSelectedOrderIds([]);
+
+    // TODO: toast update successfully
+  };
 
   const dataColumns: TableColumnType<CollectionColumn>[] = [
     {
       title: "Tên Bộ sưu tập",
       dataIndex: "name",
-      // render: (value: any, record: CollectionColumn, index: number) =>
-      // {
-      //     if(value)
-      //     {}
-      //     const display = () =>
-      //     {
-      //         let statusDisplay = <></>
-      //         switch(record.status.type)
-      //         {
-      //             case StatusType.PENDING:
-      //                 {
-      //                     statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"geekblue"}>{record.status.name}</Tag>
-      //                     break;
-      //                 }
-      //             case StatusType.EXPIRED:
-      //                 {
-      //                     statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"orange"}>{record.status.name}</Tag>
-      //                 }
-      //         }
-      //         return statusDisplay
-      //     }
-
-      //     return(
-      //         <Flex vertical wrap={"wrap"} gap={4} justify="center" align="center">
-      //             <Typography.Text>
-      //                 {record.key}
-      //             </Typography.Text>
-      //             {display()}
-      //         </Flex>
-      //     )
-      // }
+      width: "30%",
     },
     {
       title: "Số lượng sản phẩm",
       dataIndex: "number",
+      render: (value: any, collection: CollectionColumn) => {
+        if (value) {
+        }
+
+        return (
+          <Flex vertical wrap={"wrap"} gap={4} justify="center" align="center">
+            <Typography.Text>{collection.number}</Typography.Text>
+          </Flex>
+        );
+      },
+      width: "14%",
     },
     {
       title: "Ngày tạo",
-      dataIndex: "day",
+      dataIndex: "createDate",
+      width: "30%",
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
+      filters: [
+        // {
+        //   text: "Tất cả trạng thái",
+        //   value: "Tất cả trạng thái",
+        // },
+        {
+          text: (
+            <span>
+              <Badge color="blue" /> Bật
+            </span>
+          ),
+          value: "Bật",
+        },
+        {
+          text: (
+            <span>
+              <Badge color="gray" /> Tắt
+            </span>
+          ),
+          value: "Tắt",
+        },
+      ],
+      onFilter: (value, record) => record.status.indexOf(value as string) === 0,
+      // || value === "Tất cả trạng thái",
+      width: "13%",
     },
     {
       title: "Thao tác",
@@ -102,15 +146,32 @@ export default function CollectionPage() {
           <Flex vertical justify="start" align="center">
             <Button
               type={"text"}
-              // onClick={() => {handleOpenOrderDetail(record.key)}}
+              href={`./collection/${collection.key}#part-1`}
             >
               Xem chi tiết
             </Button>
           </Flex>
         );
       },
+      width: "13%",
     },
   ];
+
+  useEffect(() => {
+    const display = collections.map((value: CollectionType) => {
+      const item: CollectionColumn = {
+        key: value._id,
+        name: value.name,
+        number: value.productIdList.length,
+        createDate: value.createDate,
+        status: value.isActive ? "Bật" : "Tắt",
+      };
+
+      return item;
+    });
+
+    setDataToDisplay(display);
+  }, [collections]);
 
   function handleSelectedRowKeysOnChange(
     newSelectedRowKeys: React.Key[],
@@ -130,55 +191,82 @@ export default function CollectionPage() {
     onChange: handleSelectedRowKeysOnChange,
   };
 
-  const handleChangePattern = (value: string) => {
-    console.log(`selected ${value}`);
-  };
+  // const handleChangePattern = (value: string) => {
+  //   console.log(`selected ${value}`);
+  // };
 
   return (
-    <div className="mr-5">
-      <Button className="bg-[#1677ff] text-white font-semibold mt-2">
-        Tạo mới
-      </Button>
+    <Layout>
+      <div className="mr-5">
+        <Flex gap="large">
+          <Button
+            className="bg-[#1677ff] text-white font-semibold mt-2"
+            href="./collection/new#part-1"
+          >
+            Tạo mới
+          </Button>
 
-      <Flex gap="large" className="my-2">
-        <Search placeholder="Tìm kiếm bộ sưu tập" style={{ width: "300px" }} />
+          {collections.length > 0 && (
+            <Button
+              className="bg-red-500 text-white font-semibold mt-2"
+              onClick={handleDeleteCollection}
+            >
+              Xoá
+            </Button>
+          )}
+        </Flex>
+        <Flex gap="large" className="my-2">
+          <Search
+            placeholder="Tìm kiếm bộ sưu tập"
+            style={{ width: "400px" }}
+          />
 
-        <Select
-          defaultValue={"1"}
-          style={{ width: "200px" }}
-          onChange={handleChangePattern}
-          options={[
-            {
-              value: "1",
-              label: <Flex gap="small">Tất cả trạng thái</Flex>,
-            },
-            {
-              value: "2",
-              label: (
-                <Flex gap="small">
-                  <Badge color="blue" />
-                  Bật
-                </Flex>
-              ),
-            },
-            {
-              value: "3",
-              label: (
-                <Flex gap="small">
-                  <Badge color="gray" />
-                  Tắt
-                </Flex>
-              ),
-            },
-          ]}
+          {/* <Select
+            defaultValue={"1"}
+            style={{ width: "200px" }}
+            onChange={handleChangePattern}
+            options={[
+              {
+                value: "1",
+                label: <Flex gap="small">Tất cả trạng thái</Flex>,
+              },
+              {
+                value: "2",
+                label: (
+                  <Flex gap="small">
+                    <Badge color="blue" />
+                    Bật
+                  </Flex>
+                ),
+              },
+              {
+                value: "3",
+                label: (
+                  <Flex gap="small">
+                    <Badge color="gray" />
+                    Tắt
+                  </Flex>
+                ),
+              },
+            ]}
+          /> */}
+        </Flex>
+
+        <Table
+          rowSelection={rowSelection}
+          columns={dataColumns}
+          dataSource={dataToDisplay}
+          locale={{
+            emptyText: <CustomEmpty />,
+          }}
         />
-      </Flex>
 
-      <Table
-        rowSelection={rowSelection}
-        columns={dataColumns}
-        dataSource={dataToDisplay}
-      />
-    </div>
+        <DeleteCollectionModal
+          open={openDeleteModal}
+          handleOk={deleteCollection}
+          handleCancel={() => setOpenDeleteModal(false)}
+        />
+      </div>
+    </Layout>
   );
 }
