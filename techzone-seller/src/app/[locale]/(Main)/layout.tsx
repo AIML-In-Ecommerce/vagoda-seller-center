@@ -9,7 +9,7 @@ import SidebarContentReactiveLayout from "@/component/SidebarContentReactiveLayo
 import SocketProvider from "@/socket/SocketProvider";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { ReactNode } from "react";
-
+import { AntdRegistry } from '@ant-design/nextjs-registry';
 // import UserLayout from "@/component/UserLayout";
 
 interface RootLayoutProps {
@@ -31,6 +31,7 @@ export default function RootLayout({
   const messages = useMessages();
 
   return (
+
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
       <body className="w-full relative">
@@ -40,16 +41,18 @@ export default function RootLayout({
             {/* <UserLayout children={children} locale={locale} /> */}
             {/* <UserLayout locale={locale}>{children}</UserLayout> */}
             {/* </AuthProvider> */}
-            <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-              <div className="fixed w-full z-50">
-                <Navbar />
+            <AntdRegistry>
+              <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
+                <div className="fixed w-full z-50">
+                  <Navbar />
+                </div>
+                <div className="flex flex-row mt-16">
+                  <SidebarContentReactiveLayout>
+                    {children}
+                  </SidebarContentReactiveLayout>
+                </div>
               </div>
-              <div className="flex flex-row mt-16">
-                <SidebarContentReactiveLayout>
-                  {children}
-                </SidebarContentReactiveLayout>
-              </div>
-            </div>
+            </AntdRegistry>
           </SocketProvider>
         </NextIntlClientProvider>
       </body>

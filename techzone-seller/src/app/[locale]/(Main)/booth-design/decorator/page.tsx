@@ -1,11 +1,11 @@
 "use client";
 
-import { Button, Tabs } from "antd";
+import { Button, Modal, Tabs } from "antd";
 import { useState } from "react";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
 import Search from "antd/es/transfer/search";
 import WidgetEditorBar from "@/component/booth-design/decorator/WidgetEditorBar";
-// import ImageCropper from "@/component/booth-design/decorator/uploadImage/ImageCropper";
+import ImageCropper from "@/component/booth-design/decorator/uploadImage/ImageCropper";
 import WidgetList from "@/component/booth-design/decorator/WidgetList";
 import {
   WidgetType,
@@ -114,7 +114,6 @@ export default function BoothDecoratorPage() {
     setWidgets([...widgets, newWidget]);
     setOpenDrawer(false);
   };
-
   return (
     <div className="m-10 grid grid-cols-3">
       <div className="col-span-2">
@@ -163,15 +162,6 @@ export default function BoothDecoratorPage() {
         addWidget={addWidget}
         order={widgets.length}
       />
-
-      {/* <ImageCropper
-        imageUrl={
-          "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        }
-        setImageUrl={function (value: string): void {
-          // throw new Error("Function not implemented.");
-        }}
-      /> */}
     </div>
   );
 }
