@@ -10,6 +10,7 @@ import SocketProvider from "@/socket/SocketProvider";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { ReactNode } from "react";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import AssistantFloatingButtonGroup from "@/component/AssistantFloatingButtonGroup";
 // import UserLayout from "@/component/UserLayout";
 
 interface RootLayoutProps {
@@ -51,6 +52,7 @@ export default function RootLayout({
                     {children}
                   </SidebarContentReactiveLayout>
                 </div>
+                <AssistantFloatingButtonGroup />
               </div>
             </AntdRegistry>
           </SocketProvider>
