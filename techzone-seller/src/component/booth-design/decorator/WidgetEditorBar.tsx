@@ -11,6 +11,7 @@ import BannerWidget from "./widgetEditorForm/BannerWidget";
 import ProductWidget from "./widgetEditorForm/ProductWidget";
 import CategoryWidget from "./widgetEditorForm/CategoryWidget";
 import PromotionWidget from "./widgetEditorForm/PromotionWidget";
+import CollectionWidget from "./widgetEditorForm/CollectionWidget";
 
 interface WidgetEditorBarProps {
   widgets: WidgetType[];
@@ -44,7 +45,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   };
 
   return (
-    <div className="bg-white mx-2 min-w-80 z-0 pb-5">
+    <div className="bg-white mx-2 min-w-80 z-10 pb-5">
       {/* general */}
       {currentForm === "" && (
         <div className="p-5">
@@ -101,6 +102,14 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       {currentForm === WidgetCategoryType.PROMOTION.toString() &&
         selectedWidget && (
           <PromotionWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+          />
+        )}
+
+      {currentForm === WidgetCategoryType.COLLECTION.toString() &&
+        selectedWidget && (
+          <CollectionWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
           />

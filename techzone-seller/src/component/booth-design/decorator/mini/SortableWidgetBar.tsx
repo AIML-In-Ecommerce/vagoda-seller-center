@@ -12,7 +12,7 @@ import {
 import { WidgetCategoryType, WidgetType } from "@/model/WidgetType";
 import { Card } from "antd";
 import CustomSwitch from "./CustomSwitch";
-import WidgetTypeIcon from "./WidgetTypeIcon";
+import WidgetTypeIcon, { WidgetTypeName } from "./WidgetTypeIcon";
 
 interface SortableListProps {
   items: WidgetType[];
@@ -40,40 +40,59 @@ const SortableItem: React.ComponentClass<
   //   const auth = useAuth();
 
   return (
-    <div className="px-5 pb-2 flex flex-row justify-center align-middle z-0">
-      <Card
-        hoverable
-        style={{ width: "100%", height: "70%" }}
-        onClick={() => props.setSelectedWidget(props.widget)}
-      >
-        <div className="m-2 grid grid-cols-9">
-          <WidgetTypeIcon
-            type={props.widget.type}
-            element={props.widget.element}
-          />
+    <div>
+      <div className="ml-7 text-xs uppercase font-semibold text-gray-500">
+        widget {props.widget.order + 1}
+      </div>
+      <div className="px-5 pb-2 flex flex-row justify-center align-middle z-20">
+        <Card
+          hoverable
+          style={{ width: "100%", height: "70%" }}
+          onClick={() => props.setSelectedWidget(props.widget)}
+        >
+          <div className="m-2 grid grid-cols-9">
+            <WidgetTypeIcon
+              type={props.widget.type}
+              element={props.widget.element}
+            />
 
-          {/* revise this */}
-          <div className="col-span-4">{props.widget._id}</div>
-          <div className="col-span-2 z-10" onClick={(e) => e.stopPropagation()}>
-            <CustomSwitch
-              isSwitched={props.widget.visibility}
-              setIsSwitched={() => props.toggleInvisibilityWidget(props.widget)}
-            />
+            <div className="col-span-4 max-w-[100px] text-center ml-1">
+              <WidgetTypeName
+                type={props.widget.type}
+                element={props.widget.element}
+                order={props.widget.order}
+              />
+            </div>
+
+            <div
+              className="col-span-2 z-30"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CustomSwitch
+                isSwitched={props.widget.visibility}
+                setIsSwitched={() =>
+                  props.toggleInvisibilityWidget(props.widget)
+                }
+              />
+            </div>
+            <div
+              className="col-span-1 z-30"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DeleteOutlined
+                onClick={() => props.deleteWidget(props.widget)}
+                style={{ fontSize: "14px", marginLeft: "10px" }}
+              />
+            </div>
+            <div
+              className="col-span-1 cursor-grab z-30"
+              style={{ fontSize: "14px" }}
+            >
+              <DragHandle />
+            </div>
           </div>
-          <div className="col-span-1" onClick={(e) => e.stopPropagation()}>
-            <DeleteOutlined
-              onClick={() => props.deleteWidget(props.widget)}
-              style={{ fontSize: "14px", marginLeft: "10px" }}
-            />
-          </div>
-          <div
-            className="col-span-1 cursor-grab z-10"
-            style={{ fontSize: "14px" }}
-          >
-            <DragHandle />
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 });
@@ -97,21 +116,23 @@ const SortableList: React.ComponentClass<
           props.items
             .sort((a, b) => a.order - b.order)
             .map((value, index) => (
-              <SortableItem
-                key={`item-${value._id}`}
-                index={index}
-                widget={value}
-                setWidgets={props.setWidgets}
-                handleUpdate={handleUpdate}
-                element={undefined}
-                _id={""}
-                type={WidgetCategoryType.PRODUCT}
-                order={0}
-                visibility={true}
-                setSelectedWidget={props.setSelectedWidget}
-                toggleInvisibilityWidget={props.toggleInvisibilityWidget}
-                deleteWidget={props.deleteWidget}
-              />
+              <div key={index}>
+                <SortableItem
+                  key={`item-${value._id}`}
+                  index={index}
+                  widget={value}
+                  setWidgets={props.setWidgets}
+                  handleUpdate={handleUpdate}
+                  element={undefined}
+                  _id={""}
+                  type={WidgetCategoryType.PRODUCT}
+                  order={0}
+                  visibility={true}
+                  setSelectedWidget={props.setSelectedWidget}
+                  toggleInvisibilityWidget={props.toggleInvisibilityWidget}
+                  deleteWidget={props.deleteWidget}
+                />
+              </div>
             ))}
       </ul>
     </div>

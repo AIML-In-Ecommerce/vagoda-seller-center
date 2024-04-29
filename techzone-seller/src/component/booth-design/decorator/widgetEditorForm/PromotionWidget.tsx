@@ -7,7 +7,7 @@ import {
 import { Button, Card, Flex, Input, Select, Space, Tooltip } from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
-import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { DiscountType, PromotionType } from "@/model/PromotionType";
 import { formatDate } from "@/utils/DateFormatter";
@@ -82,9 +82,7 @@ export default function PromotionWidget(props: WidgetProps) {
   ];
 
   // data
-  const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>(
-    Array.from(" ".repeat(5))
-  );
+  const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
 
   // variables
   const [promotions, setPromotions] = useState(promotionsData);
@@ -98,11 +96,7 @@ export default function PromotionWidget(props: WidgetProps) {
   const element = useMemo(() => {
     let temp = props.widget.element as PromotionElement;
 
-    temp.promotionIdList.forEach((promotion, index) => {
-      proxyPromotionId[index] = promotion;
-    });
-
-    setProxyPromotionId(proxyPromotionId);
+    setProxyPromotionId(temp.promotionIdList);
 
     // call api to get promotion info
     // setPromotions([]);
@@ -117,7 +111,7 @@ export default function PromotionWidget(props: WidgetProps) {
     proxyPromotionWidget.visibility = isSwitched;
 
     element.title = title;
-    element.promotionIdList = proxyPromotionId.filter((id) => id !== " ");
+    element.promotionIdList = proxyPromotionId;
 
     proxyPromotionWidget.element = element;
     setProxyPromotionWidget(proxyPromotionWidget);
@@ -131,13 +125,11 @@ export default function PromotionWidget(props: WidgetProps) {
 
   const checkInclude = (value: string) => {
     let check = false;
-    proxyPromotionId
-      .filter((id) => id !== " ")
-      .forEach((promotion) => {
-        if (promotion === value) {
-          check = true;
-        }
-      });
+    proxyPromotionId.forEach((promotion) => {
+      if (promotion === value) {
+        check = true;
+      }
+    });
 
     // console.log(`selected ${value}, ${check}`);
     return check;
@@ -146,23 +138,26 @@ export default function PromotionWidget(props: WidgetProps) {
   const handleAddPromotion = (value: PromotionType, index: number) => {
     if (checkInclude(value._id)) return;
 
-    proxyPromotionId[index] = value._id;
+    proxyPromotionId.push(value._id);
     setProxyPromotionId(proxyPromotionId);
 
     props.updateWidgets();
   };
 
   const handleRemovePromotion = (value: PromotionType, index: number) => {
-    proxyPromotionId[index] = " ";
-    setProxyPromotionId(proxyPromotionId);
+    setProxyPromotionId(proxyPromotionId.filter((id) => id !== value._id));
 
     props.updateWidgets();
   };
 
   return (
-    <div className="m-5 pb-5">
+    <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
       <div className="m-5 text-2xl font-semibold flex justify-between">
-        <div>{props.widget._id}</div>
+        <WidgetTypeName
+          type={props.widget.type}
+          element={props.widget.element}
+          order={props.widget.order}
+        />
         <CustomSwitch isSwitched={isSwitched} setIsSwitched={setIsSwitched} />
       </div>
 
@@ -216,11 +211,8 @@ export default function PromotionWidget(props: WidgetProps) {
         <Flex vertical gap="small">
           <div className="font-semibold">Mã giảm giá</div>
 
-          <div className="font-light text-sm">
-            Chọn tối đa 5 giảm giá để hiển thị
-          </div>
+          <div className="font-light text-sm">Chọn giảm giá để hiển thị</div>
 
-          {/* TODO: select promotions */}
           {promotions.length > 0 && (
             <Space direction="vertical">
               <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
@@ -249,12 +241,10 @@ export default function PromotionWidget(props: WidgetProps) {
                 <div>Bạn đã chọn &nbsp;</div>
                 <div
                   className={`${
-                    proxyPromotionId.filter((p) => p != " ").length > 0
-                      ? "text-red-500"
-                      : ""
+                    proxyPromotionId.length > 0 ? "text-red-500" : ""
                   } font-bold text-2xl`}
                 >
-                  {proxyPromotionId.filter((p) => p != " ").length}
+                  {proxyPromotionId.length}
                 </div>
                 <div>&nbsp; mã giảm giá sản phẩm &nbsp;</div>
               </div>

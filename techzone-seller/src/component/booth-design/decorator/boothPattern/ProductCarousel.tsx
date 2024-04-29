@@ -150,7 +150,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
           key={startIndex.toString() + endIndex.toString()}
           justify="center"
           align="center"
-          gap={6}
+          gap={30}
         >
           {row}
         </Flex>
@@ -159,7 +159,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
       result = result.concat(
         <div
           key={i.toString() + startIndex.toString() + endIndex.toString()}
-          className="my-3 pr-10 flex items-center"
+          className="my-3 lg:pl-10 w-max flex flex-row items-center"
         >
           {rowWrapper}
         </div>

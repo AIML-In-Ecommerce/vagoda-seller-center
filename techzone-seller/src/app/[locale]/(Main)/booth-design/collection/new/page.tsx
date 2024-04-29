@@ -1,6 +1,7 @@
 "use client";
 import {
   Anchor,
+  Breadcrumb,
   Button,
   Divider,
   Flex,
@@ -15,6 +16,9 @@ import CustomSwitch from "@/component/booth-design/decorator/mini/CustomSwitch";
 import ProductSelect from "@/component/booth-design/collection/custom/ProductSelect";
 import { CollectionType } from "@/model/CollectionType";
 import { formatDate } from "@/utils/DateFormatter";
+import { HiOutlineHome } from "react-icons/hi2";
+import BannerForm from "@/component/booth-design/decorator/uploadImage/BannerForm";
+import { FaRegHandPointer } from "react-icons/fa";
 
 export default function NewCollectionPage() {
   // mock data
@@ -167,6 +171,7 @@ export default function NewCollectionPage() {
 
   //var
   const [name, setName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [productIdList, setProductIdList] = useState<string[]>([]);
   const [isSwitched, setIsSwitched] = useState(true);
 
@@ -175,6 +180,7 @@ export default function NewCollectionPage() {
     const newCollection: CollectionType = {
       _id: "",
       name: name,
+      imageUrl: imageUrl,
       productIdList: productIdList,
       createDate: formatDate(new Date()),
       isActive: isSwitched,
@@ -211,8 +217,30 @@ export default function NewCollectionPage() {
           />
         </div>
         <div className="col-span-5 lg:col-span-7 mx-20 flex flex-col">
-          <div id="part-1" className="invisible">
-            <Divider />
+          <div id="part-1">
+            <Breadcrumb
+              className="text-xs"
+              items={[
+                {
+                  href: "/",
+                  title: (
+                    <div className="flex items-center">
+                      <HiOutlineHome size={15} />
+                    </div>
+                  ),
+                },
+                {
+                  title: "Thiết kế gian hàng",
+                },
+                {
+                  href: "/booth-design/collection",
+                  title: "Bộ sưu tập",
+                },
+                {
+                  title: "Tạo Bộ sưu tập",
+                },
+              ]}
+            />
           </div>
           <div className="lg:flex lg:flex-row gap-5">
             <Button href="./"> Trở về danh sách </Button>
@@ -244,6 +272,7 @@ export default function NewCollectionPage() {
                 />
               </Tooltip>
             </div>
+
             {/* status */}
             <Flex gap="large" className="my-5">
               <div className="font-semibold">Trạng thái</div>
@@ -251,6 +280,37 @@ export default function NewCollectionPage() {
                 isSwitched={isSwitched}
                 setIsSwitched={setIsSwitched}
               />
+            </Flex>
+
+            {/* avatar */}
+            <Flex
+              vertical
+              gap="large"
+              className="overflow-hidden sm:w-full md:w-full lg:w-1/2"
+            >
+              <div className="font-semibold">Ảnh đại diện</div>
+
+              {imageUrl && imageUrl !== " " && (
+                <Tooltip
+                  title={
+                    <img
+                      src={imageUrl}
+                      alt="banner"
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  }
+                >
+                  <Flex
+                    className="text-slate-500 w-max cursor-pointer"
+                    gap="small"
+                  >
+                    <FaRegHandPointer />
+                    Ảnh mới cập nhật
+                  </Flex>
+                </Tooltip>
+              )}
+
+              <BannerForm setImageUrl={setImageUrl} />
             </Flex>
           </div>
 
@@ -271,7 +331,7 @@ export default function NewCollectionPage() {
           </div>
         </div>
         <FloatButton.Group>
-          <FloatButton.BackTop tooltip={<div>Move to Top</div>} />
+          <FloatButton.BackTop tooltip={<div>Lướt lên đầu</div>} />
         </FloatButton.Group>
       </div>
     </Layout>

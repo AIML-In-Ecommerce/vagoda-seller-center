@@ -4,6 +4,7 @@ export enum WidgetCategoryType {
   PRODUCT,
   CATEGORY,
   PROMOTION,
+  COLLECTION,
 }
 
 export enum BannerPatternType {
@@ -23,6 +24,11 @@ export enum PromotionPatternType {
   GRID,
 }
 
+export enum CollectionPatternType {
+  CAROUSEL,
+  GRID,
+}
+
 // types
 export type WidgetType = {
   _id: string;
@@ -34,6 +40,7 @@ export type WidgetType = {
     | ProductElement
     | CategoryElement
     | PromotionElement
+    | CollectionElement
     | undefined;
 };
 
@@ -65,4 +72,11 @@ export type PromotionElement = {
 
   // list of promotions' id:
   promotionIdList: string[];
+};
+
+export type CollectionElement = {
+  pattern: CollectionPatternType;
+
+  // list of collections' id:
+  collectionIdList: string[];
 };

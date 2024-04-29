@@ -10,12 +10,16 @@ import {
   Flex,
   FloatButton,
   Input,
+  Breadcrumb,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { useParams } from "next/navigation";
 import { formatDate } from "@/utils/DateFormatter";
 import { CollectionType } from "@/model/CollectionType";
+import { HiOutlineHome } from "react-icons/hi2";
+import BannerForm from "@/component/booth-design/decorator/uploadImage/BannerForm";
+import { FaRegHandPointer } from "react-icons/fa";
 
 export default function CollectionDetailPage() {
   // mock data
@@ -167,9 +171,11 @@ export default function CollectionDetailPage() {
   ];
 
   // TODO: comment this later
-  const collectionData = {
+  const collectionData: CollectionType = {
     _id: "id1",
     name: "Collection 1",
+    imageUrl:
+      "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
     productIdList: ["sp-01", "sp-12", "sp-05"],
     createDate: formatDate(new Date("2024-03-24T12:30:00")),
     isActive: false,
@@ -179,6 +185,7 @@ export default function CollectionDetailPage() {
   const [collection, setCollection] = useState(collectionData);
 
   const [name, setName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [productIdList, setProductIdList] = useState<string[]>(
     collection.productIdList
   );
@@ -193,6 +200,7 @@ export default function CollectionDetailPage() {
     setProductIdList(collection.productIdList);
     setName(collection.name);
     setIsSwitched(collection.isActive);
+    setImageUrl(collection.imageUrl);
   }, [collectionId]);
 
   const isNotUpdatable = useMemo(() => {
@@ -211,15 +219,18 @@ export default function CollectionDetailPage() {
     return (
       (name === "" || name.toString() === collection.name.toString()) &&
       isSwitched === collection.isActive &&
-      !isNewList
+      !isNewList &&
+      (imageUrl === "" ||
+        imageUrl.toString() === collection.imageUrl.toString())
     );
-  }, [name, isSwitched, productIdList]);
+  }, [name, isSwitched, productIdList, imageUrl]);
 
   // function
   const handleSave = () => {
     const updatedCollection: CollectionType = {
       _id: collection._id,
       name: name,
+      imageUrl: imageUrl,
       productIdList: productIdList,
       createDate: collection.createDate,
       isActive: isSwitched,
@@ -256,8 +267,30 @@ export default function CollectionDetailPage() {
           />
         </div>
         <div className="col-span-5 lg:col-span-7 mx-20 flex flex-col">
-          <div id="part-1" className="invisible">
-            <Divider />
+          <div id="part-1">
+            <Breadcrumb
+              className="text-xs"
+              items={[
+                {
+                  href: "/",
+                  title: (
+                    <div className="flex items-center">
+                      <HiOutlineHome size={15} />
+                    </div>
+                  ),
+                },
+                {
+                  title: "Thiết kế gian hàng",
+                },
+                {
+                  href: "/booth-design/collection",
+                  title: "Bộ sưu tập",
+                },
+                {
+                  title: "Chi tiết Bộ sưu tập",
+                },
+              ]}
+            />
           </div>
           <div className="lg:flex lg:flex-row gap-5">
             <Button href="./"> Trở về danh sách </Button>
@@ -298,6 +331,37 @@ export default function CollectionDetailPage() {
                 setIsSwitched={setIsSwitched}
               />
             </Flex>
+
+            {/* avatar */}
+            <Flex
+              vertical
+              gap="large"
+              className="overflow-hidden sm:w-full md:w-full lg:w-1/2"
+            >
+              <div className="font-semibold">Ảnh đại diện</div>
+
+              {collection.imageUrl && collection.imageUrl !== " " && (
+                <Tooltip
+                  title={
+                    <img
+                      src={collection.imageUrl}
+                      alt="banner"
+                      style={{ width: "100%", height: "100%" }}
+                    />
+                  }
+                >
+                  <Flex
+                    className="text-slate-500 w-max cursor-pointer"
+                    gap="small"
+                  >
+                    <FaRegHandPointer />
+                    Ảnh hiện tại
+                  </Flex>
+                </Tooltip>
+              )}
+
+              <BannerForm setImageUrl={setImageUrl} />
+            </Flex>
           </div>
 
           <div className="mb-20">
@@ -317,7 +381,7 @@ export default function CollectionDetailPage() {
           </div>
         </div>
         <FloatButton.Group>
-          <FloatButton.BackTop tooltip={<div>Move to Top</div>} />
+          <FloatButton.BackTop tooltip={<div>Lướt lên đầu</div>} />
         </FloatButton.Group>
       </div>
     </Layout>

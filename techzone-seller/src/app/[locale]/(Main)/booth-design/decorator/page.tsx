@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, FloatButton, Tabs } from "antd";
+import { Affix, Breadcrumb, Button, FloatButton, Tabs } from "antd";
 import { useState } from "react";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
 import Search from "antd/es/transfer/search";
@@ -13,16 +13,38 @@ import {
   BannerPatternType,
   ProductPatternType,
   PromotionPatternType,
+  CollectionPatternType,
 } from "@/model/WidgetType";
 import WidgetDrawer from "@/component/booth-design/decorator/WidgetDrawer";
 import { AddWidgetHandle } from "@/component/booth-design/decorator/widgetUtils/AddWidgetHandle";
 import DeleteWidgetModal from "@/component/booth-design/decorator/modal/DeleteWidgetModal";
+import { HiOutlineHome } from "react-icons/hi2";
 
 export default function BoothDecoratorPage() {
   // mock data
   const shopInfo = { color: "white", name: "TechZone Shop", avatarUrl: "" };
 
   const [widgets, setWidgets] = useState<WidgetType[]>([
+    {
+      _id: "collection_ID1",
+      type: WidgetCategoryType.COLLECTION,
+      order: 7,
+      visibility: true,
+      element: {
+        pattern: CollectionPatternType.GRID,
+        collectionIdList: [],
+      },
+    },
+    {
+      _id: "collection_ID2",
+      type: WidgetCategoryType.COLLECTION,
+      order: 8,
+      visibility: true,
+      element: {
+        pattern: CollectionPatternType.CAROUSEL,
+        collectionIdList: [],
+      },
+    },
     {
       _id: "category_ID",
       type: WidgetCategoryType.CATEGORY,
@@ -114,6 +136,7 @@ export default function BoothDecoratorPage() {
 
   // add widget
   const addWidget = (type: number, pattern: number, order: number) => {
+    // console.log("addWidget", type, pattern, order);
     let newWidget = AddWidgetHandle({ type, pattern, order });
     setWidgets([...widgets, newWidget]);
     setOpenDrawer(false);
@@ -155,8 +178,31 @@ export default function BoothDecoratorPage() {
   };
 
   return (
-    <div className="m-5 grid grid-cols-3">
+    <div className="m-5 grid grid-cols-3 h-fit">
       <div className="col-span-2">
+        <div className="bg-white p-2 mb-1">
+          <Breadcrumb
+            className="text-xs"
+            items={[
+              {
+                href: "/",
+                title: (
+                  <div className="flex items-center">
+                    <HiOutlineHome size={15} />
+                  </div>
+                ),
+              },
+              {
+                title: "Thiết kế gian hàng",
+              },
+              {
+                href: "/product/list",
+                title: "Trang trí gian hàng",
+              },
+            ]}
+          />
+        </div>
+
         <Banner
           color={shopInfo.color}
           name={shopInfo.name}
@@ -193,12 +239,26 @@ export default function BoothDecoratorPage() {
       </div>
 
       <div className="col-span-1">
-        <WidgetEditorBar
-          widgets={widgets}
-          setWidgets={setWidgets}
-          toggleInvisibilityWidget={toggleInvisibilityWidget}
-          deleteWidget={handleDeleteWidget}
-        />
+        {/* <div className="sticky top-50"> */}
+        <Affix offsetTop={80}>
+          <WidgetEditorBar
+            widgets={widgets}
+            setWidgets={setWidgets}
+            toggleInvisibilityWidget={toggleInvisibilityWidget}
+            deleteWidget={handleDeleteWidget}
+          />
+
+          <Button
+            className="mt-2 ml-2"
+            block
+            onClick={() => {
+              setOpenDrawer(true);
+            }}
+          >
+            + Thêm widget
+          </Button>
+        </Affix>
+        {/* </div> */}
       </div>
 
       <WidgetDrawer
@@ -208,7 +268,7 @@ export default function BoothDecoratorPage() {
         order={widgets.length}
       />
 
-      <FloatButton.BackTop tooltip={<div>Move to Top</div>} />
+      <FloatButton.BackTop tooltip={<div>Lướt lên đầu</div>} />
 
       <DeleteWidgetModal
         open={openDeleteModal}

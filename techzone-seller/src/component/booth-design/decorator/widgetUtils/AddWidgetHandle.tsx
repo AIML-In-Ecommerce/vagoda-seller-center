@@ -56,6 +56,17 @@ export const AddWidgetHandle = (props: HandleProps) => {
           promotionIdList: [],
         },
       };
+    case WidgetCategoryType.COLLECTION:
+      return {
+        _id: "",
+        type: props.type,
+        order: props.order,
+        visibility: true,
+        element: {
+          pattern: props.pattern,
+          collectionIdList: [],
+        },
+      };
     default:
       return {
         _id: "",

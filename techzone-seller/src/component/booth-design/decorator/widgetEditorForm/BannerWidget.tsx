@@ -15,7 +15,7 @@ import {
 } from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
-import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import BannerForm from "../uploadImage/BannerForm";
 import { FaRegHandPointer } from "react-icons/fa6";
 
@@ -51,7 +51,6 @@ export default function BannerWidget(props: WidgetProps) {
   const handleSave = () => {
     proxyBannerWidget.visibility = isSwitched;
 
-    // TODO: need experiment
     element.images = proxyBanner.filter((id) => id !== " ");
     proxyBannerWidget.element = element;
     setProxyBannerWidget(proxyBannerWidget);
@@ -194,9 +193,13 @@ export default function BannerWidget(props: WidgetProps) {
   ];
 
   return (
-    <div className="m-5 pb-5">
+    <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
       <div className="m-5 text-2xl font-semibold flex justify-between">
-        <div>{props.widget._id}</div>
+        <WidgetTypeName
+          type={props.widget.type}
+          element={props.widget.element}
+          order={props.widget.order}
+        />
         <CustomSwitch isSwitched={isSwitched} setIsSwitched={setIsSwitched} />
       </div>
 
@@ -235,7 +238,7 @@ export default function BannerWidget(props: WidgetProps) {
           </div>
 
           {/* collapse */}
-          <Collapse items={items} />
+          <Collapse accordion items={items} />
         </Flex>
 
         {/* Buttons */}

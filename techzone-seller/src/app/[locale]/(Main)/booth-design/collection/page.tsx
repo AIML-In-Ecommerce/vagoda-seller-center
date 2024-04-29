@@ -10,20 +10,22 @@ import {
   Button,
   Table,
   Badge,
-  Select,
+  // Select,
   Typography,
   Layout,
+  Breadcrumb,
 } from "antd";
 import Search from "antd/es/input/Search";
 import { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
+import { HiOutlineHome } from "react-icons/hi2";
 
 interface CollectionColumn {
   key: string;
   name: string;
   number: number;
   createDate: string;
-  status: string; //? active/inactive?
+  status: string; // active/inactive
 }
 
 export default function CollectionPage() {
@@ -32,6 +34,7 @@ export default function CollectionPage() {
     {
       _id: "id1",
       name: "Collection 1",
+      imageUrl: "",
       productIdList: [],
       createDate: formatDate(new Date("2024-03-24T12:30:00")),
       isActive: true,
@@ -39,14 +42,16 @@ export default function CollectionPage() {
     {
       _id: "id2",
       name: "Collection 2",
-      productIdList: [],
+      imageUrl: "",
+      productIdList: ["id1", "id2"],
       createDate: formatDate(new Date("2024-03-24T12:30:00")),
       isActive: true,
     },
     {
       _id: "id3",
       name: "Collection 3",
-      productIdList: [],
+      imageUrl: "",
+      productIdList: ["id"],
       createDate: formatDate(new Date("2024-03-24T12:30:00")),
       isActive: true,
     },
@@ -197,7 +202,28 @@ export default function CollectionPage() {
 
   return (
     <Layout>
-      <div className="mr-5">
+      <div className="m-5">
+        <Breadcrumb
+          className="text-xs"
+          items={[
+            {
+              href: "/",
+              title: (
+                <div className="flex items-center">
+                  <HiOutlineHome size={15} />
+                </div>
+              ),
+            },
+            {
+              title: "Thiết kế gian hàng",
+            },
+            {
+              href: "/booth-design/collection",
+              title: "Bộ sưu tập",
+            },
+          ]}
+        />
+
         <Flex gap="large">
           <Button
             className="bg-[#1677ff] text-white font-semibold mt-2"

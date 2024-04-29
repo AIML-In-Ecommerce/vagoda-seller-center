@@ -7,7 +7,7 @@ import {
 import { Button, Flex, Input, Select, Tooltip } from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
-import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CategoryType } from "@/model/CategoryType";
 import CustomEmpty from "../mini/CustomEmpty";
@@ -100,7 +100,11 @@ export default function CategoryWidget(props: WidgetProps) {
   return (
     <div className="m-5 pb-5">
       <div className="m-5 text-2xl font-semibold flex justify-between">
-        <div>{props.widget._id}</div>
+        <WidgetTypeName
+          type={props.widget.type}
+          element={props.widget.element}
+          order={props.widget.order}
+        />
         <CustomSwitch isSwitched={isSwitched} setIsSwitched={setIsSwitched} />
       </div>
 

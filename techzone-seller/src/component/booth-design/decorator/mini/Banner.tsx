@@ -39,7 +39,7 @@ export default function Banner(shopInfo: BannerProps) {
   }, [shopInfo.color]);
 
   return (
-    <div className={`p-5 ${classColor}`}>
+    <div className={`p-5 ${classColor} z-0`}>
       <Flex gap="small">
         <div className="m-1">
           {(shopInfo.avatarUrl && (
@@ -79,7 +79,7 @@ export default function Banner(shopInfo: BannerProps) {
           size="large"
           ghost={shopInfo.color !== "white"}
           icon={<MessageFilled />}
-          style={{ marginTop: 15 }}
+          style={{ marginTop: 15, zIndex: 0 }}
         >
           Chat
         </Button>

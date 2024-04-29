@@ -57,7 +57,7 @@ export default function ShopInfo() {
   };
 
   return (
-    <div className="m-5 pb-5">
+    <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
       <div className="m-5 text-2xl font-semibold flex justify-center">
         Thông tin chung
       </div>
@@ -150,13 +150,15 @@ export default function ShopInfo() {
         </Flex>
       </Flex>
 
-      <BannerModal
-        color={color}
-        name={name}
-        avatarUrl={avatarUrl}
-        open={openPreview}
-        setOpen={setOpenPreview}
-      />
+      <div className="overflow-hidden h-[10px]">
+        <BannerModal
+          color={color}
+          name={name}
+          avatarUrl={avatarUrl}
+          open={openPreview}
+          setOpen={setOpenPreview}
+        />
+      </div>
     </div>
   );
 }

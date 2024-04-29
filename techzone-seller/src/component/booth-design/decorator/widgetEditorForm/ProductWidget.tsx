@@ -7,7 +7,7 @@ import {
 import { Button, Flex, Input, Select, Tooltip } from "antd";
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
-import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
@@ -23,6 +23,7 @@ export default function ProductWidget(props: WidgetProps) {
     {
       _id: "1",
       name: "collection 1",
+      imageUrl: "",
       productIdList: [],
       createDate: "string",
       isActive: true,
@@ -30,6 +31,7 @@ export default function ProductWidget(props: WidgetProps) {
     {
       _id: "2",
       name: "collection 2",
+      imageUrl: "",
       productIdList: [],
       createDate: "string",
       isActive: true,
@@ -37,6 +39,7 @@ export default function ProductWidget(props: WidgetProps) {
     {
       _id: "3",
       name: "collection 3",
+      imageUrl: "",
       productIdList: [],
       createDate: "string",
       isActive: true,
@@ -44,6 +47,7 @@ export default function ProductWidget(props: WidgetProps) {
     {
       _id: "4",
       name: "collection 4",
+      imageUrl: "",
       productIdList: [],
       createDate: "string",
       isActive: true,
@@ -102,7 +106,11 @@ export default function ProductWidget(props: WidgetProps) {
   return (
     <div className="m-5 pb-5">
       <div className="m-5 text-2xl font-semibold flex justify-between">
-        <div>{props.widget._id}</div>
+        <WidgetTypeName
+          type={props.widget.type}
+          element={props.widget.element}
+          order={props.widget.order}
+        />
         <CustomSwitch isSwitched={isSwitched} setIsSwitched={setIsSwitched} />
       </div>
 
