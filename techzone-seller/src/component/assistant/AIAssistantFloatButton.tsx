@@ -100,6 +100,12 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
 
     const [userInput, setUserInput] = useState<string | undefined>(undefined)
 
+    //ref: https://stackoverflow.com/questions/37620694/how-to-scroll-to-bottom-in-react
+    const messageEndRef = useRef<null|HTMLDivElement>(null)
+    const extendedMessageEndRef = useRef<null|HTMLDivElement>(null)
+
+
+
     const ref = useRef(null);
     useEffect(() => {
         require("@lottiefiles/lottie-player");
@@ -154,7 +160,32 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
             }
         }
     },
-        [])
+    [])
+
+    function scrollToBottom()
+    {
+        if(messageEndRef.current)
+        {
+            messageEndRef.current.scrollTop = messageEndRef.current.scrollHeight
+        }
+
+        if(extendedMessageEndRef.current)
+        {
+            extendedMessageEndRef.current.scrollTop = extendedMessageEndRef.current.scrollHeight
+        }
+    }
+
+    useEffect(() =>
+    {
+        scrollToBottom()
+    },
+    [messages])
+
+    useEffect(() =>
+    {
+        scrollToBottom()
+    },
+    [open, bigModalOpen])
 
     //the function used for testing
     function getRamdomDisplay() {
@@ -256,12 +287,14 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
         setIsExpandedPopUp(true)
         setBigModalOpen(true)
         setOpen(false)
+        scrollToBottom()
     }
 
     function handleShrinkButtonOnClick() {
         setIsExpandedPopUp(false)
         setBigModalOpen(false)
         setOpen(true)
+        scrollToBottom()
     }
 
     function handleRefreshMessages() {
@@ -372,7 +405,9 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
         <Card
             style={{ boxShadow: "none" }}
             title={cardTitle} bordered={false} extra={extraAiAssistantPopoverContentButton} actions={CardActions}>
-            <Flex className="overflow-y-auto h-96 max-h-96 max-w-screen-md" vertical justify="start" align="center" gap={4}>
+            <Flex className="overflow-y-auto h-96 max-h-96 max-w-screen-md" vertical justify="start" align="center" gap={4}
+                ref={messageEndRef}
+            >
                 {
                     messages.map((message: AssistantMessageProps, index: number) => {
                         return getMessageDisplay(message, index)
@@ -412,7 +447,9 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
                             className="w-2/5 h-full"
                             style={{ boxShadow: "none", borderRadius: "0 0 0 0" }}
                             title={cardTitle} bordered={false} extra={extraAiAssistantPopoverContentButton} actions={CardActions}>
-                            <Flex style={{ maxHeight: "550px", height:"550px"}} className="overflow-y-auto" vertical justify="start" align="center" gap={4}>
+                            <Flex style={{ maxHeight: "550px", height:"550px"}} className="overflow-y-auto" vertical justify="start" align="center" gap={4}
+                                ref={extendedMessageEndRef}
+                            >
                                 {
                                     messages.map((message: AssistantMessageProps, index: number) => {
                                         return getMessageDisplay(message, index)

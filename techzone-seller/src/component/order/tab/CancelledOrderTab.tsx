@@ -69,6 +69,16 @@ const OrderValueTooltip =
     </Typography.Text>
 </Flex>
 
+const OrderTimeTooltip =
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Diễn ra - thời gian đơn hàng được ghi nhận hủy
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Hạn xác nhận - thời gian người bán cần xác nhận rằng đơn hàng đã được hủy trước hạn
+    </Typography.Text>
+</Flex>
+
 const filterPoolSetting = CancelledOrderPoolSetting
 
 export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
@@ -153,7 +163,12 @@ export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
             }
         },
         {
-            title: "Thời gian xác nhận",
+            title: <Flex align="center" gap={4}>
+                    <Typography.Text>Thời gian xác nhận</Typography.Text>
+                    <Tooltip title={OrderTimeTooltip}>
+                        <BiInfoCircle />
+                    </Tooltip>
+                </Flex>,
             dataIndex: "time",
             render: (value:any, record: CancelledOrder) =>
             {

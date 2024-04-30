@@ -72,6 +72,13 @@ const OrderValueTooltip =
     </Typography.Text>
 </Flex>
 
+const OrderTimeTooltip =
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Bắt đầu - thời gian đơn hàng bắt đầu được vận chuyển
+    </Typography.Text>
+</Flex>
+
 export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 {
     const shippingTabFilterPoolKey = "shipping-tab-filter-pool-key"
@@ -153,7 +160,12 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
             }
         },
         {
-            title: "Thời gian nhận vận chuyển",
+            title: <Flex align="center" gap={4}>
+                    <Typography.Text>Thời gian xử lý</Typography.Text>
+                    <Tooltip title={OrderTimeTooltip}>
+                        <BiInfoCircle />
+                    </Tooltip>
+                </Flex>,
             dataIndex: "time",
             render: (value:any, record: ShippingOrder) =>
             {

@@ -52,7 +52,6 @@ export default function SocketProvider({children}: SocketIOProps)
 
     const value: SocketIOContextProps = useMemo(() =>
     {
-        console.log("inside useMemo")
 
         if(isConnected == false && socketIO != null)
         {

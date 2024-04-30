@@ -1,4 +1,5 @@
-import OrderTabs from "@/component/order/OrderTabs"
+
+import OrderInvoice from "@/component/order/OrderInvoice"
 import { Flex} from "antd"
 
 
@@ -8,17 +9,17 @@ interface OrderPageProps
 }
 
 
-function OrderPage({}: OrderPageProps)
+function OrderInvoicePage({}: OrderPageProps)
 {
 
     return(
         <>
             <Flex vertical className="w-full" align="center" justify="center">
-                <OrderTabs />
+                <OrderInvoice />
             </Flex>
         </>
     )
 }
 
 
-export default OrderPage
+export default OrderInvoicePage
