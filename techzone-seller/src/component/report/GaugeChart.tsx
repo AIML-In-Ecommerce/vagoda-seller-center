@@ -9,6 +9,7 @@ import {
 
 
 import { Chart, Doughnut } from "react-chartjs-2";
+import { Tag } from "antd";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -41,31 +42,31 @@ export default function GaugeChart(props: GaugeChartProps) {
         beforeDatasetsDraw(chart: { getDatasetMeta?: any; ctx?: any; data?: any; chartArea?: any; }, args: any, pluginOptions: any) {
             const { ctx, data, chartArea: { top, bottom, left, right, width, height } } = chart;
 
-            const xCenter = chart.getDatasetMeta(0).data[0].x;
-            const yCenter = chart.getDatasetMeta(0).data[0].y;
-            const score1 = data.datasets[0].data[0];
-            const score2 = data.datasets[0].data[1];
-            const scoreRatio = (score1 / (score1 + score2) * 100).toFixed(2);
+            // const xCenter = chart.getDatasetMeta(0).data[0].x;
+            // const yCenter = chart.getDatasetMeta(0).data[0].y;
+            // const score1 = data.datasets[0].data[0];
+            // const score2 = data.datasets[0].data[1];
+            // const scoreRatio = (score1 / (score1 + score2) * 100).toFixed(2);
 
             ctx.save();
 
-            ctx.font = 'bold 30px sans-serif';
-            ctx.fillStyle = 'black';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(`${score1 === 0 && score2 === 0 ? '--' : `${scoreRatio}%`}`, xCenter, yCenter - 40);
+            // ctx.font = 'bold 30px sans-serif';
+            // ctx.fillStyle = 'black';
+            // ctx.textAlign = 'center';
+            // ctx.textBaseline = 'bottom';
+            // ctx.fillText(`${score1 === 0 && score2 === 0 ? '--' : `${scoreRatio}%`}`, xCenter, yCenter - 40);
 
-            ctx.font = '15px sans-serif';
-            ctx.fillStyle = 'gray';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(`Không có dữ liệu`, xCenter, yCenter - 20);
+            // ctx.font = '15px sans-serif';
+            // ctx.fillStyle = 'gray';
+            // ctx.textAlign = 'center';
+            // ctx.textBaseline = 'bottom';
+            // ctx.fillText(`Không có dữ liệu`, xCenter, yCenter - 20);
 
-            ctx.font = '15px sans-serif';
-            ctx.fillStyle = 'black';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(`Chỉ tiêu ${props.isBelow ? '<=' : '>='} ${props.thresholdValue}%`, xCenter, yCenter);
+            // ctx.font = '15px sans-serif';
+            // ctx.fillStyle = 'black';
+            // ctx.textAlign = 'center';
+            // ctx.textBaseline = 'bottom';
+            // ctx.fillText(`Chỉ tiêu ${props.isBelow ? '<=' : '>='} ${props.thresholdValue}%`, xCenter, yCenter);
         }
     }
 
@@ -153,10 +154,28 @@ export default function GaugeChart(props: GaugeChartProps) {
 
     }
 
+    const score1 = data.datasets[0].data[0];
+    const score2 = data.datasets[0].data[1];
+    const scoreRatio = (score1 / (score1 + score2) * 100).toFixed(2);
+    const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
+        return isAboveThreshold ? value >= threshold : value <= threshold;
+    }
     return (
         <React.Fragment>
-            <div className="chart-container w-full" style={{ height: '260px', objectFit: 'cover' }}>
+            <div className="chart-container w-full relative" style={{ height: '260px', objectFit: 'cover' }}>
                 <Chart type="doughnut" {...config} />
+                <div className="absolute bottom-5 lg:bottom-0 inset-x-0 flex flex-col justify-center items-center">
+                    <div className="font-bold text-3xl">{score1 === 0 && score2 === 0 ? '--' : `${scoreRatio}`}%</div>
+                    <div>
+                        {
+                            checkThreshold(Number(scoreRatio), props.thresholdValue, !props.isBelow) ? (
+                                <Tag color="#87d068" className="font-semibold">Tốt</Tag>
+                            ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
+                        }
+                    </div>
+                    <div className="text-slate-500 italic">Không có dữ liệu</div>
+                    <div>Chỉ tiêu {props.isBelow ? '<=' : '>='} {props.thresholdValue}%</div>
+                </div>
             </div>
         </React.Fragment>
     )

@@ -1,6 +1,8 @@
 "use client";
-import { Button, DatePicker, Divider, Input, Radio, 
-    RadioChangeEvent, Select, Space, Table, TableColumnsType, Tooltip } from 'antd'
+import {
+    Button, DatePicker, Divider, Input, Radio,
+    RadioChangeEvent, Select, Space, Table, TableColumnsType, Tooltip
+} from 'antd'
 import React, { useState } from 'react'
 import { GoDownload } from 'react-icons/go'
 import CheckableCard from '@/component/report/CheckableCard'
@@ -261,7 +263,9 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         {
                             mainValues.map((item, key) => {
                                 return (
-                                    <CheckableCard id={key} item={item} checkboxVisibility={false} />
+                                    <div key={key}>
+                                        <CheckableCard item={item} checkboxVisibility={false} />
+                                    </div>
                                 )
                             })
                         }

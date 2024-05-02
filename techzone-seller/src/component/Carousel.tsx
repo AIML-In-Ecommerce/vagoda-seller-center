@@ -25,8 +25,8 @@ export default function CustomCarousel(props: CarouselProps) {
                 {
                     props.loading ? <Skeleton active={props.loading} /> : (
                         <>
-                            <Carousel slidesToShow={props.slidesToShow ?? 1}
-                                slidesToScroll={props.slidesToShow ?? 1}
+                            <Carousel slidesToShow={props.slidesToShow || 1}
+                                slidesToScroll={props.slidesToShow || 1}
                                 infinite={props.infinite ?? true}
                                 autoplay={props.autoplay ?? false}
                                 ref={ref}

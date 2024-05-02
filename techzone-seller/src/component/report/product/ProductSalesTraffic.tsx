@@ -64,7 +64,7 @@ export default function ProductSalesTrafficPage(props: ProductSalesTrafficPagePr
                                 title: "Trung tâm phát triển",
                             },
                             {
-                                title: "Hiệu quả kinh doanh",
+                                title: `${props.pageProps.label}`,
                             },
                         ]}
                     />

@@ -130,7 +130,7 @@ export default function BusinessPerformancePage() {
                                 <Radio.Button value="week">7 ngày qua</Radio.Button>
                                 <Radio.Button value="month">30 ngày qua</Radio.Button>
                             </Radio.Group>
-                            <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY"/>
+                            <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY" />
                             <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
                         </div>
                     </div>
@@ -146,7 +146,9 @@ export default function BusinessPerformancePage() {
                                 {
                                     mainValues.map((item, key) => {
                                         return (
-                                            <CheckableCard id={key} item={item} checkboxVisibility={true}/>
+                                            <div key={key}>
+                                                <CheckableCard item={item} checkboxVisibility={true} />
+                                            </div>
                                         )
                                     })
                                 }
@@ -158,7 +160,9 @@ export default function BusinessPerformancePage() {
                                 contents={
                                     mainValues.map((item, key) => {
                                         return (
-                                            <CheckableCard id={key} item={item} checkboxVisibility={true}/>
+                                            <div key={key}>
+                                                <CheckableCard item={item} checkboxVisibility={true} />
+                                            </div>
                                         )
                                     })
                                 } />
