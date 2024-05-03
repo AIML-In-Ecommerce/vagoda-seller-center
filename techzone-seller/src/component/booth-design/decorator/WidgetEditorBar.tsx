@@ -12,6 +12,7 @@ import ProductWidget from "./widgetEditorForm/ProductWidget";
 import CategoryWidget from "./widgetEditorForm/CategoryWidget";
 import PromotionWidget from "./widgetEditorForm/PromotionWidget";
 import CollectionWidget from "./widgetEditorForm/CollectionWidget";
+import { Link } from "react-scroll";
 
 interface WidgetEditorBarProps {
   widgets: WidgetType[];
@@ -54,16 +55,25 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             Thông tin chung
           </Button> */}
 
-          <Card
-            hoverable
-            style={{ width: "100%", height: "70%" }}
-            onClick={() => setCurrentForm("general_info")}
+          <Link
+            activeClass="active"
+            to="general-info"
+            spy={true}
+            smooth={true}
+            offset={-80}
+            duration={500}
           >
-            <div className="m-2 grid grid-cols-8">
-              <TbLayoutNavbarCollapseFilled style={{ fontSize: "20px" }} />
-              <div className="col-span-5">Thông tin chung</div>
-            </div>
-          </Card>
+            <Card
+              hoverable
+              style={{ width: "100%", height: "70%" }}
+              onClick={() => setCurrentForm("general_info")}
+            >
+              <div className="m-2 grid grid-cols-8">
+                <TbLayoutNavbarCollapseFilled style={{ fontSize: "20px" }} />
+                <div className="col-span-5">Thông tin chung</div>
+              </div>
+            </Card>
+          </Link>
         </div>
       )}
       {currentForm !== "" && (

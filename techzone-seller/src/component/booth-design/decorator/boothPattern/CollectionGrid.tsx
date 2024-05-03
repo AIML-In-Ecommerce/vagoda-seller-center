@@ -1,8 +1,10 @@
 "use client";
 import { CollectionType } from "@/model/CollectionType";
 import { CollectionElement, WidgetType } from "@/model/WidgetType";
-import { Empty, List } from "antd";
+import { List } from "antd";
 import CollectionItem from "../mini/CollectionItem";
+import CustomEmpty from "../mini/CustomEmpty";
+import { useState } from "react";
 
 interface CollectionGridProps {
   widget: WidgetType;
@@ -50,20 +52,26 @@ export default function CollectionGrid(props: CollectionGridProps) {
   ] as CollectionType[];
 
   // var
+  const [collections, setCollections] =
+    useState<CollectionType[]>(collectionsData);
+
   const element = props.widget.element as CollectionElement;
 
   return (
     <div className="bg-white my-5 py-5 px-10 ">
       <List
-        grid={{ gutter: 5, column: 3 }}
-        dataSource={collectionsData} // TODO: get data from element.collectionIdList
+        grid={{
+          gutter: 5,
+          xs: 1,
+          sm: 1,
+          md: 2,
+          lg: 2,
+          xl: 3,
+          xxl: 3,
+        }}
+        dataSource={collections} // TODO: get data from element.collectionIdList
         locale={{
-          emptyText: (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={<span>Không có</span>}
-            />
-          ),
+          emptyText: <CustomEmpty />,
         }}
         renderItem={(item) => (
           <List.Item>

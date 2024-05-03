@@ -49,7 +49,7 @@ export default function ProductDetail(props: ProductDetailProps) {
       placement="right"
       closable={false}
       onClose={props.onClose}
-      visible={props.open}
+      open={props.open}
     >
       <div className="p-4">
         <p className="text-xl font-semibold uppercase mb-4">

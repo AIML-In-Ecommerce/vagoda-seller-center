@@ -174,15 +174,17 @@ interface WidgetListProps {
 
 export default function WidgetList(props: WidgetListProps) {
   return (
-    <div>
+    <div className="overflow-hidden">
       {props.widgets
         .sort((a, b) => a.order - b.order)
         .map((item, index) => (
           <div key={index}>
-            <div className="uppercase font-semibold text-gray-500">
-              widget {index + 1}
-            </div>
-            {item.visibility === true && <Widget widget={item} />}
+            <section id={item._id}>
+              <div className="uppercase font-semibold text-gray-500">
+                widget {index + 1}
+              </div>
+              {item.visibility === true && <Widget widget={item} />}
+            </section>
           </div>
         ))}
     </div>

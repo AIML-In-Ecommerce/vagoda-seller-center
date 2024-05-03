@@ -19,6 +19,7 @@ import WidgetDrawer from "@/component/booth-design/decorator/WidgetDrawer";
 import { AddWidgetHandle } from "@/component/booth-design/decorator/widgetUtils/AddWidgetHandle";
 import DeleteWidgetModal from "@/component/booth-design/decorator/modal/DeleteWidgetModal";
 import { HiOutlineHome } from "react-icons/hi2";
+import { Link } from "react-scroll";
 
 export default function BoothDecoratorPage() {
   // mock data
@@ -203,39 +204,58 @@ export default function BoothDecoratorPage() {
           />
         </div>
 
-        <Banner
-          color={shopInfo.color}
-          name={shopInfo.name}
-          avatarUrl={shopInfo.avatarUrl}
-        />
-        <Tabs
-          defaultActiveKey="0"
-          size="middle"
-          style={{ marginLeft: 10, marginRight: 10, marginTop: 10 }}
-          items={tabItems.map((item, i) => {
-            return {
-              label: item,
-              key: i.toString(),
-              children: <div />,
-              disabled: true,
-            };
-          })}
-          tabBarExtraContent={
-            <Search disabled placeholder="Tìm tại cửa hàng" />
-          }
-        />
-        <div className="m-2">
-          <WidgetList widgets={widgets} />
+        <section id="general-info">
+          <Banner
+            color={shopInfo.color}
+            name={shopInfo.name}
+            avatarUrl={shopInfo.avatarUrl}
+          />
+        </section>
+
+        <div className="overflow-hidden">
+          <Tabs
+            defaultActiveKey="0"
+            size="middle"
+            style={{ marginLeft: 10, marginRight: 10, marginTop: 10 }}
+            items={tabItems.map((item, i) => {
+              return {
+                label: item,
+                key: i.toString(),
+                children: <div />,
+                disabled: true,
+              };
+            })}
+            tabBarExtraContent={
+              <Search disabled placeholder="Tìm tại cửa hàng" />
+            }
+          />
         </div>
 
-        <Button
-          block
-          onClick={() => {
-            setOpenDrawer(true);
-          }}
+        <div className="m-2">
+          <WidgetList widgets={widgets} />
+          <section id="new-widget" className="invisible">
+            New widget
+          </section>
+        </div>
+
+        <Link
+          activeClass="active"
+          to="new-widget"
+          spy={true}
+          smooth={true}
+          offset={-80}
+          duration={500}
+          // onSetActive={handleSetActive}
         >
-          + Thêm widget
-        </Button>
+          <Button
+            block
+            onClick={() => {
+              setOpenDrawer(true);
+            }}
+          >
+            + Thêm widget
+          </Button>
+        </Link>
       </div>
 
       <div className="col-span-1">
@@ -248,15 +268,25 @@ export default function BoothDecoratorPage() {
             deleteWidget={handleDeleteWidget}
           />
 
-          <Button
-            className="mt-2 ml-2"
-            block
-            onClick={() => {
-              setOpenDrawer(true);
-            }}
+          <Link
+            activeClass="active"
+            to="new-widget"
+            spy={true}
+            smooth={true}
+            offset={-80}
+            duration={500}
+            // onSetActive={handleSetActive}
           >
-            + Thêm widget
-          </Button>
+            <Button
+              className="mt-2 ml-2"
+              block
+              onClick={() => {
+                setOpenDrawer(true);
+              }}
+            >
+              + Thêm widget
+            </Button>
+          </Link>
         </Affix>
         {/* </div> */}
       </div>

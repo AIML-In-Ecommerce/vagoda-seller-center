@@ -39,7 +39,7 @@ export default function Banner(shopInfo: BannerProps) {
   }, [shopInfo.color]);
 
   return (
-    <div className={`p-5 ${classColor} z-0`}>
+    <div className={`p-5 ${classColor} z-0 overflow-hidden`}>
       <Flex gap="small">
         <div className="m-1">
           {(shopInfo.avatarUrl && (
@@ -56,16 +56,18 @@ export default function Banner(shopInfo: BannerProps) {
         </div>
         <div className="m-1">
           <Flex vertical>
-            <div className="mt-2 font-bold text-lg">{shopInfo.name} ®</div>
+            <div className="mt-2 font-bold text-sm lg:text-lg">
+              {shopInfo.name} ®
+            </div>
             <Flex>
-              <div>
+              <div className="text-xs">
                 <StarFilled style={{ color: "gold" }} /> 4.5 / 5
               </div>
               <Divider
                 type="vertical"
                 style={{ height: "auto", border: "0.25px solid silver" }}
               />
-              <div>
+              <div className="text-xs">
                 <MessageFilled /> Phản hồi chat: 100%
               </div>
             </Flex>
@@ -76,7 +78,7 @@ export default function Banner(shopInfo: BannerProps) {
           style={{ height: "auto", border: "0.25px solid silver" }}
         />
         <Button
-          size="large"
+          size="small"
           ghost={shopInfo.color !== "white"}
           icon={<MessageFilled />}
           style={{ marginTop: 15, zIndex: 0 }}

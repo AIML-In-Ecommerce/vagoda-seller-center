@@ -4,6 +4,7 @@ import MiniPromotionTicket from "../mini/MiniPromotionTicket";
 import { DiscountType, PromotionType } from "@/model/PromotionType";
 import { PromotionElement, WidgetType } from "@/model/WidgetType";
 import { formatDate } from "@/utils/DateFormatter";
+import CustomEmpty from "../mini/CustomEmpty";
 
 interface PromotionGridProps {
   widget: WidgetType;
@@ -79,8 +80,19 @@ export default function PromotionGrid(props: PromotionGridProps) {
       </Typography.Text>
       <div className="mr-16">
         <List
-          grid={{ gutter: 16, column: 5 }}
+          grid={{
+            gutter: 16,
+            xs: 0,
+            sm: 1,
+            md: 2,
+            lg: 3,
+            xl: 4,
+            xxl: 5,
+          }}
           dataSource={promotions}
+          locale={{
+            emptyText: <CustomEmpty />,
+          }}
           renderItem={(item, i) => (
             <div key={i}>
               <List.Item>

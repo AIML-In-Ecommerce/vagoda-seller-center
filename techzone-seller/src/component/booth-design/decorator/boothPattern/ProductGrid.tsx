@@ -21,7 +21,15 @@ export default function ProductGrid(props: ProductGridProps) {
       </Typography.Text>
       <div className="invisible h-5">hidden block</div>
       <List
-        grid={{ gutter: 5, column: 4 }}
+        grid={{
+          gutter: 5,
+          xs: 0,
+          sm: 1,
+          md: 2,
+          lg: 3,
+          xl: 4,
+          xxl: 4,
+        }}
         dataSource={props.products}
         locale={{
           emptyText: <CustomEmpty />,

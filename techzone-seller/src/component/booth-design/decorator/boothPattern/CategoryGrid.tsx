@@ -48,7 +48,15 @@ export default function CategoryGrid(props: CategoryGridProps) {
       </Typography.Text>
       <div className="invisible h-5">hidden block</div>
       <List
-        grid={{ gutter: 16, column: 4 }}
+        grid={{
+          gutter: 16,
+          xs: 0,
+          sm: 1,
+          md: 2,
+          lg: 3,
+          xl: 4,
+          xxl: 4,
+        }}
         dataSource={categories}
         locale={{
           emptyText: <CustomEmpty />,
@@ -57,7 +65,7 @@ export default function CategoryGrid(props: CategoryGridProps) {
           <List.Item>
             {/* TODO: revise url key to see if it redirects correctly */}
             <Link href={`/${item.urlKey}`}>
-              <div className="text-center text-lg text-semibold line-clamp-2">
+              <div className="text-center md:text-lg lg:text-lg text-semibold line-clamp-2">
                 {item.name}
               </div>
             </Link>

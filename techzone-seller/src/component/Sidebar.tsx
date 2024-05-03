@@ -2,7 +2,7 @@
 import { Button, Input, Layout, Menu, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { BsHouseHeart, BsPersonVideo, BsShop } from "react-icons/bs";
@@ -173,12 +173,62 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   //     getItem("Thông tin nhà bán", "18", <BsPersonVideo />),
   //   ];
 
+  const [option, setOption] = useState<string[]>([]);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname.includes("/order")) {
+      option.push("2");
+      setOption(option);
+    } else if (pathname.includes("/product")) {
+      option.push("3");
+      if (pathname.includes("/product/list")) {
+        option.push("3-0");
+      } else if (pathname.includes("/product/create")) {
+        option.push("3-1");
+      } else if (pathname.includes("/product/review")) {
+        option.push("3-2");
+      } else if (pathname.includes("/product/history")) {
+        option.push("3-3");
+      }
+      setOption(option);
+    } else if (pathname.includes("/warehouse-management")) {
+      setOption(["4"]);
+    } else if (pathname.includes("/report")) {
+      option.push("5");
+      if (pathname.includes("/report/business-performance")) {
+        option.push("5-0");
+      } else if (pathname.includes("/report/product-sale-traffic")) {
+        option.push("5-1");
+      } else if (pathname.includes("/report/coupon-insight")) {
+        option.push("5-2");
+      } else if (pathname.includes("/report/seller-performance")) {
+        option.push("5-3");
+      }
+      setOption(option);
+    } else if (pathname.includes("/marketing-center/promotion-tool")) {
+      setOption(["6", "6-0"]);
+    } else if (pathname.includes("/fee-structure")) {
+      setOption(["7"]);
+    } else if (pathname.includes("/booth-design")) {
+      option.push("8");
+      if (pathname.includes("/booth-design/decorator")) {
+        option.push("8-0");
+      } else if (pathname.includes("/booth-design/collection")) {
+        option.push("8-1");
+      }
+      setOption(option);
+    } else if (pathname.includes("/seller")) {
+      setOption(["9"]);
+    } else setOption(["1"]);
+  });
+
   const filteredMenuItems = (
     <div className="ant-layout-sider-children bg-white">
       <Menu
         theme="light"
         mode="inline"
-        defaultSelectedKeys={["1"]}
+        defaultSelectedKeys={option}
         style={{ height: "75vh", overflowY: "auto", width: "100%" }}
         className="text-xs overflow-auto custom-scrollbar"
       >
