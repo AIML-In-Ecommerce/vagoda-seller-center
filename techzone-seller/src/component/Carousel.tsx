@@ -1,7 +1,7 @@
 "use client";
 import { Button, Carousel, Col, Row, Skeleton } from 'antd';
 import { CarouselRef } from 'antd/es/carousel';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
 
 interface CarouselProps {
@@ -19,36 +19,64 @@ interface CarouselProps {
 
 export default function CustomCarousel(props: CarouselProps) {
     const ref = useRef<CarouselRef>(null);
+    const [leftArrowVisibility, setLeftArrowVisibility] = useState<boolean>(true);
+    const [rightArrowVisibility, setRightArrowVisibility] = useState<boolean>(true);
+
     return (
         <React.Fragment>
-            <div className="relative">
+            <div className={`relative ${(!props.slidesToShow || props.slidesToShow === 1) ? '' : 'px-10'}`}>
                 {
                     props.loading ? <Skeleton active={props.loading} /> : (
                         <>
-                            <Carousel slidesToShow={props.slidesToShow || 1}
-                                slidesToScroll={props.slidesToShow || 1}
+                            <Carousel slidesToShow={props.slidesToShow ?? 1}
+                                slidesToScroll={props.slidesToScroll ?? 1}
                                 infinite={props.infinite ?? true}
                                 autoplay={props.autoplay ?? false}
                                 ref={ref}
-                                draggable>
+                                draggable
+                                afterChange={(current) => {
+                                    const slidesPerPage = props.slidesToShow ?? 1;
+                                    const totalSlides = props.contents.length;
+                                    const lastIndex = totalSlides - 1;
+                                    const firstVisibleIndex = current;
+                                    const lastVisibleIndex = current + slidesPerPage - 1;
+
+                                    // Check if the current slide is at the beginning
+                                    if (firstVisibleIndex === 0) {
+                                        setLeftArrowVisibility(false);
+                                    } else {
+                                        setLeftArrowVisibility(true);
+                                    }
+
+                                    // Check if the current slide is at the end
+                                    if (lastVisibleIndex >= lastIndex) {
+                                        setRightArrowVisibility(false);
+                                    } else {
+                                        setRightArrowVisibility(true);
+                                    }
+                                }}>
                                 {props.contents}
                             </Carousel>
                             {
                                 props.arrows ? (
                                     <>
-                                        <Button type="text" className="absolute inset-y-1/3 h-[35%] bg-slate-700/20 hover:bg-slate-700/50"
-                                            icon={
-                                                <div className="text-3xl text-white">
-                                                    {props.prevArrow ?? <SlArrowLeft />}
-                                                </div>
-                                            } onClick={() => ref.current!.prev()} />
-                                        <Button type="text" className="absolute inset-y-1/3 right-0 h-[35%] bg-slate-700/20 hover:bg-slate-700/50"
-                                            icon={
-                                                <div className="text-3xl text-white">
-                                                    {props.nextArrow ?? <SlArrowRight />}
-                                                </div>
-                                            }
-                                            onClick={() => ref.current!.next()} />
+                                        {
+                                            leftArrowVisibility ? <Button type="text" className="absolute inset-y-1/3 left-0 h-[35%] bg-slate-700/20 hover:bg-slate-700/50"
+                                                icon={
+                                                    <div className="text-3xl text-white">
+                                                        {props.prevArrow ?? <SlArrowLeft />}
+                                                    </div>
+                                                } onClick={() => ref.current!.prev()} /> : <></>
+                                        }
+                                        {
+                                            rightArrowVisibility ? <Button type="text" className="absolute inset-y-1/3 right-0 h-[35%] bg-slate-700/20 hover:bg-slate-700/50"
+                                                icon={
+                                                    <div className="text-3xl text-white">
+                                                        {props.nextArrow ?? <SlArrowRight />}
+                                                    </div>
+                                                }
+                                                onClick={() => ref.current!.next()} /> : <></>
+                                        }
                                     </>
                                 ) : <></>
                             }

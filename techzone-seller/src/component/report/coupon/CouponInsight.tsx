@@ -216,7 +216,7 @@ export default function CouponInsight() {
                         </div>
                         <div className="lg:block sm:hidden">
                             <CustomCarousel loading={false} arrows infinite={false}
-                                slidesToShow={5}
+                                slidesToShow={5} slidesToScroll={5}
                                 contents={
                                     mainValues.map((item, key) => {
                                         return (

@@ -31,7 +31,7 @@ const columns: TableColumnsType<CampaignInsightStatistics> = [
     title: 'Khách hàng',
     dataIndex: 'customerCount',
     width: '13%',
-  },
+  },  
   {
     title: 'Đơn hàng',
     dataIndex: 'productCount',
