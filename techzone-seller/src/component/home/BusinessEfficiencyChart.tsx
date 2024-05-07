@@ -439,6 +439,12 @@ export function BEChart(props: BEChartProps) {
                 type: 'linear' as const,
                 display: true,
                 position: 'left' as const,
+                ticks: {
+                    // callback: function (val: any, index: any) {
+                    //     return index % 2 === 0 ? val : '';
+                    // },
+                }
+
             },
             'y1': {
                 type: 'linear' as const,
@@ -447,12 +453,15 @@ export function BEChart(props: BEChartProps) {
                 grid: {
                     drawOnChartArea: false,
                 },
-                tick:
-                {
-                    callback: function (value: string, index: any, values: any) {
-                        return value + 'đ';
-                    }
-                },
+                ticks: {
+                    callback: function (val: any, index: any) {
+                        return val.toLocaleString("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                            minimumFractionDigits: 0
+                        });
+                    },
+                }
 
             },
 

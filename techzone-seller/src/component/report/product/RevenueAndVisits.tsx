@@ -259,7 +259,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         {convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)} (So sánh với: {dateRangeToString(compareDates)})</div>
                 </div>
                 <div className="lg:w-1/2 my-10 flex flex-col gap-10">
-                    <div className="flex flex-row gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                         {
                             mainValues.map((item, key) => {
                                 return (
