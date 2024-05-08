@@ -19,7 +19,7 @@ import {
   Tooltip,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { CiCircleRemove } from "react-icons/ci";
@@ -531,7 +531,11 @@ export default function ProductListPage() {
   const [searchOption, setSearchOption] = useState("Tên sản phẩm");
   const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>(options);
   const [filteredProducts, setFilteredProducts] = useState(products);
-  const [currentTab, setCurrentTab] = useState("0");
+  const tabParams = useSearchParams()
+
+  const tab = tabParams.get('tab');
+  const activeTabFromUrl = tab || 'selling';
+  const [currentTab, setCurrentTab] = useState(activeTabFromUrl);
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
@@ -564,35 +568,35 @@ export default function ProductListPage() {
 
   const tabItems = [
     {
-      key: "0",
+      key: "all",
       label: "Tất cả",
       description:
         "Mục này chứa các sản phẩm đã được duyệt để bán hàng, không bao gồm sản phẩm ở trạng thái Nháp, Chờ duyệt và Khóa vĩnh viễn.",
       number: products.length,
     },
     {
-      key: "1",
+      key: "selling",
       label: "Đang bán",
       description:
         "Mục này chứa các sản phẩm có thể bán. Bao gồm sản phẩm đang hiển thị và bị hạn chế hiển thị trong kết quả tìm kiếm.",
       number: products.filter((product) => product.status == "Đang bán").length,
     },
     {
-      key: "2",
+      key: "out_of_stock",
       label: "Hết hàng",
       description:
         "Mục này chứa các sản phẩm có lựa chọn đã hết hàng hoặc hết hàng toàn bộ. Cập nhật giá trị ở cột Tồn có thể bán > 0 để bán lại.",
       number: products.filter((product) => product.status == "Hết hàng").length,
     },
     {
-      key: "3",
+      key: "draft",
       label: "Nháp",
       description:
         "Mục này chứa các sản phẩm đang lưu nháp hoặc được tạo bằng tính năng Tạo mới / Sao chép hàng loạt nhưng chưa đính kèm tài liệu yêu cầu.",
       number: products.filter((product) => product.status == "Nháp").length,
     },
     {
-      key: "4",
+      key: "waiting_for_approve",
       label: "Chờ duyệt",
       description:
         "Mục này chứa các sản phẩm đang chờ duyệt bởi Tiki. Duyệt thành công sẽ tự động chuyển qua mục Đang bán, bị từ chối chuyển qua mục Vi phạm.",
@@ -600,7 +604,7 @@ export default function ProductListPage() {
         .length,
     },
     {
-      key: "5",
+      key: "off",
       label: "Đã tắt",
       description:
         "Mục này chứa các sản phẩm mà Nhà bán đã tắt toàn bộ lựa chọn Khách hàng không thể xem và đặt hàng.",

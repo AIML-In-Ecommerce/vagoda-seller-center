@@ -108,8 +108,16 @@ export default function BPChart(props: BPChartProps) {
         // const result = getTotalPricesInRange(products, dateFrom, dateTo, timeUnit);
         // props.setTotalRevenue(calculateTotals(result));
         // return result;
-        return [34234, 5353, 2312, 35351, 23211];
+        return [344, 53, 22, 351, 211];
     }, [products, dateFrom, dateTo, timeUnit]);
+
+    const categoryOneCompareData = useMemo(() => {
+        return [52, 663, 535, 342, 292];
+    },[products, dateFrom, dateTo, timeUnit]);
+
+    const categoryTwoCompareData = useMemo(() => {
+        return [234, 153, 32, 251, 432];
+    },[products, dateFrom, dateTo, timeUnit]);
 
     const datasetsGenerator = (categories: any) => {
         if (categories.length === 0) return [];
@@ -122,6 +130,15 @@ export default function BPChart(props: BPChartProps) {
                 fill: false,
                 data: categoryOneData,
                 yAxisID: 'y',
+            },
+            {
+                type: 'line' as const,
+                label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
+                borderColor: categories[0]?.color ?? 'black',
+                borderWidth: 2,
+                borderDash: [6,6],
+                fill: false,
+                data: categoryOneCompareData,
             },
         ];
         else if (categories.length === 2) {
@@ -137,6 +154,15 @@ export default function BPChart(props: BPChartProps) {
                 },
                 {
                     type: 'line' as const,
+                    label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
+                    borderColor: categories[0]?.color ?? 'black',
+                    borderWidth: 2,
+                    borderDash: [6,6],
+                    fill: false,
+                    data: categoryOneCompareData,
+                },
+                {
+                    type: 'line' as const,
                     label: categories[1]?.title ?? 'Danh mục 2',
                     borderColor: categories[1]?.color ?? 'black',
                     borderWidth: 2,
@@ -144,14 +170,29 @@ export default function BPChart(props: BPChartProps) {
                     data: categoryTwoData,
                     yAxisID: 'y1',
                 },
+                {
+                    type: 'line' as const,
+                    label: categories[1]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 2',
+                    borderColor: categories[1]?.color ?? 'black',
+                    borderWidth: 2,
+                    borderDash: [6,6],
+                    fill: false,
+                    data: categoryTwoCompareData,
+                },
+                
             ]
         }
     }
 
+    const datasets = useMemo(() => {
+        const resultDatasets = datasetsGenerator(categories);
+        return resultDatasets;
+    },[categories]);
+
     const data = useMemo(() => {
         const settings = {
             labels: labels,
-            datasets: datasetsGenerator(categories)!,
+            datasets: datasets!,
         };
         return settings;
     }, [labels, categoryOneData, categoryTwoData]);
@@ -178,7 +219,7 @@ export default function BPChart(props: BPChartProps) {
         scales: {
             'y': {
                 type: 'linear' as const,
-                display: true,
+                display: categories.length > 0,
                 position: 'left' as const,
                 ticks: {
                     // callback: function (val: any, index: any) {
@@ -189,7 +230,7 @@ export default function BPChart(props: BPChartProps) {
             },
             'y1': {
                 type: 'linear' as const,
-                display: true,
+                display: categories.length > 1,
                 position: 'right' as const,
                 grid: {
                     drawOnChartArea: false,
@@ -209,7 +250,8 @@ export default function BPChart(props: BPChartProps) {
                 grid: {
                     offset: true
                 }
-            }
+            },
+            
 
         },
         // Make the chart responsive

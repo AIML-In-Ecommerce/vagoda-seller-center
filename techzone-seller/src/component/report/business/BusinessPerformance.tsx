@@ -241,7 +241,7 @@ export default function BusinessPerformancePage() {
                                 <div className="text-sm">{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                             </div>
                         }>
-                        <div className="w-[100%] my-10 flex flex-col gap-5">
+                        <div className="w-[100%] mb-10 flex flex-col gap-5">
                             <HorizontalBarChart/>
                         </div>
                     </Card>
@@ -255,7 +255,7 @@ export default function BusinessPerformancePage() {
                                 <div className="text-sm">{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                             </div>
                         }>
-                        <div className="w-[100%] my-10 flex flex-col gap-5">
+                        <div className="w-[100%] mb-10 flex flex-col gap-5">
                             <HorizontalBarChart/>
                             {/* <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty> */}
                         </div>

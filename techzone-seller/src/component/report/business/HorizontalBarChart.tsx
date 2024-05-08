@@ -59,6 +59,11 @@ export default function HorizontalBarChart(props: HorizontalBarChartProps) {
 
   const options = {
     indexAxis: 'y' as const,
+    layout: {
+      padding: {
+        right: 85
+      }
+    },
     elements: {
       bar: {
         borderWidth: 2,
@@ -74,7 +79,7 @@ export default function HorizontalBarChart(props: HorizontalBarChartProps) {
         formatter: (value: number) => value.toLocaleString(),
         anchor: 'end' as const,
         align: 'end' as const,
-      }
+      },
 
     },
     scales: {

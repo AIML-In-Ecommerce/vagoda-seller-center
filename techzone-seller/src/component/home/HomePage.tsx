@@ -105,35 +105,35 @@ const statisticData: Task[] = [
         tooltip: "",
         value: 7,
         type: TaskType.INFO,
-        urlRedirect: "/order"
+        urlRedirect: "/order?tab=awaiting_confirmation"
     },
     {
         title: "Đơn hàng đang xử lý",
         tooltip: "",
         value: 12,
         type: TaskType.WARNING,
-        urlRedirect: "/order"
+        urlRedirect: "/order?tab=processing"
     },
     {
         title: "Đơn hàng đang vận chuyển",
         tooltip: "",
         value: 42,
         type: TaskType.INFO,
-        urlRedirect: "/order"
+        urlRedirect: "/order?tab=shipping"
     },
     {
         title: "Sản phẩm hết hàng",
         tooltip: "",
         value: 23,
         type: TaskType.WARNING,
-        urlRedirect: "/product/list"
+        urlRedirect: "/product/list?tab=out_of_stock"
     },
     {
         title: "Sản phẩm bị đánh giá thấp",
         tooltip: "",
         value: 2,
         type: TaskType.DANGER,
-        urlRedirect: "/product/list"
+        urlRedirect: "/product/review"
     },
 ]
 

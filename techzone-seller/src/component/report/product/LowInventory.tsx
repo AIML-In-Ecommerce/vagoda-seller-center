@@ -14,7 +14,7 @@ interface ProductStatisticsType {
 
 const calculateDaysUntilOutOfStock = (sellerInventory: number, unitsSoldCurrentWeek: number) => {
     return sellerInventory / unitsSoldCurrentWeek;
-} 
+}
 
 export default function LowInventory() {
 
@@ -73,12 +73,14 @@ export default function LowInventory() {
 
     return (
         <React.Fragment>
-            <div className="bg-white py-4 px-10 mt-5 flex flex-col">
-                <Card title={
-                    <div className="font-semibold">Tồn kho thấp</div>
-                }>
-                    <Table columns={columns} />
-                </Card>
+            <div className="flex flex-col container mx-auto bg-slate-100">
+                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                    <Card title={
+                        <div className="font-semibold">Tồn kho thấp</div>
+                    }>
+                        <Table columns={columns} />
+                    </Card>
+                </div>
             </div>
         </React.Fragment>
     )
