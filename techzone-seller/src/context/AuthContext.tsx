@@ -110,6 +110,9 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
             sessionStorage.removeItem(sessionInfoID)
         }
         localStorage.removeItem(authLocalStorageID)
+
+        //remove token here
+        
     }
 
     const supportMethodValue: AuthContextFunctions =
