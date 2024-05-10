@@ -3,6 +3,7 @@ import { Button, Carousel, Col, Row, Skeleton } from 'antd';
 import { CarouselRef } from 'antd/es/carousel';
 import React, { useRef, useState } from 'react';
 import { SlArrowLeft, SlArrowRight } from "react-icons/sl";
+import styled from 'styled-components';
 
 interface CarouselProps {
     autoplay?: boolean;
@@ -16,6 +17,18 @@ interface CarouselProps {
     infinite?: boolean;
 }
 
+const CarouselWrapper = styled(Carousel)`
+> .slick-dots li button {
+   width: 6px;
+   height: 6px;
+   border-radius: 100%;
+}
+> .slick-dots li.slick-active button {
+   width: 7px;
+   height: 7px;
+   border-radius: 100%;
+}
+`;
 
 export default function CustomCarousel(props: CarouselProps) {
     const ref = useRef<CarouselRef>(null);
@@ -28,7 +41,7 @@ export default function CustomCarousel(props: CarouselProps) {
                 {
                     props.loading ? <Skeleton active={props.loading} /> : (
                         <>
-                            <Carousel slidesToShow={props.slidesToShow ?? 1}
+                            <CarouselWrapper slidesToShow={props.slidesToShow ?? 1}
                                 slidesToScroll={props.slidesToScroll ?? 1}
                                 infinite={props.infinite ?? true}
                                 autoplay={props.autoplay ?? false}
@@ -56,7 +69,7 @@ export default function CustomCarousel(props: CarouselProps) {
                                     }
                                 }}>
                                 {props.contents}
-                            </Carousel>
+                            </CarouselWrapper>
                             {
                                 props.arrows ? (
                                     <>
