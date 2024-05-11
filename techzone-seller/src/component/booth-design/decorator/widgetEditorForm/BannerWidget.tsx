@@ -16,7 +16,7 @@ import {
 import { useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
-import BannerForm from "../uploadImage/BannerForm";
+import BannersForm from "../uploadImage/BannersForm";
 import { FaRegHandPointer } from "react-icons/fa6";
 
 interface WidgetProps {
@@ -95,7 +95,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 0);
             }}
@@ -124,7 +124,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 1);
             }}
@@ -153,7 +153,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 2);
             }}
@@ -182,7 +182,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 3);
             }}

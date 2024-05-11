@@ -6,6 +6,7 @@ interface BannerProps {
   color: string;
   name: string;
   avatarUrl: string | undefined;
+  bannerUrl: string | undefined;
   open: boolean;
   setOpen(value: boolean): void;
 }
@@ -31,6 +32,7 @@ export default function BannerModal(bannerProps: BannerProps) {
           color={bannerProps.color}
           name={bannerProps.name}
           avatarUrl={bannerProps.avatarUrl}
+          bannerUrl={bannerProps.bannerUrl}
         />
       </div>
     </Modal>

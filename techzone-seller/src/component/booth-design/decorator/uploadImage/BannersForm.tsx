@@ -11,7 +11,7 @@ interface FormProps {
   setImageUrl: (url: string) => void;
 }
 
-export default function BannerForm(formProps: FormProps) {
+export default function BannersForm(formProps: FormProps) {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -100,8 +100,8 @@ export default function BannerForm(formProps: FormProps) {
         onCancel={handleCancel}
         isOpen={isModalOpen}
         aspectRatio={{
-          label: "8:1",
-          value: 8 / 1,
+          label: "16:9",
+          value: 16 / 9,
         }}
       />
 

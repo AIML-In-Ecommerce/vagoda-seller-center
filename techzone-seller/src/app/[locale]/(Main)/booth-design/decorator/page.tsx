@@ -21,15 +21,27 @@ import DeleteWidgetModal from "@/component/booth-design/decorator/modal/DeleteWi
 import { HiOutlineHome } from "react-icons/hi2";
 import { Link } from "react-scroll";
 
+export interface ShopInfoProps {
+  color: string;
+  name: string;
+  avatarUrl: string;
+  bannerUrl: string;
+}
+
 export default function BoothDecoratorPage() {
   // mock data
-  const shopInfo = { color: "white", name: "TechZone Shop", avatarUrl: "" };
+  const shopInfoData = {
+    color: "white",
+    name: "TechZone Shop",
+    avatarUrl: "",
+    bannerUrl: "",
+  };
 
   const [widgets, setWidgets] = useState<WidgetType[]>([
     {
       _id: "collection_ID1",
       type: WidgetCategoryType.COLLECTION,
-      order: 7,
+      order: 1,
       visibility: true,
       element: {
         pattern: CollectionPatternType.GRID,
@@ -49,7 +61,7 @@ export default function BoothDecoratorPage() {
     {
       _id: "category_ID",
       type: WidgetCategoryType.CATEGORY,
-      order: 1,
+      order: 7,
       visibility: false,
       element: {
         pattern: CategoryPatternType.GRID,
@@ -132,6 +144,8 @@ export default function BoothDecoratorPage() {
     "Hồ Sơ Cửa Hàng",
   ];
 
+  const [shopInfo, setShopInfo] = useState<ShopInfoProps>(shopInfoData);
+
   // widget drawer
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -209,6 +223,7 @@ export default function BoothDecoratorPage() {
             color={shopInfo.color}
             name={shopInfo.name}
             avatarUrl={shopInfo.avatarUrl}
+            bannerUrl={shopInfo.bannerUrl}
           />
         </section>
 
@@ -258,16 +273,8 @@ export default function BoothDecoratorPage() {
         </Link>
       </div>
 
-      <div className="col-span-1">
-        {/* <div className="sticky top-50"> */}
+      <div className="col-span-1 ml-2">
         <Affix offsetTop={80}>
-          <WidgetEditorBar
-            widgets={widgets}
-            setWidgets={setWidgets}
-            toggleInvisibilityWidget={toggleInvisibilityWidget}
-            deleteWidget={handleDeleteWidget}
-          />
-
           <Link
             activeClass="active"
             to="new-widget"
@@ -278,7 +285,7 @@ export default function BoothDecoratorPage() {
             // onSetActive={handleSetActive}
           >
             <Button
-              className="mt-2 ml-2"
+              className="mb-2 mr-5 w-full min-w-80"
               block
               onClick={() => {
                 setOpenDrawer(true);
@@ -287,8 +294,16 @@ export default function BoothDecoratorPage() {
               + Thêm widget
             </Button>
           </Link>
+
+          <WidgetEditorBar
+            widgets={widgets}
+            setWidgets={setWidgets}
+            toggleInvisibilityWidget={toggleInvisibilityWidget}
+            deleteWidget={handleDeleteWidget}
+            shopInfo={shopInfo}
+            setShopInfo={setShopInfo}
+          />
         </Affix>
-        {/* </div> */}
       </div>
 
       <WidgetDrawer

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { Avatar, Button, Flex, message, Modal, Upload } from "antd";
 import type { GetProp, UploadProps } from "antd";
-import ImageCropper from "./ImageCropper";
+import FixedRatioCropper from "./FixedRatioCropper";
 import { RiImageEditLine } from "react-icons/ri";
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
@@ -65,7 +65,7 @@ export default function AvatarForm(formProps: FormProps) {
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>Đăng tải</div>
     </button>
   );
 
@@ -120,7 +120,7 @@ export default function AvatarForm(formProps: FormProps) {
           ) : null}
         </Flex>
       </div>
-      <ImageCropper
+      <FixedRatioCropper
         imageUrl={imageUrl}
         setImageUrl={function (value: string): void {
           setImageUrl(value);
@@ -129,6 +129,10 @@ export default function AvatarForm(formProps: FormProps) {
         isOpen={isModalOpen}
         onCrop={handleOk}
         onCancel={handleCancel}
+        aspectRatio={{
+          label: "1:1",
+          value: 1 / 1,
+        }}
       />
     </>
   );

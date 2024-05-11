@@ -13,6 +13,7 @@ import CategoryWidget from "./widgetEditorForm/CategoryWidget";
 import PromotionWidget from "./widgetEditorForm/PromotionWidget";
 import CollectionWidget from "./widgetEditorForm/CollectionWidget";
 import { Link } from "react-scroll";
+import { ShopInfoProps } from "@/app/[locale]/(Main)/booth-design/decorator/page";
 
 interface WidgetEditorBarProps {
   widgets: WidgetType[];
@@ -20,6 +21,9 @@ interface WidgetEditorBarProps {
 
   toggleInvisibilityWidget: (widget: WidgetType) => void;
   deleteWidget: (widget: WidgetType) => void;
+
+  shopInfo: ShopInfoProps;
+  setShopInfo(shopInfo: ShopInfoProps): void;
 }
 
 export default function WidgetEditorBar(props: WidgetEditorBarProps) {
@@ -86,7 +90,9 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
       )}
 
       {/* forms when widget bar is clicked */}
-      {currentForm === "general_info" && <ShopInfo />}
+      {currentForm === "general_info" && (
+        <ShopInfo shopInfo={props.shopInfo} setShopInfo={props.setShopInfo} />
+      )}
 
       {currentForm === WidgetCategoryType.BANNER.toString() &&
         selectedWidget && (

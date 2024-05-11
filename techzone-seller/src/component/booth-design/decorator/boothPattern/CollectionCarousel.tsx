@@ -92,14 +92,14 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
               prevArrow={<CarouselArrow direction="left" />}
               nextArrow={<CarouselArrow direction="right" />}
               slidesToShow={3}
-              slidesToScroll={3}
+              slidesToScroll={1}
               initialSlide={0}
               responsive={[
                 {
                   breakpoint: 1280,
                   settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 2,
+                    slidesToScroll: 1,
                     infinite: true,
                     dots: true,
                   },

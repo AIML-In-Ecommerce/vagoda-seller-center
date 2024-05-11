@@ -3,48 +3,26 @@ import { Button, Modal, Slider, Typography } from "antd";
 import { useState } from "react";
 import Cropper, { Area } from "react-easy-crop";
 
-interface ImageCropperProps {
+interface FixedRatioCropperProps {
   imageUrl: string | undefined;
   setImageUrl: (value: string) => void;
   isOpen: boolean;
   onCrop: () => void;
   onCancel: () => void;
+  aspectRatio: RatioType;
 }
 
-//define some aspect ratios for cropping
-const aspectRatios = [
-  {
-    label: "1:1",
-    value: 1,
-  },
-  {
-    label: "3:2",
-    value: 3 / 2,
-  },
-  {
-    label: "4:3",
-    value: 4 / 3,
-  },
-  {
-    label: "16:9",
-    value: 16 / 9,
-  },
-  {
-    label: "8:1",
-    value: 8 / 1,
-  },
-];
+interface RatioType {
+  label: string;
+  value: number;
+}
 
-export default function ImageCropper(props: ImageCropperProps) {
+export default function FixedRatioCropper(props: FixedRatioCropperProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [aspectRatio, setAspectRatio] = useState({
-    label: "1:1",
-    value: 1 / 1,
-  });
+
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
   const onCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -57,9 +35,8 @@ export default function ImageCropper(props: ImageCropperProps) {
         croppedAreaPixels!,
         rotation,
         { horizontal: false, vertical: false },
-        aspectRatio.value
+        props.aspectRatio.value
       );
-      setCroppedImage(croppedImage);
       props.setImageUrl(croppedImage!);
     } catch (e) {
       console.error(e);
@@ -71,7 +48,7 @@ export default function ImageCropper(props: ImageCropperProps) {
   return (
     <Modal
       className="z-50 container"
-      title="ImageCropperModal"
+      title="FixedRatioCropperModal"
       open={props.isOpen}
       onOk={props.onCrop}
       onCancel={props.onCancel}
@@ -95,7 +72,7 @@ export default function ImageCropper(props: ImageCropperProps) {
           crop={crop}
           zoom={zoom}
           rotation={rotation}
-          aspect={aspectRatio.value}
+          aspect={props.aspectRatio.value}
           onZoomChange={setZoom}
           onRotationChange={setRotation}
           onCropChange={setCrop}
@@ -133,21 +110,15 @@ export default function ImageCropper(props: ImageCropperProps) {
           <div className="gap-5 z-50 col-span-2">
             <Text>
               Tỉ lệ mẫu:{" "}
-              <span className="font-semibold">{aspectRatio.label}</span>
+              <span className="font-semibold">{props.aspectRatio.label}</span>
             </Text>
             <div className="flex gap-2 mt-1">
-              {aspectRatios.map((item, index) => {
-                return (
-                  <Button key={index} onClick={() => setAspectRatio(item)}>
-                    {item.label}
-                  </Button>
-                );
-              })}
+              <Button>{props.aspectRatio.label}</Button>
             </div>
           </div>
         </div>
       </div>
-      {/* Some how i have to put ImageCropper to recognize as absolute component, make it inside the body of antd Modal
+      {/* Some how i have to put FixedRatioCropper to recognize as absolute component, make it inside the body of antd Modal
           Therefore the solution is very stupid and that's why we have a div to have some space. Ugh! ~w~ */}
       <div className="h-[70vh]">&nbsp;</div>
     </Modal>

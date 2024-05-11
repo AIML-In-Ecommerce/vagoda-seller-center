@@ -131,7 +131,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
                       price={value.price}
                       isFlashSale={value.isFlashSale}
                       originalPrice={value.originalPrice}
-                    />{" "}
+                    />
                   </div>
                 ))}
             </Carousel>

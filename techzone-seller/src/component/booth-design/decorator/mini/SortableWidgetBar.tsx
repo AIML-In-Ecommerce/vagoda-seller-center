@@ -41,7 +41,7 @@ const SortableItem: React.ComponentClass<
   //   const auth = useAuth();
 
   return (
-    <div>
+    <div className="h-fit" style={{ zIndex: 99999999 }}>
       <Link
         activeClass="active"
         to={props.widget._id}
@@ -53,13 +53,13 @@ const SortableItem: React.ComponentClass<
         <div className="ml-7 text-xs uppercase font-semibold text-gray-500">
           widget {props.widget.order + 1}
         </div>
-        <div className="px-5 pb-2 flex flex-row justify-center align-middle z-20">
+        <div className="px-5 pb-2 flex flex-row justify-center align-middle">
           <Card
             hoverable
             style={{ width: "100%", height: "70%" }}
             onClick={() => props.setSelectedWidget(props.widget)}
           >
-            <div className="m-2 grid grid-cols-9">
+            <div className="grid grid-cols-9">
               <WidgetTypeIcon
                 type={props.widget.type}
                 element={props.widget.element}
@@ -93,10 +93,7 @@ const SortableItem: React.ComponentClass<
                   style={{ fontSize: "14px", marginLeft: "10px" }}
                 />
               </div>
-              <div
-                className="col-span-1 cursor-grab z-30"
-                style={{ fontSize: "14px" }}
-              >
+              <div className="col-span-1 cursor-grab z-30 text-[14px]">
                 <DragHandle />
               </div>
             </div>
@@ -118,6 +115,7 @@ const SortableList: React.ComponentClass<
 
     props.setWidgets(updatedItems);
   };
+
   return (
     <div className="overflow-y-auto overflow-x-hidden max-h-[400px]">
       <ul>
