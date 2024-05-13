@@ -21,8 +21,14 @@ export type ProductDetailType = {
   finalPrice: number;
   category: string;
   shopId: string;
-  // status: ENUM[AVAILABLE, SOLD_OUT, SALE];
+  status: ProductStatus;
   image: string[];
   avgRating: number;
-  createdAt: string;
+  soldQuantity: number;
 };
+
+enum ProductStatus {
+  AVAILABLE,
+  SOLD_OUT,
+  SALE,
+}
