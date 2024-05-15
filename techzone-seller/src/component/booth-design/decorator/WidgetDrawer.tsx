@@ -23,7 +23,7 @@ import MiniDesignPattern from "./mini/MiniDesignPattern";
 interface DrawerProps {
   openDrawer: boolean;
   setOpenDrawer: (value: boolean) => void;
-  addWidget: (type: number, pattern: number, order: number) => void;
+  addWidget: (type: string, pattern: string, order: number) => void;
   order: number;
 }
 

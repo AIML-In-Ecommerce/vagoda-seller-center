@@ -27,7 +27,7 @@ export default function ProductSelect(props: ProductSelectProps) {
   }, [props.products]);
 
   const [targetKeys, setTargetKeys] = useState<TransferProps["targetKeys"]>(
-    props.selectedProductId
+    props.selectedProductId ? props.selectedProductId : []
   );
   const [selectedKeys, setSelectedKeys] = useState<TransferProps["targetKeys"]>(
     []

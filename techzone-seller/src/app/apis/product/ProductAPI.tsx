@@ -1,5 +1,9 @@
 "use client";
-import { ProductDetailType } from "@/model/ProductType";
+import {
+  ProductDetailType,
+  ProductStatus,
+  ProductType,
+} from "@/model/ProductType";
 import axios from "axios";
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
@@ -10,13 +14,10 @@ interface Data {
   name: string;
   //   attributes: [
   //     attribute: {
-  //       type: mongoose.Schema.Types.ObjectId,
-  //       ref: "ProductAttribute",
-  //       required: true,
+  //       type: string,
   //     },
   //     value: {
-  //       type: String,
-  //       required: true,
+  //       type: string,
   //     }
   // ],
   description: string;
@@ -26,7 +27,7 @@ interface Data {
   subCategory: string[];
   shop: string;
   platformFee: number;
-  status: string; // product status
+  status: ProductStatus;
   image: string[];
   avgRating: number;
   createdAt: Date;
@@ -65,7 +66,7 @@ export async function GET_GetProductDetail(id: string) {
       finalPrice: responseData.data.finalPrice,
       category: responseData.data.category,
       shopId: responseData.data.shop,
-      status: 0, //TODO
+      status: responseData.data.status,
       image: responseData.data.image,
       avgRating: responseData.data.avgRating,
       soldQuantity: responseData.data.soldQuantity,
@@ -112,9 +113,7 @@ export async function POST_GetProductList(idList: string[]) {
   ).toString();
 
   try {
-    console.log(url);
-    // const requestBody = ids;
-
+    // console.log(url);
     const response = await axios.post(
       url,
       { ids: idList }
@@ -128,41 +127,35 @@ export async function POST_GetProductList(idList: string[]) {
 
     console.log(responseData.data);
 
-    // TODO: convert data[] to producttype
-    //   const processedData: ProductDetailType = {
-    //     _id: id,
-    //     name: responseData.data.name,
-    //     // attribute: {
-    //     //   ....
-    //     // }
-    //     description: responseData.data.description,
-    //     originalPrice: responseData.data.originalPrice,
-    //     finalPrice: responseData.data.finalPrice,
-    //     category: responseData.data.category,
-    //     shopId: responseData.data.shop,
-    //     status: 0, //TODO
-    //     image: responseData.data.image,
-    //     avgRating: responseData.data.avgRating,
-    //     soldQuantity: responseData.data.soldQuantity,
-    //   };
+    const processedData: ProductType[] = [];
 
-    // const processedData: ProductDetailType[] = responseData.data as ProductDetailType[];
+    for (let i = 0; i < responseData.data.length; i++) {
+      processedData.push({
+        _id: responseData.data[i]._id,
+        name: responseData.data[i].name,
+        imageLink: responseData.data[i].image[0],
+        rating: responseData.data[i].avgRating,
+        soldAmount: responseData.data[i].soldQuantity,
+        price: responseData.data[i].finalPrice,
+        originalPrice: responseData.data[i].originalPrice,
+        flashSale: responseData.data[i].status === ProductStatus.SALE,
+        category: responseData.data[i].category,
+      });
+    }
 
     if (responseData.status == 200) {
       return {
         isDenied: false,
         message: "Get product list successfully",
         status: responseData.status,
-        // data: processedData,
-        data: responseData.data,
+        data: processedData,
       };
     } else {
       return {
         isDenied: true,
         message: "Failed to get product list",
         status: responseData.status,
-        // data: processedData,
-        data: responseData.data,
+        data: processedData,
       };
     }
   } catch (err) {

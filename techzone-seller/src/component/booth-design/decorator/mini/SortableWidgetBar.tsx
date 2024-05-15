@@ -7,13 +7,13 @@ import {
   SortableHandle,
 } from "react-sortable-hoc";
 
-// import axios from "axios";
 // import { useAuth } from "@/context/AuthContext";
 import { WidgetCategoryType, WidgetType } from "@/model/WidgetType";
 import { Card } from "antd";
 import CustomSwitch from "./CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "./WidgetTypeIcon";
 import { Link } from "react-scroll";
+import { PUT_UpdateWidgetOrder } from "@/app/apis/widget/WidgetAPI";
 
 interface SortableListProps {
   items: WidgetType[];
@@ -108,6 +108,23 @@ const SortableList: React.ComponentClass<
   SortableListProps & SortableItemProps & SortableContainerProps
 > = SortableContainer((props: SortableListProps) => {
   console.log("Sort List Item", props.items);
+
+  const handleUpdateWidgets = async (widgets: WidgetType[]) => {
+    for (let i = 0; i < widgets.length; i++) {
+      // console.log("Widget " + i.toString() + " updating...");
+
+      const response = await PUT_UpdateWidgetOrder(
+        widgets[i]._id,
+        widgets[i].order
+      );
+      if (response.status !== 200) {
+        console.log("Widget " + i.toString() + " " + response.message);
+      }
+    }
+  };
+
+  handleUpdateWidgets(props.items);
+
   const handleUpdate = (updatedRubric: WidgetType) => {
     const updatedItems = props.items.map((item) =>
       item._id === updatedRubric._id ? updatedRubric : item

@@ -1,5 +1,4 @@
 "use client";
-
 import DeleteCollectionModal from "@/component/booth-design/collection/modal/DeleteCollectionModal";
 import CustomEmpty from "@/component/booth-design/decorator/mini/CustomEmpty";
 import { CollectionType } from "@/model/CollectionType";
@@ -36,7 +35,7 @@ export default function CollectionPage() {
       name: "Collection 1",
       imageUrl: "",
       productIdList: [],
-      createDate: formatDate(new Date("2024-03-24T12:30:00")),
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
     {
@@ -44,7 +43,7 @@ export default function CollectionPage() {
       name: "Collection 2",
       imageUrl: "",
       productIdList: ["id1", "id2"],
-      createDate: formatDate(new Date("2024-03-24T12:30:00")),
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
     {
@@ -52,13 +51,15 @@ export default function CollectionPage() {
       name: "Collection 3",
       imageUrl: "",
       productIdList: ["id"],
-      createDate: formatDate(new Date("2024-03-24T12:30:00")),
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
   ];
 
+  const mockShopId = "";
+
   // variables
-  const [collections, setCollections] = useState(collectionData);
+  const [collections, setCollections] = useState<CollectionType[]>();
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
@@ -72,6 +73,8 @@ export default function CollectionPage() {
   };
 
   const deleteCollection = () => {
+    if (!collections) return;
+
     let newList = [...collections];
     selectedOrderIds.forEach((selectedId) => {
       newList = newList.filter((w) => w._id !== selectedId);
@@ -163,17 +166,22 @@ export default function CollectionPage() {
   ];
 
   useEffect(() => {
-    const display = collections.map((value: CollectionType) => {
-      const item: CollectionColumn = {
-        key: value._id,
-        name: value.name,
-        number: value.productIdList.length,
-        createDate: value.createDate,
-        status: value.isActive ? "Bật" : "Tắt",
-      };
+    if (!collections) return;
 
-      return item;
-    });
+    const display = collections.map(
+      (value: CollectionType) => {
+        const item: CollectionColumn = {
+          key: value._id,
+          name: value.name,
+          number: value.productIdList.length,
+          createDate: formatDate(value.createDate),
+          status: value.isActive ? "Bật" : "Tắt",
+        };
+
+        return item;
+      },
+      [collections]
+    );
 
     setDataToDisplay(display);
   }, [collections]);
@@ -232,7 +240,7 @@ export default function CollectionPage() {
             Tạo mới
           </Button>
 
-          {collections.length > 0 && (
+          {collections && collections.length > 0 && (
             <Button
               className="bg-red-500 text-white font-semibold mt-2"
               onClick={handleDeleteCollection}

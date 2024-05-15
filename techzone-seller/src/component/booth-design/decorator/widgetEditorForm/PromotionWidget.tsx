@@ -14,6 +14,7 @@ import { formatDate } from "@/utils/DateFormatter";
 import CustomEmpty from "../mini/CustomEmpty";
 import Search from "antd/es/transfer/search";
 import PromotionCard from "../mini/PromotionCard";
+import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -107,16 +108,20 @@ export default function PromotionWidget(props: WidgetProps) {
   const [title, setTitle] = useState(element.title);
 
   // functions
-  const handleSave = () => {
+  const handleSave = async () => {
     proxyPromotionWidget.visibility = isSwitched;
 
     element.title = title;
     element.promotionIdList = proxyPromotionId;
 
     proxyPromotionWidget.element = element;
-    setProxyPromotionWidget(proxyPromotionWidget);
 
-    props.updateWidgets();
+    const response = await PUT_UpdateWidget(proxyPromotionWidget);
+
+    if (response.status === 200) {
+      setProxyPromotionWidget(proxyPromotionWidget);
+      props.updateWidgets();
+    } else console.log(response.message);
   };
 
   const handleChangePattern = (value: string) => {

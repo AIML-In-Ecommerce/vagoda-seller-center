@@ -3,6 +3,6 @@ export type CollectionType = {
   name: string;
   imageUrl: string;
   productIdList: string[];
-  createDate: string;
+  createDate: Date;
   isActive: boolean;
 };

@@ -18,6 +18,7 @@ import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import BannersForm from "../uploadImage/BannersForm";
 import { FaRegHandPointer } from "react-icons/fa6";
+import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -48,14 +49,18 @@ export default function BannerWidget(props: WidgetProps) {
   }, [props.widget.element]);
 
   // functions
-  const handleSave = () => {
+  const handleSave = async () => {
     proxyBannerWidget.visibility = isSwitched;
 
     element.images = proxyBanner.filter((id) => id !== " ");
     proxyBannerWidget.element = element;
-    setProxyBannerWidget(proxyBannerWidget);
 
-    props.updateWidgets();
+    const response = await PUT_UpdateWidget(proxyBannerWidget);
+
+    if (response.status === 200) {
+      setProxyBannerWidget(proxyBannerWidget);
+      props.updateWidgets();
+    } else console.log(response.message);
   };
 
   const handleChangePattern = (value: string) => {

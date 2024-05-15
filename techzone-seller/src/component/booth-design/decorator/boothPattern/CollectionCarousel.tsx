@@ -20,7 +20,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
       imageUrl:
         "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
     {
@@ -29,7 +29,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
       imageUrl:
         "https://www.slaters-schoolwear.co.uk/wp-content/uploads/2020/06/Millbrook-38Slaters_SchoolWear-edit.jpg",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
     {
@@ -38,7 +38,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
       imageUrl:
         "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
     {
@@ -47,7 +47,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
       imageUrl:
         "https://t1.gstatic.com/licensed-image?q=tbn:ANd9GcRx-nSw4YqscTmqs9LRjWLgFvPkAOI91FKycAh0hjOlJ2CZVjkatnoPMIsxyYRvInkV51GfvU_RpDB_2EOEjuk",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
       isActive: true,
     },
   ] as CollectionType[];
@@ -60,6 +60,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
     //fetch data here
     // TODO: get data from element.collectionIdList
     const data = collectionsData;
+
     const tr_data: CollectionType[] = data.map((value) => {
       const tr_item: CollectionType = {
         _id: value._id,

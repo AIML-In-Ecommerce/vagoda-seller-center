@@ -11,6 +11,7 @@ import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
+import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -25,7 +26,8 @@ export default function ProductWidget(props: WidgetProps) {
       name: "collection 1",
       imageUrl: "",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
+
       isActive: true,
     },
     {
@@ -33,7 +35,8 @@ export default function ProductWidget(props: WidgetProps) {
       name: "collection 2",
       imageUrl: "",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
+
       isActive: true,
     },
     {
@@ -41,7 +44,8 @@ export default function ProductWidget(props: WidgetProps) {
       name: "collection 3",
       imageUrl: "",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
+
       isActive: true,
     },
     {
@@ -49,7 +53,8 @@ export default function ProductWidget(props: WidgetProps) {
       name: "collection 4",
       imageUrl: "",
       productIdList: [],
-      createDate: "string",
+      createDate: new Date("2024-03-24T12:30:00"),
+
       isActive: true,
     },
   ] as CollectionType[];
@@ -82,7 +87,7 @@ export default function ProductWidget(props: WidgetProps) {
   const [pattern, setPattern] = useState(element.pattern);
 
   // functions
-  const handleSave = () => {
+  const handleSave = async () => {
     proxyProductWidget.visibility = isSwitched;
 
     element.title = title;
@@ -90,13 +95,17 @@ export default function ProductWidget(props: WidgetProps) {
     element.pattern = pattern;
 
     proxyProductWidget.element = element;
-    setProxyProductWidget(proxyProductWidget);
 
-    props.updateWidgets();
+    const response = await PUT_UpdateWidget(proxyProductWidget);
+
+    if (response.status === 200) {
+      setProxyProductWidget(proxyProductWidget);
+      props.updateWidgets();
+    } else console.log(response.message);
   };
 
   const handleChangePattern = (value: string) => {
-    setPattern(Number.parseInt(value));
+    setPattern(value as ProductPatternType);
   };
 
   const handleChangeCollection = (value: string) => {

@@ -1,32 +1,32 @@
 // enum categories / patterns
 export enum WidgetCategoryType {
-  BANNER,
-  PRODUCT,
-  CATEGORY,
-  PROMOTION,
-  COLLECTION,
+  BANNER = "BANNER",
+  PRODUCT = "PRODUCT",
+  CATEGORY = "CATEGORY",
+  PROMOTION = "PROMOTION",
+  COLLECTION = "COLLECTION",
 }
 
 export enum BannerPatternType {
-  CAROUSEL,
+  CAROUSEL = "CAROUSEL",
 }
 
 export enum ProductPatternType {
-  CAROUSEL,
-  GRID,
+  CAROUSEL = "CAROUSEL",
+  GRID = "GRID",
 }
 
 export enum CategoryPatternType {
-  GRID,
+  GRID = "GRID",
 }
 
 export enum PromotionPatternType {
-  GRID,
+  GRID = "GRID",
 }
 
 export enum CollectionPatternType {
-  CAROUSEL,
-  GRID,
+  CAROUSEL = "CAROUSEL",
+  GRID = "GRID",
 }
 
 // types

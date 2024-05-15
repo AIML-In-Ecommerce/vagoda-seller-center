@@ -14,8 +14,8 @@ import {
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import BannerModal from "@/component/booth-design/decorator/BannerModal";
-import { ShopInfoProps } from "@/app/[locale]/(Main)/booth-design/decorator/page";
 import { FaRegHandPointer } from "react-icons/fa6";
+import { ShopInfoDesignType } from "@/model/ShopType";
 
 type TabPosition = "upload" | "color" | "default";
 type Colors =
@@ -31,8 +31,8 @@ type Colors =
   | "purple";
 
 interface ShopInfoWidgetProps {
-  shopInfo: ShopInfoProps;
-  setShopInfo(shopInfo: ShopInfoProps): void;
+  shopInfo: ShopInfoDesignType;
+  setShopInfo(shopInfo: ShopInfoDesignType): void;
 }
 
 export default function ShopInfo(props: ShopInfoWidgetProps) {
@@ -40,18 +40,21 @@ export default function ShopInfo(props: ShopInfoWidgetProps) {
   const [mode, setMode] = useState<TabPosition>("default");
   const handleModeChange = (e: RadioChangeEvent) => {
     setMode(e.target.value);
-    if (e.target.value === "color") setBannerUrl("");
+    if (e.target.value === "color") {
+      setBannerUrl("");
+      setColor(props.shopInfo.color as Colors);
+    }
   };
 
   //banner color
-  const [color, setColor] = useState<Colors>("white");
+  const [color, setColor] = useState<Colors>(props.shopInfo.color as Colors);
   const handleColorChange = (e: RadioChangeEvent) => {
     setColor(e.target.value);
   };
 
   // data
   const [avatarUrl, setAvatarUrl] = useState<string>(props.shopInfo.avatarUrl);
-  const [bannerUrl, setBannerUrl] = useState<string>(props.shopInfo.bannerUrl); // ?
+  const [bannerUrl, setBannerUrl] = useState<string>(props.shopInfo.bannerUrl);
   const [name, setName] = useState(props.shopInfo.name);
 
   const [openPreview, setOpenPreview] = useState(false);
@@ -63,7 +66,7 @@ export default function ShopInfo(props: ShopInfoWidgetProps) {
       name: name,
       avatarUrl: avatarUrl,
       bannerUrl: bannerUrl,
-    } as ShopInfoProps;
+    } as ShopInfoDesignType;
 
     props.setShopInfo(newInfo);
   };

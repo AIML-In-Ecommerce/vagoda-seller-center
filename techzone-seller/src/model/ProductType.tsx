@@ -27,8 +27,8 @@ export type ProductDetailType = {
   soldQuantity: number;
 };
 
-enum ProductStatus {
-  AVAILABLE,
-  SOLD_OUT,
-  SALE,
+export enum ProductStatus {
+  AVAILABLE = "AVAILABLE",
+  SOLD_OUT = "SOLD_OUT",
+  SALE = "SALE",
 }

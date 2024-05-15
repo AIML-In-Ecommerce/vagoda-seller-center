@@ -11,6 +11,7 @@ import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CategoryType } from "@/model/CategoryType";
 import CustomEmpty from "../mini/CustomEmpty";
+import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -76,16 +77,20 @@ export default function CategoryWidget(props: WidgetProps) {
   const [title, setTitle] = useState(element.title);
 
   // functions
-  const handleSave = () => {
+  const handleSave = async () => {
     proxyCategoryWidget.visibility = isSwitched;
 
     element.title = title;
     element.categoryIdList = proxyCategory;
 
     proxyCategoryWidget.element = element;
-    setProxyCategoryWidget(proxyCategoryWidget);
 
-    props.updateWidgets();
+    const response = await PUT_UpdateWidget(proxyCategoryWidget);
+
+    if (response.status === 200) {
+      setProxyCategoryWidget(proxyCategoryWidget);
+      props.updateWidgets();
+    } else console.log(response.message);
   };
 
   const handleChangePattern = (value: string) => {

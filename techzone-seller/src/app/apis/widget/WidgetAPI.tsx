@@ -1,35 +1,62 @@
 "use client";
 
-import {
-  BannerElement,
-  CategoryElement,
-  CollectionElement,
-  ProductElement,
-  PromotionElement,
-  WidgetCategoryType,
-  WidgetType,
-} from "@/model/WidgetType";
+import { WidgetType } from "@/model/WidgetType";
 import axios from "axios";
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
 
-interface Data {
-  type: WidgetCategoryType;
-  order: number;
-  visibility: boolean; // true
-  element:
-    | BannerElement
-    | ProductElement
-    | CategoryElement
-    | PromotionElement
-    | CollectionElement
-    | undefined;
+interface WidgetListResponse {
+  status: number;
+  data: WidgetType[];
+  message: string;
+}
+
+export async function POST_GetWidgetList(ids: string[]) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/widgets/list"
+  ).toString();
+
+  try {
+    // console.log(url);
+    const requestBody = {
+      ids: ids,
+    };
+    const response = await axios.post(url, requestBody);
+    const responseData: WidgetListResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Get widget list successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to get widget list",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to get widget list",
+      status: 500,
+      data: undefined,
+    };
+  }
 }
 
 interface WidgetResponse {
   status: number;
-  data: Data;
+  data: WidgetType;
   message: string;
 }
 
@@ -47,27 +74,19 @@ export async function GET_GetWidget(id: string) {
     const response = await axios.get(url);
     const responseData: WidgetResponse = response.data;
 
-    const processedData: WidgetType = {
-      _id: id,
-      type: responseData.data.type,
-      order: responseData.data.order,
-      visibility: response.data.visibility,
-      element: response.data.element, // TODO
-    };
-
     if (responseData.status == 200) {
       return {
         isDenied: false,
         message: "Get widget successfully",
         status: responseData.status,
-        data: processedData,
+        data: responseData.data,
       };
     } else {
       return {
         isDenied: true,
         message: "Failed to get widget",
         status: responseData.status,
-        data: processedData,
+        data: responseData.data,
       };
     }
   } catch (err) {
@@ -81,7 +100,7 @@ export async function GET_GetWidget(id: string) {
   }
 }
 
-export async function POST_CreateWidget(props: Data) {
+export async function POST_CreateWidget(props: WidgetType) {
   const url = (
     BACKEND_PREFIX?.toString() +
     ":" +
@@ -107,14 +126,12 @@ export async function POST_CreateWidget(props: Data) {
 
     const responseData: WidgetResponse = response.data;
 
-    // return id??
-
     const processedData: WidgetType = {
-      _id: "", // TODO?
+      _id: responseData.data._id,
       type: responseData.data.type,
       order: responseData.data.order,
-      visibility: response.data.visibility,
-      element: undefined, // TODO
+      visibility: responseData.data.visibility,
+      element: responseData.data.element,
     };
 
     if (responseData.status == 200) {
@@ -137,6 +154,179 @@ export async function POST_CreateWidget(props: Data) {
     return {
       isDenied: true,
       message: "Failed to create widget",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function DELETE_DeleteWidget(id: string) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/widget/" +
+    id
+  ).toString();
+
+  try {
+    // console.log(url);
+    const response = await axios.delete(url);
+    const responseData: WidgetResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Delete widget successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to delete widget",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to delete widget",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function PUT_UpdateWidgetOrder(id: string, order: number) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/widget/" +
+    id
+  ).toString();
+
+  try {
+    // console.log(url);
+    const requestBody = {
+      order: order,
+    };
+    const response = await axios.put(url, requestBody);
+    const responseData: WidgetResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Update widget successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to update widget",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to update widget",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function PUT_UpdateWidgetVisibility(
+  id: string,
+  visibility: boolean
+) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/widget/" +
+    id
+  ).toString();
+
+  try {
+    // console.log(url);
+    const requestBody = {
+      visibility: visibility,
+    };
+    const response = await axios.put(url, requestBody);
+    const responseData: WidgetResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Update widget successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to update widget",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to update widget",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function PUT_UpdateWidget(data: WidgetType) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/widget/" +
+    data._id
+  ).toString();
+
+  try {
+    // console.log(url);
+    const requestBody = {
+      visibility: data.visibility,
+      element: data.element,
+    };
+    const response = await axios.put(url, requestBody);
+    const responseData: WidgetResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Update widget successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to update widget",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to update widget",
       status: 500,
       data: undefined,
     };

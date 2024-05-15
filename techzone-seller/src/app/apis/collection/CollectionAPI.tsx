@@ -6,14 +6,6 @@ import axios from "axios";
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
 
-// interface Data {
-//   name: string;
-//   imageUrl: string;
-//   productIdList: string[];
-//   createDate: string;
-//   isActive: boolean;
-// }
-
 interface CollectionResponse {
   status: number;
   data: CollectionType;
@@ -34,28 +26,19 @@ export async function GET_GetCollection(id: string) {
     const response = await axios.get(url);
     const responseData: CollectionResponse = response.data;
 
-    // const processedData: CollectionType = {
-    //   _id: id,
-    //   name: responseData.data.name,
-    //   imageUrl: responseData.data.imageUrl,
-    //   productIdList: responseData.data.productIdList,
-    //   createDate: responseData.data.createDate.toString(),
-    //   isActive: responseData.data.isActive,
-    // };
-
     if (responseData.status == 200) {
       return {
         isDenied: false,
         message: "Get collection successfully",
         status: responseData.status,
-        data: response.data,
+        data: responseData.data,
       };
     } else {
       return {
         isDenied: true,
         message: "Failed to get collection",
         status: responseData.status,
-        data: response.data,
+        data: responseData.data,
       };
     }
   } catch (err) {
@@ -78,9 +61,7 @@ export async function POST_CreateCollection(props: CollectionType) {
   ).toString();
 
   try {
-    console.log(url);
-    console.log("props", props);
-
+    // console.log(url);
     const requestBody = {
       name: props.name,
       imageUrl: props.imageUrl,
@@ -89,40 +70,22 @@ export async function POST_CreateCollection(props: CollectionType) {
       isActive: props.isActive,
     };
 
-    const response = await axios.post(url, {
-      name: props.name,
-      imageUrl: props.imageUrl,
-      productIdList: props.productIdList,
-      createDate: props.createDate, // check this
-      isActive: props.isActive,
-    });
+    const response = await axios.post(url, requestBody);
     const responseData: CollectionResponse = response.data;
-
-    // return id??
-
-    const processedData: CollectionType = responseData.data as CollectionType;
-    // {
-    //   _id: "", // TODO?
-    //   name: responseData.data.name,
-    //   imageUrl: responseData.data.imageUrl,
-    //   productIdList: responseData.data.productIdList,
-    //   createDate: responseData.data.createDate.toString(),
-    //   isActive: responseData.data.isActive,
-    // };
 
     if (responseData.status == 200) {
       return {
         isDenied: false,
         message: "Create collection successfully",
         status: responseData.status,
-        data: processedData,
+        data: responseData.data,
       };
     } else {
       return {
         isDenied: true,
         message: "Failed to create collection",
         status: responseData.status,
-        data: processedData,
+        data: responseData.data,
       };
     }
   } catch (err) {
