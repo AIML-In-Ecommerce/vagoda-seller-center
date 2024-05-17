@@ -13,6 +13,7 @@ import CustomEmpty from "../mini/CustomEmpty";
 import Search from "antd/es/transfer/search";
 import CollectionCard from "../mini/CollectionCard";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
+import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -21,54 +22,13 @@ interface WidgetProps {
 
 export default function CollectionWidget(props: WidgetProps) {
   // mock data
-  const collectionsData = [
-    {
-      _id: "1",
-      name: "collection 1",
-      imageUrl:
-        "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-    {
-      _id: "2",
-      name: "collection 2",
-      imageUrl:
-        "https://www.slaters-schoolwear.co.uk/wp-content/uploads/2020/06/Millbrook-38Slaters_SchoolWear-edit.jpg",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-    {
-      _id: "3",
-      name: "collection 3",
-      imageUrl:
-        "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-    {
-      _id: "4",
-      name: "collection 4",
-      imageUrl:
-        "https://t1.gstatic.com/licensed-image?q=tbn:ANd9GcRx-nSw4YqscTmqs9LRjWLgFvPkAOI91FKycAh0hjOlJ2CZVjkatnoPMIsxyYRvInkV51GfvU_RpDB_2EOEjuk",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-  ] as CollectionType[];
+  const mockId = "65f1e8bbc4e39014df775166";
 
   // data
   const [proxyCollectionId, setProxyCollectionId] = useState<Array<string>>([]);
 
   // variables
-  const [collections, setCollections] = useState(collectionsData);
+  const [collections, setCollections] = useState<CollectionType[]>([]);
 
   const [proxyCollectionWidget, setProxyCollectionWidget] = useState(
     props.widget
@@ -76,13 +36,23 @@ export default function CollectionWidget(props: WidgetProps) {
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
+  const handleGetCollectionList = async () => {
+    const response = await GET_GetCollectionListByShop(mockId);
+    if (response.status == 200) {
+      if (response.data) {
+        setCollections(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
+
   const element = useMemo(() => {
     let temp = props.widget.element as CollectionElement;
 
     setProxyCollectionId(temp.collectionIdList);
 
     // call api to get collection info
-    // setCollections([]);
+    handleGetCollectionList();
 
     return temp;
   }, [props.widget.element]);

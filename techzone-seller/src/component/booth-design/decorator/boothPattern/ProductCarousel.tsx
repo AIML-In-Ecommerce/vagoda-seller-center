@@ -1,6 +1,6 @@
 "use client";
 import { Carousel, Flex, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AiOutlineRight } from "react-icons/ai";
 import { CarouselArrow } from "@/component/utils/CarouselArrow";
@@ -8,9 +8,11 @@ import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
 import ProductItem from "@/component/booth-design/decorator/mini/MiniProductItem";
 import CustomEmpty from "../mini/CustomEmpty";
+import { GET_GetCollection } from "@/app/apis/collection/CollectionAPI";
+import { POST_GetProductList } from "@/app/apis/product/ProductAPI";
+import { CollectionType } from "@/model/CollectionType";
 
 interface ProductCarouselProps {
-  products: ProductType[]; // TODO: get this from collection id
   widget: WidgetType;
 }
 
@@ -26,14 +28,20 @@ interface ProductItemProps {
 }
 
 export default function ProductCarousel(props: ProductCarouselProps) {
+  const element = useMemo(() => {
+    return props.widget.element as ProductElement;
+  }, [props.widget.element]);
+
+  const [collection, setCollection] = useState<CollectionType>();
+  const [rawProducts, setRawProducts] = useState<ProductType[]>([]);
+
   const [products, setProducts] = useState<ProductItemProps[]>([]);
   const SuggestionProductsMoreDetailHref = "#";
   const autoPlayCarouselSpeed = 5000; //ms
 
   useEffect(() => {
-    //fetch data here
-
-    const data = props.products;
+    //process data here
+    const data = rawProducts;
     const tr_data: ProductItemProps[] = data.map((value) => {
       const tr_item: ProductItemProps = {
         _id: value._id,
@@ -50,15 +58,44 @@ export default function ProductCarousel(props: ProductCarouselProps) {
     });
 
     setProducts(tr_data);
-  }, []);
+  }, [rawProducts]);
 
-  // var
-  const element = props.widget.element as ProductElement;
+  // call api
+  useEffect(() => {
+    handleGetCollection();
+  }, [element]);
+
+  useEffect(() => {
+    handleGetProductList();
+  }, [collection]);
+
+  const handleGetCollection = async () => {
+    const response = await GET_GetCollection(element.collectionId);
+    if (response.status == 200) {
+      if (response.data) {
+        setCollection(response.data);
+        // console.log("collection", response.data);
+      }
+    }
+  };
+
+  const handleGetProductList = async () => {
+    if (!collection) return;
+    const response = await POST_GetProductList(collection.productIdList);
+    if (response.status == 200) {
+      if (response.data) {
+        setRawProducts(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
 
   return (
     <div>
       {products.length === 0 ? (
-        <CustomEmpty />
+        <div className="bg-white p-10 my-5">
+          <CustomEmpty />
+        </div>
       ) : (
         <div className="w-full flex justify-center items-center bg-white pt-5 my-5">
           <div className="w-full">

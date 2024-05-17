@@ -230,10 +230,10 @@ function ProductWidget(props: WidgetProps) {
   return (
     <div>
       {element && element.pattern === ProductPatternType.CAROUSEL && (
-        <ProductCarousel products={MockData} widget={props.widget} />
+        <ProductCarousel widget={props.widget} />
       )}
       {element && element.pattern === ProductPatternType.GRID && (
-        <ProductGrid products={MockData} widget={props.widget} />
+        <ProductGrid widget={props.widget} />
       )}
     </div>
   );

@@ -53,19 +53,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
 
   //update widgets visually
   const updateWidgets = async () => {
-    // for (let i = 0; i < props.widgets.length; i++) {
-    //   console.log("Widget " + i.toString() + "updating...");
-
-    //   const response = await PUT_UpdateWidgetOrder(
-    //     props.widgets[i]._id,
-    //     props.widgets[i].order
-    //   );
-    //   if (response.status !== 200) {
-    //     console.log("Widget " + i.toString() + " " + response.message);
-    //   }
-    // }
     props.setWidgets([...props.widgets]);
-    // TODO: toast update successfully
   };
 
   return (
@@ -109,9 +97,13 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           >
             Quay về
           </Button>
-          {saveStatus === SaveStatusEnum.NOCHANGE && (
+          {(saveStatus === SaveStatusEnum.NOCHANGE && (
             <div className="mt-5 mr-10 text-blue-400 font-semibold">
               Có thay đổi
+            </div>
+          )) || (
+            <div className="mt-5 mr-10 text-slate-400 font-semibold">
+              Đã cập nhật
             </div>
           )}
         </div>

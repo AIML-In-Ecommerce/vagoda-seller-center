@@ -22,7 +22,7 @@ export type ProductDetailType = {
   category: string;
   shopId: string;
   status: ProductStatus;
-  image: string[];
+  images: string[];
   avgRating: number;
   soldQuantity: number;
 };

@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Transfer } from "antd";
 import type { TransferProps } from "antd";
 import { ProductType } from "@/model/ProductType";
+import { useParams } from "next/navigation";
 
 interface ProductSelectProps {
   products: ProductType[];
@@ -27,7 +28,7 @@ export default function ProductSelect(props: ProductSelectProps) {
   }, [props.products]);
 
   const [targetKeys, setTargetKeys] = useState<TransferProps["targetKeys"]>(
-    props.selectedProductId ? props.selectedProductId : []
+    props.selectedProductId
   );
   const [selectedKeys, setSelectedKeys] = useState<TransferProps["targetKeys"]>(
     []
@@ -59,6 +60,14 @@ export default function ProductSelect(props: ProductSelectProps) {
     console.log("direction:", direction);
     console.log("target:", e.target);
   };
+
+  const { collectionId } = useParams();
+
+  useEffect(() => {
+    if (collectionId && props.selectedProductId) {
+      setTargetKeys(props.selectedProductId);
+    }
+  }, [collectionId, props.selectedProductId]);
 
   return (
     <Transfer

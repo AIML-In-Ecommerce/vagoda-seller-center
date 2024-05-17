@@ -134,7 +134,7 @@ const SortableList: React.ComponentClass<
   };
 
   return (
-    <div className="overflow-y-auto overflow-x-hidden max-h-[400px]">
+    <div className="overflow-y-auto overflow-x-hidden max-h-[350px] xl:max-h-[400px]">
       <ul>
         {props.items &&
           props.items.length > 0 &&

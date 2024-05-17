@@ -28,7 +28,7 @@ interface Data {
   shop: string;
   platformFee: number;
   status: ProductStatus;
-  image: string[];
+  images: string[];
   avgRating: number;
   createdAt: Date;
   requiredAttribute: Object;
@@ -67,7 +67,7 @@ export async function GET_GetProductDetail(id: string) {
       category: responseData.data.category,
       shopId: responseData.data.shop,
       status: responseData.data.status,
-      image: responseData.data.image,
+      images: responseData.data.images,
       avgRating: responseData.data.avgRating,
       soldQuantity: responseData.data.soldQuantity,
     };
@@ -133,7 +133,75 @@ export async function POST_GetProductList(idList: string[]) {
       processedData.push({
         _id: responseData.data[i]._id,
         name: responseData.data[i].name,
-        imageLink: responseData.data[i].image[0],
+        imageLink: responseData.data[i].images[0],
+        rating: responseData.data[i].avgRating,
+        soldAmount: responseData.data[i].soldQuantity,
+        price: responseData.data[i].finalPrice,
+        originalPrice: responseData.data[i].originalPrice,
+        flashSale: responseData.data[i].status === ProductStatus.SALE,
+        category: responseData.data[i].category,
+      });
+    }
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Get product list successfully",
+        status: responseData.status,
+        data: processedData,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to get product list",
+        status: responseData.status,
+        data: processedData,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to get product list",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function POST_GetProductListByShop(shopId: string) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    PRODUCT_PORT?.toString() +
+    "/products/filter"
+  ).toString();
+
+  try {
+    // console.log(url);
+    const response = await axios.post(
+      url,
+      { shop: shopId }
+      // {
+      //   headers: {
+      //     Authorization: `Bearer ${auth.user?.access_token}`,
+      //   },
+      // }
+    );
+    const responseData: ProductListResponse = response.data;
+
+    // console.log(responseData.data);
+
+    const processedData: ProductType[] = [];
+
+    for (let i = 0; i < responseData.data.length; i++) {
+      processedData.push({
+        _id: responseData.data[i]._id,
+        name: responseData.data[i].name,
+        imageLink:
+          responseData.data[i].images && responseData.data[i].images.length > 0
+            ? responseData.data[i].images[0]
+            : "",
         rating: responseData.data[i].avgRating,
         soldAmount: responseData.data[i].soldQuantity,
         price: responseData.data[i].finalPrice,

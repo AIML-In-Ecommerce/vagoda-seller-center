@@ -5,13 +5,14 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Flex, Input, Select, Tooltip } from "antd";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
+import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -20,60 +21,11 @@ interface WidgetProps {
 
 export default function ProductWidget(props: WidgetProps) {
   // mock data
-  const collectionsData = [
-    {
-      _id: "1",
-      name: "collection 1",
-      imageUrl: "",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-    {
-      _id: "2",
-      name: "collection 2",
-      imageUrl: "",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-    {
-      _id: "3",
-      name: "collection 3",
-      imageUrl: "",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-    {
-      _id: "4",
-      name: "collection 4",
-      imageUrl: "",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-
-      isActive: true,
-    },
-  ] as CollectionType[];
-
-  // data
-  const collectionOptions = useMemo(() => {
-    let newData: any[] = [];
-
-    collectionsData.forEach((collection) => {
-      newData.push({
-        value: collection._id,
-        label: collection.name,
-      });
-    });
-
-    return newData;
-  }, [collectionsData]);
+  const mockId = "65f1e8bbc4e39014df775166";
 
   // variables
+  const [collections, setCollections] = useState<CollectionType[]>([]);
+
   const [proxyProductWidget, setProxyProductWidget] = useState(props.widget);
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
@@ -110,6 +62,35 @@ export default function ProductWidget(props: WidgetProps) {
 
   const handleChangeCollection = (value: string) => {
     setCollectionId(value);
+  };
+
+  // data
+  const collectionOptions = useMemo(() => {
+    let newData: any[] = [];
+
+    collections.forEach((collection) => {
+      newData.push({
+        value: collection._id,
+        label: collection.name,
+      });
+    });
+
+    return newData;
+  }, [collections]);
+
+  // call api
+  useEffect(() => {
+    handleGetCollectionList();
+  }, [mockId]);
+
+  const handleGetCollectionList = async () => {
+    const response = await GET_GetCollectionListByShop(mockId);
+    if (response.status == 200) {
+      if (response.data) {
+        setCollections(response.data);
+        // console.log("product", data);
+      }
+    }
   };
 
   return (

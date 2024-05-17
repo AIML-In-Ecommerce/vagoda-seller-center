@@ -63,8 +63,7 @@ export default function CategoryGrid(props: CategoryGridProps) {
         }}
         renderItem={(item) => (
           <List.Item>
-            {/* TODO: revise url key to see if it redirects correctly */}
-            <Link href={`/${item.urlKey}`}>
+            <Link href={`#`}>
               <div className="text-center md:text-lg lg:text-lg text-semibold line-clamp-2">
                 {item.name}
               </div>

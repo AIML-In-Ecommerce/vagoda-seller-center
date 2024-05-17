@@ -21,14 +21,18 @@ import BannerForm from "@/component/booth-design/decorator/uploadImage/BannerFor
 import { FaRegHandPointer } from "react-icons/fa";
 import { ProductType } from "@/model/ProductType";
 import { POST_CreateCollection } from "@/app/apis/collection/CollectionAPI";
-import { POST_GetProductList } from "@/app/apis/product/ProductAPI";
+import { POST_GetProductListByShop } from "@/app/apis/product/ProductAPI";
 
 export default function NewCollectionPage() {
+  // mock data
+  const mockId = "65f1e8bbc4e39014df775166";
+
   //var
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState(
+    ""
     // TODO: save image upload
-    "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg"
+    // "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg"
   );
   const [productIdList, setProductIdList] = useState<string[]>([]);
   const [isSwitched, setIsSwitched] = useState(true);
@@ -43,6 +47,7 @@ export default function NewCollectionPage() {
       productIdList: productIdList,
       createDate: new Date(),
       isActive: isSwitched,
+      shop: mockId, //TODO
     };
 
     // use api to create
@@ -50,7 +55,7 @@ export default function NewCollectionPage() {
     const response = await POST_CreateCollection(newCollection);
 
     if (response.status === 200) {
-      // push router to collection
+      //TODO: push router to collection OR toast success message
       console.log(response.message);
       console.log(response.data);
     } else console.log(response.message);
@@ -59,17 +64,13 @@ export default function NewCollectionPage() {
   // call api
   useEffect(() => {
     handleGetProductList();
-  }, []);
+  }, [mockId]);
 
   const handleGetProductList = async () => {
-    // mock data
-    const mockIds = ["663da8175f77ea6b8f5b2e1d", "6640f13927725b50d70c0579"];
-
-    const response = await POST_GetProductList(mockIds);
+    const response = await POST_GetProductListByShop(mockId);
     if (response.status == 200) {
-      let data = response.data as ProductType[];
-      if (data) {
-        setProducts(data);
+      if (response.data) {
+        setProducts(response.data);
         // console.log("product", data);
       }
     }

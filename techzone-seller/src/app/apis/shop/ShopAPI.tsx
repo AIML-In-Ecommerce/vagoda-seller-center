@@ -110,7 +110,12 @@ export async function PUT_UpdateShopInfoDesign(
   try {
     // console.log(url);
     const requestBody = {
-      shopInfoDesign: shopInfoDesign,
+      shopInfoDesign: {
+        color: shopInfoDesign.color,
+        avatarUrl: shopInfoDesign.avatarUrl,
+        bannerUrl: shopInfoDesign.bannerUrl,
+      },
+      name: shopInfoDesign.name,
     };
 
     const response = await axios.put(url, requestBody);

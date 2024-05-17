@@ -4,15 +4,53 @@ import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
 import { List, Typography } from "antd";
 import CustomEmpty from "../mini/CustomEmpty";
+import { CollectionType } from "@/model/CollectionType";
+import { useEffect, useMemo, useState } from "react";
+import { GET_GetCollection } from "@/app/apis/collection/CollectionAPI";
+import { POST_GetProductList } from "@/app/apis/product/ProductAPI";
 
 interface ProductGridProps {
-  products: ProductType[]; // TODO: get this from collection id
   widget: WidgetType;
 }
 
 export default function ProductGrid(props: ProductGridProps) {
   // var
-  const element = props.widget.element as ProductElement;
+  const element = useMemo(() => {
+    return props.widget.element as ProductElement;
+  }, [props.widget.element]);
+
+  const [collection, setCollection] = useState<CollectionType>();
+  const [products, setProducts] = useState<ProductType[]>([]);
+
+  // call api
+  useEffect(() => {
+    handleGetCollection();
+  }, [element]);
+
+  useEffect(() => {
+    handleGetProductList();
+  }, [collection]);
+
+  const handleGetCollection = async () => {
+    const response = await GET_GetCollection(element.collectionId);
+    if (response.status == 200) {
+      if (response.data) {
+        setCollection(response.data);
+        // console.log("collection", response.data);
+      }
+    }
+  };
+
+  const handleGetProductList = async () => {
+    if (!collection) return;
+    const response = await POST_GetProductList(collection.productIdList);
+    if (response.status == 200) {
+      if (response.data) {
+        setProducts(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
 
   return (
     <div className="bg-white my-5 py-5 px-10">
@@ -30,7 +68,7 @@ export default function ProductGrid(props: ProductGridProps) {
           xl: 4,
           xxl: 4,
         }}
-        dataSource={props.products}
+        dataSource={products}
         locale={{
           emptyText: <CustomEmpty />,
         }}

@@ -5,4 +5,5 @@ export type CollectionType = {
   productIdList: string[];
   createDate: Date;
   isActive: boolean;
+  shop: string;
 };

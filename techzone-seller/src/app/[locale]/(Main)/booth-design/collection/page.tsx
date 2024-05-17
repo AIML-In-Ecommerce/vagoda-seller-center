@@ -13,11 +13,16 @@ import {
   Typography,
   Layout,
   Breadcrumb,
+  Skeleton,
 } from "antd";
 import Search from "antd/es/input/Search";
 import { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
+import {
+  DELETE_DeleteCollection,
+  GET_GetCollectionListByShop,
+} from "@/app/apis/collection/CollectionAPI";
 
 interface CollectionColumn {
   key: string;
@@ -29,34 +34,8 @@ interface CollectionColumn {
 
 export default function CollectionPage() {
   // mock data
-  const collectionData: CollectionType[] = [
-    {
-      _id: "id1",
-      name: "Collection 1",
-      imageUrl: "",
-      productIdList: [],
-      createDate: new Date("2024-03-24T12:30:00"),
-      isActive: true,
-    },
-    {
-      _id: "id2",
-      name: "Collection 2",
-      imageUrl: "",
-      productIdList: ["id1", "id2"],
-      createDate: new Date("2024-03-24T12:30:00"),
-      isActive: true,
-    },
-    {
-      _id: "id3",
-      name: "Collection 3",
-      imageUrl: "",
-      productIdList: ["id"],
-      createDate: new Date("2024-03-24T12:30:00"),
-      isActive: true,
-    },
-  ];
-
-  const mockShopId = "";
+  const mockId = "65f1e8bbc4e39014df775166";
+  //TODO
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>();
@@ -72,21 +51,31 @@ export default function CollectionPage() {
     if (selectedOrderIds.length > 0) setOpenDeleteModal(true);
   };
 
-  const deleteCollection = () => {
+  const deleteCollection = async () => {
     if (!collections) return;
 
     let newList = [...collections];
     selectedOrderIds.forEach((selectedId) => {
       newList = newList.filter((w) => w._id !== selectedId);
     });
+
+    // delete using api
+    selectedOrderIds.forEach(async (selectedId) => {
+      const response = await DELETE_DeleteCollection(selectedId);
+      if (response.status === 200) {
+        //
+      } else {
+        console.log(response.message);
+        return;
+      }
+    });
+
+    console.log("Delete successfully");
+
     setCollections(newList);
-
-    // TODO: update using api
-
     setOpenDeleteModal(false);
     setSelectedRowKeys([]);
     setSelectedOrderIds([]);
-
     // TODO: toast update successfully
   };
 
@@ -174,7 +163,7 @@ export default function CollectionPage() {
           key: value._id,
           name: value.name,
           number: value.productIdList.length,
-          createDate: formatDate(value.createDate),
+          createDate: formatDate(new Date(value.createDate)),
           status: value.isActive ? "Bật" : "Tắt",
         };
 
@@ -208,54 +197,70 @@ export default function CollectionPage() {
   //   console.log(`selected ${value}`);
   // };
 
+  // call api
+  useEffect(() => {
+    handleGetCollectionList();
+  }, []);
+
+  const handleGetCollectionList = async () => {
+    const response = await GET_GetCollectionListByShop(mockId);
+
+    if (response.status === 200) {
+      console.log(response.data);
+      console.log(response.message);
+      if (response.data) setCollections(response.data);
+    } else console.log(response.message);
+  };
+
   return (
     <Layout>
-      <div className="m-5">
-        <Breadcrumb
-          className="text-xs"
-          items={[
-            {
-              href: "/",
-              title: (
-                <div className="flex items-center">
-                  <HiOutlineHome size={15} />
-                </div>
-              ),
-            },
-            {
-              title: "Thiết kế gian hàng",
-            },
-            {
-              href: "/booth-design/collection",
-              title: "Bộ sưu tập",
-            },
-          ]}
-        />
-
-        <Flex gap="large">
-          <Button
-            className="bg-[#1677ff] text-white font-semibold mt-2"
-            href="./collection/new#part-1"
-          >
-            Tạo mới
-          </Button>
-
-          {collections && collections.length > 0 && (
-            <Button
-              className="bg-red-500 text-white font-semibold mt-2"
-              onClick={handleDeleteCollection}
-            >
-              Xoá
-            </Button>
-          )}
-        </Flex>
-        <Flex gap="large" className="my-2">
-          <Search
-            placeholder="Tìm kiếm bộ sưu tập"
-            style={{ width: "400px" }}
+      {(collections && (
+        <div className="m-5">
+          <Breadcrumb
+            className="text-xs"
+            items={[
+              {
+                href: "/",
+                title: (
+                  <div className="flex items-center">
+                    <HiOutlineHome size={15} />
+                  </div>
+                ),
+              },
+              {
+                title: "Thiết kế gian hàng",
+              },
+              {
+                href: "/booth-design/collection",
+                title: "Bộ sưu tập",
+              },
+            ]}
           />
 
-          {/* <Select
+          <Flex gap="large">
+            <Button
+              className="bg-[#1677ff] text-white font-semibold mt-2"
+              href="./collection/new#part-1"
+            >
+              Tạo mới
+            </Button>
+
+            {collections && collections.length > 0 && (
+              <Button
+                className="bg-red-500 text-white font-semibold mt-2"
+                onClick={handleDeleteCollection}
+              >
+                Xoá
+              </Button>
+            )}
+          </Flex>
+          <Flex gap="large" className="my-2">
+            <Search
+              placeholder="Tìm kiếm bộ sưu tập"
+              style={{ width: "400px" }}
+            />
+
+            {/* <Select
             defaultValue={"1"}
             style={{ width: "200px" }}
             onChange={handleChangePattern}
@@ -284,23 +289,24 @@ export default function CollectionPage() {
               },
             ]}
           /> */}
-        </Flex>
+          </Flex>
 
-        <Table
-          rowSelection={rowSelection}
-          columns={dataColumns}
-          dataSource={dataToDisplay}
-          locale={{
-            emptyText: <CustomEmpty />,
-          }}
-        />
+          <Table
+            rowSelection={rowSelection}
+            columns={dataColumns}
+            dataSource={dataToDisplay}
+            locale={{
+              emptyText: <CustomEmpty />,
+            }}
+          />
 
-        <DeleteCollectionModal
-          open={openDeleteModal}
-          handleOk={deleteCollection}
-          handleCancel={() => setOpenDeleteModal(false)}
-        />
-      </div>
+          <DeleteCollectionModal
+            open={openDeleteModal}
+            handleOk={deleteCollection}
+            handleCancel={() => setOpenDeleteModal(false)}
+          />
+        </div>
+      )) || <Skeleton active style={{ margin: 10 }} />}
     </Layout>
   );
 }

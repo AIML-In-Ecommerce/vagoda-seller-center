@@ -1,6 +1,6 @@
 export type ShopInfoDesignType = {
   color: string;
-  name: string; // optional
+  name: string;
   avatarUrl: string;
   bannerUrl: string;
 };
@@ -10,18 +10,18 @@ export type ShopDetailType = {
   refundPercentage: number;
   sinceYear: number;
   totalProductNumber: number;
-  description: string; //optional
+  description: string;
   rating: number;
   replyPercentage: number;
-  address: string; //optional
+  address: string;
 };
 
 export type ShopType = {
   _id: string;
   account: string;
   name: string;
-  location: string; //optional
-  description: string; //optional
+  location: string;
+  description: string;
   design: string[];
   shopInfoDesign: ShopInfoDesignType;
   shopDetail: ShopDetailType;

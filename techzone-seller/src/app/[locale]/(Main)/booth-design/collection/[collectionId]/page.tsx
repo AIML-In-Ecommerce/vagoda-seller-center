@@ -21,20 +21,24 @@ import { HiOutlineHome } from "react-icons/hi2";
 import BannerForm from "@/component/booth-design/decorator/uploadImage/BannerForm";
 import { FaRegHandPointer } from "react-icons/fa";
 import { ProductType } from "@/model/ProductType";
-import { POST_GetProductList } from "@/app/apis/product/ProductAPI";
-import { GET_GetCollection } from "@/app/apis/collection/CollectionAPI";
+import { POST_GetProductListByShop } from "@/app/apis/product/ProductAPI";
+import {
+  GET_GetCollection,
+  PUT_UpdateCollection,
+} from "@/app/apis/collection/CollectionAPI";
 
 export default function CollectionDetailPage() {
   // mock data
-  const collectionData: CollectionType = {
-    _id: "",
-    name: "",
-    imageUrl: "",
-    // "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
-    productIdList: [],
-    createDate: new Date("2024-03-24T12:30:00"),
-    isActive: false,
-  };
+  // const collectionData: CollectionType = {
+  //   _id: "",
+  //   name: "",
+  //   imageUrl: "",
+  //   // "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
+  //   productIdList: [],
+  //   createDate: new Date("2024-03-24T12:30:00"),
+  //   isActive: false,
+  //   shop: "",
+  // };
 
   //var
   const { collectionId } = useParams();
@@ -49,7 +53,11 @@ export default function CollectionDetailPage() {
   useEffect(() => {
     if (collection) {
       // update collection data
-      setProductIdList(collection.productIdList);
+      console.log(collection.productIdList);
+
+      setProductIdList(
+        collection.productIdList ? collection.productIdList : []
+      );
       setName(collection.name);
       setIsSwitched(collection.isActive);
       setImageUrl(collection.imageUrl);
@@ -81,7 +89,7 @@ export default function CollectionDetailPage() {
   }, [name, isSwitched, productIdList, imageUrl]);
 
   // function
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!collection) return;
 
     const updatedCollection: CollectionType = {
@@ -91,27 +99,33 @@ export default function CollectionDetailPage() {
       productIdList: productIdList,
       createDate: collection.createDate,
       isActive: isSwitched,
+      shop: collection.shop,
     };
 
     // use api to update
+    console.log(updatedCollection);
+    const response = await PUT_UpdateCollection(updatedCollection);
 
-    // push router to collection
+    if (response.status === 200) {
+      //TODO: push router to collection OR toast success message
+      console.log(response.message);
+      console.log(response.data);
+    } else console.log(response.message);
   };
 
   // call api
   useEffect(() => {
     handleGetProductList();
-  }, []);
+  }, [collection]);
 
   useEffect(() => {
     handleGetCollection();
   }, [collectionId]);
 
   const handleGetProductList = async () => {
-    // mock data
-    const mockIds = ["663da8175f77ea6b8f5b2e1d", "6640f13927725b50d70c0579"];
+    if (!collection) return;
 
-    const response = await POST_GetProductList(mockIds);
+    const response = await POST_GetProductListByShop(collection.shop);
     if (response.status == 200) {
       if (response.data) {
         setProducts(response.data);
