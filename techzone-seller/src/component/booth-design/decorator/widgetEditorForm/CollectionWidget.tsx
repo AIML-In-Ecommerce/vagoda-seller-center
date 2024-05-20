@@ -164,15 +164,14 @@ export default function CollectionWidget(props: WidgetProps) {
 
           <div className="font-light text-sm">Chọn bộ bưu tập để hiển thị</div>
 
-          {/* TODO: select collections */}
           {collections.length > 0 && (
             <Space direction="vertical">
-              <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
+              {/* <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
                 <Search placeholder="Nhập để tìm bộ sưu tập"></Search>
                 <Button className="bg-blue-500 font-semibold text-white">
                   Áp dụng
                 </Button>
-              </div>
+              </div> */}
               <Card className="overflow-auto h-96">
                 {collections.map((item, index) => {
                   return (

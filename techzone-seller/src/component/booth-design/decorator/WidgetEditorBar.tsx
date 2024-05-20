@@ -97,7 +97,8 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           >
             Quay về
           </Button>
-          {(saveStatus === SaveStatusEnum.NOCHANGE && (
+          {/* wip */}
+          {/* {(saveStatus === SaveStatusEnum.NOCHANGE && (
             <div className="mt-5 mr-10 text-blue-400 font-semibold">
               Có thay đổi
             </div>
@@ -105,7 +106,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             <div className="mt-5 mr-10 text-slate-400 font-semibold">
               Đã cập nhật
             </div>
-          )}
+          )} */}
         </div>
       )}
 

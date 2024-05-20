@@ -15,6 +15,7 @@ import CustomEmpty from "../mini/CustomEmpty";
 import Search from "antd/es/transfer/search";
 import PromotionCard from "../mini/PromotionCard";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
+import { GET_GetPromotionListByShop } from "@/app/apis/promotion/PromotionAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -81,31 +82,19 @@ export default function PromotionWidget(props: WidgetProps) {
       code: "BIENVENUE",
     },
   ];
+  const mockId = "65f1e8bbc4e39014df775166";
 
   // data
   const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
 
   // variables
-  const [promotions, setPromotions] = useState(promotionsData);
+  const [promotions, setPromotions] = useState<PromotionType[]>();
 
   const [proxyPromotionWidget, setProxyPromotionWidget] = useState(
     props.widget
   );
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
-
-  const element = useMemo(() => {
-    let temp = props.widget.element as PromotionElement;
-
-    setProxyPromotionId(temp.promotionIdList);
-
-    // call api to get promotion info
-    // setPromotions([]);
-
-    return temp;
-  }, [props.widget.element]);
-
-  const [title, setTitle] = useState(element.title);
 
   // functions
   const handleSave = async () => {
@@ -154,6 +143,30 @@ export default function PromotionWidget(props: WidgetProps) {
 
     props.updateWidgets();
   };
+
+  // call api
+  const handleGetPromotionList = async () => {
+    const response = await GET_GetPromotionListByShop(mockId);
+    if (response.status == 200) {
+      if (response.data) {
+        setPromotions(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
+
+  const element = useMemo(() => {
+    let temp = props.widget.element as PromotionElement;
+
+    setProxyPromotionId(temp.promotionIdList);
+
+    // call api to get promotion info
+    handleGetPromotionList();
+
+    return temp;
+  }, [props.widget.element]);
+
+  const [title, setTitle] = useState(element.title);
 
   return (
     <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
@@ -218,29 +231,30 @@ export default function PromotionWidget(props: WidgetProps) {
 
           <div className="font-light text-sm">Chọn giảm giá để hiển thị</div>
 
-          {promotions.length > 0 && (
+          {promotions && promotions.length > 0 && (
             <Space direction="vertical">
-              <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
+              {/* <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
                 <Search placeholder="Nhập để tìm mã"></Search>
                 <Button className="bg-blue-500 font-semibold text-white">
                   Áp dụng
                 </Button>
-              </div>
+              </div> */}
               <Card className="overflow-auto h-96">
-                {promotions.map((item, index) => {
-                  return (
-                    <PromotionCard
-                      item={item}
-                      isSelected={checkInclude(item._id)}
-                      applyDiscount={(item: PromotionType) => {
-                        handleAddPromotion(item, index);
-                      }}
-                      removeDiscount={(item: PromotionType) => {
-                        handleRemovePromotion(item, index);
-                      }}
-                    />
-                  );
-                })}
+                {promotions &&
+                  promotions.map((item, index) => {
+                    return (
+                      <PromotionCard
+                        item={item}
+                        isSelected={checkInclude(item._id)}
+                        applyDiscount={(item: PromotionType) => {
+                          handleAddPromotion(item, index);
+                        }}
+                        removeDiscount={(item: PromotionType) => {
+                          handleRemovePromotion(item, index);
+                        }}
+                      />
+                    );
+                  })}
               </Card>
               <div className="my-5 flex flex-row justify-center items-center">
                 <div>Bạn đã chọn &nbsp;</div>
@@ -255,7 +269,7 @@ export default function PromotionWidget(props: WidgetProps) {
               </div>
             </Space>
           )}
-          {promotions.length == 0 && <CustomEmpty />}
+          {promotions && promotions.length == 0 && <CustomEmpty />}
         </Flex>
 
         {/* Buttons */}

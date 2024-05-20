@@ -4,14 +4,15 @@ import {
   CategoryPatternType,
   WidgetType,
 } from "@/model/WidgetType";
-import { Button, Flex, Input, Select, Tooltip } from "antd";
-import { useMemo, useState } from "react";
+import { Button, Flex, Input, Select, Skeleton, Tooltip } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CategoryType } from "@/model/CategoryType";
 import CustomEmpty from "../mini/CustomEmpty";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
+import { GET_GetAllCategories } from "@/app/apis/category/CategoryAPI";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -20,37 +21,44 @@ interface WidgetProps {
 
 export default function CategoryWidget(props: WidgetProps) {
   // mock data
-  const categories: CategoryType[] = [
-    {
-      _id: "id1",
-      key: "1",
-      urlKey: "string",
-      name: "Laptop",
-      image: "string",
-      subCategoryType: [],
-    },
-    {
-      _id: "id2",
-      key: "2",
-      urlKey: "string",
-      name: "Màn hình máy tính",
-      image: "string",
-      subCategoryType: [],
-    },
-    {
-      _id: "id3",
-      key: "3",
-      urlKey: "string",
-      name: "Ổ cứng",
-      image: "string",
-      subCategoryType: [],
-    },
-  ];
+  // const categories: CategoryType[] = [
+  //   {
+  //     _id: "id1",
+  //     key: "1",
+  //     urlKey: "string",
+  //     name: "Laptop",
+  //     image: "string",
+  //     subCategoryType: [],
+  //   },
+  //   {
+  //     _id: "id2",
+  //     key: "2",
+  //     urlKey: "string",
+  //     name: "Màn hình máy tính",
+  //     image: "string",
+  //     subCategoryType: [],
+  //   },
+  //   {
+  //     _id: "id3",
+  //     key: "3",
+  //     urlKey: "string",
+  //     name: "Ổ cứng",
+  //     image: "string",
+  //     subCategoryType: [],
+  //   },
+  // ];
 
   // data
-  const categoryOptions = useMemo(() => {
-    let newData: any[] = [];
+  const [categories, setCategories] = useState<CategoryType[]>();
 
+  const [proxyCategory, setProxyCategory] = useState<Array<string>>(
+    Array.from(" ".repeat(4))
+  );
+
+  const categoryOptions = useMemo(() => {
+    if (!categories) return [];
+
+    let newData: any[] = [];
     categories.forEach((category) => {
       newData.push({
         value: category._id,
@@ -58,12 +66,13 @@ export default function CategoryWidget(props: WidgetProps) {
       });
     });
 
-    return newData;
-  }, [categories]);
+    newData.push({
+      value: " ",
+      label: "--- Để Trống ---",
+    });
 
-  const [proxyCategory, setProxyCategory] = useState<Array<string>>(
-    Array.from(" ".repeat(4))
-  );
+    return newData;
+  }, [categories, proxyCategory]);
 
   // variables
   const [proxyCategoryWidget, setProxyCategoryWidget] = useState(props.widget);
@@ -76,12 +85,21 @@ export default function CategoryWidget(props: WidgetProps) {
 
   const [title, setTitle] = useState(element.title);
 
+  useEffect(() => {
+    if (!element.categoryIdList) return;
+
+    for (let i = 0; i < element.categoryIdList.length; i++) {
+      proxyCategory[i] = element.categoryIdList[i];
+    }
+    setProxyCategory(proxyCategory);
+  }, [element]);
+
   // functions
   const handleSave = async () => {
     proxyCategoryWidget.visibility = isSwitched;
 
     element.title = title;
-    element.categoryIdList = proxyCategory;
+    element.categoryIdList = proxyCategory.filter((c) => c !== " ");
 
     proxyCategoryWidget.element = element;
 
@@ -93,13 +111,30 @@ export default function CategoryWidget(props: WidgetProps) {
     } else console.log(response.message);
   };
 
-  const handleChangePattern = (value: string) => {
-    console.log(`selected ${value}`);
-  };
+  // const handleChangePattern = (value: string) => {
+  //   console.log(`selected ${value}`);
+  // };
 
   const handleChangeCategory = (value: string, index: number) => {
+    if (value !== " " && proxyCategory.includes(value)) return;
+
     proxyCategory[index] = value;
     setProxyCategory(proxyCategory);
+  };
+
+  // call api
+  useEffect(() => {
+    handleGetCategoryList();
+  }, [element]);
+
+  const handleGetCategoryList = async () => {
+    const response = await GET_GetAllCategories();
+    if (response.status == 200) {
+      if (response.data) {
+        setCategories(response.data);
+        // console.log("category", response.data);
+      }
+    }
   };
 
   return (
@@ -118,7 +153,7 @@ export default function CategoryWidget(props: WidgetProps) {
         <Select
           defaultValue={CategoryPatternType.GRID.toString()}
           style={{ width: "100%" }}
-          onChange={handleChangePattern}
+          // onChange={handleChangePattern}
           options={[
             {
               value: CategoryPatternType.GRID.toString(),
@@ -162,24 +197,28 @@ export default function CategoryWidget(props: WidgetProps) {
         </Flex>
 
         {/* select category from id */}
-        <Flex vertical gap="small">
-          <div className="font-semibold">Danh mục</div>
-          <div className="font-light text-sm">
-            Chọn tối đa 4 danh mục để hiển thị ở trang gian hàng
-          </div>
-
-          {proxyCategory.map((item, index) => (
-            <div key={index}>
-              <Select
-                defaultValue={element.categoryIdList[index]}
-                style={{ width: "100%" }}
-                onChange={(value: string) => handleChangeCategory(value, index)}
-                notFoundContent={<CustomEmpty />}
-                options={categoryOptions}
-              />
+        {(categories && (
+          <Flex vertical gap="small">
+            <div className="font-semibold">Danh mục</div>
+            <div className="font-light text-sm">
+              Chọn tối đa 4 danh mục để hiển thị ở trang gian hàng
             </div>
-          ))}
-        </Flex>
+
+            {proxyCategory.map((item, index) => (
+              <div key={index}>
+                <Select
+                  defaultValue={element.categoryIdList[index]}
+                  style={{ width: "100%" }}
+                  onChange={(value: string) =>
+                    handleChangeCategory(value, index)
+                  }
+                  notFoundContent={<CustomEmpty />}
+                  options={categoryOptions}
+                />
+              </div>
+            ))}
+          </Flex>
+        )) || <Skeleton active />}
 
         {/* Buttons */}
         <Flex gap="large">

@@ -1,5 +1,5 @@
 "use client";
-import ProductItem from "@/component/booth-design/decorator/mini/MiniProductItem";
+import ProductItem from "@/component/booth-design/decorator/mini/ProductItem";
 import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
 import { List, Typography } from "antd";
@@ -25,11 +25,11 @@ export default function ProductGrid(props: ProductGridProps) {
   // call api
   useEffect(() => {
     handleGetCollection();
-  }, [element]);
+  }, [element, element.collectionId]);
 
   useEffect(() => {
     handleGetProductList();
-  }, [collection]);
+  }, [element, collection]);
 
   const handleGetCollection = async () => {
     const response = await GET_GetCollection(element.collectionId);

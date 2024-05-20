@@ -236,42 +236,45 @@ export async function GET_GetCollectionListByShop(shopId: string) {
   }
 }
 
-// export async function GET_GetCollectionList(ids: string[]) {
-//   const url = (
-//     BACKEND_PREFIX?.toString() +
-//     ":" +
-//     WIDGET_PORT?.toString() +
-//     "/collectionTypes/shop/" +
-//     shopId
-//   ).toString();
+export async function POST_GetCollectionList(ids: string[]) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/collectionTypes/list"
+  ).toString();
 
-//   try {
-//     // console.log(url);
-//     const response = await axios.get(url);
-//     const responseData: CollectionListResponse = response.data;
+  try {
+    // console.log(url);
+    const requestBody = {
+      ids: ids,
+    };
 
-//     if (responseData.status == 200) {
-//       return {
-//         isDenied: false,
-//         message: "Get collection successfully",
-//         status: responseData.status,
-//         data: responseData.data,
-//       };
-//     } else {
-//       return {
-//         isDenied: true,
-//         message: "Failed to get collection",
-//         status: responseData.status,
-//         data: responseData.data,
-//       };
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     return {
-//       isDenied: true,
-//       message: "Failed to get collection",
-//       status: 500,
-//       data: undefined,
-//     };
-//   }
-// }
+    const response = await axios.post(url, requestBody);
+    const responseData: CollectionListResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Get collection successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to get collection",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to get collection",
+      status: 500,
+      data: undefined,
+    };
+  }
+}

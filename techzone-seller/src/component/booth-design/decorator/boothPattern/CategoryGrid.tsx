@@ -4,6 +4,8 @@ import { List, Typography } from "antd";
 import Link from "next/link";
 import CustomEmpty from "../mini/CustomEmpty";
 import { CategoryType } from "@/model/CategoryType";
+import { POST_GetCategoryList } from "@/app/apis/category/CategoryAPI";
+import { useState, useEffect } from "react";
 
 interface CategoryGridProps {
   widget: WidgetType;
@@ -11,35 +13,51 @@ interface CategoryGridProps {
 
 export default function CategoryGrid(props: CategoryGridProps) {
   // mock data
-  const categories: CategoryType[] = [
-    {
-      _id: "id1",
-      key: "1",
-      urlKey: "string",
-      name: "Laptop",
-      image: "string",
-      subCategoryType: [],
-    },
-    {
-      _id: "id2",
-      key: "2",
-      urlKey: "string",
-      name: "Màn hình máy tính",
-      image: "string",
-      subCategoryType: [],
-    },
-    {
-      _id: "id3",
-      key: "3",
-      urlKey: "string",
-      name: "Ổ cứng",
-      image: "string",
-      subCategoryType: [],
-    },
-  ];
+  // const categories: CategoryType[] = [
+  //   {
+  //     _id: "id1",
+  //     key: "1",
+  //     urlKey: "string",
+  //     name: "Laptop",
+  //     image: "string",
+  //     subCategoryType: [],
+  //   },
+  //   {
+  //     _id: "id2",
+  //     key: "2",
+  //     urlKey: "string",
+  //     name: "Màn hình máy tính",
+  //     image: "string",
+  //     subCategoryType: [],
+  //   },
+  //   {
+  //     _id: "id3",
+  //     key: "3",
+  //     urlKey: "string",
+  //     name: "Ổ cứng",
+  //     image: "string",
+  //     subCategoryType: [],
+  //   },
+  // ];
 
   // var
+  const [categories, setCategories] = useState<CategoryType[]>();
   const element = props.widget.element as CategoryElement;
+
+  // call api
+  useEffect(() => {
+    handleGetCategoryList(element.categoryIdList);
+  }, [element, element.categoryIdList]);
+
+  const handleGetCategoryList = async (ids: string[]) => {
+    const response = await POST_GetCategoryList(ids);
+    if (response.status == 200) {
+      if (response.data) {
+        setCategories(response.data);
+        console.log("category", response.data);
+      }
+    }
+  };
 
   return (
     <div className="bg-white my-5 py-5 px-10 ">

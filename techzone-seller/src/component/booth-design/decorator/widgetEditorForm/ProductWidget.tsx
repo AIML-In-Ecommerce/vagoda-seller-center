@@ -4,7 +4,7 @@ import {
   ProductPatternType,
   WidgetType,
 } from "@/model/WidgetType";
-import { Button, Flex, Input, Select, Tooltip } from "antd";
+import { Button, Flex, Input, Select, Skeleton, Tooltip } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
@@ -167,16 +167,18 @@ export default function ProductWidget(props: WidgetProps) {
           </div>
         </Flex>
         {/* select collection from id */}
-        <Flex vertical gap="small">
-          <div className="font-semibold">Bộ sưu tập</div>
-          <Select
-            value={collectionId}
-            style={{ width: "100%" }}
-            onChange={handleChangeCollection}
-            notFoundContent={<CustomEmpty />}
-            options={collectionOptions}
-          />
-        </Flex>
+        {(collections && (
+          <Flex vertical gap="small">
+            <div className="font-semibold">Bộ sưu tập</div>
+            <Select
+              value={collectionId}
+              style={{ width: "100%" }}
+              onChange={handleChangeCollection}
+              notFoundContent={<CustomEmpty />}
+              options={collectionOptions}
+            />
+          </Flex>
+        )) || <Skeleton active />}
 
         {/* Buttons */}
         <Flex gap="large">
