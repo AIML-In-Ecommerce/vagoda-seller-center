@@ -144,7 +144,7 @@ export default function BannerCarousel(props: BannerCarouselProps) {
       {(images.length > 0 && (
         <div className="mb-10">
           <div
-            className="w-full flex flex-col justify-end items-center relative"
+            className="w-full flex flex-col justify-end items-center relative rounded-xl"
             style={LargeBackground}
           >
             <div className="flex flex-col justify-center items-center backdrop-blur-md w-full h-1/6">
@@ -163,7 +163,7 @@ export default function BannerCarousel(props: BannerCarouselProps) {
           </div>
         </div>
       )) || (
-        <div className="bg-white p-10 my-5">
+        <div className="bg-white p-10 my-5 rounded-xl">
           <CustomEmpty />
         </div>
       )}

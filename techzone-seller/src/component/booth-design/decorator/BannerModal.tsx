@@ -27,7 +27,7 @@ export default function BannerModal(bannerProps: BannerProps) {
         </Button>,
       ]}
     >
-      <div className="border-2 border-black m-10">
+      <div className="border-2 border-black m-10 rounded-tr-xl rounded-tl-xl">
         <Banner
           color={bannerProps.color}
           name={bannerProps.name}

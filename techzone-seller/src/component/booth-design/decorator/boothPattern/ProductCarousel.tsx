@@ -91,16 +91,16 @@ export default function ProductCarousel(props: ProductCarouselProps) {
   };
 
   return (
-    <div>
+    <div className="bg-white rounded-xl my-5">
       {products.length === 0 ? (
-        <div className="bg-white p-10 my-5">
+        <div className="p-10">
           <CustomEmpty />
         </div>
       ) : (
-        <div className="w-full flex justify-center items-center bg-white py-5 my-5">
+        <div className="w-full flex justify-center items-center py-5">
           <div className="w-full">
             <Flex className="w-full mb-4 px-8" align="center">
-              <Typography.Text className="text-xl font-semibold w-full">
+              <Typography.Text className="mt-3 text-xl uppercase font-semibold w-full">
                 {element.title}
               </Typography.Text>
               <Flex
@@ -119,6 +119,7 @@ export default function ProductCarousel(props: ProductCarouselProps) {
                 </Typography.Text>
               </Flex>
             </Flex>
+            <div className="invisible h-5">hidden block</div>
             {products.length < 4 ? (
               <div className="px-10">
                 <List

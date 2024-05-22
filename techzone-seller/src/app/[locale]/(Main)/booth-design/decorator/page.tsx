@@ -1,6 +1,15 @@
 "use client";
 
-import { Affix, Breadcrumb, Button, FloatButton, Skeleton, Tabs } from "antd";
+import {
+  Affix,
+  Breadcrumb,
+  Button,
+  ConfigProvider,
+  FloatButton,
+  Input,
+  Skeleton,
+  Tabs,
+} from "antd";
 import { useEffect, useState } from "react";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
 import Search from "antd/es/transfer/search";
@@ -32,6 +41,7 @@ import {
   POST_GetWidgetList,
   PUT_UpdateWidgetVisibility,
 } from "@/app/apis/widget/WidgetAPI";
+import { GoSearch } from "react-icons/go";
 
 export default function BoothDecoratorPage() {
   // mock data
@@ -341,22 +351,45 @@ export default function BoothDecoratorPage() {
             </section>
 
             <div className="overflow-hidden">
-              <Tabs
-                defaultActiveKey="0"
-                size="middle"
-                style={{ marginLeft: 10, marginRight: 10, marginTop: 10 }}
-                items={tabItems.map((item, i) => {
-                  return {
-                    label: item,
-                    key: i.toString(),
-                    children: <div />,
-                    disabled: true,
-                  };
-                })}
-                tabBarExtraContent={
-                  <Search disabled placeholder="Tìm tại cửa hàng" />
-                }
-              />
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Tabs: {
+                      // inkBarColor: "#c4996c",
+                      // itemActiveColor: "#c4996c",
+                      // itemHoverColor: "#c4996c",
+                      // itemSelectedColor: "#c4996c",
+                      inkBarColor: "#5c6856",
+                      itemActiveColor: "#5c6856",
+                      itemHoverColor: "#5c6856",
+                      itemSelectedColor: "#5c6856",
+                    },
+                  },
+                }}
+              >
+                <Tabs
+                  defaultActiveKey="0"
+                  size="middle"
+                  style={{ marginLeft: 10, marginRight: 10, marginTop: 10 }}
+                  items={tabItems.map((item, i) => {
+                    return {
+                      label: item,
+                      key: i.toString(),
+                      children: <div />,
+                      disabled: true,
+                    };
+                  })}
+                  tabBarExtraContent={
+                    <Input
+                      disabled
+                      size="middle"
+                      placeholder="Tìm sản phẩm tại cửa hàng"
+                      suffix={<GoSearch color="#5c6856" />}
+                      className="rounded-full w-64 m-1 "
+                    />
+                  }
+                />
+              </ConfigProvider>
             </div>
 
             <div className="m-2">

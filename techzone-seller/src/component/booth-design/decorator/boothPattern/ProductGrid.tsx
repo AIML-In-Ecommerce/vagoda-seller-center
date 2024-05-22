@@ -2,7 +2,7 @@
 import ProductItem from "@/component/booth-design/decorator/mini/ProductItem";
 import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
-import { List, Typography } from "antd";
+import { Divider, List } from "antd";
 import CustomEmpty from "../mini/CustomEmpty";
 import { CollectionType } from "@/model/CollectionType";
 import { useEffect, useMemo, useState } from "react";
@@ -53,11 +53,32 @@ export default function ProductGrid(props: ProductGridProps) {
   };
 
   return (
-    <div className="bg-white my-5 py-5 px-10">
-      <Typography.Text className="text-xl font-semibold w-full">
+    <div className="bg-white my-5 py-5 px-10 rounded-xl">
+      {/* <Typography.Text className="text-xl font-semibold w-full">
         {element.title}
       </Typography.Text>
-      <div className="invisible h-5">hidden block</div>
+      <div className="invisible h-5">hidden block</div> */}
+
+      {element.title && (
+        <div className="w-full flex align-middle justify-center items-center">
+          <div className="w-1/2">
+            <Divider
+              style={{
+                border: "2px solid silver",
+                borderTop: 0,
+                borderBottom: 0,
+                borderLeft: 0,
+                borderRight: 0,
+                paddingBottom: 0,
+                marginBottom: 40,
+              }}
+            >
+              <div className="px-5 text-lg uppercase">{element.title}</div>
+            </Divider>
+          </div>
+        </div>
+      )}
+
       <List
         grid={{
           gutter: 5,

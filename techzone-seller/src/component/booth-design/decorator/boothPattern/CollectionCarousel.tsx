@@ -94,13 +94,13 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
   };
 
   return (
-    <div>
+    <div className="bg-white rounded-xl my-5">
       {collections.length === 0 ? (
-        <div className="bg-white p-10 my-5">
+        <div className="p-10">
           <CustomEmpty />
         </div>
       ) : (
-        <div className="w-full flex justify-center items-center bg-white py-10 my-5">
+        <div className="w-full flex justify-center items-center py-10">
           <div className="w-full px-10">
             {collections.length < 4 ? (
               <List
@@ -113,7 +113,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
                   xl: 3,
                   xxl: 3,
                 }}
-                dataSource={collections} // TODO: get data from element.collectionIdList
+                dataSource={collections}
                 locale={{
                   emptyText: <CustomEmpty />,
                 }}

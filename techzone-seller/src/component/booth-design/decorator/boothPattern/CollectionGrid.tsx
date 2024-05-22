@@ -73,7 +73,7 @@ export default function CollectionGrid(props: CollectionGridProps) {
   };
 
   return (
-    <div className="bg-white my-5 py-5 px-10 ">
+    <div className="bg-white my-5 py-5 px-10 rounded-xl">
       <List
         grid={{
           gutter: 5,
@@ -84,7 +84,7 @@ export default function CollectionGrid(props: CollectionGridProps) {
           xl: 3,
           xxl: 3,
         }}
-        dataSource={collections} // TODO: get data from element.collectionIdList
+        dataSource={collections}
         locale={{
           emptyText: <CustomEmpty />,
         }}
