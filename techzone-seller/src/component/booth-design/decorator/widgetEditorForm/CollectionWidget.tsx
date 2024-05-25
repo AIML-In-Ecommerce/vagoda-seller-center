@@ -10,7 +10,7 @@ import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
-import Search from "antd/es/transfer/search";
+import Search from "antd/es/input/Search";
 import CollectionCard from "../mini/CollectionCard";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
@@ -58,6 +58,10 @@ export default function CollectionWidget(props: WidgetProps) {
   }, [props.widget.element]);
 
   const [pattern, setPattern] = useState(element.pattern);
+  const [searchText, setSearchText] = useState("");
+  const handleSearch = (e: any) => {
+    setSearchText(e.target.value ? e.target.value : "");
+  };
 
   // functions
   const handleSave = async () => {
@@ -73,7 +77,11 @@ export default function CollectionWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyCollectionWidget(proxyCollectionWidget);
       props.updateWidgets();
-    } else console.log(response.message);
+      alert("Cập nhật widget thành công!");
+    } else {
+      alert("Cập nhật widget thất bại...");
+      // console.log(response.message);
+    }
   };
 
   const handleChangePattern = (value: string) => {
@@ -166,25 +174,66 @@ export default function CollectionWidget(props: WidgetProps) {
 
           {collections.length > 0 && (
             <Space direction="vertical">
-              {/* <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
-                <Search placeholder="Nhập để tìm bộ sưu tập"></Search>
-                <Button className="bg-blue-500 font-semibold text-white">
+              <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
+                <Search
+                  placeholder="Nhập để tìm bộ sưu tập"
+                  onChange={handleSearch}
+                  onSearch={(e) => setSearchText(e)}
+                />
+                {/* <Button className="bg-blue-500 font-semibold text-white">
                   Áp dụng
-                </Button>
-              </div> */}
+                </Button> */}
+              </div>
+              {(!searchText && (
+                <div className="font-light text-sm">
+                  Tổng số bộ sưu tập: {collections.length}
+                </div>
+              )) || (
+                <div className="font-light text-sm">
+                  Kết quả tìm kiếm:{" "}
+                  {searchText && (
+                    <span>
+                      {
+                        collections.filter((c) =>
+                          c.name
+                            .toLowerCase()
+                            .includes(searchText.toLowerCase())
+                        ).length
+                      }{" "}
+                    </span>
+                  )}
+                  bộ sưu tập
+                </div>
+              )}
+
               <Card className="overflow-auto h-96">
                 {collections.map((item, index) => {
                   return (
-                    <CollectionCard
-                      item={item}
-                      isSelected={checkInclude(item._id)}
-                      addCollection={(item: CollectionType) => {
-                        handleAddCollection(item, index);
-                      }}
-                      removeCollection={(item: CollectionType) => {
-                        handleRemoveCollection(item, index);
-                      }}
-                    />
+                    <div
+                      key={index}
+                      className={`${
+                        searchText === ""
+                          ? ""
+                          : searchText &&
+                            !item.name
+                              .toLowerCase()
+                              .includes(searchText.toLowerCase())
+                          ? "hidden"
+                          : ""
+                      }
+                      `}
+                    >
+                      <CollectionCard
+                        item={item}
+                        isSelected={checkInclude(item._id)}
+                        addCollection={(item: CollectionType) => {
+                          handleAddCollection(item, index);
+                        }}
+                        removeCollection={(item: CollectionType) => {
+                          handleRemoveCollection(item, index);
+                        }}
+                      />
+                    </div>
                   );
                 })}
               </Card>

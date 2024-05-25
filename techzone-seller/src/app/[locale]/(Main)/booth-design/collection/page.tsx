@@ -44,9 +44,29 @@ export default function CollectionPage() {
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
+  const [rawData, setRawData] = useState<CollectionColumn[]>([]);
   const [dataToDisplay, setDataToDisplay] = useState<CollectionColumn[]>([]);
+  const [searchText, setSearchText] = useState("");
 
   // functions
+
+  // search filter
+  const handleSearch = (e: any) => {
+    setSearchText(e.target.value);
+  };
+
+  useEffect(() => {
+    if (!searchText || searchText === "") {
+      setDataToDisplay(rawData);
+      return;
+    }
+    let newData = rawData.filter((d) =>
+      d.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setDataToDisplay(newData);
+  }, [searchText]);
+
+  // delete
   const handleDeleteCollection = () => {
     if (selectedOrderIds.length > 0) setOpenDeleteModal(true);
   };
@@ -63,9 +83,10 @@ export default function CollectionPage() {
     selectedOrderIds.forEach(async (selectedId) => {
       const response = await DELETE_DeleteCollection(selectedId);
       if (response.status === 200) {
-        //
+        alert("Xoá bộ sưu tập thành công!");
       } else {
-        console.log(response.message);
+        alert("Xoá bộ sưu tập thất bại...");
+        // console.log(response.message);
         return;
       }
     });
@@ -172,6 +193,7 @@ export default function CollectionPage() {
       [collections]
     );
 
+    setRawData(display);
     setDataToDisplay(display);
   }, [collections]);
 
@@ -237,27 +259,32 @@ export default function CollectionPage() {
             ]}
           />
 
-          <Flex gap="large">
-            <Button
-              className="bg-[#1677ff] text-white font-semibold mt-2"
-              href="./collection/new#part-1"
-            >
-              Tạo mới
-            </Button>
-
-            {collections && collections.length > 0 && (
+          <Flex gap="large" style={{ justifyContent: "space-between" }}>
+            <Flex gap="large">
               <Button
-                className="bg-red-500 text-white font-semibold mt-2"
-                onClick={handleDeleteCollection}
+                className="bg-[#1677ff] text-white font-semibold mt-2"
+                href="./collection/new#part-1"
               >
-                Xoá
+                Tạo mới
               </Button>
-            )}
-          </Flex>
-          <Flex gap="large" className="my-2">
+
+              {collections && collections.length > 0 && (
+                <Button
+                  className="bg-red-500 text-white font-semibold mt-2"
+                  onClick={handleDeleteCollection}
+                >
+                  Xoá
+                </Button>
+              )}
+            </Flex>
+
+            {/* <Flex gap="large" className="my-2"> */}
             <Search
               placeholder="Tìm kiếm bộ sưu tập"
               style={{ width: "400px" }}
+              className="my-2"
+              onPressEnter={handleSearch}
+              onSearch={(e) => setSearchText(e)}
             />
 
             {/* <Select

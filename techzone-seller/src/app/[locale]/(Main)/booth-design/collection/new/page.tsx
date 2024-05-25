@@ -17,23 +17,22 @@ import CustomSwitch from "@/component/booth-design/decorator/mini/CustomSwitch";
 import ProductSelect from "@/component/booth-design/collection/custom/ProductSelect";
 import { CollectionType } from "@/model/CollectionType";
 import { HiOutlineHome } from "react-icons/hi2";
-import BannerForm from "@/component/booth-design/decorator/uploadImage/BannerForm";
+import AvatarForm from "@/component/booth-design/decorator/uploadImage/AvatarForm";
 import { FaRegHandPointer } from "react-icons/fa";
 import { ProductType } from "@/model/ProductType";
 import { POST_CreateCollection } from "@/app/apis/collection/CollectionAPI";
 import { POST_GetProductListByShop } from "@/app/apis/product/ProductAPI";
+import { useRouter } from "next/navigation";
 
 export default function NewCollectionPage() {
   // mock data
   const mockId = "65f1e8bbc4e39014df775166";
 
   //var
+  const router = useRouter();
+
   const [name, setName] = useState("");
-  const [imageUrl, setImageUrl] = useState(
-    ""
-    // TODO: save image upload
-    // "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg"
-  );
+  const [imageUrl, setImageUrl] = useState("");
   const [productIdList, setProductIdList] = useState<string[]>([]);
   const [isSwitched, setIsSwitched] = useState(true);
   const [products, setProducts] = useState<ProductType[]>([]);
@@ -56,9 +55,23 @@ export default function NewCollectionPage() {
 
     if (response.status === 200) {
       //TODO: push router to collection OR toast success message
-      console.log(response.message);
-      console.log(response.data);
-    } else console.log(response.message);
+      alert("Tạo widget thành công!");
+
+      // console.log(response.message);
+      // console.log(response.data);
+
+      setTimeout(() => {
+        router.push(
+          process.env.NEXT_PUBLIC_FRONTEND_PREFIX
+            ? process.env.NEXT_PUBLIC_FRONTEND_PREFIX
+            : "/booth-design/collection"
+        );
+      }, 2000);
+    } else {
+      alert("Tạo widget thất bại...");
+
+      // console.log(response.message);
+    }
   };
 
   // call api
@@ -198,7 +211,7 @@ export default function NewCollectionPage() {
                   </Tooltip>
                 )}
 
-                <BannerForm setImageUrl={setImageUrl} />
+                <AvatarForm setImageUrl={setImageUrl} />
               </Flex>
             </div>
 

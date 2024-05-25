@@ -11,7 +11,8 @@ export default function CollectionItem(props: CollectionItemProps) {
     <div className="relative h-36 w-36 lg:h-56 lg:w-56 md:shrink-0 overflow-hidden">
       {/* Overlay */}
       <img
-        className="h-56 w-56 absolute inset-0 object-cover brightness-75"
+        className="h-56 w-56 absolute inset-0 object-cover"
+        // brightness-75
         src={props.collection.imageUrl}
         alt={props.collection.name}
       />
@@ -25,10 +26,10 @@ export default function CollectionItem(props: CollectionItemProps) {
         <div
           className="bg-gray-800 p-3 
                         border-2 border-white
-                        shadow-lg bg-opacity-75
+                        shadow-lg bg-opacity-50
                         flex flex-col items-center justify-center"
         >
-          <div className="text-sm font-bold mb-4 uppercase text-center lg:w-32">
+          <div className="text-sm font-bold mb-4 uppercase text-center lg:w-32 line-clamp-2">
             {props.collection.name}
           </div>
           <div className="flex flex-row cursor-pointer hover:underline underline-offset-4 uppercase font-light text-[5px]">

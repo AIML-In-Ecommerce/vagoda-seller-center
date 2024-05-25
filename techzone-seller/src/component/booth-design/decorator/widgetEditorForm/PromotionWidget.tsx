@@ -12,7 +12,7 @@ import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { DiscountType, PromotionType } from "@/model/PromotionType";
 import { formatDate } from "@/utils/DateFormatter";
 import CustomEmpty from "../mini/CustomEmpty";
-import Search from "antd/es/transfer/search";
+import Search from "antd/es/input/Search";
 import PromotionCard from "../mini/PromotionCard";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 import { GET_GetPromotionListByShop } from "@/app/apis/promotion/PromotionAPI";
@@ -96,6 +96,11 @@ export default function PromotionWidget(props: WidgetProps) {
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
+  const [searchText, setSearchText] = useState("");
+  const handleSearch = (e: any) => {
+    setSearchText(e.target.value ? e.target.value : "");
+  };
+
   // functions
   const handleSave = async () => {
     proxyPromotionWidget.visibility = isSwitched;
@@ -110,7 +115,11 @@ export default function PromotionWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyPromotionWidget(proxyPromotionWidget);
       props.updateWidgets();
-    } else console.log(response.message);
+      alert("Cập nhật widget thành công!");
+    } else {
+      alert("Cập nhật widget thất bại...");
+      // console.log(response.message);
+    }
   };
 
   const handleChangePattern = (value: string) => {
@@ -233,26 +242,67 @@ export default function PromotionWidget(props: WidgetProps) {
 
           {promotions && promotions.length > 0 && (
             <Space direction="vertical">
-              {/* <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
-                <Search placeholder="Nhập để tìm mã"></Search>
-                <Button className="bg-blue-500 font-semibold text-white">
+              <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
+                <Search
+                  placeholder="Nhập để tìm mã"
+                  onChange={handleSearch}
+                  onSearch={(e) => setSearchText(e)}
+                />
+                {/* <Button className="bg-blue-500 font-semibold text-white">
                   Áp dụng
-                </Button>
-              </div> */}
+                </Button> */}
+              </div>
+              {(!searchText && (
+                <div className="font-light text-sm">
+                  Tổng số mã: {promotions.length}
+                </div>
+              )) || (
+                <div className="font-light text-sm">
+                  Kết quả tìm kiếm:{" "}
+                  {searchText && (
+                    <span>
+                      {
+                        promotions.filter((p) =>
+                          p.name
+                            .toLowerCase()
+                            .includes(searchText.toLowerCase())
+                        ).length
+                      }{" "}
+                    </span>
+                  )}
+                  mã
+                </div>
+              )}
+
               <Card className="overflow-auto h-96">
                 {promotions &&
                   promotions.map((item, index) => {
                     return (
-                      <PromotionCard
-                        item={item}
-                        isSelected={checkInclude(item._id)}
-                        applyDiscount={(item: PromotionType) => {
-                          handleAddPromotion(item, index);
-                        }}
-                        removeDiscount={(item: PromotionType) => {
-                          handleRemovePromotion(item, index);
-                        }}
-                      />
+                      <div
+                        key={index}
+                        className={`${
+                          searchText === ""
+                            ? ""
+                            : searchText &&
+                              !item.name
+                                .toLowerCase()
+                                .includes(searchText.toLowerCase())
+                            ? "hidden"
+                            : ""
+                        }
+                      `}
+                      >
+                        <PromotionCard
+                          item={item}
+                          isSelected={checkInclude(item._id)}
+                          applyDiscount={(item: PromotionType) => {
+                            handleAddPromotion(item, index);
+                          }}
+                          removeDiscount={(item: PromotionType) => {
+                            handleRemovePromotion(item, index);
+                          }}
+                        />
+                      </div>
                     );
                   })}
               </Card>

@@ -54,7 +54,7 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
   // ] as CollectionType[];
 
   // var
-  const [collections, setCollections] = useState<CollectionType[]>([]);
+  const [collections, setCollections] = useState<CollectionType[]>();
   const autoPlayCarouselSpeed = 5000; //ms
   const element = props.widget.element as CollectionElement;
 
@@ -63,46 +63,26 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
     handleGetCollectionList(element.collectionIdList);
   }, [element, element.collectionIdList]);
 
-  useEffect(() => {
-    //fetch data here
-    const data = collections;
-
-    const tr_data: CollectionType[] = data.map((value) => {
-      const tr_item: CollectionType = {
-        _id: value._id,
-        name: value.name,
-        imageUrl: value.imageUrl,
-        productIdList: value.productIdList,
-        createDate: value.createDate,
-        isActive: value.isActive,
-        shop: value.shop,
-      };
-      return tr_item;
-    });
-
-    setCollections(tr_data);
-  }, [element.collectionIdList, collections]);
-
   const handleGetCollectionList = async (ids: string[]) => {
     const response = await POST_GetCollectionList(ids);
     if (response.status == 200) {
       if (response.data) {
-        setCollections(response.data);
-        console.log("collection", response.data);
+        setCollections(response.data.filter((c) => c.isActive === true));
+        // console.log("collection", response.data);
       }
     }
   };
 
   return (
     <div className="bg-white rounded-xl my-5">
-      {collections.length === 0 ? (
+      {collections && collections.length === 0 ? (
         <div className="p-10">
           <CustomEmpty />
         </div>
       ) : (
         <div className="w-full flex justify-center items-center py-10">
           <div className="w-full px-10">
-            {collections.length < 4 ? (
+            {collections && collections.length < 4 ? (
               <List
                 grid={{
                   gutter: 5,
@@ -153,7 +133,8 @@ export default function CollectionCarousel(props: CollectionCarouselProps) {
                   },
                 ]}
               >
-                {collections.length > 0 &&
+                {collections &&
+                  collections.length > 0 &&
                   collections.map((collection, index) => (
                     <div key={index} className="pl-5">
                       <CollectionItem collection={collection} />

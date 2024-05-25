@@ -152,7 +152,7 @@ export default function Navbar() {
       <header className="navbar border-bottom shadow-lg bg-white items-center space-x-8 w-full border-2 z-50">
         <header className="flex items-center h-30 space-x-4 justify-between ">
           <div className="flex items-center space-x-1">
-            <div className="mb-0 ml-4">
+            <div className="mb-0 mx-5">
               <Image src={logo} width={50} height={30} alt="Logo" />
             </div>
             <p className="uppercase font-bold text-md">seller center</p>

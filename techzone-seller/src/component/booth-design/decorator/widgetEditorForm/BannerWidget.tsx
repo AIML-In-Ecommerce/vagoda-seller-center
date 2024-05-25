@@ -60,7 +60,11 @@ export default function BannerWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyBannerWidget(proxyBannerWidget);
       props.updateWidgets();
-    } else console.log(response.message);
+      alert("Cập nhật widget thành công!");
+    } else {
+      alert("Cập nhật widget thất bại...");
+      // console.log(response.message);
+    }
   };
 
   const handleChangePattern = (value: string) => {

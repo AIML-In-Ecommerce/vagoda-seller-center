@@ -20,20 +20,20 @@ type MenuItem = {
   icon?: React.ReactNode;
   label: React.ReactNode;
   url: string | null;
-  children?: MenuItem[];
+  items?: MenuItem[];
 };
 
 function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  children?: MenuItem[],
+  items?: MenuItem[],
   url?: string
 ): MenuItem {
   return {
     key,
     icon,
-    children,
+    items,
     label,
     url,
   } as MenuItem;
@@ -69,7 +69,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "2",
       icon: <RiTodoLine />,
       label: "Đơn hàng",
-      children: [
+      items: [
         { label: "Danh sách đơn hàng", url: "/order" },
         { label: "Đổi trả bảo hành", url: "/order/return-order" },
         { label: "Quản lý hóa đơn", url: "/order/invoice" },
@@ -80,7 +80,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "3",
       icon: <LiaBoxSolid />,
       label: "Sản phẩm",
-      children: [
+      items: [
         { label: "Danh sách sản phẩm", url: "/product/list" },
         { label: "Tạo sản phẩm", url: "/product/create" },
         { label: "Quản lý đánh giá", url: "/product/review" },
@@ -98,7 +98,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "5",
       icon: <AiOutlineLineChart />,
       label: "Trung tâm phát triển",
-      children: [
+      items: [
         { label: "Hiệu quả kinh doanh", url: "/report/business-performance" },
         { label: "Chỉ số sản phẩm", url: "/report/product-sale-traffic" },
         { label: "Chỉ số khuyến mãi", url: "/report/coupon-insight" },
@@ -110,7 +110,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "6",
       icon: <TbSpeakerphone />,
       label: "Trung tâm marketing",
-      children: [
+      items: [
         {
           label: "Công cụ khuyến mãi",
           url: "/marketing-center/promotion-tool",
@@ -128,7 +128,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "8",
       icon: <BsHouseHeart />,
       label: "Thiết kế gian hàng",
-      children: [
+      items: [
         { label: "Trang trí gian hàng", url: "/booth-design/decorator" },
         { label: "Bộ sưu tập", url: "/booth-design/collection" },
       ],
@@ -221,16 +221,16 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     } else if (pathname.includes("/seller")) {
       setOption(["9"]);
     } else setOption(["1"]);
-  });
+  }, []);
 
   const filteredMenuItems = (
-    <div className="ant-layout-sider-children bg-white">
+    <div className="ant-layout-sider-items bg-white">
       <Menu
         theme="light"
         mode="inline"
         defaultSelectedKeys={option}
-        style={{ height: "75vh", overflowY: "auto", width: "100%" }}
-        className="text-xs overflow-auto custom-scrollbar"
+        style={{ height: "auto", overflowY: "auto", width: "100%" }}
+        className="text-xs overflow-auto custom-scrollbar h-screen"
       >
         {/* Filter menu items based on search text */}
         {menuItems
@@ -241,15 +241,15 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
             <React.Fragment key={item.key}>
               {/* Hiển thị mục menu chính */}
 
-              {/* Nếu mục menu có children, hiển thị chúng */}
-              {item.children && item.children.length > 0 ? (
+              {/* Nếu mục menu có items, hiển thị chúng */}
+              {item.items && item.items.length > 0 ? (
                 <Menu.SubMenu
                   key={`${item.key}-submenu`}
                   title={item.label}
                   icon={item.icon}
                   className="bg-white"
                 >
-                  {item.children.map((child, index) => (
+                  {item.items.map((child, index) => (
                     <Menu.Item
                       key={`${item.key}-${index}`}
                       onClick={() => handleMenuItemClick(child.url)}
@@ -275,7 +275,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
 
   return (
     <div className="relative z-50">
-      <div className="fixed h-full items-center justify-center bg-white shadow-lg">
+      <div className="fixed h-full items-center justify-center bg-white">
         <Layout>
           <Header style={{ padding: 0, background: colorBgContainer }}>
             <Button

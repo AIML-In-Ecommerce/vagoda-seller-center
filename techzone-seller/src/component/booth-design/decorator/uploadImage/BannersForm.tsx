@@ -38,6 +38,8 @@ export default function BannersForm(formProps: FormProps) {
         setLoading(false);
         setImageUrl(url);
         formProps.setImageUrl(url);
+
+        setIsModalOpen(true);
       });
     }
   };
@@ -59,7 +61,6 @@ export default function BannersForm(formProps: FormProps) {
               listType="picture"
               className="background-uploader"
               showUploadList={false}
-              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
               beforeUpload={beforeUpload}
               onChange={handleChange}
             >
@@ -72,12 +73,11 @@ export default function BannersForm(formProps: FormProps) {
           listType="picture"
           className="background-uploader"
           showUploadList={false}
-          action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
           beforeUpload={beforeUpload}
           onChange={handleChange}
         >
           {imageUrl ? (
-            <div className="m-10 max-w-[200px] max-h-[50px]">
+            <div className="m-10 max-w-[200px] max-h-[150px] overflow-hidden">
               {/* TODO: show image file name? or full image? how to display it? */}
               <img
                 src={imageUrl}

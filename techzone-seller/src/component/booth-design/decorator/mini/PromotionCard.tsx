@@ -41,9 +41,9 @@ export default function PromotionCard(props: PromotionCardProps) {
       }}
     >
       <div className="relative grid h-36 ">
-        <div className="absolute top-4 z-10 w-7 flex flex-col justify-center items-center">
+        <div className="absolute top-8 z-10 w-10 flex flex-col justify-center items-center">
           <img alt="logo" src={LOGO.src}></img>
-          <div className="font-semibold">TechZone</div>
+          {/* <div className="font-semibold">TechZone</div> */}
         </div>
 
         <div className="absolute left-20 z-10 text-lg font-semibold">

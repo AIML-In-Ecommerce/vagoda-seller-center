@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { Avatar, Button, Flex, message, Modal, Upload } from "antd";
+import { Avatar, Button, Flex, message, Upload } from "antd";
 import type { GetProp, UploadProps } from "antd";
 import FixedRatioCropper from "./FixedRatioCropper";
 import { RiImageEditLine } from "react-icons/ri";
@@ -58,6 +58,8 @@ export default function AvatarForm(formProps: FormProps) {
         setLoading(false);
         setImageUrl(url);
         formProps.setImageUrl(url);
+
+        setIsModalOpen(true);
       });
     }
   };
@@ -79,7 +81,6 @@ export default function AvatarForm(formProps: FormProps) {
               listType="picture-circle"
               className="avatar-uploader"
               showUploadList={false}
-              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
               beforeUpload={beforeUpload}
               onChange={handleChange}
             >
@@ -111,7 +112,6 @@ export default function AvatarForm(formProps: FormProps) {
               listType="picture-circle"
               className="avatar-uploader"
               showUploadList={false}
-              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
               beforeUpload={beforeUpload}
               onChange={handleChange}
             >

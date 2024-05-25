@@ -8,12 +8,16 @@ export interface CategoryItemProps {
 
 export default function CategoryItem(props: CategoryItemProps) {
   return (
-    <div
-      className="flex gap-5 rounded-full bg-gradient-to-r from-slate-300 to-stone-500
-    text-white font-bold items-center hover:border-2 hover:border-slate-200"
-    >
-      <Avatar src={props.category.image} />
-      <div className="text-center text-lg line-clamp-2 pr-4">
+    <div className="flex flex-col gap-3 items-center pb-3 cursor-pointer">
+      <Avatar
+        size={150}
+        src={props.category.image}
+        className="hover:border-2 hover:border-slate-400 "
+      />
+      <div
+        className="flex text-center text-lg line-clamp-2 
+        text-slate-800 overline overline-offset-2 decoration-double decoration-slate-400"
+      >
         {props.category.name}
       </div>
     </div>
