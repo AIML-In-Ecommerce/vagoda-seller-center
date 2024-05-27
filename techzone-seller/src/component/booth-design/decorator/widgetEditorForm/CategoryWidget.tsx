@@ -13,10 +13,12 @@ import { CategoryType } from "@/model/CategoryType";
 import CustomEmpty from "../mini/CustomEmpty";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 import { GET_GetAllCategories } from "@/app/apis/category/CategoryAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function CategoryWidget(props: WidgetProps) {
@@ -93,6 +95,18 @@ export default function CategoryWidget(props: WidgetProps) {
     }
     setProxyCategory(proxyCategory);
   }, [element]);
+
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      title === element.title &&
+      proxyCategory.filter((c) => c !== " ").length ==
+        element.categoryIdList.length &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [title, proxyCategory, isSwitched]);
 
   // functions
   const handleSave = async () => {

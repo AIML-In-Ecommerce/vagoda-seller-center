@@ -46,7 +46,7 @@ export default function PromotionCard(props: PromotionCardProps) {
           {/* <div className="font-semibold">TechZone</div> */}
         </div>
 
-        <div className="absolute left-20 z-10 text-lg font-semibold">
+        <div className="absolute left-20 z-10 text-lg font-semibold ">
           {props.item.name}
         </div>
         <div className="absolute left-20 top-7 z-10 text-xs">
@@ -57,12 +57,16 @@ export default function PromotionCard(props: PromotionCardProps) {
         </div>
         <div className="absolute right-0 bottom-12 z-10 text-xs">
           {!isSelected ? (
-            <Button
-              className="bg-sky-500 text-[9px] text-white font-semibold text-center"
-              onClick={() => setIsSelected(true)}
-            >
-              Áp dụng
-            </Button>
+            <span>
+              {props.item && ( // TODO: revise
+                <Button
+                  className="bg-sky-500 text-[9px] text-white font-semibold text-center"
+                  onClick={() => setIsSelected(true)}
+                >
+                  Áp dụng
+                </Button>
+              )}
+            </span>
           ) : (
             <Button
               className="bg-gray-500 text-white font-semibold text-center"

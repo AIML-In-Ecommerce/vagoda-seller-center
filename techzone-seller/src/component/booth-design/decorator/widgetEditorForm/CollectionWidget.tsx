@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Card, Flex, Select, Space } from "antd";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { CollectionType } from "@/model/CollectionType";
@@ -14,10 +14,12 @@ import Search from "antd/es/input/Search";
 import CollectionCard from "../mini/CollectionCard";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function CollectionWidget(props: WidgetProps) {
@@ -28,7 +30,7 @@ export default function CollectionWidget(props: WidgetProps) {
   const [proxyCollectionId, setProxyCollectionId] = useState<Array<string>>([]);
 
   // variables
-  const [collections, setCollections] = useState<CollectionType[]>([]);
+  const [collections, setCollections] = useState<CollectionType[]>();
 
   const [proxyCollectionWidget, setProxyCollectionWidget] = useState(
     props.widget
@@ -62,6 +64,17 @@ export default function CollectionWidget(props: WidgetProps) {
   const handleSearch = (e: any) => {
     setSearchText(e.target.value ? e.target.value : "");
   };
+
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      pattern === element.pattern &&
+      proxyCollectionId.length === element.collectionIdList.length &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [pattern, proxyCollectionId, isSwitched]);
 
   // functions
   const handleSave = async () => {
@@ -172,7 +185,7 @@ export default function CollectionWidget(props: WidgetProps) {
 
           <div className="font-light text-sm">Chọn bộ bưu tập để hiển thị</div>
 
-          {collections.length > 0 && (
+          {collections && collections.length > 0 && (
             <Space direction="vertical">
               <div className="flex gap-5 mt-5 border rounded bg-slate-100 p-5">
                 <Search
@@ -250,7 +263,7 @@ export default function CollectionWidget(props: WidgetProps) {
               </div>
             </Space>
           )}
-          {collections.length == 0 && <CustomEmpty />}
+          {(!collections || collections.length == 0) && <CustomEmpty />}
         </Flex>
 
         {/* Buttons */}

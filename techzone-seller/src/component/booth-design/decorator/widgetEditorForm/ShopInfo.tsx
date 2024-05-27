@@ -12,10 +12,11 @@ import {
   Tooltip,
 } from "antd";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BannerModal from "@/component/booth-design/decorator/BannerModal";
 import { FaRegHandPointer } from "react-icons/fa6";
 import { ShopInfoDesignType } from "@/model/ShopType";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 type TabPosition = "upload" | "color" | "default";
 type Colors =
@@ -33,6 +34,7 @@ type Colors =
 interface ShopInfoWidgetProps {
   shopInfo: ShopInfoDesignType;
   setShopInfo(shopInfo: ShopInfoDesignType): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function ShopInfo(props: ShopInfoWidgetProps) {
@@ -69,11 +71,23 @@ export default function ShopInfo(props: ShopInfoWidgetProps) {
     } as ShopInfoDesignType;
 
     props.setShopInfo(newInfo);
+    props.setSaveStatus(SaveStatusEnum.NOCHANGE);
   };
 
   const handlePreview = () => {
     setOpenPreview(true);
   };
+
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      color === props.shopInfo.color &&
+      avatarUrl === props.shopInfo.avatarUrl &&
+      name === props.shopInfo.name
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [color, avatarUrl, bannerUrl, name]);
 
   return (
     <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">

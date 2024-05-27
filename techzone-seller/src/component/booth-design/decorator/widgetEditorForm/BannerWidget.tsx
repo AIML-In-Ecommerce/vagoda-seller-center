@@ -13,16 +13,18 @@ import {
   Select,
   Tooltip,
 } from "antd";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import BannersForm from "../uploadImage/BannersForm";
 import { FaRegHandPointer } from "react-icons/fa6";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function BannerWidget(props: WidgetProps) {
@@ -47,6 +49,16 @@ export default function BannerWidget(props: WidgetProps) {
 
     return temp;
   }, [props.widget.element]);
+
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      proxyBanner.filter((id) => id !== " ").length == element.images.length &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [proxyBanner, isSwitched]);
 
   // functions
   const handleSave = async () => {

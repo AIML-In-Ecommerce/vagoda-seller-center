@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Card, Flex, Input, Select, Space, Tooltip } from "antd";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
@@ -16,10 +16,12 @@ import Search from "antd/es/input/Search";
 import PromotionCard from "../mini/PromotionCard";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 import { GET_GetPromotionListByShop } from "@/app/apis/promotion/PromotionAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function PromotionWidget(props: WidgetProps) {
@@ -177,6 +179,17 @@ export default function PromotionWidget(props: WidgetProps) {
 
   const [title, setTitle] = useState(element.title);
 
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      title === element.title &&
+      proxyPromotionId.length === element.promotionIdList.length &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [title, proxyPromotionId, isSwitched]);
+
   return (
     <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
       <div className="m-5 text-2xl font-semibold flex justify-between">
@@ -319,7 +332,7 @@ export default function PromotionWidget(props: WidgetProps) {
               </div>
             </Space>
           )}
-          {promotions && promotions.length == 0 && <CustomEmpty />}
+          {(!promotions || promotions.length == 0) && <CustomEmpty />}
         </Flex>
 
         {/* Buttons */}

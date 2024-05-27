@@ -15,7 +15,7 @@ import CollectionWidget from "./widgetEditorForm/CollectionWidget";
 import { Link } from "react-scroll";
 import { ShopInfoDesignType } from "@/model/ShopType";
 
-enum SaveStatusEnum {
+export enum SaveStatusEnum {
   NOCHANGE,
   UNSAVED,
 }
@@ -49,6 +49,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   const returnToAll = () => {
     setCurrentForm("");
     setSelectedWidget(undefined);
+    setSaveStatus(SaveStatusEnum.NOCHANGE);
   };
 
   //update widgets visually
@@ -97,27 +98,34 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           >
             Quay về
           </Button>
-          {/* wip */}
-          {/* {(saveStatus === SaveStatusEnum.NOCHANGE && (
-            <div className="mt-5 mr-10 text-blue-400 font-semibold">
-              Có thay đổi
-            </div>
-          )) || (
+          {(saveStatus === SaveStatusEnum.NOCHANGE && (
             <div className="mt-5 mr-10 text-slate-400 font-semibold">
               Đã cập nhật
             </div>
-          )} */}
+          )) || (
+            <div className="mt-5 mr-10 text-blue-400 font-semibold">
+              Có thay đổi
+            </div>
+          )}
         </div>
       )}
 
       {/* forms when widget bar is clicked */}
       {currentForm === "general_info" && (
-        <ShopInfo shopInfo={props.shopInfo} setShopInfo={props.setShopInfo} />
+        <ShopInfo
+          shopInfo={props.shopInfo}
+          setShopInfo={props.setShopInfo}
+          setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+        />
       )}
 
       {currentForm === WidgetCategoryType.BANNER.toString() &&
         selectedWidget && (
-          <BannerWidget widget={selectedWidget} updateWidgets={updateWidgets} />
+          <BannerWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+          />
         )}
 
       {currentForm === WidgetCategoryType.PRODUCT.toString() &&
@@ -125,6 +133,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <ProductWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 
@@ -133,6 +142,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <CategoryWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 
@@ -141,6 +151,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <PromotionWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 
@@ -149,6 +160,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <CollectionWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 

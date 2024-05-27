@@ -39,7 +39,9 @@ export default function CollectionCard(props: CollectionCardProps) {
         </div>
 
         <div className="col-span-2 col-start-2 row-start-1">
-          <div className="text-lg font-semibold">{props.item.name}</div>
+          <div className="text-lg font-semibold line-clamp-1 truncate">
+            {props.item.name}
+          </div>
         </div>
 
         <div className="col-span-2 col-start-2 row-start-2">
@@ -50,12 +52,16 @@ export default function CollectionCard(props: CollectionCardProps) {
 
         <div className="col-start-3 row-start-3 z-10 text-xs">
           {!isSelected ? (
-            <Button
-              className="bg-sky-500 text-[9px] text-white font-semibold text-center"
-              onClick={() => setIsSelected(true)}
-            >
-              Áp dụng
-            </Button>
+            <span>
+              {props.item.isActive && (
+                <Button
+                  className="bg-sky-500 text-[9px] text-white font-semibold text-center"
+                  onClick={() => setIsSelected(true)}
+                >
+                  Áp dụng
+                </Button>
+              )}
+            </span>
           ) : (
             <Button
               className="bg-gray-500 text-white font-semibold text-center"

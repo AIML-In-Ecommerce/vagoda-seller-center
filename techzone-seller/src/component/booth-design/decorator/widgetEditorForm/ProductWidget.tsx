@@ -13,10 +13,12 @@ import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
 import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
 import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function ProductWidget(props: WidgetProps) {
@@ -37,6 +39,18 @@ export default function ProductWidget(props: WidgetProps) {
   const [title, setTitle] = useState(element.title);
   const [collectionId, setCollectionId] = useState(element.collectionId);
   const [pattern, setPattern] = useState(element.pattern);
+
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      title === element.title &&
+      pattern === element.pattern &&
+      collectionId === element.collectionId &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [pattern, title, collectionId, isSwitched]);
 
   // functions
   const handleSave = async () => {

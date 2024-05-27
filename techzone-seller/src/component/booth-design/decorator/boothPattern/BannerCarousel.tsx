@@ -11,14 +11,6 @@ interface BannerCarouselProps {
 export default function BannerCarousel(props: BannerCarouselProps) {
   const [largeBackgroundUrl, setLargeBackgroundUrl] = useState<string>("");
   const [carouselImages, setCarouselImages] = useState<string[]>([]);
-  const [smallEvents, setSmallEvents] = useState<string[]>([]);
-  const [currentIndexOfSmallEvent, setCurrentIndexOfSmallEvent] =
-    useState<number>(-1);
-  const [SmallEventsDisplay, setSmallEventsDisplay] = useState<any | undefined>(
-    undefined
-  );
-  const numberSmallEventsDisplayed = 5;
-
   const [images, setImages] = useState<string[]>([]);
 
   const element = useMemo(() => {
@@ -33,21 +25,12 @@ export default function BannerCarousel(props: BannerCarouselProps) {
     if (images.length > 0) {
       setCarouselImages(images);
       setLargeBackgroundUrl(images[0]);
-      setSmallEvents(images);
-      setCurrentIndexOfSmallEvent(0);
-      handleSmallEventsChange();
     }
   }, [images, props.widget.element]);
 
-  // const SmallEventCardStyle: React.CSSProperties =
-  // {
-  //     width: "60%",
-  //     height:"169px"
-  // }
-
   const CarouselDisplay: any = carouselImages.map((value, index) => {
     return (
-      <div key={index} className="flex max-w-1/2 max-h-96 items-center">
+      <div key={index} className="flex max-w-1/2 h-52 items-center">
         <Image
           className="w-full h-full"
           src={value}
@@ -56,67 +39,6 @@ export default function BannerCarousel(props: BannerCarouselProps) {
       </div>
     );
   });
-
-  function handleSmallEventsChange() {
-    if (smallEvents.length < 1) {
-      setSmallEventsDisplay(<Skeleton active />);
-      return;
-    } else if (smallEvents.length < numberSmallEventsDisplayed) {
-      const result = smallEvents.map((value, index) => {
-        return (
-          <div
-            key={index}
-            // style={SmallEventCardStyle}
-            className="shadow-sm rounded-md shadow-black hover:shadow-lg hover:shadow-black lg:w-56 lg:h-36"
-          >
-            <Image
-              preview={false}
-              className="rounded-md"
-              height={"100%"}
-              width={"100%"}
-              src={value}
-            />
-          </div>
-        );
-      });
-      setSmallEventsDisplay(result);
-    } else {
-      const endIndex =
-        (currentIndexOfSmallEvent + numberSmallEventsDisplayed) %
-        smallEvents.length;
-      let slicedArray: string[] = [];
-      if (endIndex < currentIndexOfSmallEvent) {
-        slicedArray = slicedArray.concat(
-          smallEvents.slice(currentIndexOfSmallEvent)
-        );
-        slicedArray = slicedArray.concat(smallEvents.slice(0, endIndex));
-      } else {
-        slicedArray = slicedArray.concat(
-          smallEvents.slice(currentIndexOfSmallEvent, endIndex)
-        );
-      }
-
-      const result = slicedArray.map((value, index) => {
-        return (
-          <div
-            key={index}
-            // style={SmallEventCardStyle}
-            className="shadow-sm rounded-md shadow-black hover:shadow-lg hover:shadow-black lg:w-56 lg:h-36"
-          >
-            <Image
-              preview={false}
-              className="rounded-md"
-              height={"100%"}
-              width={"100%"}
-              src={value}
-            />
-          </div>
-        );
-      });
-
-      setSmallEventsDisplay(result);
-    }
-  }
 
   const LargeBackground: React.CSSProperties = {
     background: `url(${largeBackgroundUrl})`,
@@ -131,12 +53,6 @@ export default function BannerCarousel(props: BannerCarouselProps) {
   function afterCarouselChange(currentSlide: number) {
     const slide = carouselImages[currentSlide];
     setLargeBackgroundUrl(slide);
-    setCurrentIndexOfSmallEvent(
-      (currentIndexOfSmallEvent + numberSmallEventsDisplayed) %
-        smallEvents.length
-    );
-
-    handleSmallEventsChange();
   }
 
   return (
