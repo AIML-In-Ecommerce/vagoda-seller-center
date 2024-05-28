@@ -22,7 +22,7 @@ import { HiOutlineHome } from "react-icons/hi2";
 import {
   DELETE_DeleteCollection,
   GET_GetCollectionListByShop,
-} from "@/app/apis/collection/CollectionAPI";
+} from "@/apis/collection/CollectionAPI";
 
 interface CollectionColumn {
   key: string;

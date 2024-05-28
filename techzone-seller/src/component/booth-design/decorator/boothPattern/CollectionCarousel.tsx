@@ -6,7 +6,7 @@ import { CollectionType } from "@/model/CollectionType";
 import { CollectionElement, WidgetType } from "@/model/WidgetType";
 import CollectionItem from "../mini/CollectionItem";
 import CustomEmpty from "../mini/CustomEmpty";
-import { POST_GetCollectionList } from "@/app/apis/collection/CollectionAPI";
+import { POST_GetCollectionList } from "@/apis/collection/CollectionAPI";
 
 interface CollectionCarouselProps {
   widget: WidgetType;

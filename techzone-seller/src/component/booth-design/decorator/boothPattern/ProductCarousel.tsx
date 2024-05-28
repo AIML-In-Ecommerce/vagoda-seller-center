@@ -8,8 +8,8 @@ import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
 import ProductItem from "@/component/booth-design/decorator/mini/ProductItem";
 import CustomEmpty from "../mini/CustomEmpty";
-import { GET_GetCollection } from "@/app/apis/collection/CollectionAPI";
-import { POST_GetProductList } from "@/app/apis/product/ProductAPI";
+import { GET_GetCollection } from "@/apis/collection/CollectionAPI";
+import { POST_GetProductList } from "@/apis/product/ProductAPI";
 import { CollectionType } from "@/model/CollectionType";
 
 interface ProductCarouselProps {

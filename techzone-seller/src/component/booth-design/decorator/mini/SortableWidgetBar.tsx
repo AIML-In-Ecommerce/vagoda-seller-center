@@ -13,7 +13,7 @@ import { Card } from "antd";
 import CustomSwitch from "./CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "./WidgetTypeIcon";
 import { Link } from "react-scroll";
-import { PUT_UpdateWidgetOrder } from "@/app/apis/widget/WidgetAPI";
+import { PUT_UpdateWidgetOrder } from "@/apis/widget/WidgetAPI";
 
 interface SortableListProps {
   items: WidgetType[];

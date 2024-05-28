@@ -14,8 +14,8 @@ import { formatDate } from "@/utils/DateFormatter";
 import CustomEmpty from "../mini/CustomEmpty";
 import Search from "antd/es/input/Search";
 import PromotionCard from "../mini/PromotionCard";
-import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
-import { GET_GetPromotionListByShop } from "@/app/apis/promotion/PromotionAPI";
+import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
+import { GET_GetPromotionListByShop } from "@/apis/promotion/PromotionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
@@ -90,7 +90,7 @@ export default function PromotionWidget(props: WidgetProps) {
   const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
 
   // variables
-  const [promotions, setPromotions] = useState<PromotionType[]>();
+  const [promotions, setPromotions] = useState<PromotionType[]>(promotionsData);
 
   const [proxyPromotionWidget, setProxyPromotionWidget] = useState(
     props.widget

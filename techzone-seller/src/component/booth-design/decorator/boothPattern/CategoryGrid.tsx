@@ -3,7 +3,7 @@ import { CategoryElement, WidgetType } from "@/model/WidgetType";
 import { Divider, List } from "antd";
 import CustomEmpty from "../mini/CustomEmpty";
 import { CategoryType } from "@/model/CategoryType";
-import { POST_GetCategoryList } from "@/app/apis/category/CategoryAPI";
+import { POST_GetCategoryList } from "@/apis/category/CategoryAPI";
 import { useState, useEffect } from "react";
 import CategoryItem from "../mini/CategoryItem";
 

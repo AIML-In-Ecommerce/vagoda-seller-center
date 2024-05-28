@@ -11,8 +11,8 @@ import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
-import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
-import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
+import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
+import { GET_GetCollectionListByShop } from "@/apis/collection/CollectionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {

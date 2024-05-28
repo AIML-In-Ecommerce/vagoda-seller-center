@@ -5,7 +5,7 @@ import { List } from "antd";
 import CollectionItem from "../mini/CollectionItem";
 import CustomEmpty from "../mini/CustomEmpty";
 import { useEffect, useState } from "react";
-import { POST_GetCollectionList } from "@/app/apis/collection/CollectionAPI";
+import { POST_GetCollectionList } from "@/apis/collection/CollectionAPI";
 
 interface CollectionGridProps {
   widget: WidgetType;

@@ -34,13 +34,13 @@ import {
   GET_GetShop,
   PUT_UpdateShopDesign,
   PUT_UpdateShopInfoDesign,
-} from "@/app/apis/shop/ShopAPI";
+} from "@/apis/shop/ShopAPI";
 import {
   DELETE_DeleteWidget,
   POST_CreateWidget,
   POST_GetWidgetList,
   PUT_UpdateWidgetVisibility,
-} from "@/app/apis/widget/WidgetAPI";
+} from "@/apis/widget/WidgetAPI";
 import { GoSearch } from "react-icons/go";
 
 export default function BoothDecoratorPage() {

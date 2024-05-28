@@ -20,8 +20,8 @@ import { HiOutlineHome } from "react-icons/hi2";
 import AvatarForm from "@/component/booth-design/decorator/uploadImage/AvatarForm";
 import { FaRegHandPointer } from "react-icons/fa";
 import { ProductType } from "@/model/ProductType";
-import { POST_CreateCollection } from "@/app/apis/collection/CollectionAPI";
-import { POST_GetProductListByShop } from "@/app/apis/product/ProductAPI";
+import { POST_CreateCollection } from "@/apis/collection/CollectionAPI";
+import { POST_GetProductListByShop } from "@/apis/product/ProductAPI";
 import { useRouter } from "next/navigation";
 
 export default function NewCollectionPage() {
@@ -55,7 +55,7 @@ export default function NewCollectionPage() {
 
     if (response.status === 200) {
       //TODO: push router to collection OR toast success message
-      alert("Tạo widget thành công!");
+      alert("Tạo bộ sưu tập thành công!");
 
       // console.log(response.message);
       // console.log(response.data);
@@ -68,7 +68,7 @@ export default function NewCollectionPage() {
         );
       }, 2000);
     } else {
-      alert("Tạo widget thất bại...");
+      alert("Tạo bộ sưu tập thất bại...");
 
       // console.log(response.message);
     }

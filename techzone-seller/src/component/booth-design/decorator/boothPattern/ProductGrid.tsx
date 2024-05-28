@@ -6,8 +6,8 @@ import { Divider, List } from "antd";
 import CustomEmpty from "../mini/CustomEmpty";
 import { CollectionType } from "@/model/CollectionType";
 import { useEffect, useMemo, useState } from "react";
-import { GET_GetCollection } from "@/app/apis/collection/CollectionAPI";
-import { POST_GetProductList } from "@/app/apis/product/ProductAPI";
+import { GET_GetCollection } from "@/apis/collection/CollectionAPI";
+import { POST_GetProductList } from "@/apis/product/ProductAPI";
 
 interface ProductGridProps {
   widget: WidgetType;

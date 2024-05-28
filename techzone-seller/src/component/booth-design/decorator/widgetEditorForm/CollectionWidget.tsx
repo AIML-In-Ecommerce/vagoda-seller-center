@@ -12,8 +12,8 @@ import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
 import Search from "antd/es/input/Search";
 import CollectionCard from "../mini/CollectionCard";
-import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
-import { GET_GetCollectionListByShop } from "@/app/apis/collection/CollectionAPI";
+import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
+import { GET_GetCollectionListByShop } from "@/apis/collection/CollectionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {

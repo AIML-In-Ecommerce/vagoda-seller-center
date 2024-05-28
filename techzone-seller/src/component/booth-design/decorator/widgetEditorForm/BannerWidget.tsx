@@ -18,7 +18,7 @@ import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import BannersForm from "../uploadImage/BannersForm";
 import { FaRegHandPointer } from "react-icons/fa6";
-import { PUT_UpdateWidget } from "@/app/apis/widget/WidgetAPI";
+import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {

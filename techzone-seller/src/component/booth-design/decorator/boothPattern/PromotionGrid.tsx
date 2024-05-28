@@ -6,7 +6,7 @@ import { PromotionElement, WidgetType } from "@/model/WidgetType";
 import { formatDate } from "@/utils/DateFormatter";
 import CustomEmpty from "../mini/CustomEmpty";
 import { useEffect, useState } from "react";
-import { POST_GetPromotionList } from "@/app/apis/promotion/PromotionAPI";
+import { POST_GetPromotionList } from "@/apis/promotion/PromotionAPI";
 
 interface PromotionGridProps {
   widget: WidgetType;

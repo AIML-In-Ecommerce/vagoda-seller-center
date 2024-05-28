@@ -21,11 +21,11 @@ import { HiOutlineHome } from "react-icons/hi2";
 import AvatarForm from "@/component/booth-design/decorator/uploadImage/AvatarForm";
 import { FaRegHandPointer } from "react-icons/fa";
 import { ProductType } from "@/model/ProductType";
-import { POST_GetProductListByShop } from "@/app/apis/product/ProductAPI";
+import { POST_GetProductListByShop } from "@/apis/product/ProductAPI";
 import {
   GET_GetCollection,
   PUT_UpdateCollection,
-} from "@/app/apis/collection/CollectionAPI";
+} from "@/apis/collection/CollectionAPI";
 
 export default function CollectionDetailPage() {
   // mock data
@@ -108,12 +108,12 @@ export default function CollectionDetailPage() {
 
     if (response.status === 200) {
       //TODO: push router to collection OR toast success message
-      alert("Cập nhật widget thành công!");
+      alert("Cập nhật bộ sưu tập thành công!");
 
       // console.log(response.message);
       // console.log(response.data);
     } else {
-      alert("Cập nhật widget thất bại!");
+      alert("Cập nhật bộ sưu tập thất bại!");
 
       // console.log(response.message);
     }
