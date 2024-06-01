@@ -1,3 +1,4 @@
+import '../../globals.css'
 import Navbar from "@/component/Navbar";
 import SidebarContentReactiveLayout from "@/component/SidebarContentReactiveLayout";
 import { NextIntlClientProvider, useMessages } from "next-intl";

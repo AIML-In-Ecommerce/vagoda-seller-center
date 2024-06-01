@@ -23,9 +23,9 @@ export default function RootLayout({children}: RootLayoutProps) {
     <html lang={"en"}>
       <body className="w-full">
         <AuthContextProvider>
-          <SocketProvider>
+          {/* <SocketProvider> */}
             {children}
-          </SocketProvider>
+          {/* </SocketProvider> */}
         </AuthContextProvider>
       </body>
     </html>

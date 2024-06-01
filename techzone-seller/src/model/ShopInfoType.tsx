@@ -5,5 +5,7 @@ export type ShopInfoType =
     name: string,
     location: string,
     description: string,
-    account: string
+    account: string,
+    createAt: Date,
+    __v: number
 }

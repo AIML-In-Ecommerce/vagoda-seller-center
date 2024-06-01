@@ -3,23 +3,11 @@ import React, { useState, useRef, useContext } from "react";
 import { useRouter } from "next/navigation";
 
 import Link from "next/link";
-// import axios from "axios";
-// import { useAuth } from "@/context/AuthContext";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-// import { UserType } from "@/model/UserType";
 import { useTranslations } from "next-intl";
 import { Divider, Flex, Modal, Result } from "antd";
-import { APIFunctionResponse } from "@/app/apis/APIResponseSchema";
-import { POST_SignUpByEmailPassword } from "@/app/apis/auth/signup";
-import { ShopInfoType } from "@/model/ShopInfoType";
-import { POST_SignInByEmailPassword } from "@/app/apis/auth/signin";
 import { AuthContext } from "@/context/AuthContext";
-
-// import { useRecoveryContext } from "@/context/RecoveryContext";
-// import { signIn as signInWithGoogle } from "next-auth/react";
-// import { io } from "socket.io-client";
-
-const Cookies = require('js-cookie')
+import { ResultStatusType } from "antd/es/result";
+import AuthService, { SignInResponseData } from "@/services/auth.service";
 
 interface AuthFormProps {
   showSuccessMsg: (show: boolean) => void;
@@ -28,6 +16,10 @@ interface AuthFormProps {
 const signInSuccessMessage = "Sign in successfully!"
 const signUpSuccessMessage = "Sign up successfully!"
 const localErrorMessage = "An error happened that has been identified yet"
+const goToLoginPageMessage = "We will direct you to Login page now..."
+const goToHomepageMessage =  "We will direct you to Homepage now..."
+const unauthorizedMessage = "Unauthorized. Please check your credentials"
+
 
 export default function AuthForm(props: AuthFormProps) {
 
@@ -36,16 +28,19 @@ export default function AuthForm(props: AuthFormProps) {
   const [openModalAuthSuccess, setOpenModalAuthSucess] = useState<boolean>(false)
   const [authModalTitle, setAuthModalTitle] = useState<string>("")
 
-
+  const [descriptionMessageOfModal, setDescriptionMessageOfModal] = useState<string>(goToLoginPageMessage)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [username, setUsername] = useState("");
+  const [shopName, setShopName] = useState<string>("")
   const [isSigninOpeneded, setIsSigninOpeneded] = useState(true);
   const [isSignupOpeneded, setIsSignupOpeneded] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false)
   const [validAuthMsg, setValidAuthMsg] = useState<string | null>(null);
+  const [resultModalState, setResultModalState] = useState<ResultStatusType>("success")
+
 //   const context = useRecoveryContext();
   const router = useRouter();
   const t = useTranslations("Authentication");
@@ -104,8 +99,7 @@ export default function AuthForm(props: AuthFormProps) {
       return
     }
 
-    const response = await POST_SignInByEmailPassword({email: targetEmail, password: targetPassword})
-
+    const response = await AuthService.signIn(targetEmail, targetPassword)
 
     if(response.statusCode == 500)
     {
@@ -113,22 +107,26 @@ export default function AuthForm(props: AuthFormProps) {
     }
     else if(response.statusCode == 200 || response.statusCode == 201)
     {
-      const shopInfo = response.data as ShopInfoType
-      //Further, we will reveive access token and refresh token in here
-      //
-      //Now, we only store the information of the shop in sessionStorage
+      const responseData: SignInResponseData = response.data
+      const shopInfo = responseData.sellerInfo
+      const accessToken = responseData.accessToken as string
+      const refreshToken = responseData.refreshToken as string
+      const refreshTokenExpiredDate = new Date(responseData.refreshTokenExpiredDate)
 
       const stringifiedString = JSON.stringify(shopInfo)
       const shopInfoSessionStorageKey = crypto.randomUUID()
 
       sessionStorage.setItem(shopInfoSessionStorageKey, stringifiedString)
-
+      //set access token and refresh token to cookie
+      
+      setResultModalState("success")
       setAuthModalTitle(signInSuccessMessage)
+      setDescriptionMessageOfModal(goToHomepageMessage)
       setOpenModalAuthSucess(true)
 
       if(authContext.methods)
       {
-        const check = authContext.methods.validateAuthRequest(shopInfoSessionStorageKey)
+        const check = authContext.methods.login(shopInfoSessionStorageKey, accessToken, refreshToken, refreshTokenExpiredDate)
         
         if(check == true)
         {
@@ -138,8 +136,15 @@ export default function AuthForm(props: AuthFormProps) {
         {
           sessionStorage.removeItem(shopInfoSessionStorageKey)
           setOpenModalAuthSucess(false)
+          setDescriptionMessageOfModal("An involvement has happened that prevents you from your sign-in process")
+          setResultModalState("error")
+          setDescriptionMessageOfModal("")
         }
       }
+    }
+    else if(response.statusCode == 401) // Unauthorized
+    {
+      setValidAuthMsg(unauthorizedMessage)
     }
     else
     {
@@ -159,6 +164,12 @@ export default function AuthForm(props: AuthFormProps) {
       message = t("empty_username")
       setValidAuthMsg(message)
     }
+    else if(shopName.length == 0)
+    {
+      check = false
+      message = t("empty_shopname")
+      setValidAuthMsg(message)
+    }
     else if(password != confirmPassword)
     {
       check = false
@@ -176,9 +187,7 @@ export default function AuthForm(props: AuthFormProps) {
     }
     console.log("here")
 
-    const response: APIFunctionResponse = await POST_SignUpByEmailPassword({email: email, password: password, shopName: username})
-
-    console.log(response)
+    const response = await AuthService.register(email, password, shopName, username)
 
     if(response.statusCode == 500)
     {
@@ -186,38 +195,19 @@ export default function AuthForm(props: AuthFormProps) {
     }
     else if(response.statusCode == 201 || response.statusCode == 200) //create account successfully
     {
-      const shopInfo = response.data as ShopInfoType
-      //Further, we will reveive access token and refresh token in here
-      //Now, we only store the information of the shop in sessionStorage
-
-      const stringifiedString = JSON.stringify(shopInfo)
-      const shopInfoSessionStorageKey = crypto.randomUUID()
-
-      sessionStorage.setItem(shopInfoSessionStorageKey, stringifiedString)
-
-      setAuthModalTitle(signUpSuccessMessage)
+      setResultModalState("success")
       setOpenModalAuthSucess(true)
-
-      if(authContext.methods)
-        {
-          const check = authContext.methods.validateAuthRequest(shopInfoSessionStorageKey)
-          
-          if(check == true)
-          {
-            router.push("/")
-          }
-          else
-          {
-            sessionStorage.removeItem(shopInfoSessionStorageKey)
-            setOpenModalAuthSucess(false)
-          }
-        }
+      setDescriptionMessageOfModal(goToLoginPageMessage)
+      setTimeout(() =>
+      {
+        goToLogin()
+        setOpenModalAuthSucess(false)
+      }, 2000)
     }
-    else
+    else if(response.statusCode == 409)
     {
-      setValidAuthMsg(response.message)
+      setValidAuthMsg("Email has already existed")
     }
-
   };
 
   const handleVerification = async () => {
@@ -303,11 +293,21 @@ export default function AuthForm(props: AuthFormProps) {
         {isSignupOpeneded && (
           <input
             type="text"
-            placeholder={t("shop_name")}
+            placeholder={t("username")}
             className="input input-bordered w-full max-w-xs m-2 mx-auto px-1 py-2"
             value={username}
             maxLength={15}
             onChange={(e) => setUsername(e.target.value)}
+          />
+        )}
+        {isSignupOpeneded && (
+          <input
+            type="text"
+            placeholder={t("shop_name")}
+            className="input input-bordered w-full max-w-xs m-2 mx-auto px-1 py-2"
+            value={shopName}
+            maxLength={15}
+            onChange={(e) => setShopName(e.target.value)}
           />
         )}
 
@@ -328,12 +328,12 @@ export default function AuthForm(props: AuthFormProps) {
             maxLength={16}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button
+          {/* <button
             className="absolute inset-y-0 right-4 flex items-center pt-2 px-4 text-gray-600"
             onClick={togglePasswordVisibility}
           >
             {isPasswordVisible ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
-          </button>
+          </button> */}
         </div>
         {
           isSignupOpeneded &&
@@ -346,12 +346,12 @@ export default function AuthForm(props: AuthFormProps) {
               maxLength={16}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            <button
+            {/* <button
               className="absolute inset-y-0 right-4 flex items-center pt-2 px-4 text-gray-600"
               onClick={toggleConfirmPasswordVisibility}
             >
               {isConfirmPasswordVisible ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
-            </button>
+            </button> */}
           </div>
           }
         {validAuthMsg && (
@@ -485,9 +485,9 @@ export default function AuthForm(props: AuthFormProps) {
       >
         <Flex vertical className="w-full h-full" justify="center" align="center">
           <Result 
-            status={"success"}
+            status={resultModalState}
             title={authModalTitle}
-            subTitle={"We will direct you to your Homepage now..."}
+            subTitle={descriptionMessageOfModal}
           />
           <Flex className="w-full h-full" justify="center" align="center">
             <div className="animate-bounce">

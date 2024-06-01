@@ -380,20 +380,20 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
     const SendButtonStyle = userInput != undefined && userInput.length > 0 ? "bg-blue-600 text-white hover:bg-blue-600" : "disabled"
     const isSendButtonDisabled = userInput != undefined && userInput.length > 0 ? false : true
     const CardActions =
-        [
-            <div className="relative h-10">
-                <Flex className="w-full absolute bottom-0 px-5" justify="end" align="center">
-                    <TextArea className="w-full max-h-96 overflow-y-auto" autoSize={true} value={userInput}
-                        placeholder="Nhập nội dung cần hỗ trợ"
-                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setUserInput(e.target.value)}
-                    />,
-                    {/* <Input className="w-full" multiple={true} value={userInput} onChange={(e: ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value)}/> */}
-                    <Button disabled={isSendButtonDisabled} className={SendButtonStyle}
-                        onClick={() => handleSendButtonOnClick()}
-                        type="default"><LuSendHorizonal className="font-light" /></Button>
-                </Flex>
-            </div>
-        ]
+    <div className="w-full">
+        <div className="relative h-10">
+        </div>
+        <Flex className="w-full absolute bottom-0 left-0 px-5" justify="end" align="center">
+            <TextArea className="w-full max-h-96 overflow-y-auto" autoSize={true} value={userInput}
+                placeholder="Nhập nội dung cần hỗ trợ"
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setUserInput(e.target.value)}
+            />,
+            {/* <Input className="w-full" multiple={true} value={userInput} onChange={(e: ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value)}/> */}
+            <Button disabled={isSendButtonDisabled} className={SendButtonStyle}
+                onClick={() => handleSendButtonOnClick()}
+                type="default"><LuSendHorizonal className="font-light" /></Button>
+        </Flex>
+    </div>
 
     const cardTitle =
         <Flex className="pb-3" justify="start" align="center" gap={8}>
@@ -404,7 +404,7 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
     const AIAssistantPopoverContent =
         <Card
             style={{ boxShadow: "none" }}
-            title={cardTitle} bordered={false} extra={extraAiAssistantPopoverContentButton} actions={CardActions}>
+            title={cardTitle} bordered={false} extra={extraAiAssistantPopoverContentButton}>
             <Flex className="overflow-y-auto h-96 max-h-96 max-w-screen-md" vertical justify="start" align="center" gap={4}
                 ref={messageEndRef}
             >
@@ -414,6 +414,7 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
                     })
                 }
             </Flex>
+            {CardActions}
         </Card>
 
 
@@ -443,19 +444,21 @@ export default function AIAssistantFloatButton({ }: AIAssistantFloatButtonProps)
                     style={{top: 0, left: 0, margin: 0}} width={"100%"}
                     closable={false} footer={[]}>
                     <Flex className="w-full h-full bg-gray-200"> 
-                        <Card
-                            className="w-2/5 h-full"
-                            style={{ boxShadow: "none", borderRadius: "0 0 0 0" }}
-                            title={cardTitle} bordered={false} extra={extraAiAssistantPopoverContentButton} actions={CardActions}>
-                            <Flex style={{ maxHeight: "550px", height:"550px"}} className="overflow-y-auto" vertical justify="start" align="center" gap={4}
+                    <Card 
+                        className="w-2/5"
+                        style={{boxShadow:"none", borderRadius:"0 0 0 0"}}
+                        title={cardTitle} bordered={false} extra={extraAiAssistantPopoverContentButton}>
+                            <Flex key={"modal-conversation-content"} style={{maxHeight:`calc(100dvh/100*70)`, height:"100dvh"}} className="overflow-y-auto" vertical justify="start" align="center" gap={4}
                                 ref={extendedMessageEndRef}
                             >
                                 {
-                                    messages.map((message: AssistantMessageProps, index: number) => {
+                                    messages.map((message: AssistantMessageProps, index: number) =>
+                                    {
                                         return getMessageDisplay(message, index)
                                     })
                                 }
                             </Flex>
+                            {CardActions}
                         </Card>
                         <div className="w-3/5">
                             {/* <InfiniteProductsList setup={InfinityProductsListSetup}/> */}
