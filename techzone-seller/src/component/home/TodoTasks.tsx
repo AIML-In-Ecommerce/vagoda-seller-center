@@ -1,4 +1,4 @@
-import { Card, Tooltip } from "antd";
+import { Card, Statistic, Tooltip } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -41,15 +41,16 @@ export function TaskCard(props: TaskCardProps) {
             <div className="relative">
                 <Link href={props.item.urlRedirect}>
                     <div className={`absolute z-10 top-0 h-2 w-full border rounded-xl ${handleCardColor(props.item.type)}`}></div>
-                    <Card className="relative z-0 h-32 shadow-md" hoverable>
-                        <div className="absolute wrap w-2/3 top-1/6 lg:top-3 text-base">{props.item.title}</div>
-                        <div className="absolute wrap bottom-3 text-2xl font-bold">{props.item.value}</div>
-                        <div className="absolute wrap top-3 right-2 text-lg">
-                            <Tooltip title={props.item.tooltip}>
-                                <TbInfoCircle />
-                            </Tooltip>
-                        </div>
-                    </Card>
+                    <Statistic className="relative z-0 h-32 shadow-md p-2"
+                        title={<div className="text-base w-2/3">{props.item.title}</div>}
+                        value={props.item.value}
+                        valueStyle={{fontSize: "30px"}}>
+                    </Statistic>
+                    <div className="absolute top-3 right-2 text-lg">
+                        <Tooltip title={props.item.tooltip}>
+                            <TbInfoCircle />
+                        </Tooltip>
+                    </div>
                 </Link>
             </div>
         </React.Fragment>
@@ -59,7 +60,7 @@ export function TaskCard(props: TaskCardProps) {
 export default function TodoTasks(props: TodoTasksProps) {
     return (
         <React.Fragment>
-            <div className="grid lg:grid-cols-4 gap-5">
+            <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5">
                 {
                     props.data.map((item, index) => {
                         return (
