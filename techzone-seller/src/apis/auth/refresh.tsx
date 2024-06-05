@@ -3,7 +3,7 @@ import axios from "axios"
 
 export async function POST_refreshToken(refreshToken: string)
 {
-    const API_URL: string = process.env.NEXT_PUBLIC_AUTH_API_URL as string
+    const API_URL: string = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_AUTH_PORT}`
     const url = API_URL + "/auth/refresh_token/"
 
     try

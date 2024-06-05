@@ -114,9 +114,7 @@ export default function AuthForm(props: AuthFormProps) {
       const refreshTokenExpiredDate = new Date(responseData.refreshTokenExpiredDate)
 
       const stringifiedString = JSON.stringify(shopInfo)
-      const shopInfoSessionStorageKey = crypto.randomUUID()
 
-      sessionStorage.setItem(shopInfoSessionStorageKey, stringifiedString)
       //set access token and refresh token to cookie
       
       setResultModalState("success")
@@ -126,7 +124,7 @@ export default function AuthForm(props: AuthFormProps) {
 
       if(authContext.methods)
       {
-        const check = authContext.methods.login(shopInfoSessionStorageKey, accessToken, refreshToken, refreshTokenExpiredDate)
+        const check = authContext.methods.login(stringifiedString, accessToken, refreshToken, refreshTokenExpiredDate)
         
         if(check == true)
         {
@@ -134,7 +132,6 @@ export default function AuthForm(props: AuthFormProps) {
         }
         else
         {
-          sessionStorage.removeItem(shopInfoSessionStorageKey)
           setOpenModalAuthSucess(false)
           setDescriptionMessageOfModal("An involvement has happened that prevents you from your sign-in process")
           setResultModalState("error")

@@ -12,7 +12,7 @@ interface AuthContextProviderInitProps
     children: ReactNode
 }
 
-const authLocalStorageID = "#auth-context-session-info-ID"
+const authLocalStorageID = "#auth-context-shop-info#"
 
 const matcher: string[] = 
 []
@@ -20,14 +20,13 @@ const matcher: string[] =
 interface AuthContextProps
 {
     shopInfo: ShopInfoType | null,
-    sessionInfoID: string | null,
     methods: AuthContextFunctions | null
 }
 
 interface AuthContextFunctions
 {
     // validateAuthRequest: (sessionInfoID: string) => boolean,
-    login: (receivedSessionInfoID: string, accessToken: string, 
+    login: (stringifiedInfo: string, accessToken: string, 
         refreshToken: string, refreshTokenExpiredDate: string | Date) => boolean,
     logout: () => void,
     getAccessToken: () => string | null
@@ -36,7 +35,6 @@ interface AuthContextFunctions
 const defaultContextValue: AuthContextProps = 
 {
     shopInfo: null,
-    sessionInfoID: null,
     methods: null,
 }
 
@@ -48,7 +46,6 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
     const refreshTokenCookieKey = "#refresh_token@"
 
     const [shopInfo, setShopInfo] = useState<ShopInfoType | null>(null)
-    const [sessionInfoID, setSessionInfoID] = useState<string | null>("")
 
     const router = useRouter()
     const currentPathname = usePathname()
@@ -84,24 +81,25 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
         
         localStorage.setItem(authLocalStorageID, receivedSessionInfoID)
         setShopInfo(parsedObject)
-        setSessionInfoID(receivedSessionInfoID)
 
         return true
     }
 
-    function login(receivedSessionInfoID: string, accessToken: string, 
+    function login(stringifiedInfo: string, accessToken: string, 
         refreshToken: string, refreshTokenExpiredDate: string | Date)
+    // function login()
     {
-        const check = validateAuthRequest(receivedSessionInfoID)
-        if(check == false)
+        try
+        {
+            localStorage.setItem(authLocalStorageID, stringifiedInfo)
+            Cookies.set(accessTokenCookieKey, accessToken)
+            Cookies.set(refreshTokenCookieKey, refreshToken, {expires: new Date(refreshTokenExpiredDate)})
+            return true
+        }
+        catch(error)
         {
             return false
         }
-
-        Cookies.set(accessTokenCookieKey, accessToken)
-        Cookies.set(refreshTokenCookieKey, refreshToken, {expires: new Date(refreshTokenExpiredDate)})
-
-        return true
     }
 
     function getAccessToken()
@@ -138,10 +136,6 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
 
     function logout()
     {
-        if(sessionInfoID)
-        {
-            sessionStorage.removeItem(sessionInfoID)
-        }
         localStorage.removeItem(authLocalStorageID)
 
         //remove token here
@@ -206,13 +200,12 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
         const newValue: AuthContextProps =
         {
             shopInfo: shopInfo,
-            sessionInfoID: sessionInfoID,
             methods: supportMethods
         }
 
         return newValue
     },
-    [shopInfo, sessionInfoID, supportMethods])
+    [shopInfo, supportMethods])
 
     return(
         <AuthContext.Provider value={value}>
