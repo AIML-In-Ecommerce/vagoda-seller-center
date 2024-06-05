@@ -18,7 +18,7 @@ import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import BannersForm from "../uploadImage/BannersForm";
 import { FaRegHandPointer } from "react-icons/fa6";
-import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
+import { POST_GetPath, PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
@@ -83,10 +83,20 @@ export default function BannerWidget(props: WidgetProps) {
     console.log(`selected ${value}`);
   };
 
-  const handleChangeBanner = (value: string, index: number) => {
-    proxyBanner[index] = value;
-    setProxyBanner(proxyBanner);
+  const handleChangeBanner = async (value: string, index: number) => {
+    if (value) {
+      let path = await handleGetPath(value);
+      if (path) {
+        proxyBanner[index] = path;
+        setProxyBanner(proxyBanner);
+      }
+    }
   };
+
+  // const handleChangeBanner = (value: string, index: number) => {
+  //   proxyBanner[index] = value;
+  //   setProxyBanner(proxyBanner);
+  // };
 
   const checkActive = (index: number) => {
     if (element.images[index] && element.images[index] !== " ") {
@@ -212,6 +222,20 @@ export default function BannerWidget(props: WidgetProps) {
       ),
     },
   ];
+
+  //api call
+  const handleGetPath = async (image: string) => {
+    const response = await POST_GetPath(image);
+    if (response.status == 200) {
+      // console.log(response);
+      // alert("Upload successfully! " + response.data);
+
+      return response.data;
+    } else {
+      console.log(response.message);
+      return "";
+    }
+  };
 
   return (
     <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">

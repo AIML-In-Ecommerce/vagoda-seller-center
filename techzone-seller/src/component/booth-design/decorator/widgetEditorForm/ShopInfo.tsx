@@ -90,7 +90,7 @@ export default function ShopInfo(props: ShopInfoWidgetProps) {
   }, [color, avatarUrl, bannerUrl, name]);
 
   return (
-    <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
+    <div className="m-5 pl-2 pb-5 h-[500px] overflow-y-auto">
       <div className="m-5 text-2xl font-semibold flex justify-center">
         Thông tin chung
       </div>

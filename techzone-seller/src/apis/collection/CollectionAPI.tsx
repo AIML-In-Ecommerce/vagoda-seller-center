@@ -2,6 +2,7 @@
 
 import { CollectionType } from "@/model/CollectionType";
 import axios from "axios";
+import { POST_GetPath } from "../widget/WidgetAPI";
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
@@ -62,31 +63,48 @@ export async function POST_CreateCollection(props: CollectionType) {
 
   try {
     // console.log(url);
-    const requestBody = {
-      name: props.name,
-      imageUrl: props.imageUrl,
-      productIdList: props.productIdList,
-      createDate: props.createDate,
-      isActive: props.isActive,
-      shop: props.shop,
-    };
 
-    const response = await axios.post(url, requestBody);
-    const responseData: CollectionResponse = response.data;
+    const pathResponse = await POST_GetPath(props.imageUrl);
+    if (pathResponse.status == 200 && pathResponse.data) {
+      // console.log(response);
+      // alert("Upload successfully! " + pathResponse.data);
 
-    if (responseData.status == 200) {
-      return {
-        isDenied: false,
-        message: "Create collection successfully",
-        status: responseData.status,
-        data: responseData.data,
+      let imageUrl = pathResponse.data;
+
+      const requestBody = {
+        name: props.name,
+        imageUrl: imageUrl,
+        productIdList: props.productIdList,
+        createDate: props.createDate,
+        isActive: props.isActive,
+        shop: props.shop,
       };
+
+      const response = await axios.post(url, requestBody);
+      const responseData: CollectionResponse = response.data;
+
+      if (responseData.status == 200) {
+        return {
+          isDenied: false,
+          message: "Create collection successfully",
+          status: responseData.status,
+          data: responseData.data,
+        };
+      } else {
+        return {
+          isDenied: true,
+          message: "Failed to create collection",
+          status: responseData.status,
+          data: responseData.data,
+        };
+      }
     } else {
+      console.log(pathResponse.message);
       return {
         isDenied: true,
-        message: "Failed to create collection",
-        status: responseData.status,
-        data: responseData.data,
+        message: "Failed to update collection",
+        status: pathResponse.status,
+        data: pathResponse.data,
       };
     }
   } catch (err) {
@@ -151,31 +169,48 @@ export async function PUT_UpdateCollection(props: CollectionType) {
 
   try {
     // console.log(url);
-    const requestBody = {
-      name: props.name,
-      imageUrl: props.imageUrl,
-      productIdList: props.productIdList,
-      createDate: props.createDate,
-      isActive: props.isActive,
-      shop: props.shop,
-    };
 
-    const response = await axios.put(url, requestBody);
-    const responseData: CollectionResponse = response.data;
+    const pathResponse = await POST_GetPath(props.imageUrl);
+    if (pathResponse.status == 200 && pathResponse.data) {
+      // console.log(response);
+      // alert("Upload successfully! " + pathResponse.data);
 
-    if (responseData.status == 200) {
-      return {
-        isDenied: false,
-        message: "Update collection successfully",
-        status: responseData.status,
-        data: responseData.data,
+      let imageUrl = pathResponse.data;
+
+      const requestBody = {
+        name: props.name,
+        imageUrl: imageUrl,
+        productIdList: props.productIdList,
+        createDate: props.createDate,
+        isActive: props.isActive,
+        shop: props.shop,
       };
+
+      const response = await axios.put(url, requestBody);
+      const responseData: CollectionResponse = response.data;
+
+      if (responseData.status == 200) {
+        return {
+          isDenied: false,
+          message: "Update collection successfully",
+          status: responseData.status,
+          data: responseData.data,
+        };
+      } else {
+        return {
+          isDenied: true,
+          message: "Failed to update collection",
+          status: responseData.status,
+          data: responseData.data,
+        };
+      }
     } else {
+      console.log(pathResponse.message);
       return {
         isDenied: true,
         message: "Failed to update collection",
-        status: responseData.status,
-        data: responseData.data,
+        status: pathResponse.status,
+        data: pathResponse.data,
       };
     }
   } catch (err) {
@@ -188,7 +223,6 @@ export async function PUT_UpdateCollection(props: CollectionType) {
     };
   }
 }
-// /collectionTypes/shop/:id
 
 interface CollectionListResponse {
   status: number;

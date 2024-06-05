@@ -332,3 +332,72 @@ export async function PUT_UpdateWidget(data: WidgetType) {
     };
   }
 }
+
+interface PathResponse {
+  status: number;
+  data: { path: string };
+  message: string;
+}
+
+export async function dataUrlToFile(
+  dataUrl: string,
+  fileName: string
+): Promise<File> {
+  const res: Response = await fetch(dataUrl);
+  const blob: Blob = await res.blob();
+  return new File([blob], fileName, { type: "image/png" });
+}
+
+export async function POST_GetPath(image: string) {
+  const url = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    WIDGET_PORT?.toString() +
+    "/upload"
+  ).toString();
+
+  try {
+    // console.log(url);
+    let file = await dataUrlToFile(image, "temp");
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await axios.post(url, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    // {
+    //   headers: {
+    //     Authorization: `Bearer ${auth.user?.access_token}`,
+    //   },
+    // }
+
+    const responseData: PathResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Create link successfully",
+        status: responseData.status,
+        data: responseData.data.path,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to create link",
+        status: responseData.status,
+        data: responseData.data.path,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to create link",
+      status: 500,
+      data: undefined,
+    };
+  }
+}

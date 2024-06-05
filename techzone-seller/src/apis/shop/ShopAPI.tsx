@@ -1,6 +1,7 @@
 "use client";
 import { ShopInfoDesignType, ShopType } from "@/model/ShopType";
 import axios from "axios";
+import { POST_GetPath } from "../widget/WidgetAPI";
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const SHOP_PORT = process.env.NEXT_PUBLIC_SHOP_PORT;
@@ -51,6 +52,7 @@ export async function GET_GetShop(id: string) {
   }
 }
 
+// update widgets
 export async function PUT_UpdateShopDesign(id: string, design: string[]) {
   const url = (
     BACKEND_PREFIX?.toString() +
@@ -95,6 +97,7 @@ export async function PUT_UpdateShopDesign(id: string, design: string[]) {
   }
 }
 
+// update shop info summary banner
 export async function PUT_UpdateShopInfoDesign(
   id: string,
   shopInfoDesign: ShopInfoDesignType
@@ -109,31 +112,56 @@ export async function PUT_UpdateShopInfoDesign(
 
   try {
     // console.log(url);
-    const requestBody = {
-      shopInfoDesign: {
-        color: shopInfoDesign.color,
-        avatarUrl: shopInfoDesign.avatarUrl,
-        bannerUrl: shopInfoDesign.bannerUrl,
-      },
-      name: shopInfoDesign.name,
-    };
 
-    const response = await axios.put(url, requestBody);
-    const responseData: ShopResponse = response.data;
+    const path1Response = await POST_GetPath(shopInfoDesign.avatarUrl);
+    const path2Response = await POST_GetPath(shopInfoDesign.bannerUrl);
 
-    if (responseData.status == 200) {
-      return {
-        isDenied: false,
-        message: "Update shop successfully",
-        status: responseData.status,
-        data: responseData.data,
+    if (
+      path1Response.status == 200 &&
+      path1Response.data &&
+      path2Response.status == 200 &&
+      path2Response.data
+    ) {
+      // console.log(response);
+      // alert("Upload successfully! " + pathResponse.data);
+
+      let avatarUrl = path1Response.data;
+      let bannerUrl = path2Response.data;
+
+      const requestBody = {
+        shopInfoDesign: {
+          color: shopInfoDesign.color,
+          avatarUrl: avatarUrl,
+          bannerUrl: bannerUrl,
+        },
+        name: shopInfoDesign.name,
       };
+
+      const response = await axios.put(url, requestBody);
+      const responseData: ShopResponse = response.data;
+
+      if (responseData.status == 200) {
+        return {
+          isDenied: false,
+          message: "Update shop successfully",
+          status: responseData.status,
+          data: responseData.data,
+        };
+      } else {
+        return {
+          isDenied: true,
+          message: "Failed to update shop",
+          status: responseData.status,
+          data: responseData.data,
+        };
+      }
     } else {
+      console.log(path1Response.message + " : " + path2Response.message);
       return {
         isDenied: true,
-        message: "Failed to update shop",
-        status: responseData.status,
-        data: responseData.data,
+        message: "Failed to update collection",
+        status: path1Response.status,
+        data: path1Response.data,
       };
     }
   } catch (err) {
