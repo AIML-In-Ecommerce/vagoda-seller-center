@@ -1,4 +1,3 @@
-import LowSales from "@/component/report/product/LowSales";
 import ProductSalesTrafficPage from "@/component/report/product/ProductSalesTraffic";
 import React from "react";
 
@@ -8,17 +7,9 @@ export default function ProductLowSales() {
     // 		+ Chỉ số sản phẩm:
     // 		+ Chỉ số khuyến mãi: 
     // 		+ Hiệu quả vận hành:
-    const props =
-    {
-        label: 'Doanh số thấp',
-        value: 'LowSales',
-        url: '/report/product-low-sales',
-        children: <LowSales/>
-    }
-
     return (
         <React.Fragment>
-            <ProductSalesTrafficPage pageProps={props}/>
+            <ProductSalesTrafficPage tabKey="2"/>
         </React.Fragment>
     );
 }

@@ -20,6 +20,7 @@
     "antd-img-crop": "^4.22.0",
     "axios": "^1.7.2",
     "chart.js": "^4.4.2",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "draft-js": "^0.11.7",
     "draft-js-export-html": "^1.4.1",
     "draft-js-import-html": "^1.4.1",

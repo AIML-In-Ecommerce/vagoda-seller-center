@@ -1,5 +1,4 @@
 import ProductSalesTrafficPage from "@/component/report/product/ProductSalesTraffic";
-import RevenueAndVisits from "@/component/report/product/RevenueAndVisits";
 import React from "react";
 
 export default function ProductSalesTraffic() {
@@ -9,17 +8,9 @@ export default function ProductSalesTraffic() {
     // 		+ Chỉ số khuyến mãi: 
     // 		+ Hiệu quả vận hành:
 
-    const props =
-    {
-        label: 'Doanh thu & lượt truy cập',
-        value: 'RevenueAndVisits',
-        url: '/report/product-sales-traffic',
-        children: <RevenueAndVisits/>
-    }
-
     return (
         <React.Fragment>
-            <ProductSalesTrafficPage pageProps={props} />
+            <ProductSalesTrafficPage tabKey="1" />
         </React.Fragment>
     );
 }

@@ -63,8 +63,10 @@ export default function NotificationList(props: NotificationListProps) {
                 {
                     props.data.length > 0 ?
                         (
-                            props.data.map(item => {
-                                return <NotificationCard item={item} />
+                            props.data.map((item, key) => {
+                                return (<div key={key}>
+                                    <NotificationCard item={item} />
+                                </div>)
                             })
                         ) : <Empty description={"Không có thông báo mới!"} />
                 }

@@ -1,66 +1,65 @@
 "use client";
-import { Breadcrumb, Button, ConfigProvider, DatePicker, Empty, Radio, RadioChangeEvent, Segmented, Tabs, TabsProps } from "antd";
+import { Breadcrumb, Tabs, TabsProps } from "antd";
 import React, { useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import RevenueAndVisits from "@/component/report/product/RevenueAndVisits";
 import { useRouter } from "next/navigation";
-import LowInventory from "./LowInventory";
-import LowSales from "./LowSales";
+import CouponInsight from "./CouponInsight";
+import ShippingInsight from "./ShippingInsight";
+import CampaignInsight from "./CampaignInsight";
 
 dayjs.extend(LocalizedFormat)
 
-interface ProductSalesTrafficPageProps {
-    tabKey: string,
+interface DiscountPromotionPageProps {
+    tabKey: string;
 }
 
 const tabsRouting = [
     {
         key: '1',
-        label: 'Doanh thu & lượt truy cập',
-        url: '/report/product-sale-traffic',
+        label: 'Mã giảm giá',
+        url: '/report/coupon-insight',
     },
     {
         key: '2',
-        label: 'Doanh số thấp',
-        url: '/report/product-low-sales'
+        label: 'Giảm giá vận chuyển',
+        url: '/report/shipping-insight'
     },
     {
         key: '3',
-        label: 'Tồn kho thấp',
-        url: '/report/product-low-inventory'
+        label: 'Chiến dịch khuyến mãi',
+        url: '/report/campaign-insight'
     },
 ]
 
 const tabs: TabsProps['items'] = [
     {
         key: '1',
-        label: 'Doanh thu & lượt truy cập',
-        children: <RevenueAndVisits />
+        label: 'Mã giảm giá',
+        children: <CouponInsight />
 
     },
     {
         key: '2',
-        label: 'Doanh số thấp',
-        children: <LowSales />
+        label: 'Giảm giá vận chuyển',
+        children: <ShippingInsight />
 
     },
     {
         key: '3',
-        label: 'Tồn kho thấp',
-        children: <LowInventory />
+        label: 'Chiến dịch khuyến mãi',
+        children: <CampaignInsight />
 
     },
 ]
 
 
-
-export default function ProductSalesTrafficPage(props: ProductSalesTrafficPageProps) {
+export default function DiscountPromotionPage(props: DiscountPromotionPageProps) {
+    const router = useRouter();
     const [activeKey, setActiveKey] = useState<string>(props.tabKey);
     const [label, setLabel] = useState<string>(tabsRouting.filter(tab => tab.key === activeKey)[0].label);
-    const router = useRouter();
 
     const handleTabChange = (e: string) => {
         const selectedTab = tabsRouting.filter(tab => tab.key === e)[0];
@@ -73,6 +72,8 @@ export default function ProductSalesTrafficPage(props: ProductSalesTrafficPagePr
         <React.Fragment>
             <div className="flex flex-col container">
                 <div className="bg-white pr-4 px-4">
+                    <section id="test1">
+                    </section>
                     <Breadcrumb
                         className="text-xs"
                         items={[
@@ -93,11 +94,10 @@ export default function ProductSalesTrafficPage(props: ProductSalesTrafficPagePr
                             },
                         ]}
                     />
-                    <div className="mt-5 uppercase text-xl font-semibold">Chỉ số sản phẩm</div>
+                    <div className="mt-5 uppercase text-xl font-semibold">Chỉ số khuyến mãi</div>
                     <div className="mt-5">Vui lòng xem hướng dẫn chi tiết: Giới thiệu trung tâm phát triển</div>
                     <div className="mt-5">
                         <Tabs
-                            type="card"
                             activeKey={activeKey}
                             size="large" items={tabs}
                             onChange={(e) => handleTabChange(e)} />

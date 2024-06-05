@@ -1,4 +1,3 @@
-import LowInventory from "@/component/report/product/LowInventory";
 import ProductSalesTrafficPage from "@/component/report/product/ProductSalesTraffic";
 import React from "react";
 
@@ -8,17 +7,10 @@ export default function ProductLowInventory() {
     // 		+ Chỉ số sản phẩm:
     // 		+ Chỉ số khuyến mãi: 
     // 		+ Hiệu quả vận hành:
-    const props =
-    {
-        label: 'Tồn kho thấp',
-        value: 'LowInventory',
-        url: '/report/product-low-inventory',
-        children: <LowInventory/>
-    }
 
     return (
         <React.Fragment>
-            <ProductSalesTrafficPage pageProps={props} />
+            <ProductSalesTrafficPage tabKey={"3"} />
         </React.Fragment>
     );
 }

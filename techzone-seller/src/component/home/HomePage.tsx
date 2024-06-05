@@ -105,35 +105,35 @@ const statisticData: Task[] = [
         tooltip: "",
         value: 7,
         type: TaskType.INFO,
-        urlRedirect: "/order"
+        urlRedirect: "/order?tab=awaiting_confirmation"
     },
     {
         title: "Đơn hàng đang xử lý",
         tooltip: "",
         value: 12,
         type: TaskType.WARNING,
-        urlRedirect: "/order"
+        urlRedirect: "/order?tab=processing"
     },
     {
         title: "Đơn hàng đang vận chuyển",
         tooltip: "",
         value: 42,
         type: TaskType.INFO,
-        urlRedirect: "/order"
+        urlRedirect: "/order?tab=shipping"
     },
     {
         title: "Sản phẩm hết hàng",
         tooltip: "",
         value: 23,
         type: TaskType.WARNING,
-        urlRedirect: "/product/list"
+        urlRedirect: "/product/list?tab=out_of_stock"
     },
     {
         title: "Sản phẩm bị đánh giá thấp",
         tooltip: "",
         value: 2,
         type: TaskType.DANGER,
-        urlRedirect: "/product/list"
+        urlRedirect: "/product/review"
     },
 ]
 
@@ -155,7 +155,7 @@ const checkThreshold = (value: number, threshold: number, isAboveThreshold: bool
 
 const OEColumns: TableColumnsType<OEProps> = [
     {
-        title: <div className="font-semibold">Chỉ số</div>,
+        title: <div className="font-semibold ml-4">Chỉ số</div>,
         dataIndex: 'index',
         render: (index: string, item: OEProps) =>
             <div className="flex flex-col px-4">
@@ -174,7 +174,7 @@ const OEColumns: TableColumnsType<OEProps> = [
         title: <div className="font-semibold">Điểm hiện tại</div>,
         dataIndex: 'score',
         render: (score: number) => {
-            return <div className="font-semibold text-xl">{score*100}%</div>
+            return <div className="font-semibold text-xl">{score * 100}%</div>
         },
         width: '27%'
     },
@@ -184,8 +184,8 @@ const OEColumns: TableColumnsType<OEProps> = [
         render: (status: number, item: OEProps) => {
             return <div className="items-center">
                 {
-                   checkThreshold(item.score, item.threshold, item.isAboveThreshold) ? (
-                    <Tag color="#87d068" className="font-semibold">Tốt</Tag>
+                    checkThreshold(item.score, item.threshold, item.isAboveThreshold) ? (
+                        <Tag color="#87d068" className="font-semibold">Tốt</Tag>
                     ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
                 }
             </div>
@@ -350,7 +350,7 @@ export default function HomePage() {
 
     return (
         <React.Fragment>
-            <div className="container flex flex-col px-10 mx-auto">
+            <div className="container flex flex-col px-4 md:px-8 lg:px-12 xl:px-16 mx-auto">
                 {/* slider */}
                 <div className="mt-10 w-[100%] shadow-lg rounded-lg">
                     <CustomCarousel
@@ -384,17 +384,22 @@ export default function HomePage() {
                         {/* <Affix offsetTop={100}> */}
                         <div className="flex flex-col">
                             <div className="border flex flex-col relative lg:ml-5 rounded-xl shadow-lg">
-                                <div className="mt-10 sm:mt-5 mx-5 sm:text-center font-semibold text-lg">Điểm chất lượng vận hành</div>
-                                <div className="mx-5 sm:mt-2 flex sm:justify-center flex-row gap-2 items-center sm:text-sm lg:text-xs">
+                                <div className="mt-12 sm:mt-5 mx-5 sm:text-center font-semibold md:text-base text-lg">Điểm chất lượng vận hành</div>
+                                <div className="mx-5 sm:mt-2 flex sm:justify-center flex-row gap-2 items-center text-xs">
                                     <FaRegCalendarAlt />
-                                    <div>Tuần trước {
-                                        getPreviousWeekDateRange()
-                                    }</div>
+                                    <div className="flex flex-row gap-1">
+                                        <div>Tuần trước</div>
+                                        <div>
+                                            {
+                                                getPreviousWeekDateRange()
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="absolute top-2 left-2.5 z-[1] text-white"><FaStar /></div>
                                 <div className={`absolute top-0 left-0 text-4xl z-[0] ${handleRatingColor(qosScore, 500, "text")}`}><FaBookmark /></div>
                                 <div className="mx-auto my-5 flex lg:flex-row flex-col gap-5 items-center">
-                                    <Rate value={qosScore} count={5} disabled allowHalf />
+                                    <Rate className="sm:text-sm" value={qosScore} count={5} disabled allowHalf />
                                     <div><span className={`${handleRatingColor(qosScore, 500, "text")} text-lg font-bold`}>{qosScore} </span>/ 5 sao</div>
                                 </div>
                                 {
@@ -411,7 +416,7 @@ export default function HomePage() {
                                     })
                                 }
                                 <Link className="text-sky-500 cursor-pointer hover:text-blue-500 flex flex-row mx-auto items-center mb-5 gap-1"
-                                href={"/report/seller-performance"}>
+                                    href={"/report/seller-performance"}>
                                     <span>Xem chi tiết</span>
                                     <span><SlArrowRight /></span>
                                 </Link>
@@ -444,7 +449,7 @@ export default function HomePage() {
                                     } qua: {}</div> */}
                                 </div>
                                 <Link className="font-medium cursor-pointer hover:text-blue-500 text-sky-500 flex flex-row items-center gap-1"
-                                href={"/report/business-performance"}>
+                                    href={"/report/business-performance"}>
                                     <span>Xem chi tiết</span>
                                     <span><SlArrowRight /></span>
                                 </Link>
@@ -536,7 +541,7 @@ export default function HomePage() {
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 ">
                         <div className="flex flex-row justify-between items-center">
                             <div className="font-semibold text-xl">Hiệu quả vận hành</div>
-                            <Link className="cursor-pointer hover:text-blue-500 font-medium text-sky-500 flex flex-row items-center gap-1" 
+                            <Link className="cursor-pointer hover:text-blue-500 font-medium text-sky-500 flex flex-row items-center gap-1"
                                 href={"/report/seller-performance"}>
                                 <span>Xem chi tiết</span>
                                 <span><SlArrowRight /></span>
@@ -554,11 +559,11 @@ export default function HomePage() {
                                     <Tooltip title={"Trung bình tất cả các đánh giá sản phẩm của nhà bán"}>
                                         <div><TbInfoCircle /></div></Tooltip>
                                 </div>
-                            }>  
+                            }>
                                 <div className="flex flex-col items-center justify-center space-y-1 px-5 h-full ant-card-body">
                                     <div className="text-slate-500 text-3xl font-semibold">{productRatingData.rating ? productRatingData.rating : '--'}/5</div>
                                     <div>{`(${productRatingData.totalRatings} đánh giá)`}</div>
-                                    <Rate className="text-xl" value={productRatingData.rating} count={5} disabled allowHalf />
+                                    <Rate className="sm:text-sm" value={productRatingData.rating} count={5} disabled allowHalf />
                                 </div>
                             </Card>
                         </div>

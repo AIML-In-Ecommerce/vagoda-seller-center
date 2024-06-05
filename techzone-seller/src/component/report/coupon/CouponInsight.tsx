@@ -1,14 +1,13 @@
 "use client";
-import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Space, Tooltip } from "antd";
+import { DatePicker, Empty, Radio, RadioChangeEvent, Select, SelectProps } from "antd";
 import React, { useState } from "react";
-import { HiOutlineHome } from "react-icons/hi";
 import CustomCarousel from "../../Carousel";
-import { TbInfoCircle } from "react-icons/tb";
 import CheckableCard from "../CheckableCard";
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import CouponInsightTable from "./table/CouponInsightTable";
 
 dayjs.extend(LocalizedFormat)
 
@@ -17,60 +16,112 @@ const { RangePicker } = DatePicker
 
 const mainValues = [
     {
-        title: "Doanh số",
+        title: "Doanh thu",
         value: "--",
         description: "Không có dữ liệu",
-        tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
-        backgroundColor: '#0ea5e9'
+        tooltip: "Tổng giá trị của các đơn hàng có áp dụng Mã Giảm Giá của Nhà bán đã được xác nhận trong khoảng thời gian đã chọn.",
+        backgroundColor: '#0ea5e9',
+        borderVisibility: true,
+    },
+    {
+        title: "Mã đã dùng",
+        value: "--",
+        description: "Không có dữ liệu",
+        tooltip: "Tổng số lượng Mã Giảm Giá của Nhà bán đã được sử dụng tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
+        backgroundColor: '#f97316',
+        borderVisibility: true,
+    },
+    {
+        title: "Chi phí",
+        value: "--",
+        description: "Không có dữ liệu",
+        tooltip: "Tổng chi phí Mã Giảm Giá mà Nhà bán phải chi, tính trên các đơn hàng xác nhận trong khoảng thời gian đã chọn.",
+        backgroundColor: '#10b981',
+        borderVisibility: false,
+
+    },
+    {
+        title: "Tỉ lệ lợi nhuận trên chi phí",
+        value: "--",
+        description: "Không có dữ liệu",
+        tooltip: "Doanh thu/chi phí Mã Giảm Giá",
+        backgroundColor: '#ec4899',
+        borderVisibility: false
+    },
+    {
+        title: "Sản phẩm đã bán",
+        value: "--",
+        description: "Không có dữ liệu",
+        tooltip: "Tổng số lượng sản phẩm có áp dụng Mã Giảm Giá của Nhà bán đã bán, tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
+        backgroundColor: '#3b82f6',
+        borderVisibility: false
+    },
+    {
+        title: "Người mua",
+        value: "--",
+        description: "Không có dữ liệu",
+        tooltip: "Tổng số lượng người mua đã sử dụng ít nhất một Mã Giảm Giá của Nhà bán, tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
+        backgroundColor: '#78716c',
+        borderVisibility: false
     },
     {
         title: "Đơn hàng",
         value: "--",
         description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
-        backgroundColor: '#f97316'
-    },
-    {
-        title: "Doanh thu thuần",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Tiki).",
-        backgroundColor: '#10b981'
-    },
-    // {
-    //     title: "Lượt xem",
-    //     value: "--",
-    //     description: "Không có dữ liệu",
-    //     tooltip: "Hàng hàng"
-    // },
-    {
-        title: "Tỉ lệ chuyển đổi",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số khách truy cập và có đơn đã xác nhận chia tổng số khách truy cập trong khoảng thời gian đã chọn. ",
-        backgroundColor: '#ec4899'
-    },
-    {
-        title: "Giá trị đơn hàng trung bình",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Doanh số trung bình mỗi đơn hàng trong khoảng thời gian đã chọn.",
-        backgroundColor: '#3b82f6'
-    },
-    {
-        title: "Đơn hàng hủy",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
-        backgroundColor: '#78716c'
+        tooltip: "Tổng số đơn hàng được xác nhận và có áp dụng Mã giảm giá của Nhà bán trong khoảng thời gian đã chọn.",
+        backgroundColor: '#78716c',
+        borderVisibility: false
     },
 
 ]
 
+const discounts = [
+    {
+        label: 'Các mã giảm giá được tạo bởi nhà bán',
+        value: 'SellerDiscount',
+    },
+    {
+        label: 'Các mã giảm giá được tạo bởi Techzone',
+        value: 'TechzoneDiscount',
+    },
+]
+
+const discountTypeOptions: SelectProps['options'] = [
+    {
+        label: 'Các mã giảm giá được tạo bởi nhà bán',
+        value: 'SellerDiscount',
+    },
+    {
+        label: 'Các mã giảm giá được tạo bởi Techzone',
+        value: 'TechzoneDiscount',
+    },
+]
+
 export default function CouponInsight() {
-    const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
+    const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("week");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
-    const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
+    const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
+    const [selectedDiscountType, setSelectedDiscountType] = useState<string>("SellerDiscount");
+    const [selectedDiscountLabel, setSelectedDiscountLabel] = useState<string>("Các mã giảm giá được tạo bởi nhà bán");
+
+    const handlePreviousPeriod = (currentPeriod: [Dayjs, Dayjs], periodUnit: string) => {
+        let previous: [Dayjs, Dayjs] = [...currentPeriod];
+        switch (periodUnit) {
+            case "today": case "yesterday":
+                previous[1] = currentPeriod[0].subtract(1, 'day').endOf('date');
+                previous[0] = previous[1].startOf('date');
+                break;
+            case "week":
+                previous[1] = currentPeriod[0].subtract(1, 'day').endOf('date');
+                previous[0] = previous[1].subtract(6, 'day').startOf('date');
+                break;
+            case "month":
+                previous[1] = currentPeriod[0].subtract(1, 'day').endOf('date');
+                previous[0] = previous[1].subtract(29, 'day').startOf('date');
+                break;
+        }
+        setCompareDates(previous);
+    }
 
     const switchPeriod = (selectedPeriod: string) => {
         let period: [Dayjs, Dayjs] = [dayjs().startOf('date'), dayjs().endOf('date')];
@@ -88,6 +139,7 @@ export default function CouponInsight() {
                 break;
         }
         setSelectedDates(period);
+        handlePreviousPeriod(period, selectedPeriod);
     }
 
     const onPeriodChange = (e: RadioChangeEvent) => {
@@ -95,50 +147,56 @@ export default function CouponInsight() {
         switchPeriod(e.target.value);
     };
 
+    const handleOptionChange = (value: string) => {
+        setSelectedDiscountType(value);
+        setSelectedDiscountLabel(discounts.filter(option => option.value === value)[0].label);
+    };
+
+    const convertPeriodLabel = (period: string) => {
+        return period === "today" ? "Hôm nay" :
+            period === "yesterday" ? "Hôm qua" :
+                period === "week" ? "7 ngày qua" : "30 ngày qua";
+    }
+    
+    const dateRangeToString = (selectedDates: [Dayjs | null, Dayjs | null]) => {
+        return `${selectedDates[0]?.format('DD/MM/YYYY')} - ${selectedDates[1]?.format('DD/MM/YYYY')}`
+    }
+
     return (
         <React.Fragment>
-            <div className="flex flex-col container">
-                <div className="bg-white pr-4 px-4">
-                    <Breadcrumb
-                        className="text-xs"
-                        items={[
-                            {
-                                href: "/",
-                                title: (
-                                    <div className="flex items-center">
-                                        <HiOutlineHome size={15} />
-                                    </div>
-                                ),
-                            },
-                            {
-                                href: "/report/business-performance",
-                                title: "Trung tâm phát triển",
-                            },
-                            {
-                                title: "Chỉ số khuyến mãi",
-                            },
-                        ]}
-                    />
-                    <div className="mt-5 uppercase text-xl font-semibold">Chỉ số khuyến mãi</div>
-                    <div className="mt-5">Vui lòng xem hướng dẫn chi tiết: Giới thiệu trung tâm phát triển</div>
-                    <div className="mt-5">
-                        <div className="flex lg:flex-row flex-col gap-5 mb-5 lg:items-center">
-                            <div className="font-bold">Thời gian báo cáo:</div>
+            <div className="flex flex-col container mx-auto bg-slate-100">
+                <div className="bg-white py-4 px-4 mx-5 mt-5">
+                    <div className="flex lg:flex-row flex-col lg:justify-between gap-5">
+                        <div className="flex flex-row gap-5 items-center">
+                            <div>Loại giảm giá:</div>
+                            <Select
+                                style={{ width: '350px' }}
+                                value={selectedDiscountType}
+                                options={discountTypeOptions}
+                                onChange={handleOptionChange}
+                                optionRender={(option) => (
+                                    <Radio checked={selectedDiscountType === option.value}
+                                        value={option.value}>{option.label}</Radio>
+                                )}>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col lg:flex-row gap-5 lg:items-center">
+                            <div>Thời gian báo cáo:</div>
                             <Radio.Group onChange={onPeriodChange} value={selectedReportPeriod}>
-                                <Radio.Button value="today">Hôm nay</Radio.Button>
-                                <Radio.Button value="yesterday">Hôm qua</Radio.Button>
                                 <Radio.Button value="week">7 ngày qua</Radio.Button>
                                 <Radio.Button value="month">30 ngày qua</Radio.Button>
                             </Radio.Group>
-                            <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY"/>
-                            <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
+                            <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY" />
                         </div>
                     </div>
                 </div>
-                <div className="bg-white py-4 px-10 mt-5 flex flex-col">
-                    <div className="flex flex-col lg:flex-row ">
-                        <div className="font-semibold">Chỉ số chính</div>
-                        <div className="lg:ml-4">13/04/2023 - 13/04/2024 (So sánh với: 11/04/2022 - 12/04/2023)</div>
+
+                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                    <div className="flex flex-col lg:flex-row">
+                        <div className="font-semibold">{selectedDiscountLabel}</div>
+                        <div className="lg:ml-4 text-slate-500">
+                            {convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)} (So sánh với: {dateRangeToString(compareDates)})
+                        </div>
                     </div>
                     <div className="w-[100%] my-10 flex flex-col gap-10">
                         <div className="lg:hidden sm:block">
@@ -146,7 +204,11 @@ export default function CouponInsight() {
                                 {
                                     mainValues.map((item, key) => {
                                         return (
-                                            <CheckableCard id={key} item={item} checkboxVisibility={true}/>
+                                            <div key={key}>
+                                                <CheckableCard
+                                                    item={item} checkboxVisibility={false}
+                                                    borderVisibility={item.borderVisibility} />
+                                            </div>
                                         )
                                     })
                                 }
@@ -154,11 +216,15 @@ export default function CouponInsight() {
                         </div>
                         <div className="lg:block sm:hidden">
                             <CustomCarousel loading={false} arrows infinite={false}
-                                slidesToShow={4} slidesToScroll={1}
+                                slidesToShow={5} slidesToScroll={5}
                                 contents={
                                     mainValues.map((item, key) => {
                                         return (
-                                            <CheckableCard id={key} item={item} checkboxVisibility={true}/>
+                                            <div key={key}>
+                                                <CheckableCard
+                                                    item={item} checkboxVisibility={false}
+                                                    borderVisibility={item.borderVisibility} />
+                                            </div>
                                         )
                                     })
                                 } />
@@ -166,37 +232,10 @@ export default function CouponInsight() {
                         <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
                     </div>
                 </div>
-                <div className="lg:grid lg:grid-cols-2 flex flex-col gap-5 mt-5">
-                    <Card className="bg-white py-4 px-10 mt-5 flex flex-col lg:mb-20"
-                        title={
-                            <div className="flex flex-col">
-                                <div className="font-semibold flex flex-row items-center gap-2">
-                                    <div className="text-lg">Top 10 sản phẩm (theo doanh số)</div>
-                                    <Tooltip title=""><TbInfoCircle /></Tooltip>
-                                </div>
-                                <div className="text-sm">13/04/2023 - 13/04/2024</div>
-                            </div>
-                        }>
-                        <div className="w-[100%] my-10 flex flex-col gap-5">
-                            <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
-                        </div>
-                    </Card>
-                    <Card className="bg-white py-4 px-10 mt-5 flex flex-col lg:mb-20"
-                        title={
-                            <div className="flex flex-col">
-                                <div className="font-semibold flex flex-row items-center gap-2">
-                                    <div className="text-lg">Top 10 thành phố (theo doanh số)</div>
-                                    <Tooltip title=""><TbInfoCircle /></Tooltip>
-                                </div>
-                                <div className="text-sm">13/04/2023 - 13/04/2024</div>
-                            </div>
-                        }>
-                        <div className="w-[100%] my-10 flex flex-col gap-5">
-                            <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
-                        </div>
-                    </Card>
+                <div className="mt-5 mx-5">
+                    <CouponInsightTable />
                 </div>
-            </div >
+            </div>
         </React.Fragment >
     )
 }

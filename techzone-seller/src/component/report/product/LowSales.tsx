@@ -81,12 +81,14 @@ export default function LowSales() {
 
     return (
         <React.Fragment>
-            <div className="bg-white py-4 px-10 mt-5 flex flex-col">
-                <Card title={
-                    <div className="font-semibold">Doanh số thấp</div>
-                }>
-                    <Table columns={columns}/>
-                </Card>
+            <div className="flex flex-col container mx-auto bg-slate-100">
+                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                    <Card title={
+                        <div className="font-semibold">Doanh số thấp</div>
+                    }>
+                        <Table columns={columns} />
+                    </Card>
+                </div>
             </div>
         </React.Fragment>
     )

@@ -32,15 +32,15 @@ export default function Navbar() {
     {
       key: "0",
       label: (
-        <div className="flex w-full">
+        <div className="flex w-full items-center gap-2">
           <Image
             src={mall_logo}
-            width={15}
-            height={15}
+            width={30}
+            height={30}
             alt="Logo"
-            className="rounded-full w-1/4 m-1"
+            className="rounded-full"
           />
-          <div className="w-3/4 ml-2">
+          <div className="flex flex-col">
             <p className="font-bold text-sm"> Thảo Lăng</p>
             <p className="text-xs"> langthao200243@gmail.com</p>
           </div>
@@ -188,8 +188,8 @@ export default function Navbar() {
                     alt="Logo"
                     className="rounded-full"
                   />
-                  <p className="ml-2 truncate text-sm">
-                    langthao200243@gmail.com
+                  <p className="ml-2 text-sm">
+                  Thảo Lăng
                   </p>
                   <RiArrowDropDownLine size={20} />
                 </div>

@@ -1,6 +1,8 @@
 "use client";
-import { Button, DatePicker, Divider, Input, Radio, 
-    RadioChangeEvent, Select, Space, Table, TableColumnsType, Tooltip } from 'antd'
+import {
+    Button, DatePicker, Divider, Input, Radio,
+    RadioChangeEvent, Select, Space, Table, TableColumnsType, Tooltip
+} from 'antd'
 import React, { useState } from 'react'
 import { GoDownload } from 'react-icons/go'
 import CheckableCard from '@/component/report/CheckableCard'
@@ -237,75 +239,79 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
 
     return (
         <React.Fragment>
-            <div className="bg-white pr-4 px-4">
-                <div className="flex lg:flex-row flex-col gap-5 mb-5 lg:items-center mt-5">
-                    <div className="font-bold">Thời gian báo cáo:</div>
-                    <Radio.Group onChange={onPeriodChange} value={selectedReportPeriod}>
-                        <Radio.Button value="today">Hôm nay</Radio.Button>
-                        <Radio.Button value="yesterday">Hôm qua</Radio.Button>
-                        <Radio.Button value="week">7 ngày qua</Radio.Button>
-                        <Radio.Button value="month">30 ngày qua</Radio.Button>
-                    </Radio.Group>
-                    <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY" />
-                    <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
-                </div>
-            </div>
-            <div className="bg-white py-4 px-10 mt-5 flex flex-col">
-                <div className="flex flex-col lg:flex-row ">
-                    <div className="font-semibold">Chỉ số chính</div>
-                    <div className="lg:ml-4">
-                        {convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)} (So sánh với: {dateRangeToString(compareDates)})</div>
-                </div>
-                <div className="lg:w-1/2 my-10 flex flex-col gap-10">
-                    <div className="flex flex-row gap-2">
-                        {
-                            mainValues.map((item, key) => {
-                                return (
-                                    <CheckableCard id={key} item={item} checkboxVisibility={false} />
-                                )
-                            })
-                        }
+            <div className="flex flex-col container mx-auto bg-slate-100">
+                <div className="bg-white pr-4 px-4 mx-5 mt-5">
+                    <div className="flex lg:flex-row flex-col gap-5 mb-5 lg:items-center mt-5">
+                        <div className="font-bold">Thời gian báo cáo:</div>
+                        <Radio.Group onChange={onPeriodChange} value={selectedReportPeriod}>
+                            <Radio.Button value="today">Hôm nay</Radio.Button>
+                            <Radio.Button value="yesterday">Hôm qua</Radio.Button>
+                            <Radio.Button value="week">7 ngày qua</Radio.Button>
+                            <Radio.Button value="month">30 ngày qua</Radio.Button>
+                        </Radio.Group>
+                        <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY" />
+                        <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
                     </div>
                 </div>
-            </div>
-            <div className="bg-white py-4 px-10 mt-5 flex flex-col">
-                <div className="flex flex-row justify-between items-center">
-                    <div className="flex flex-row gap-4">
-                        <div className="font-semibold">Hiệu quả sản phẩm</div>
-                        <div>{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
+                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                    <div className="flex flex-col lg:flex-row ">
+                        <div className="font-semibold">Chỉ số chính</div>
+                        <div className="lg:ml-4">
+                            {convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)} (So sánh với: {dateRangeToString(compareDates)})</div>
                     </div>
-                    <Button disabled>
-                        <div className="flex flex-row items-center gap-1">
-                            <div>Tải dữ liệu</div>
-                            <GoDownload />
+                    <div className="lg:w-1/2 my-10 flex flex-col gap-10">
+                        <div className="grid grid-cols-2 gap-2">
+                            {
+                                mainValues.map((item, key) => {
+                                    return (
+                                        <div key={key}>
+                                            <CheckableCard item={item} checkboxVisibility={false} />
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
-                    </Button>
+                    </div>
                 </div>
-                <Divider />
-                <Space direction="vertical">
-                    <Space.Compact>
-                        <Select
-                            size="large"
-                            style={{ width: '140px' }}
-                            placement='bottomLeft'
-                            defaultValue="product_name"
-                            onChange={handleChange}
-                            options={[
-                                { value: 'product_name', label: 'Tên sản phẩm' },
-                                { value: 'sku', label: 'SKU' },
-                                { value: 'psku', label: 'PSKU' },
-                            ]}
-                        />
-                        <Input.Search size="large" style={{ width: '400px' }}
-                            placeholder="Điền tên sản phẩm" />
-                    </Space.Compact>
-                </Space>
-                <Divider />
-                <TableWrapper>
-                    <Table columns={columns} scroll={{ x: "max-content" }}
-                        // dataSource={data}
-                        bordered />
-                </TableWrapper>
+                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                    <div className="flex flex-row justify-between items-center">
+                        <div className="flex flex-row gap-4">
+                            <div className="font-semibold">Hiệu quả sản phẩm</div>
+                            <div>{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
+                        </div>
+                        <Button disabled>
+                            <div className="flex flex-row items-center gap-1">
+                                <div>Tải dữ liệu</div>
+                                <GoDownload />
+                            </div>
+                        </Button>
+                    </div>
+                    <Divider />
+                    <Space direction="vertical">
+                        <Space.Compact>
+                            <Select
+                                size="large"
+                                style={{ width: '140px' }}
+                                placement='bottomLeft'
+                                defaultValue="product_name"
+                                onChange={handleChange}
+                                options={[
+                                    { value: 'product_name', label: 'Tên sản phẩm' },
+                                    { value: 'sku', label: 'SKU' },
+                                    { value: 'psku', label: 'PSKU' },
+                                ]}
+                            />
+                            <Input.Search size="large" style={{ width: '400px' }}
+                                placeholder="Điền tên sản phẩm" />
+                        </Space.Compact>
+                    </Space>
+                    <Divider />
+                    <TableWrapper>
+                        <Table columns={columns} scroll={{ x: "max-content" }}
+                            // dataSource={data}
+                            bordered />
+                    </TableWrapper>
+                </div>
             </div>
         </React.Fragment>
     )

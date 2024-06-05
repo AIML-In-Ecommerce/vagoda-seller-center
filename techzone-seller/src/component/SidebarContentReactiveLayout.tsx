@@ -35,7 +35,7 @@ function SidebarContentReactiveLayout({
   }
 
   return (
-    <Layout>
+    <Layout hasSider>
       {" "}
       <Sidebar noticeCollapsingCallback={handleSidebarCollapsingNotice} />
       <div className="invisible" style={hiddenBlockStyle}>
