@@ -1,5 +1,5 @@
 "use client";
-import { Button, Card } from "antd";
+import { Button, Card, Divider } from "antd";
 import { useEffect, useState } from "react";
 import ShopInfo from "./widgetEditorForm/ShopInfo";
 import { TbLayoutNavbarCollapseFilled } from "react-icons/tb";
@@ -11,6 +11,14 @@ import BannerWidget from "./widgetEditorForm/BannerWidget";
 import ProductWidget from "./widgetEditorForm/ProductWidget";
 import CategoryWidget from "./widgetEditorForm/CategoryWidget";
 import PromotionWidget from "./widgetEditorForm/PromotionWidget";
+import CollectionWidget from "./widgetEditorForm/CollectionWidget";
+import { Link } from "react-scroll";
+import { ShopInfoDesignType } from "@/model/ShopType";
+
+export enum SaveStatusEnum {
+  NOCHANGE,
+  UNSAVED,
+}
 
 interface WidgetEditorBarProps {
   widgets: WidgetType[];
@@ -18,12 +26,18 @@ interface WidgetEditorBarProps {
 
   toggleInvisibilityWidget: (widget: WidgetType) => void;
   deleteWidget: (widget: WidgetType) => void;
+
+  shopInfo: ShopInfoDesignType;
+  setShopInfo(shopInfo: ShopInfoDesignType): void;
 }
 
 export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   // var
   const [currentForm, setCurrentForm] = useState("");
   const [selectedWidget, setSelectedWidget] = useState<WidgetType>();
+  const [saveStatus, setSaveStatus] = useState<SaveStatusEnum>(
+    SaveStatusEnum.NOCHANGE
+  );
 
   useEffect(() => {
     if (selectedWidget) {
@@ -35,51 +49,83 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
   const returnToAll = () => {
     setCurrentForm("");
     setSelectedWidget(undefined);
+    setSaveStatus(SaveStatusEnum.NOCHANGE);
   };
 
   //update widgets visually
-  const updateWidgets = () => {
+  const updateWidgets = async () => {
     props.setWidgets([...props.widgets]);
-    // TODO: toast update successfully
   };
 
   return (
-    <div className="bg-white mx-2 min-w-80 z-0 pb-5">
+    <div className="mx-2 min-w-80 pb-5 bg-white">
       {/* general */}
       {currentForm === "" && (
         <div className="p-5">
-          <div className="mb-5">Widget đang dùng</div>
+          <div className="mb-5 font-extralight uppercase">Widget đang dùng</div>
           {/* <Button block onClick={() => setCurrentForm("general_info")}>
             Thông tin chung
           </Button> */}
 
-          <Card
-            hoverable
-            style={{ width: "100%", height: "70%" }}
-            onClick={() => setCurrentForm("general_info")}
+          <Link
+            activeClass="active"
+            to="general-info"
+            spy={true}
+            smooth={true}
+            offset={-80}
+            duration={500}
           >
-            <div className="m-2 grid grid-cols-8">
-              <TbLayoutNavbarCollapseFilled style={{ fontSize: "20px" }} />
-              <div className="col-span-5">Thông tin chung</div>
-            </div>
-          </Card>
+            <Card
+              hoverable
+              style={{ width: "100%", height: "70%" }}
+              onClick={() => setCurrentForm("general_info")}
+            >
+              <div className="grid grid-cols-8">
+                <TbLayoutNavbarCollapseFilled style={{ fontSize: "20px" }} />
+                <div className="col-span-5 font-semibold">Thông tin chung</div>
+              </div>
+            </Card>
+          </Link>
+          <Divider style={{ marginBottom: -10 }} />
         </div>
       )}
+
       {currentForm !== "" && (
-        <Button
-          style={{ marginTop: "10px", marginLeft: "10px" }}
-          onClick={returnToAll}
-        >
-          Quay về
-        </Button>
+        <div className="flex flex-row justify-between">
+          <Button
+            style={{ marginTop: "10px", marginLeft: "10px" }}
+            onClick={returnToAll}
+          >
+            Quay về
+          </Button>
+          {(saveStatus === SaveStatusEnum.NOCHANGE && (
+            <div className="mt-5 mr-10 text-slate-400 font-semibold">
+              Đã cập nhật
+            </div>
+          )) || (
+            <div className="mt-5 mr-10 text-blue-400 font-semibold">
+              Có thay đổi
+            </div>
+          )}
+        </div>
       )}
 
       {/* forms when widget bar is clicked */}
-      {currentForm === "general_info" && <ShopInfo />}
+      {currentForm === "general_info" && (
+        <ShopInfo
+          shopInfo={props.shopInfo}
+          setShopInfo={props.setShopInfo}
+          setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+        />
+      )}
 
       {currentForm === WidgetCategoryType.BANNER.toString() &&
         selectedWidget && (
-          <BannerWidget widget={selectedWidget} updateWidgets={updateWidgets} />
+          <BannerWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+          />
         )}
 
       {currentForm === WidgetCategoryType.PRODUCT.toString() &&
@@ -87,6 +133,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <ProductWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 
@@ -95,6 +142,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <CategoryWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 
@@ -103,6 +151,16 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
           <PromotionWidget
             widget={selectedWidget}
             updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+          />
+        )}
+
+      {currentForm === WidgetCategoryType.COLLECTION.toString() &&
+        selectedWidget && (
+          <CollectionWidget
+            widget={selectedWidget}
+            updateWidgets={updateWidgets}
+            setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
           />
         )}
 

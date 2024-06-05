@@ -3,6 +3,8 @@ import {
   BannerPatternType,
   CategoryElement,
   CategoryPatternType,
+  CollectionElement,
+  CollectionPatternType,
   ProductElement,
   ProductPatternType,
   PromotionElement,
@@ -16,6 +18,8 @@ import ProductGrid from "./boothPattern/ProductGrid";
 import PromotionGrid from "./boothPattern/PromotionGrid";
 import CategoryGrid from "./boothPattern/CategoryGrid";
 import { useMemo } from "react";
+import CollectionCarousel from "./boothPattern/CollectionCarousel";
+import CollectionGrid from "./boothPattern/CollectionGrid";
 
 const MockData = [
   {
@@ -170,12 +174,17 @@ interface WidgetListProps {
 
 export default function WidgetList(props: WidgetListProps) {
   return (
-    <div>
+    <div className="overflow-hidden">
       {props.widgets
         .sort((a, b) => a.order - b.order)
         .map((item, index) => (
           <div key={index}>
-            {item.visibility === true && <Widget widget={item} />}
+            <section id={item._id}>
+              <div className="uppercase font-semibold text-gray-500">
+                widget {index + 1}
+              </div>
+              {item.visibility === true && <Widget widget={item} />}
+            </section>
           </div>
         ))}
     </div>
@@ -205,6 +214,10 @@ export function Widget(props: WidgetProps) {
       {props.widget.type === WidgetCategoryType.PROMOTION && (
         <PromotionWidget widget={props.widget} />
       )}
+
+      {props.widget.type === WidgetCategoryType.COLLECTION && (
+        <CollectionWidget widget={props.widget} />
+      )}
     </div>
   );
 }
@@ -217,10 +230,10 @@ function ProductWidget(props: WidgetProps) {
   return (
     <div>
       {element && element.pattern === ProductPatternType.CAROUSEL && (
-        <ProductCarousel products={MockData} widget={props.widget} />
+        <ProductCarousel widget={props.widget} />
       )}
       {element && element.pattern === ProductPatternType.GRID && (
-        <ProductGrid products={MockData} widget={props.widget} />
+        <ProductGrid widget={props.widget} />
       )}
     </div>
   );
@@ -257,6 +270,22 @@ function PromotionWidget(props: WidgetProps) {
     <div>
       {element && element.pattern === PromotionPatternType.GRID && (
         <PromotionGrid widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
+function CollectionWidget(props: WidgetProps) {
+  const element = props.widget.element as CollectionElement;
+
+  return (
+    <div>
+      {element && element.pattern === CollectionPatternType.GRID && (
+        <CollectionGrid widget={props.widget} />
+      )}
+
+      {element && element.pattern === CollectionPatternType.CAROUSEL && (
+        <CollectionCarousel widget={props.widget} />
       )}
     </div>
   );

@@ -13,15 +13,18 @@ import {
   Select,
   Tooltip,
 } from "antd";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
-import WidgetTypeIcon from "../mini/WidgetTypeIcon";
-import BannerForm from "../uploadImage/BannerForm";
+import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
+import BannersForm from "../uploadImage/BannersForm";
 import { FaRegHandPointer } from "react-icons/fa6";
+import { POST_GetPath, PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function BannerWidget(props: WidgetProps) {
@@ -47,26 +50,53 @@ export default function BannerWidget(props: WidgetProps) {
     return temp;
   }, [props.widget.element]);
 
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      proxyBanner.filter((id) => id !== " ").length == element.images.length &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [proxyBanner, isSwitched]);
+
   // functions
-  const handleSave = () => {
+  const handleSave = async () => {
     proxyBannerWidget.visibility = isSwitched;
 
-    // TODO: need experiment
     element.images = proxyBanner.filter((id) => id !== " ");
     proxyBannerWidget.element = element;
-    setProxyBannerWidget(proxyBannerWidget);
 
-    props.updateWidgets();
+    const response = await PUT_UpdateWidget(proxyBannerWidget);
+
+    if (response.status === 200) {
+      setProxyBannerWidget(proxyBannerWidget);
+      props.updateWidgets();
+      alert("Cập nhật widget thành công!");
+    } else {
+      alert("Cập nhật widget thất bại...");
+      // console.log(response.message);
+    }
   };
 
   const handleChangePattern = (value: string) => {
     console.log(`selected ${value}`);
   };
 
-  const handleChangeBanner = (value: string, index: number) => {
-    proxyBanner[index] = value;
-    setProxyBanner(proxyBanner);
+  const handleChangeBanner = async (value: string, index: number) => {
+    if (value) {
+      let path = await handleGetPath(value);
+      if (path) {
+        proxyBanner[index] = path;
+        setProxyBanner(proxyBanner);
+      }
+    }
   };
+
+  // const handleChangeBanner = (value: string, index: number) => {
+  //   proxyBanner[index] = value;
+  //   setProxyBanner(proxyBanner);
+  // };
 
   const checkActive = (index: number) => {
     if (element.images[index] && element.images[index] !== " ") {
@@ -96,7 +126,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 0);
             }}
@@ -125,7 +155,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 1);
             }}
@@ -154,7 +184,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 2);
             }}
@@ -183,7 +213,7 @@ export default function BannerWidget(props: WidgetProps) {
               </Flex>
             </Tooltip>
           )}
-          <BannerForm
+          <BannersForm
             setImageUrl={function (url: string): void {
               handleChangeBanner(url, 3);
             }}
@@ -193,10 +223,28 @@ export default function BannerWidget(props: WidgetProps) {
     },
   ];
 
+  //api call
+  const handleGetPath = async (image: string) => {
+    const response = await POST_GetPath(image);
+    if (response.status == 200) {
+      // console.log(response);
+      // alert("Upload successfully! " + response.data);
+
+      return response.data;
+    } else {
+      console.log(response.message);
+      return "";
+    }
+  };
+
   return (
-    <div className="m-5 pb-5">
+    <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
       <div className="m-5 text-2xl font-semibold flex justify-between">
-        <div>{props.widget._id}</div>
+        <WidgetTypeName
+          type={props.widget.type}
+          element={props.widget.element}
+          order={props.widget.order}
+        />
         <CustomSwitch isSwitched={isSwitched} setIsSwitched={setIsSwitched} />
       </div>
 
@@ -235,7 +283,7 @@ export default function BannerWidget(props: WidgetProps) {
           </div>
 
           {/* collapse */}
-          <Collapse items={items} />
+          <Collapse accordion items={items} />
         </Flex>
 
         {/* Buttons */}

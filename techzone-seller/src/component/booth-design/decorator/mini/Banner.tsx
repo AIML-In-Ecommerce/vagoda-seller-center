@@ -7,39 +7,56 @@ interface BannerProps {
   color: string;
   name: string;
   avatarUrl: string | undefined;
+  bannerUrl: string | undefined;
 }
 
 export default function Banner(shopInfo: BannerProps) {
+  const backgroundUrl = useMemo(() => {
+    if (shopInfo.bannerUrl) {
+      return shopInfo.bannerUrl;
+    } else return "";
+  }, [shopInfo.bannerUrl]);
+
   // color analyzer
   const classColor = useMemo(() => {
-    switch (shopInfo.color) {
-      case "black":
-        return "bg-black text-white";
-      case "red":
-        return "bg-red-500 text-white";
-      case "orange":
-        return "bg-orange-500 text-white";
-      case "yellow":
-        return "bg-yellow-500 text-white";
-      case "cyan":
-        return "bg-cyan-500 text-white";
-      case "blue":
-        return "bg-blue-500 text-white";
-      case "green":
-        return "bg-green-500 text-white";
-      case "pink":
-        return "bg-pink-500 text-white";
-      case "purple":
-        return "bg-purple-500 text-white";
-      case "white":
-        return "bg-white";
-      default:
-        return "";
-    }
+    if (shopInfo.bannerUrl && shopInfo.bannerUrl !== "") {
+      return "";
+    } else
+      switch (shopInfo.color) {
+        case "black":
+          return "bg-black text-white";
+        case "red":
+          return "bg-red-500 text-white";
+        case "orange":
+          return "bg-orange-500 text-white";
+        case "yellow":
+          return "bg-yellow-500 text-white";
+        case "cyan":
+          return "bg-cyan-500 text-white";
+        case "blue":
+          return "bg-blue-500 text-white";
+        case "green":
+          return "bg-green-500 text-white";
+        case "pink":
+          return "bg-pink-500 text-white";
+        case "purple":
+          return "bg-purple-500 text-white";
+        case "white":
+          return "bg-white";
+        default:
+          return "";
+      }
   }, [shopInfo.color]);
 
   return (
-    <div className={`p-5 ${classColor}`}>
+    <div
+      className={`p-5 rounded-tr-xl	rounded-tl-xl ${classColor} z-0 overflow-hidden`}
+      style={{
+        backgroundImage: `url(${backgroundUrl})`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <Flex gap="small">
         <div className="m-1">
           {(shopInfo.avatarUrl && (
@@ -56,16 +73,18 @@ export default function Banner(shopInfo: BannerProps) {
         </div>
         <div className="m-1">
           <Flex vertical>
-            <div className="mt-2 font-bold text-lg">{shopInfo.name} ®</div>
+            <div className="mt-2 font-bold text-sm lg:text-lg">
+              {shopInfo.name} ®
+            </div>
             <Flex>
-              <div>
+              <div className="text-xs">
                 <StarFilled style={{ color: "gold" }} /> 4.5 / 5
               </div>
               <Divider
                 type="vertical"
                 style={{ height: "auto", border: "0.25px solid silver" }}
               />
-              <div>
+              <div className="text-xs">
                 <MessageFilled /> Phản hồi chat: 100%
               </div>
             </Flex>
@@ -76,10 +95,10 @@ export default function Banner(shopInfo: BannerProps) {
           style={{ height: "auto", border: "0.25px solid silver" }}
         />
         <Button
-          size="large"
+          size="small"
           ghost={shopInfo.color !== "white"}
           icon={<MessageFilled />}
-          style={{ marginTop: 15 }}
+          style={{ marginTop: 15, zIndex: 0 }}
         >
           Chat
         </Button>

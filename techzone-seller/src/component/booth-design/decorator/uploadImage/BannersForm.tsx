@@ -11,7 +11,7 @@ interface FormProps {
   setImageUrl: (url: string) => void;
 }
 
-export default function BannerForm(formProps: FormProps) {
+export default function BannersForm(formProps: FormProps) {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,7 +77,7 @@ export default function BannerForm(formProps: FormProps) {
           onChange={handleChange}
         >
           {imageUrl ? (
-            <div className="m-10 max-w-[200px] max-h-[50px] overflow-hidden">
+            <div className="m-10 max-w-[200px] max-h-[150px] overflow-hidden">
               {/* TODO: show image file name? or full image? how to display it? */}
               <img
                 src={imageUrl}
@@ -100,8 +100,8 @@ export default function BannerForm(formProps: FormProps) {
         onCancel={handleCancel}
         isOpen={isModalOpen}
         aspectRatio={{
-          label: "8:1",
-          value: 8 / 1,
+          label: "16:9",
+          value: 16 / 9,
         }}
       />
 

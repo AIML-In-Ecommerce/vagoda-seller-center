@@ -10,192 +10,63 @@ import {
   Flex,
   FloatButton,
   Input,
+  Breadcrumb,
+  Skeleton,
 } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { useParams } from "next/navigation";
-import { formatDate } from "@/utils/DateFormatter";
 import { CollectionType } from "@/model/CollectionType";
+import { HiOutlineHome } from "react-icons/hi2";
+import AvatarForm from "@/component/booth-design/decorator/uploadImage/AvatarForm";
+import { FaRegHandPointer } from "react-icons/fa";
+import { ProductType } from "@/model/ProductType";
+import { POST_GetProductListByShop } from "@/apis/product/ProductAPI";
+import {
+  GET_GetCollection,
+  PUT_UpdateCollection,
+} from "@/apis/collection/CollectionAPI";
 
 export default function CollectionDetailPage() {
   // mock data
-  const MockData = [
-    {
-      _id: "sp-01",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Lenovo 15i",
-      rating: 4.5,
-      soldAmount: 20,
-      price: 15000000,
-      flashSale: true,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-02",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell Vostro",
-      rating: 4.5,
-      soldAmount: 32,
-      price: 17000000,
-      flashSale: false,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-03",
-      imageLink:
-        "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell SuperLight",
-      rating: 4.5,
-      soldAmount: 10,
-      price: 18000000,
-      flashSale: true,
-      originalPrice: 20000000,
-      category: "",
-    },
-    {
-      _id: "sp-04",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Lenovo 15i",
-      rating: 4.5,
-      soldAmount: 20,
-      price: 15000000,
-      flashSale: true,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-05",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell Vostro",
-      rating: 4.5,
-      soldAmount: 32,
-      price: 17000000,
-      flashSale: false,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-06",
-      imageLink:
-        "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell SuperLight",
-      rating: 4.5,
-      soldAmount: 10,
-      price: 18000000,
-      flashSale: true,
-      originalPrice: 20000000,
-      category: "",
-    },
-    {
-      _id: "sp-07",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Lenovo 15i",
-      rating: 4.5,
-      soldAmount: 20,
-      price: 15000000,
-      flashSale: true,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-08",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell Vostro",
-      rating: 4.5,
-      soldAmount: 32,
-      price: 17000000,
-      flashSale: false,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-09",
-      imageLink:
-        "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell SuperLight",
-      rating: 4.5,
-      soldAmount: 10,
-      price: 18000000,
-      flashSale: true,
-      originalPrice: 20000000,
-      category: "",
-    },
-    {
-      _id: "sp-10",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Lenovo 15i",
-      rating: 4.5,
-      soldAmount: 20,
-      price: 15000000,
-      flashSale: true,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-11",
-      imageLink:
-        "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell Vostro",
-      rating: 4.5,
-      soldAmount: 32,
-      price: 17000000,
-      flashSale: false,
-      originalPrice: 17000000,
-      category: "",
-    },
-    {
-      _id: "sp-12",
-      imageLink:
-        "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      name: "Dell SuperLight",
-      rating: 4.5,
-      soldAmount: 10,
-      price: 18000000,
-      flashSale: true,
-      originalPrice: 20000000,
-      category: "",
-    },
-  ];
-
-  // TODO: comment this later
-  const collectionData = {
-    _id: "id1",
-    name: "Collection 1",
-    productIdList: ["sp-01", "sp-12", "sp-05"],
-    createDate: formatDate(new Date("2024-03-24T12:30:00")),
-    isActive: false,
-  };
+  // const collectionData: CollectionType = {
+  //   _id: "",
+  //   name: "",
+  //   imageUrl: "",
+  //   // "https://cdn.boo.vn/media/catalog/product/1/_/1.0.02.3.22.002.223.23-11000032-bst-1_5.jpg",
+  //   productIdList: [],
+  //   createDate: new Date("2024-03-24T12:30:00"),
+  //   isActive: false,
+  //   shop: "",
+  // };
 
   //var
-  const [collection, setCollection] = useState(collectionData);
+  const { collectionId } = useParams();
+  const [collection, setCollection] = useState<CollectionType>();
 
   const [name, setName] = useState("");
-  const [productIdList, setProductIdList] = useState<string[]>(
-    collection.productIdList
-  );
-  const [isSwitched, setIsSwitched] = useState(collection.isActive);
-
-  const { collectionId } = useParams();
+  const [imageUrl, setImageUrl] = useState("");
+  const [productIdList, setProductIdList] = useState<string[]>([]);
+  const [isSwitched, setIsSwitched] = useState(false);
+  const [products, setProducts] = useState<ProductType[]>([]);
 
   useEffect(() => {
-    //query data from collection id
+    if (collection) {
+      // update collection data
+      console.log(collection.productIdList);
 
-    // update collection data
-    setProductIdList(collection.productIdList);
-    setName(collection.name);
-    setIsSwitched(collection.isActive);
-  }, [collectionId]);
+      setProductIdList(
+        collection.productIdList ? collection.productIdList : []
+      );
+      setName(collection.name);
+      setIsSwitched(collection.isActive);
+      setImageUrl(collection.imageUrl);
+    }
+  }, [collection]);
 
   const isNotUpdatable = useMemo(() => {
+    if (!collection || !collection.productIdList) return true;
+
     let isNewList = true;
 
     if (collection.productIdList.length == productIdList.length) {
@@ -211,115 +82,220 @@ export default function CollectionDetailPage() {
     return (
       (name === "" || name.toString() === collection.name.toString()) &&
       isSwitched === collection.isActive &&
-      !isNewList
+      !isNewList &&
+      (imageUrl === "" ||
+        imageUrl.toString() === collection.imageUrl.toString())
     );
-  }, [name, isSwitched, productIdList]);
+  }, [name, isSwitched, productIdList, imageUrl]);
 
   // function
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!collection) return;
+
     const updatedCollection: CollectionType = {
       _id: collection._id,
       name: name,
+      imageUrl: imageUrl,
       productIdList: productIdList,
       createDate: collection.createDate,
       isActive: isSwitched,
+      shop: collection.shop,
     };
 
     // use api to update
+    console.log(updatedCollection);
+    const response = await PUT_UpdateCollection(updatedCollection);
 
-    // push router to collection
+    if (response.status === 200) {
+      //TODO: push router to collection OR toast success message
+      alert("Cập nhật bộ sưu tập thành công!");
+
+      // console.log(response.message);
+      // console.log(response.data);
+    } else {
+      alert("Cập nhật bộ sưu tập thất bại!");
+
+      // console.log(response.message);
+    }
+  };
+
+  // call api
+  useEffect(() => {
+    handleGetProductList();
+  }, [collection]);
+
+  useEffect(() => {
+    handleGetCollection();
+  }, [collectionId]);
+
+  const handleGetProductList = async () => {
+    if (!collection) return;
+
+    const response = await POST_GetProductListByShop(collection.shop);
+    if (response.status == 200) {
+      if (response.data) {
+        setProducts(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
+
+  const handleGetCollection = async () => {
+    const response = await GET_GetCollection(collectionId.toString());
+    if (response.status == 200) {
+      if (response.data) {
+        setCollection(response.data);
+        // console.log("collection", response.data);
+      }
+    }
   };
 
   return (
     <Layout>
-      <div className="m-5 grid grid-cols-6 lg:grid-cols-8 h-fit">
-        <div className="col-span-1">
-          <Anchor
-            items={[
-              {
-                key: "part-1",
-                href: "#part-1",
-                title: "Thao tác",
-              },
-              {
-                key: "part-2",
-                href: "#part-2",
-                title: "Thông tin chung",
-              },
-              {
-                key: "part-3",
-                href: "#part-3",
-                title: "Danh sách sản phẩm",
-              },
-            ]}
-            offsetTop={80}
-          />
-        </div>
-        <div className="col-span-5 lg:col-span-7 mx-20 flex flex-col">
-          <div id="part-1" className="invisible">
-            <Divider />
-          </div>
-          <div className="lg:flex lg:flex-row gap-5">
-            <Button href="./"> Trở về danh sách </Button>
-            <Button disabled={isNotUpdatable} onClick={handleSave}>
-              Cập nhật
-            </Button>
-          </div>
-          <div>
-            <div id="part-2" className="invisible">
-              <Divider />
-            </div>
-            <div className="m-5 text-2xl font-semibold">1. Thông tin chung</div>
-            <Divider />
-            {/* name */}
-            <div className="sm:w-full md:w-full lg:w-1/2">
-              <Tooltip title="Tên bộ sưu tập">
-                <Input
-                  // placeholder="Điền tên bộ sưu tập"
-                  placeholder={collection.name}
-                  prefix={<UserOutlined className="site-form-item-icon" />}
-                  suffix={
-                    <Tooltip title="Giới hạn n kí tự">
-                      <InfoCircleOutlined
-                        style={{ color: "rgba(0,0,0,.45)" }}
-                      />
-                    </Tooltip>
-                  }
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </Tooltip>
-            </div>
-            {/* status */}
-            <Flex gap="large" className="my-5">
-              <div className="font-semibold">Trạng thái</div>
-              <CustomSwitch
-                isSwitched={isSwitched}
-                setIsSwitched={setIsSwitched}
-              />
-            </Flex>
-          </div>
-
-          <div className="mb-20">
-            <div id="part-3" className="invisible">
-              <Divider />
-            </div>
-            <div className="m-5 text-2xl font-semibold">
-              2. Danh sách sản phẩm
-            </div>
-            <Divider />
-
-            <ProductSelect
-              products={MockData}
-              selectedProductId={productIdList}
-              setSelectedProductId={setProductIdList}
+      {(collection && products && (
+        <div className="m-5 grid grid-cols-6 lg:grid-cols-8 h-fit">
+          <div className="col-span-1">
+            <Anchor
+              items={[
+                {
+                  key: "part-1",
+                  href: "#part-1",
+                  title: "Thao tác",
+                },
+                {
+                  key: "part-2",
+                  href: "#part-2",
+                  title: "Thông tin chung",
+                },
+                {
+                  key: "part-3",
+                  href: "#part-3",
+                  title: "Danh sách sản phẩm",
+                },
+              ]}
+              offsetTop={80}
             />
           </div>
+          <div className="col-span-5 lg:col-span-7 mx-20 flex flex-col">
+            <div id="part-1">
+              <Breadcrumb
+                className="text-xs"
+                items={[
+                  {
+                    href: "/",
+                    title: (
+                      <div className="flex items-center">
+                        <HiOutlineHome size={15} />
+                      </div>
+                    ),
+                  },
+                  {
+                    title: "Thiết kế gian hàng",
+                  },
+                  {
+                    href: "/booth-design/collection",
+                    title: "Bộ sưu tập",
+                  },
+                  {
+                    title: "Chi tiết Bộ sưu tập",
+                  },
+                ]}
+              />
+            </div>
+            <div className="lg:flex lg:flex-row gap-5">
+              <Button href="./"> Trở về danh sách </Button>
+              <Button disabled={isNotUpdatable} onClick={handleSave}>
+                Cập nhật
+              </Button>
+            </div>
+            <div>
+              <div id="part-2" className="invisible">
+                <Divider />
+              </div>
+              <div className="m-5 text-2xl font-semibold">
+                1. Thông tin chung
+              </div>
+              <Divider />
+              {/* name */}
+              <div className="sm:w-full md:w-full lg:w-1/2">
+                <Tooltip title="Tên bộ sưu tập">
+                  <Input
+                    placeholder={collection.name}
+                    prefix={<UserOutlined className="site-form-item-icon" />}
+                    suffix={
+                      <Tooltip title="Giới hạn n kí tự">
+                        <InfoCircleOutlined
+                          style={{ color: "rgba(0,0,0,.45)" }}
+                        />
+                      </Tooltip>
+                    }
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </Tooltip>
+              </div>
+              {/* status */}
+              <Flex gap="large" className="my-5">
+                <div className="font-semibold">Trạng thái</div>
+                <CustomSwitch
+                  isSwitched={isSwitched}
+                  setIsSwitched={setIsSwitched}
+                />
+              </Flex>
+
+              {/* avatar */}
+              <Flex
+                vertical
+                gap="large"
+                className="overflow-hidden sm:w-full md:w-full lg:w-1/2"
+              >
+                <div className="font-semibold">Ảnh đại diện</div>
+
+                {collection.imageUrl && collection.imageUrl !== " " && (
+                  <Tooltip
+                    title={
+                      <img
+                        src={collection.imageUrl}
+                        alt="banner"
+                        style={{ width: "100%", height: "100%" }}
+                      />
+                    }
+                  >
+                    <Flex
+                      className="text-slate-500 w-max cursor-pointer"
+                      gap="small"
+                    >
+                      <FaRegHandPointer />
+                      Ảnh hiện tại
+                    </Flex>
+                  </Tooltip>
+                )}
+
+                <AvatarForm setImageUrl={setImageUrl} />
+              </Flex>
+            </div>
+
+            <div className="mb-20">
+              <div id="part-3" className="invisible">
+                <Divider />
+              </div>
+              <div className="m-5 text-2xl font-semibold">
+                2. Danh sách sản phẩm
+              </div>
+              <Divider />
+
+              <ProductSelect
+                products={products}
+                selectedProductId={productIdList}
+                setSelectedProductId={setProductIdList}
+              />
+            </div>
+          </div>
+          <FloatButton.Group>
+            <FloatButton.BackTop tooltip={<div>Lướt lên đầu</div>} />
+          </FloatButton.Group>
         </div>
-        <FloatButton.Group>
-          <FloatButton.BackTop tooltip={<div>Move to Top</div>} />
-        </FloatButton.Group>
-      </div>
+      )) || <Skeleton active style={{ margin: 10 }} />}
     </Layout>
   );
 }

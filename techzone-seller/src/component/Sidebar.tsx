@@ -1,7 +1,7 @@
 "use client";
 import { Input, Menu, theme, Tooltip } from "antd";
 import Sider from "antd/es/layout/Sider";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { BsHouseHeart, BsPersonVideo, BsShop } from "react-icons/bs";
@@ -21,20 +21,20 @@ type MenuItem = {
   icon?: React.ReactNode;
   label: React.ReactNode;
   url: string | null;
-  children?: MenuItem[];
+  items?: MenuItem[];
 };
 
 function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  children?: MenuItem[],
+  items?: MenuItem[],
   url?: string
 ): MenuItem {
   return {
     key,
     icon,
-    children,
+    items,
     label,
     url,
   } as MenuItem;
@@ -172,14 +172,65 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     },
   ];
 
+
+  const [option, setOption] = useState<string[]>([]);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname.includes("/order")) {
+      option.push("2");
+      setOption(option);
+    } else if (pathname.includes("/product")) {
+      option.push("3");
+      if (pathname.includes("/product/list")) {
+        option.push("3-0");
+      } else if (pathname.includes("/product/create")) {
+        option.push("3-1");
+      } else if (pathname.includes("/product/review")) {
+        option.push("3-2");
+      } else if (pathname.includes("/product/history")) {
+        option.push("3-3");
+      }
+      setOption(option);
+    } else if (pathname.includes("/warehouse-management")) {
+      setOption(["4"]);
+    } else if (pathname.includes("/report")) {
+      option.push("5");
+      if (pathname.includes("/report/business-performance")) {
+        option.push("5-0");
+      } else if (pathname.includes("/report/product-sale-traffic")) {
+        option.push("5-1");
+      } else if (pathname.includes("/report/coupon-insight")) {
+        option.push("5-2");
+      } else if (pathname.includes("/report/seller-performance")) {
+        option.push("5-3");
+      }
+      setOption(option);
+    } else if (pathname.includes("/marketing-center/promotion-tool")) {
+      setOption(["6", "6-0"]);
+    } else if (pathname.includes("/fee-structure")) {
+      setOption(["7"]);
+    } else if (pathname.includes("/booth-design")) {
+      option.push("8");
+      if (pathname.includes("/booth-design/decorator")) {
+        option.push("8-0");
+      } else if (pathname.includes("/booth-design/collection")) {
+        option.push("8-1");
+      }
+      setOption(option);
+    } else if (pathname.includes("/seller")) {
+      setOption(["9"]);
+    } else setOption(["1"]);
+  }, []);
+
   const filteredMenuItems = (
-    <div className="ant-layout-sider-children bg-white">
+    <div className="ant-layout-sider-items bg-white">
       <Menu
         theme="light"
         mode="inline"
-        // defaultSelectedKeys={["1"]}
-        style={{ height: "75vh", overflowY: "auto", width: "100%" }}
-        className="text-xs overflow-auto custom-scrollbar"
+        defaultSelectedKeys={option}
+        style={{ height: "auto", overflowY: "auto", width: "100%" }}
+        className="text-xs overflow-auto custom-scrollbar h-screen"
       >
         {menuItems
           .filter((item) =>
@@ -219,21 +270,40 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   );
 
   return (
-    <div className=" sm:w-0 relative z-50 h-full">
+    <div className="relative z-50">
+      {/* <div className=" sm:w-0 relative z-50 h-full">
       <div className="flex">
-        <div className="flex fixed h-full justify-center">
-          <div className="bg-white pt-4">
-            <div className="rounded-full">
-              {!collapsed && (
-                <Input
-                  size="middle"
-                  placeholder="Tìm kiếm"
-                  suffix={<GoSearch />}
-                  className="rounded-full w-11/12 m-1 "
-                  onChange={handleSearch}
-                />
-              )}
-            </div>
+        <div className="flex fixed h-full justify-center"> */}
+          {/* <div className="bg-white pt-4"></div> */}
+      <div className="fixed h-full items-center justify-center bg-white">
+        <Layout>
+          <Header style={{ padding: 0, background: colorBgContainer }}>
+            <Button
+              type="text"
+              icon={
+                collapsed ? <IoMenu className="" /> : <IoMdClose className="" />
+              }
+              onClick={() => setCollapsed(!collapsed)}
+              style={{
+                fontSize: "16px",
+                width: 48,
+                height: 48,
+              }}
+              className="mx-5"
+            />
+          </Header>
+        </Layout>
+        <div className="rounded-full">
+          {!collapsed && (
+            <Input
+              size="middle"
+              placeholder="Tìm kiếm"
+              suffix={<GoSearch />}
+              className="rounded-full w-11/12 m-1"
+              onChange={handleSearch}
+            />
+          )}
+        </div>
 
             <Sider
               trigger={null}

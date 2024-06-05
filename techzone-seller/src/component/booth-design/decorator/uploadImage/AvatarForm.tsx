@@ -2,9 +2,9 @@
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import type { GetProp, UploadProps } from "antd";
 import { Avatar, Button, Flex, message, Upload } from "antd";
-import { useState } from "react";
+import FixedRatioCropper from "./FixedRatioCropper";
+
 import { RiImageEditLine } from "react-icons/ri";
-import ImageCropper from "./ImageCropper";
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -58,6 +58,8 @@ export default function AvatarForm(formProps: FormProps) {
         setLoading(false);
         setImageUrl(url);
         formProps.setImageUrl(url);
+
+        setIsModalOpen(true);
       });
     }
   };
@@ -65,7 +67,7 @@ export default function AvatarForm(formProps: FormProps) {
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>Đăng tải</div>
     </button>
   );
 
@@ -79,7 +81,6 @@ export default function AvatarForm(formProps: FormProps) {
               listType="picture-circle"
               className="avatar-uploader"
               showUploadList={false}
-              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
               beforeUpload={beforeUpload}
               onChange={handleChange}
             >
@@ -111,7 +112,6 @@ export default function AvatarForm(formProps: FormProps) {
               listType="picture-circle"
               className="avatar-uploader"
               showUploadList={false}
-              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
               beforeUpload={beforeUpload}
               onChange={handleChange}
             >
@@ -120,7 +120,7 @@ export default function AvatarForm(formProps: FormProps) {
           ) : null}
         </Flex>
       </div>
-      <ImageCropper
+      <FixedRatioCropper
         imageUrl={imageUrl}
         setImageUrl={function (value: string): void {
           setImageUrl(value);
@@ -129,6 +129,10 @@ export default function AvatarForm(formProps: FormProps) {
         isOpen={isModalOpen}
         onCrop={handleOk}
         onCancel={handleCancel}
+        aspectRatio={{
+          label: "1:1",
+          value: 1 / 1,
+        }}
       />
     </>
   );

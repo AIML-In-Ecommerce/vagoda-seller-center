@@ -4,67 +4,30 @@ import {
   ProductPatternType,
   WidgetType,
 } from "@/model/WidgetType";
-import { Button, Flex, Input, Select, Tooltip } from "antd";
-import { useMemo, useState } from "react";
+import { Button, Flex, Input, Select, Skeleton, Tooltip } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
-import WidgetTypeIcon from "../mini/WidgetTypeIcon";
+import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
 import { CollectionType } from "@/model/CollectionType";
 import CustomEmpty from "../mini/CustomEmpty";
+import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
+import { GET_GetCollectionListByShop } from "@/apis/collection/CollectionAPI";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
 }
 
 export default function ProductWidget(props: WidgetProps) {
   // mock data
-  const collectionsData = [
-    {
-      _id: "1",
-      name: "collection 1",
-      productIdList: [],
-      createDate: "string",
-      isActive: true,
-    },
-    {
-      _id: "2",
-      name: "collection 2",
-      productIdList: [],
-      createDate: "string",
-      isActive: true,
-    },
-    {
-      _id: "3",
-      name: "collection 3",
-      productIdList: [],
-      createDate: "string",
-      isActive: true,
-    },
-    {
-      _id: "4",
-      name: "collection 4",
-      productIdList: [],
-      createDate: "string",
-      isActive: true,
-    },
-  ] as CollectionType[];
-
-  // data
-  const collectionOptions = useMemo(() => {
-    let newData: any[] = [];
-
-    collectionsData.forEach((collection) => {
-      newData.push({
-        value: collection._id,
-        label: collection.name,
-      });
-    });
-
-    return newData;
-  }, [collectionsData]);
+  const mockId = "65f1e8bbc4e39014df775166";
 
   // variables
+  const [collections, setCollections] = useState<CollectionType[]>([]);
+
   const [proxyProductWidget, setProxyProductWidget] = useState(props.widget);
 
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
@@ -77,8 +40,20 @@ export default function ProductWidget(props: WidgetProps) {
   const [collectionId, setCollectionId] = useState(element.collectionId);
   const [pattern, setPattern] = useState(element.pattern);
 
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      title === element.title &&
+      pattern === element.pattern &&
+      collectionId === element.collectionId &&
+      isSwitched === props.widget.visibility
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [pattern, title, collectionId, isSwitched]);
+
   // functions
-  const handleSave = () => {
+  const handleSave = async () => {
     proxyProductWidget.visibility = isSwitched;
 
     element.title = title;
@@ -86,23 +61,64 @@ export default function ProductWidget(props: WidgetProps) {
     element.pattern = pattern;
 
     proxyProductWidget.element = element;
-    setProxyProductWidget(proxyProductWidget);
 
-    props.updateWidgets();
+    const response = await PUT_UpdateWidget(proxyProductWidget);
+
+    if (response.status === 200) {
+      setProxyProductWidget(proxyProductWidget);
+      props.updateWidgets();
+      alert("Cập nhật widget thành công!");
+    } else {
+      alert("Cập nhật widget thất bại...");
+      // console.log(response.message);
+    }
   };
 
   const handleChangePattern = (value: string) => {
-    setPattern(Number.parseInt(value));
+    setPattern(value as ProductPatternType);
   };
 
   const handleChangeCollection = (value: string) => {
     setCollectionId(value);
   };
 
+  // data
+  const collectionOptions = useMemo(() => {
+    let newData: any[] = [];
+
+    collections.forEach((collection) => {
+      newData.push({
+        value: collection._id,
+        label: collection.name,
+      });
+    });
+
+    return newData;
+  }, [collections]);
+
+  // call api
+  useEffect(() => {
+    handleGetCollectionList();
+  }, [mockId]);
+
+  const handleGetCollectionList = async () => {
+    const response = await GET_GetCollectionListByShop(mockId);
+    if (response.status == 200) {
+      if (response.data) {
+        setCollections(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
+
   return (
     <div className="m-5 pb-5">
       <div className="m-5 text-2xl font-semibold flex justify-between">
-        <div>{props.widget._id}</div>
+        <WidgetTypeName
+          type={props.widget.type}
+          element={props.widget.element}
+          order={props.widget.order}
+        />
         <CustomSwitch isSwitched={isSwitched} setIsSwitched={setIsSwitched} />
       </div>
 
@@ -169,16 +185,18 @@ export default function ProductWidget(props: WidgetProps) {
           </div>
         </Flex>
         {/* select collection from id */}
-        <Flex vertical gap="small">
-          <div className="font-semibold">Bộ sưu tập</div>
-          <Select
-            value={collectionId}
-            style={{ width: "100%" }}
-            onChange={handleChangeCollection}
-            notFoundContent={<CustomEmpty />}
-            options={collectionOptions}
-          />
-        </Flex>
+        {(collections && (
+          <Flex vertical gap="small">
+            <div className="font-semibold">Bộ sưu tập</div>
+            <Select
+              value={collectionId}
+              style={{ width: "100%" }}
+              onChange={handleChangeCollection}
+              notFoundContent={<CustomEmpty />}
+              options={collectionOptions}
+            />
+          </Flex>
+        )) || <Skeleton active />}
 
         {/* Buttons */}
         <Flex gap="large">

@@ -41,12 +41,12 @@ export default function PromotionCard(props: PromotionCardProps) {
       }}
     >
       <div className="relative grid h-36 ">
-        <div className="absolute top-4 z-10 w-7 flex flex-col justify-center items-center">
+        <div className="absolute top-8 z-10 w-10 flex flex-col justify-center items-center">
           <img alt="logo" src={LOGO.src}></img>
-          <div className="font-semibold">TechZone</div>
+          {/* <div className="font-semibold">TechZone</div> */}
         </div>
 
-        <div className="absolute left-20 z-10 text-lg font-semibold">
+        <div className="absolute left-20 z-10 text-lg font-semibold ">
           {props.item.name}
         </div>
         <div className="absolute left-20 top-7 z-10 text-xs">
@@ -57,12 +57,16 @@ export default function PromotionCard(props: PromotionCardProps) {
         </div>
         <div className="absolute right-0 bottom-12 z-10 text-xs">
           {!isSelected ? (
-            <Button
-              className="bg-sky-500 text-[9px] text-white font-semibold text-center"
-              onClick={() => setIsSelected(true)}
-            >
-              Áp dụng
-            </Button>
+            <span>
+              {props.item && ( // TODO: revise
+                <Button
+                  className="bg-sky-500 text-[9px] text-white font-semibold text-center"
+                  onClick={() => setIsSelected(true)}
+                >
+                  Áp dụng
+                </Button>
+              )}
+            </span>
           ) : (
             <Button
               className="bg-gray-500 text-white font-semibold text-center"

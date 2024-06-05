@@ -1,16 +1,18 @@
 "use client";
-import { Carousel, Flex, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { Carousel, Flex, List, Typography } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AiOutlineRight } from "react-icons/ai";
 import { CarouselArrow } from "@/component/utils/CarouselArrow";
 import { ProductType } from "@/model/ProductType";
 import { ProductElement, WidgetType } from "@/model/WidgetType";
-import ProductItem from "@/component/booth-design/decorator/mini/MiniProductItem";
+import ProductItem from "@/component/booth-design/decorator/mini/ProductItem";
 import CustomEmpty from "../mini/CustomEmpty";
+import { GET_GetCollection } from "@/apis/collection/CollectionAPI";
+import { POST_GetProductList } from "@/apis/product/ProductAPI";
+import { CollectionType } from "@/model/CollectionType";
 
 interface ProductCarouselProps {
-  products: ProductType[]; // TODO: get this from collection id
   widget: WidgetType;
 }
 
@@ -25,38 +27,21 @@ interface ProductItemProps {
   originalPrice: number;
 }
 
-enum WrapperType {
-  paddingBlock,
-  infoBlock,
-}
-
-interface ProductItemPropsWrapper {
-  type: WrapperType;
-  productInfo: ProductItemProps;
-}
-
-const paddingBlockProps: ProductItemProps = {
-  _id: "",
-  imageLink: "",
-  name: "padding",
-  rating: 0.0,
-  soldAmount: 0,
-  price: 0,
-  isFlashSale: false,
-  originalPrice: 0,
-};
-
 export default function ProductCarousel(props: ProductCarouselProps) {
+  const element = useMemo(() => {
+    return props.widget.element as ProductElement;
+  }, [props.widget.element]);
+
+  const [collection, setCollection] = useState<CollectionType>();
+  const [rawProducts, setRawProducts] = useState<ProductType[]>([]);
+
   const [products, setProducts] = useState<ProductItemProps[]>([]);
-  const numberOfDisplayedProductPerScreen = 4;
-  // const gridColumnSpan = 5;
   const SuggestionProductsMoreDetailHref = "#";
   const autoPlayCarouselSpeed = 5000; //ms
 
   useEffect(() => {
-    //fetch data here
-
-    const data = props.products;
+    //process data here
+    const data = rawProducts;
     const tr_data: ProductItemProps[] = data.map((value) => {
       const tr_item: ProductItemProps = {
         _id: value._id,
@@ -73,131 +58,157 @@ export default function ProductCarousel(props: ProductCarouselProps) {
     });
 
     setProducts(tr_data);
-  }, []);
+  }, [rawProducts]);
 
-  const productDisplay = () => {
-    if (products.length < 1) {
-      return <CustomEmpty />;
-    }
+  // call api
+  useEffect(() => {
+    handleGetCollection();
+  }, [element, element.collectionId]);
 
-    let result: JSX.Element[] = [];
+  useEffect(() => {
+    handleGetProductList();
+  }, [element, collection]);
 
-    const max = products.length / numberOfDisplayedProductPerScreen;
-
-    for (let i = 0; i <= max; i++) {
-      const startIndex = i * numberOfDisplayedProductPerScreen;
-      const endIndex =
-        startIndex + numberOfDisplayedProductPerScreen > products.length
-          ? products.length
-          : startIndex + numberOfDisplayedProductPerScreen;
-      let items = products
-        .slice(startIndex, endIndex)
-        .map((value: ProductItemProps) => {
-          const item: ProductItemPropsWrapper = {
-            type: WrapperType.infoBlock,
-            productInfo: value,
-          };
-
-          return item;
-        });
-
-      if (items.length == 0) {
-        continue;
-      } else if (items.length < numberOfDisplayedProductPerScreen) {
-        const paddingBlocks: ProductItemPropsWrapper[] =
-          new Array<ProductItemProps>(
-            numberOfDisplayedProductPerScreen - items.length
-          )
-            .fill(paddingBlockProps)
-            .map((value: ProductItemProps) => {
-              const item: ProductItemPropsWrapper = {
-                type: WrapperType.paddingBlock,
-                productInfo: value,
-              };
-
-              return item;
-            });
-
-        items = items.concat(paddingBlocks);
+  const handleGetCollection = async () => {
+    const response = await GET_GetCollection(element.collectionId);
+    if (response.status == 200) {
+      if (response.data) {
+        setCollection(response.data);
+        // console.log("collection", response.data);
       }
-
-      const row = items.map(
-        (valueWrapper: ProductItemPropsWrapper, index: number) => {
-          let isInvisible = "";
-          if (valueWrapper.type == WrapperType.paddingBlock) {
-            isInvisible = "invisible";
-          }
-          const value = valueWrapper.productInfo;
-
-          return (
-            <div key={value._id + index.toString()} className={isInvisible}>
-              <ProductItem
-                imageLink={value.imageLink}
-                name={value.name}
-                rating={value.rating}
-                soldAmount={value.soldAmount}
-                price={value.price}
-                isFlashSale={value.isFlashSale}
-                originalPrice={value.originalPrice}
-              />
-            </div>
-          );
-        }
-      );
-
-      const rowWrapper = (
-        <Flex
-          key={startIndex.toString() + endIndex.toString()}
-          justify="center"
-          align="center"
-          gap={6}
-        >
-          {row}
-        </Flex>
-      );
-
-      result = result.concat(
-        <div
-          key={i.toString() + startIndex.toString() + endIndex.toString()}
-          className="my-3 pr-10 flex items-center"
-        >
-          {rowWrapper}
-        </div>
-      );
     }
-
-    return result;
   };
 
-  // var
-  const element = props.widget.element as ProductElement;
+  const handleGetProductList = async () => {
+    if (!collection) return;
+    const response = await POST_GetProductList(collection.productIdList);
+    if (response.status == 200) {
+      if (response.data) {
+        setRawProducts(response.data);
+        // console.log("product", data);
+      }
+    }
+  };
 
   return (
-    <div className="w-full flex justify-center items-center bg-white pt-5 my-5">
-      <div className="w-full">
-        <Flex className="w-full mb-4 px-8" align="center">
-          <Typography.Text className="text-xl font-semibold w-full">
-            {element.title}
-          </Typography.Text>
-          <Flex className="w-full px-4" justify="end" align="center" gap={6}>
-            <Link href={SuggestionProductsMoreDetailHref} prefetch={false}>
-              <Typography.Text className="text-base">Xem thêm</Typography.Text>
-            </Link>
-            <Typography.Text className="text-base">
-              <AiOutlineRight size={"16px"} />
-            </Typography.Text>
-          </Flex>
-        </Flex>
-        <Carousel
-          autoplay
-          autoplaySpeed={autoPlayCarouselSpeed}
-          arrows
-          prevArrow={<CarouselArrow direction="left" />}
-          nextArrow={<CarouselArrow direction="right" />}
-        >
-          {productDisplay()}
-        </Carousel>
-      </div>
+    <div className="bg-white rounded-xl my-5">
+      {products.length === 0 ? (
+        <div className="p-10">
+          <CustomEmpty />
+        </div>
+      ) : (
+        <div className="w-full flex justify-center items-center py-5">
+          <div className="w-full">
+            <Flex className="w-full mb-4 px-8" align="center">
+              <Typography.Text className="mt-3 text-xl uppercase font-semibold w-full">
+                {element.title}
+              </Typography.Text>
+              <Flex
+                className="w-full px-4"
+                justify="end"
+                align="center"
+                gap={6}
+              >
+                <Link href={SuggestionProductsMoreDetailHref} prefetch={false}>
+                  <Typography.Text className="text-base hidden md:block lg:block">
+                    Xem thêm
+                  </Typography.Text>
+                </Link>
+                <Typography.Text className="text-base">
+                  <AiOutlineRight size={"16px"} />
+                </Typography.Text>
+              </Flex>
+            </Flex>
+            <div className="invisible h-5">hidden block</div>
+            {products.length < 4 ? (
+              <div className="px-10">
+                <List
+                  grid={{
+                    gutter: 5,
+                    xs: 0,
+                    sm: 1,
+                    md: 2,
+                    lg: 3,
+                    xl: 4,
+                    xxl: 4,
+                  }}
+                  dataSource={products}
+                  locale={{
+                    emptyText: <CustomEmpty />,
+                  }}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <ProductItem
+                        imageLink={item.imageLink}
+                        name={item.name}
+                        rating={item.rating}
+                        soldAmount={item.soldAmount}
+                        price={item.price}
+                        isFlashSale={item.isFlashSale}
+                        originalPrice={item.originalPrice}
+                      />
+                    </List.Item>
+                  )}
+                />
+              </div>
+            ) : (
+              <Carousel
+                autoplay
+                autoplaySpeed={autoPlayCarouselSpeed}
+                arrows
+                prevArrow={<CarouselArrow direction="left" />}
+                nextArrow={<CarouselArrow direction="right" />}
+                slidesToShow={4}
+                slidesToScroll={4}
+                initialSlide={0}
+                responsive={[
+                  {
+                    breakpoint: 1280,
+                    settings: {
+                      slidesToShow: 3,
+                      slidesToScroll: 3,
+                      infinite: true,
+                      dots: true,
+                    },
+                  },
+                  {
+                    breakpoint: 1024,
+                    settings: {
+                      slidesToShow: 2,
+                      slidesToScroll: 2,
+                      infinite: true,
+                      dots: true,
+                    },
+                  },
+                  {
+                    breakpoint: 768,
+                    settings: {
+                      slidesToShow: 1,
+                      slidesToScroll: 1,
+                      initialSlide: 1,
+                    },
+                  },
+                ]}
+              >
+                {products.length > 0 &&
+                  products.map((value, index) => (
+                    <div key={index} className="pl-5">
+                      <ProductItem
+                        imageLink={value.imageLink}
+                        name={value.name}
+                        rating={value.rating}
+                        soldAmount={value.soldAmount}
+                        price={value.price}
+                        isFlashSale={value.isFlashSale}
+                        originalPrice={value.originalPrice}
+                      />
+                    </div>
+                  ))}
+              </Carousel>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

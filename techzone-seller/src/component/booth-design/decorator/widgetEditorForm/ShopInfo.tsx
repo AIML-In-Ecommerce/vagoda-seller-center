@@ -4,6 +4,7 @@ import BannerForm from "@/component/booth-design/decorator/uploadImage/BannerFor
 import {
   Badge,
   Button,
+  Divider,
   Flex,
   Input,
   Radio,
@@ -11,8 +12,11 @@ import {
   Tooltip,
 } from "antd";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BannerModal from "@/component/booth-design/decorator/BannerModal";
+import { FaRegHandPointer } from "react-icons/fa6";
+import { ShopInfoDesignType } from "@/model/ShopType";
+import { SaveStatusEnum } from "../WidgetEditorBar";
 
 type TabPosition = "upload" | "color" | "default";
 type Colors =
@@ -27,50 +31,117 @@ type Colors =
   | "pink"
   | "purple";
 
-export default function ShopInfo() {
+interface ShopInfoWidgetProps {
+  shopInfo: ShopInfoDesignType;
+  setShopInfo(shopInfo: ShopInfoDesignType): void;
+  setSaveStatus(saveStatus: SaveStatusEnum): void;
+}
+
+export default function ShopInfo(props: ShopInfoWidgetProps) {
   //banner mode
   const [mode, setMode] = useState<TabPosition>("default");
   const handleModeChange = (e: RadioChangeEvent) => {
     setMode(e.target.value);
+    if (e.target.value === "color") {
+      setBannerUrl("");
+      setColor(props.shopInfo.color as Colors);
+    }
   };
 
   //banner color
-  const [color, setColor] = useState<Colors>("white");
+  const [color, setColor] = useState<Colors>(props.shopInfo.color as Colors);
   const handleColorChange = (e: RadioChangeEvent) => {
     setColor(e.target.value);
   };
 
   // data
-  const [avatarUrl, setAvatarUrl] = useState<string>();
-  const [bannerUrl, setBannerUrl] = useState<string>(); // ?
-  const [name, setName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string>(props.shopInfo.avatarUrl);
+  const [bannerUrl, setBannerUrl] = useState<string>(props.shopInfo.bannerUrl);
+  const [name, setName] = useState(props.shopInfo.name);
 
   const [openPreview, setOpenPreview] = useState(false);
 
   // functions
   const handleSave = () => {
-    //
+    let newInfo = {
+      color: color,
+      name: name,
+      avatarUrl: avatarUrl,
+      bannerUrl: bannerUrl,
+    } as ShopInfoDesignType;
+
+    props.setShopInfo(newInfo);
+    props.setSaveStatus(SaveStatusEnum.NOCHANGE);
   };
 
   const handlePreview = () => {
     setOpenPreview(true);
   };
 
+  useEffect(() => {
+    let saveStatus: SaveStatusEnum =
+      color === props.shopInfo.color &&
+      avatarUrl === props.shopInfo.avatarUrl &&
+      name === props.shopInfo.name
+        ? SaveStatusEnum.NOCHANGE
+        : SaveStatusEnum.UNSAVED;
+
+    props.setSaveStatus(saveStatus);
+  }, [color, avatarUrl, bannerUrl, name]);
+
   return (
-    <div className="m-5 pb-5">
+    <div className="m-5 pl-2 pb-5 h-[500px] overflow-y-auto">
       <div className="m-5 text-2xl font-semibold flex justify-center">
         Thông tin chung
       </div>
-      <Flex vertical gap="large">
+      <Flex vertical>
         {/* avatar */}
         <Flex vertical gap="large">
           <div className="font-semibold">Thay đổi ảnh đại diện</div>
+
+          {props.shopInfo.avatarUrl && props.shopInfo.avatarUrl !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={props.shopInfo.avatarUrl}
+                  alt="avatar"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh đại diện hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+
           <AvatarForm setImageUrl={setAvatarUrl} />
         </Flex>
+
+        <Divider />
 
         {/* banner */}
         <Flex vertical gap="small">
           <div className="font-semibold">Thay đổi ảnh nền</div>
+
+          {props.shopInfo.bannerUrl && props.shopInfo.bannerUrl !== " " && (
+            <Tooltip
+              title={
+                <img
+                  src={props.shopInfo.bannerUrl}
+                  alt="avatar"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              }
+            >
+              <Flex className="text-slate-500 w-max cursor-pointer" gap="small">
+                <FaRegHandPointer />
+                Ảnh nền hiện tại
+              </Flex>
+            </Tooltip>
+          )}
+
           <Radio.Group
             onChange={handleModeChange}
             value={mode}
@@ -121,12 +192,18 @@ export default function ShopInfo() {
           )}
         </Flex>
 
+        <Divider />
+
         {/* name */}
         <Flex gap="large">
           <div className="font-semibold mt-2">Chỉnh sửa tên</div>
           <div className="w-1/2">
             <Input
-              placeholder="Điền tên"
+              placeholder={
+                props.shopInfo.name && props.shopInfo.name !== ""
+                  ? props.shopInfo.name
+                  : "Điền tên"
+              }
               prefix={<UserOutlined className="site-form-item-icon" />}
               suffix={
                 <Tooltip title="Giới hạn n kí tự">
@@ -139,6 +216,8 @@ export default function ShopInfo() {
           </div>
         </Flex>
 
+        <Divider />
+
         {/* Preview Booth */}
         <Flex gap="large">
           <Button size="large" onClick={handlePreview}>
@@ -150,13 +229,16 @@ export default function ShopInfo() {
         </Flex>
       </Flex>
 
-      <BannerModal
-        color={color}
-        name={name}
-        avatarUrl={avatarUrl}
-        open={openPreview}
-        setOpen={setOpenPreview}
-      />
+      <div className="overflow-hidden h-[10px]">
+        <BannerModal
+          color={color}
+          name={name}
+          avatarUrl={avatarUrl}
+          bannerUrl={bannerUrl}
+          open={openPreview}
+          setOpen={setOpenPreview}
+        />
+      </div>
     </div>
   );
 }

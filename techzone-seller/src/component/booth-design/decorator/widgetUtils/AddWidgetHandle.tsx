@@ -1,9 +1,9 @@
 "use client";
-import { WidgetCategoryType } from "@/model/WidgetType";
+import { WidgetCategoryType, WidgetType } from "@/model/WidgetType";
 
 interface HandleProps {
-  type: number;
-  pattern: number;
+  type: string;
+  pattern: string;
   order: number;
 }
 
@@ -19,7 +19,7 @@ export const AddWidgetHandle = (props: HandleProps) => {
           pattern: props.pattern,
           images: [],
         },
-      };
+      } as WidgetType;
     case WidgetCategoryType.CATEGORY:
       return {
         _id: "",
@@ -31,7 +31,7 @@ export const AddWidgetHandle = (props: HandleProps) => {
           title: "",
           categoryIdList: [],
         },
-      };
+      } as WidgetType;
     case WidgetCategoryType.PRODUCT:
       return {
         _id: "",
@@ -43,7 +43,7 @@ export const AddWidgetHandle = (props: HandleProps) => {
           title: "",
           collectionId: "",
         },
-      };
+      } as WidgetType;
     case WidgetCategoryType.PROMOTION:
       return {
         _id: "",
@@ -55,7 +55,18 @@ export const AddWidgetHandle = (props: HandleProps) => {
           title: "",
           promotionIdList: [],
         },
-      };
+      } as WidgetType;
+    case WidgetCategoryType.COLLECTION:
+      return {
+        _id: "",
+        type: props.type,
+        order: props.order,
+        visibility: true,
+        element: {
+          pattern: props.pattern,
+          collectionIdList: [],
+        },
+      } as WidgetType;
     default:
       return {
         _id: "",
@@ -63,6 +74,6 @@ export const AddWidgetHandle = (props: HandleProps) => {
         order: props.order,
         visibility: true,
         element: undefined,
-      };
+      } as WidgetType;
   }
 };

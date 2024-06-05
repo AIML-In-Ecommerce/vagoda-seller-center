@@ -78,9 +78,9 @@ export default function ProductItem(props: ProductItemProps) {
                 <p className="font-semibold text-green-500 text-xs">{price} </p>
                 <div className="flex space-x-1 ">
                   <p className="font-semibold text-gray-500 line-through text-xs">
-                    {originalPrice}{" "}
+                    {originalPrice}
                   </p>
-                  <p className="text-red-500 bg-red-200 text-xs">
+                  <p className="text-red-500 bg-red-200 text-[7px]">
                     -{discountPercentage}%
                   </p>
                 </div>
