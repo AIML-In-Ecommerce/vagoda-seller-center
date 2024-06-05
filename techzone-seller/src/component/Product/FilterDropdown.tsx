@@ -1,35 +1,73 @@
 "use client";
 import { Button, Checkbox, Dropdown, Input, MenuProps } from "antd";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { GoSearch } from "react-icons/go";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 interface FilterDropdownProps {
   name: string;
-  options: string[];
-  onSelection: (selectedCategories: string[], key: string) => void;
+  options: { id: string; label: string }[];
+  onSelection: (
+    selectedCategories: { id: string; label: string }[],
+    key: string
+  ) => void;
+  initialSelectedOptions: { id: string; label: string }[];
 }
 
 export default function FilterDropdown(props: FilterDropdownProps) {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const query = useSearchParams();
+
+  const [selectedOptions, setSelectedOptions] = useState<
+    { id: string; label: string }[]
+  >([]);
   const [visible, setVisible] = useState(false);
   const [categorySearch, setCategorySearch] = useState("");
 
   const handleVisibleChange = (flag: boolean) => {
-    setVisible(flag);
-
-    if (!flag) {
-      props.onSelection(selectedOptions, props.name);
+    if (flag) {
+      setVisible(flag);
     }
+  };
+
+  
+
+  const handleFilter = () => {
+    setVisible(false);
+    console.log("NAME", props.name);
+
+    if (selectedOptions.length == 0) {
+      return;
+    }
+
+    const updatedQuery = new URLSearchParams(query);
+    if (props.name == "Danh mục") {
+      updatedQuery.set(
+        "category",
+        encodeURI(selectedOptions.map((item) => item.id).join(","))
+      );
+    }
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+
+    props.onSelection(selectedOptions, props.name);
+    console.log("Selected options", selectedOptions);
   };
 
   const handleCategorySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCategorySearch(e.target.value);
   };
 
-  const handleOptionChange = (option: string) => {
-    const updatedOptions = selectedOptions.includes(option)
-      ? selectedOptions.filter((item) => item !== option)
+  const handleOptionChange = (option: { id: string; label: string }) => {
+    const isSelected = selectedOptions.find(
+      (selected) => selected.id === option.id
+    );
+    const updatedOptions = isSelected
+      ? selectedOptions.filter((item) => item.id !== option.id)
       : [...selectedOptions, option];
     setSelectedOptions(updatedOptions);
   };
@@ -59,15 +97,19 @@ export default function FilterDropdown(props: FilterDropdownProps) {
         <div className=" dropdown-menu custom-scrollbar">
           {props.options
             .filter((category) =>
-              category.toLowerCase().includes(categorySearch.toLowerCase())
+              category.label
+                .toLowerCase()
+                .includes(categorySearch.toLowerCase())
             )
             .map((category) => (
-              <div key={category} className="">
+              <div key={category.id} className="">
                 <Checkbox
-                  checked={selectedOptions.includes(category)}
+                  checked={selectedOptions.some(
+                    (option) => option.id === category.id
+                  )}
                   onChange={() => handleOptionChange(category)}
                 >
-                  {category}
+                  {category.label}
                 </Checkbox>
               </div>
             ))}
@@ -81,13 +123,13 @@ export default function FilterDropdown(props: FilterDropdownProps) {
       key: "2",
       label: (
         <div className="flex flex-row-reverse ">
-          {/* <Button
+          <Button
             type="primary"
             className="theme-button ant-btn-primary dropdown-button"
-            onClick={handleApplyFilter}
+            onClick={handleFilter}
           >
             Áp dụng
-          </Button> */}
+          </Button>
           <Button onClick={handleClearSelection} className="mx-2">
             Bỏ chọn
           </Button>
@@ -96,10 +138,15 @@ export default function FilterDropdown(props: FilterDropdownProps) {
     },
   ];
 
+  useEffect(() => {
+    console.log("CHI", props.initialSelectedOptions);
+    setSelectedOptions(props.initialSelectedOptions || []);
+  }, [props.initialSelectedOptions]);
+
   return (
     <Dropdown
-      visible={visible}
-      onVisibleChange={handleVisibleChange}
+      open={visible}
+      onOpenChange={handleVisibleChange}
       menu={{ items: categoryItems }}
       placement="bottomLeft"
       className="max-w-sm"

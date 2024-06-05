@@ -1,7 +1,13 @@
 "use client";
+import { ProductFilterInput } from "@/apis/ProductAPI";
 import { OptionType } from "@/component/Product/CreateBatchProduct";
 import FilterDropdown from "@/component/Product/FilterDropdown";
 import ProductDetail from "@/component/Product/ProductDetail";
+import { formatPrice } from "@/component/utils/formatPrice";
+import { _CategoryType } from "@/model/CategoryType";
+import { _ProductType } from "@/model/ProductType";
+import { CategoryService } from "@/services/Category";
+import { ProductService } from "@/services/Product";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import {
   Alert,
@@ -13,13 +19,15 @@ import {
   Input,
   MenuProps,
   Popconfirm,
-  Select,
   Table,
   Tabs,
+  TabsProps,
   Tooltip,
+  message,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { CiCircleRemove } from "react-icons/ci";
@@ -50,463 +58,15 @@ export interface ProductType {
   otherDescriptions: OptionType[];
 }
 
-const products: ProductType[] = [
-  {
-    key: "1",
-    name: "Laptop Dell XPS 15",
-    inventory_number: 20,
-    price: 45000000,
-    system_fee: 2000000,
-    profit: 43000000,
-    avatar_url: [
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "001",
-    SKU: "SKU001",
-    category: "Laptop",
-    brand: "Dell",
-    status: "Đang bán",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "2",
-    name: "Máy lạnh Panasonic Inverter 1.5HP",
-    inventory_number: 15,
-    price: 12000000,
-    system_fee: 1000000,
-    profit: 11000000,
-    avatar_url: [
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "002",
-    SKU: "SKU002",
-    category: "Điện máy - Điện gia dụng",
-    brand: "Panasonic",
-    status: "Nháp",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "3",
-    name: "Tai nghe Bluetooth Sony WH-1000XM4",
-    inventory_number: 30,
-    price: 8000000,
-    system_fee: 500000,
-    profit: 7500000,
-    avatar_url: [
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "003",
-    SKU: "SKU003",
-    category: "Thiết bị âm thanh",
-    brand: "Sony",
-    status: "Đã tắt",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "4",
-    name: "Máy ảnh Canon EOS R6",
-    inventory_number: 10,
-    price: 60000000,
-    system_fee: 3000000,
-    profit: 57000000,
-    avatar_url: [
-      "https://images.pexels.com/photos/18135362/pexels-photo-18135362/free-photo-of-nikon-camera-hanging-on-gray-background.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "004",
-    SKU: "SKU004",
-    category: "Phụ kiện",
-    brand: "Canon",
-    status: "Hết hàng",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "5",
-    name: "Smartphone Samsung Galaxy S21 Ultra",
-    inventory_number: 25,
-    price: 30000000,
-    system_fee: 1500000,
-    profit: 28500000,
-    avatar_url: [
-      "https://images.pexels.com/photos/17944743/pexels-photo-17944743/free-photo-of-close-up-of-a-man-holding-a-green-samsung-galaxy-s21.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "005",
-    SKU: "SKU005",
-    category: "Điện thoại & Phụ kiện",
-    brand: "Samsung",
-    status: "Đang bán",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "6",
-    name: "Quạt điện Mitsubishi Electric 5 cánh",
-    inventory_number: 18,
-    price: 5000000,
-    system_fee: 800000,
-    profit: 4500000,
-    avatar_url: [
-      "https://images.pexels.com/photos/3675622/pexels-photo-3675622.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-
-      "https://images.pexels.com/photos/3675622/pexels-photo-3675622.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "006",
-    SKU: "SKU006",
-    category: "Điện máy - Điện gia dụng",
-    brand: "Mitsubishi Electric",
-    status: "Hết hàng",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "7",
-    name: "Laptop Asus ROG Zephyrus G14",
-    inventory_number: 12,
-    price: 35000000,
-    system_fee: 2000000,
-    profit: 33000000,
-    avatar_url: [
-      "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "007",
-    SKU: "SKU007",
-    category: "Laptop",
-    brand: "Asus",
-    status: "Chờ duyệt",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "8",
-    name: "Tai nghe AirPods Pro",
-    inventory_number: 40,
-    price: 6000000,
-    system_fee: 1000000,
-    profit: 5000000,
-    avatar_url: [
-      "https://media.istockphoto.com/id/1346147559/photo/modern-wireless-bluetooth-headphones-with-charging-case-on-a-blue-background.jpg?b=1&s=612x612&w=0&k=20&c=LzlNQUIRWviMaqDo5gtbkmPUiy_ruH57MrZH7fQsRKc=",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "008",
-    SKU: "SKU008",
-    category: "Thiết bị âm thanh",
-    brand: "Apple",
-    status: "Đã tắt",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "9",
-    name: "TV Sony Bravia OLED 4K 55 inch",
-    inventory_number: 8,
-    price: 45000000,
-    system_fee: 3000000,
-    profit: 42000000,
-    avatar_url: [
-      "https://media.istockphoto.com/id/173240143/photo/tv-with-two-clipping-paths.jpg?b=1&s=612x612&w=0&k=20&c=FrmX0is8iAP4R9GTxuLXVRJ3u2WhbAQnOYwIjyRBHU8=",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "009",
-    SKU: "SKU009",
-    category: "Điện máy - Điện gia dụng",
-    brand: "Sony",
-    status: "Đang bán",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-  {
-    key: "10",
-    name: "Máy giặt LG Inverter 10kg",
-    inventory_number: 22,
-    price: 15000000,
-    system_fee: 1500000,
-    profit: 13500000,
-    avatar_url: [
-      "https://media.istockphoto.com/id/1310076735/photo/laundry-room-with-a-washing-machine.jpg?b=1&s=612x612&w=0&k=20&c=BVDtEWahh0HZndALgqBBjuVc5IefTRjTWbYdJed1zmM=",
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-    ],
-    id: "010",
-    SKU: "SKU010",
-    category: "Điện máy - Điện gia dụng",
-    brand: "LG",
-    status: "Hết hàng",
-    rating: 4.5,
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    otherDescriptions: [
-      { label: "Màn hình", value: "15.6 inch 4K UHD+" },
-      { label: "CPU", value: "Intel Core i7-11800H" },
-      { label: "RAM", value: "16GB DDR4" },
-      { label: "SSD", value: "512GB SSD" },
-      {
-        label: "Cổng kết nối",
-        value: "3 x Thunderbolt 4 , 1 x HDMI, 1 x SDXC Card Slot",
-      },
-      {
-        label: "Kết nối không dây",
-        value: "Wi-Fi 6E (802.11ax) , Bluetooth 5.3",
-      },
-      { label: "Hệ điều hành", value: "Windows 10 Home" },
-      { label: "Công suất pin", value: "86 Wh" },
-      {
-        label: "Kích thước, khối lượng",
-        value: "1.8 kg | 35.11 x 23.45 x 1.7 cm",
-      },
-      // Thêm các thông số kỹ thuật khác tương tự cho Laptop Dell XPS 15
-    ],
-  },
-];
-
 const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: ProductType[]) => {
+  onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {
     console.log(
       `selectedRowKeys: ${selectedRowKeys}`,
       "selectedRows: ",
       selectedRows
     );
   },
-  getCheckboxProps: (record: ProductType) => ({
+  getCheckboxProps: (record: _ProductType) => ({
     disabled: record.name === "Disabled User",
     name: record.name,
   }),
@@ -523,95 +83,165 @@ const exportOptions: MenuProps["items"] = [
   },
 ];
 
-const options: FilterCriteria[] = [];
-
 export default function ProductListPage() {
   const router = useRouter();
-  const { Option } = Select;
-  const [searchOption, setSearchOption] = useState("Tên sản phẩm");
-  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>(options);
-  const [filteredProducts, setFilteredProducts] = useState(products);
-  const [currentTab, setCurrentTab] = useState("0");
+  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>([]);
+
+  const [filter, setFilter] = useState<ProductFilterInput>({});
+  const [allProducts, setAllProducts] = useState<_ProductType[]>([]);
+  const [filteredProducts, setFilteredProducts] =
+    useState<_ProductType[]>(allProducts);
+  const [currentTab, setCurrentTab] = useState("");
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
+  const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
     null
   );
-  const [tabProducts, setTabProducts] = useState<ProductType[]>(products);
-  const [loading, setLoading] = useState(false);
+  const [tabProducts, setTabProducts] = useState<_ProductType[]>([]);
+  const [totalProduct, setTotalProduct] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<_ProductType[]>([]);
 
-  const showDrawer = (product: ProductType) => {
+  const query = useSearchParams();
+
+  const showDrawer = (product: _ProductType) => {
     setSelectedProduct(product);
     setOpenProductDetail(true);
   };
-
-  // const fetchTable = (page: any , pageSize:any) => {
-  //   setLoading(true);
-  //   axios
-  //     .get(
-  //       `https://api.instantwebtools.net/v1/passenger?page=${page}&size=${pageSize}`
-  //     )
-  //     .then((res) => {
-  //       setDataSource(res.data.data);
-  //       setTotalPassengers(res.data.totalPassengers);
-  //       setLoading(false);
-  //     });
-  // };
 
   const onClose = () => {
     setOpenProductDetail(false);
   };
 
-  const tabItems = [
+  const deleteProduct = async (product_id: string) => {
+    const response: { status: number; message: string } =
+      await ProductService.deleteProductById(product_id);
+
+    if (response.status == 200) {
+      message.success("Xóa sản phẩm thành công");
+    } else {
+      message.error("Không thể xóa sản phẩm");
+    }
+    await loadFilteredProducts();
+  };
+  const tabItems: TabsProps["items"] = [
     {
-      key: "0",
-      label: "Tất cả",
-      description:
-        "Mục này chứa các sản phẩm đã được duyệt để bán hàng, không bao gồm sản phẩm ở trạng thái Nháp, Chờ duyệt và Khóa vĩnh viễn.",
-      number: products.length,
+      key: "",
+      label: <span style={{ fontWeight: "620" }}>Tất cả </span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Tất cả:</strong> Mục này chứa các sản phẩm đã được duyệt
+              để bán hàng, không bao gồm sản phẩm ở trạng thái Nháp và Khóa vĩnh
+              viễn.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
     },
     {
-      key: "1",
-      label: "Đang bán",
-      description:
-        "Mục này chứa các sản phẩm có thể bán. Bao gồm sản phẩm đang hiển thị và bị hạn chế hiển thị trong kết quả tìm kiếm.",
-      number: products.filter((product) => product.status == "Đang bán").length,
+      key: "AVAILABLE",
+      label: <span style={{ fontWeight: "620" }}>Đang bán</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Đang bán:</strong> Mục này chứa các sản phẩm có thể bán.
+              Bao gồm sản phẩm đang hiển thị và bị hạn chế hiển thị trong kết
+              quả tìm kiếm.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
     },
     {
-      key: "2",
-      label: "Hết hàng",
-      description:
-        "Mục này chứa các sản phẩm có lựa chọn đã hết hàng hoặc hết hàng toàn bộ. Cập nhật giá trị ở cột Tồn có thể bán > 0 để bán lại.",
-      number: products.filter((product) => product.status == "Hết hàng").length,
+      key: "SOLD_OUT",
+      label: <span style={{ fontWeight: "620" }}>Hết hàng</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Hết hàng:</strong> Mục này chứa các sản phẩm có lựa chọn
+              đã hết hàng hoặc hết hàng toàn bộ. Cập nhật giá trị ở cột Tồn có
+              thể bán &gt; 0 để bán lại.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
     },
     {
-      key: "3",
-      label: "Nháp",
-      description:
-        "Mục này chứa các sản phẩm đang lưu nháp hoặc được tạo bằng tính năng Tạo mới / Sao chép hàng loạt nhưng chưa đính kèm tài liệu yêu cầu.",
-      number: products.filter((product) => product.status == "Nháp").length,
+      key: "DRAFT",
+      label: <span style={{ fontWeight: "620" }}>Nháp</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Nháp:</strong> Mục này chứa các sản phẩm đang lưu nháp
+              hoặc được tạo bằng tính năng Tạo mới / Sao chép hàng loạt nhưng
+              chưa đính kèm tài liệu yêu cầu.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
     },
     {
-      key: "4",
-      label: "Chờ duyệt",
-      description:
-        "Mục này chứa các sản phẩm đang chờ duyệt bởi Tiki. Duyệt thành công sẽ tự động chuyển qua mục Đang bán, bị từ chối chuyển qua mục Vi phạm.",
-      number: products.filter((product) => product.status == "Chờ duyệt")
-        .length,
+      key: "SALE",
+      label: <span style={{ fontWeight: "620" }}>Khuyến mãi</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Khuyến mãi:</strong> Mục này chứa các sản phẩm mà Nhà bán
+              đang bán giảm giá.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
     },
     {
-      key: "5",
-      label: "Đã tắt",
-      description:
-        "Mục này chứa các sản phẩm mà Nhà bán đã tắt toàn bộ lựa chọn Khách hàng không thể xem và đặt hàng.",
-      number: products.filter((product) => product.status == "Đã tắt").length,
+      key: "DISABLED",
+      label: <span style={{ fontWeight: "620" }}>Đã tắt</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Đã tắt:</strong> Mục này chứa các sản phẩm mà Nhà bán đã
+              tắt toàn bộ lựa chọn Khách hàng không thể xem và đặt hàng.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
     },
   ];
 
-  const handleFilterDropdownChange = (value: string[], key: string) => {
-    const updatedFilterOptions = filterOptions.filter((option) => {
-      return option.key !== key;
-    });
+  const handleFilterDropdownChange = (
+    value: { id: string; label: string }[],
+    key: string
+  ) => {
+    console.log("CHECKING", value, key);
+    const updatedFilterOptions = filterOptions.filter(
+      (option) => option.key !== key
+    );
 
     const newFilterCriteria: FilterCriteria = {
       key,
@@ -621,20 +251,20 @@ export default function ProductListPage() {
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
 
-    console.log("Filter", filterOptions);
+    console.log("Filter", updatedFilterOptions);
   };
 
   const columns = [
     {
       title: "Sản phẩm",
       dataIndex: "name",
-      render: (text: string, record: ProductType) => (
+      render: (text: string, record: _ProductType) => (
         <a
           style={{ display: "flex", alignItems: "center" }}
           onClick={() => showDrawer(record)}
         >
           <img
-            src={record.avatar_url[0]}
+            src={record.images[0]}
             alt={text}
             style={{ marginRight: "8px", width: "32px", height: "32px" }}
           />
@@ -648,6 +278,7 @@ export default function ProductListPage() {
         <div className="flex space-x-1 items-center">
           <p>Tồn có thể bán</p>
           <Tooltip
+            className="flex space-x-1 items-center"
             title={
               <div className="tooltip-content">
                 <p className="mb-4">
@@ -666,15 +297,18 @@ export default function ProductListPage() {
           </Tooltip>
         </div>
       ),
-      dataIndex: "inventory_number",
-      defaultSortOrder: "descend",
-      sorter: (a: ProductType, b: ProductType) =>
-        a.inventory_number - b.inventory_number,
+      dataIndex: "inventoryAmount",
+      defaultSortOrder: "descend" as const,
+      sorter: (a: _ProductType, b: _ProductType) =>
+        a.inventoryAmount - b.inventoryAmount,
+      width: "14%",
     },
     {
       title: "Giá bán",
-      dataIndex: "price",
-      sorter: (a: ProductType, b: ProductType) => a.price - b.price,
+      dataIndex: "finalPrice",
+      render: (text: number) => formatPrice(text),
+      sorter: (a: _ProductType, b: _ProductType) => a.finalPrice - b.finalPrice,
+      width: "10%",
     },
     {
       title: () => (
@@ -694,8 +328,11 @@ export default function ProductListPage() {
           </Tooltip>
         </div>
       ),
-      dataIndex: "system_fee",
-      sorter: (a: ProductType, b: ProductType) => a.system_fee - b.system_fee,
+      dataIndex: "platformFee",
+      render: (text: number) => formatPrice(text),
+      sorter: (a: _ProductType, b: _ProductType) =>
+        a.platformFee - b.platformFee,
+      width: "17%",
     },
     {
       title: () => (
@@ -723,21 +360,29 @@ export default function ProductListPage() {
         </div>
       ),
       dataIndex: "profit",
-      sorter: (a: ProductType, b: ProductType) => a.profit - b.profit,
+      sorter: (a: _ProductType, b: _ProductType) => a.profit - b.profit,
+      width: "15%",
     },
     {
       title: "Thao tác",
       dataIndex: "operation",
-      render: (_: any, record: ProductType) => {
+      render: (_: any, record: _ProductType) => {
         return (
-          <div className="space-x-2">
-            <Button type="primary" className="bg-sky-100 text-black">
-              <BiEditAlt />
+          <div className="xl:space-x-1 space-x-2">
+            <Button
+              type="primary"
+              className="bg-sky-100 text-black"
+              // onClick={() => showDrawer(record)}
+            >
+              <Link href={`list/update/${record._id}`}>
+                <BiEditAlt />
+              </Link>
             </Button>
             <Popconfirm
               title="Bạn chắc chắn muốn xóa sản phẩm này không ?"
               description="Sản phẩm sẽ bị xóa hoàn toàn và không thể hồi phục lại được."
               icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+              onConfirm={() => deleteProduct(record._id)}
             >
               <Button type="primary" danger>
                 <RiDeleteBinLine />
@@ -746,85 +391,69 @@ export default function ProductListPage() {
           </div>
         );
       },
+      width: "14%",
     },
   ];
 
-  const handleChangeSearchOption = (value: string) => {
-    setSearchOption(value);
-  };
-
-  const categories = [
-    "Laptop",
-    "PC- Máy tính bộ",
-    "Điện máy - Điện gia dụng",
-    "Điện thoại & Phụ kiện",
-    "Màn hình máy tính",
-    "Linh kiện máy tính",
-    "Phụ kiện máy tính",
-    "Game & Stream",
-
-    "Phụ kiện",
-    "Thiết bị âm thanh",
-    "Thiết bị văn phòng",
-    "Khác",
-  ];
-  const brands = [
-    "Apple (Macbook)",
-    "Acer",
-    "ASUS",
-    "Dell",
-    "HP",
-    "Lenovo",
-    "LG",
-    "MSI",
-    "Gigabyte",
-    "Microsoft",
-    "Sharp",
-    "Samsung",
-    "Panasonic",
-    "Toshiba",
-    "AQUA",
-    "Casper",
-    "AOC",
-    "Viewsonic",
-    "Philips",
-    "VSP",
-  ];
-
-  const selectBefore = (
-    <Select
-      defaultValue="Tên sản phẩm"
-      style={{ width: 130 }}
-      onChange={handleChangeSearchOption}
-      className=""
-    >
-      <Option value="tên sản phẩm">Tên sản phẩm</Option>
-      <Option value="mã sản phẩm">Mã sản phẩm</Option>
-      <Option value="SKU">SKU</Option>
-    </Select>
-  );
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-    if (value.length == 0) return;
-    const updatedFilterOptions = filterOptions.filter((option) => {
-      return (
-        option.key !== "Tên sản phẩm" &&
-        option.key !== "SKU" &&
-        option.key !== "Mã sản phẩm"
+    if (value.length != 0) {
+      const updatedFilterOptions = filterOptions.filter((option) => {
+        return option.key !== "Tên sản phẩm";
+      });
+      const newFilterCriteria: FilterCriteria = {
+        key: `Tên sản phẩm`,
+        value,
+      };
+
+      const updatedQuery = new URLSearchParams(query);
+      updatedQuery.set("keyword", value);
+
+      window.history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${updatedQuery.toString()}`
       );
-    });
 
-    const newFilterCriteria: FilterCriteria = {
-      key: `${searchOption.charAt(0).toUpperCase() + searchOption.slice(1)}`,
-      value,
-    };
-
-    updatedFilterOptions.push(newFilterCriteria);
-    setFilterOptions(updatedFilterOptions);
-    setSearchValue("");
+      updatedFilterOptions.push(newFilterCriteria);
+      setFilterOptions(updatedFilterOptions);
+      setSearchValue("");
+    }
   };
 
   const clearAllFilterCriterias = () => {
+    router.push(`/product/list`);
     setFilterOptions((prevFilterCriterias) => []);
+  };
+
+  const updateURL = (key: string, value: any) => {
+    console.log("UPDATE", key, value);
+    const updatedQuery = new URLSearchParams(query.toString());
+    if (key == "Danh mục") {
+      const categoryValues = query.get("category")
+        ? decodeURIComponent(query.get("category")!)!.split(",")
+        : undefined;
+      if (categoryValues) {
+        const updatedCategoryValues = categoryValues.filter(
+          (item) => item != value.id
+        );
+        if (updatedCategoryValues.length > 0) {
+          updatedQuery.set(
+            "category",
+            encodeURIComponent(updatedCategoryValues.join(","))
+          );
+        } else {
+          updatedQuery.delete("category");
+        }
+      }
+    } else {
+      updatedQuery.delete("keyword");
+    }
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
   };
 
   const removeFilterCriteria = (key: string, value: any) => {
@@ -839,9 +468,10 @@ export default function ProductListPage() {
 
       if (Array.isArray(valueFilterCriterias)) {
         updatedFilterCriterias[index].value = valueFilterCriterias.filter(
-          (criteriaValue: string) =>
-            !value.toLowerCase().includes(criteriaValue.toLowerCase())
+          (criteriaValue: { id: string; label: string }) =>
+            criteriaValue.id !== value.id
         );
+        console.log("removeFilterCriteria", updatedFilterCriterias);
 
         if (updatedFilterCriterias[index].value.length === 0) {
           updatedFilterCriterias.splice(index, 1);
@@ -853,45 +483,86 @@ export default function ProductListPage() {
       }
 
       setFilterOptions((prevFilterCriterias) => updatedFilterCriterias);
+      updateURL(key, value);
     }
   };
 
-  useEffect(() => {
-    const filterProducts = () => {
-      let filteredProducts = [...products];
+  const loadFilteredProducts = async () => {
+    console.log("INPUT", {
+      ...filter,
+      shopId: "65f1e8bbc4e39014df775166",
+    });
+    const response: {
+      total: number;
+      totalPages: number;
+      products: _ProductType[];
+    } = await ProductService.getProductByFilter(filter);
+    setAllProducts(response.products);
+    setTotalProduct(response.total);
+    setTotalPages(response.totalPages);
+    setTabProducts(response.products);
+    setFilteredProducts(response.products);
+  };
 
-      switch (currentTab) {
-        case "1":
-          filteredProducts = products.filter(
-            (product) => product.status === "Đang bán"
-          );
-          break;
-        case "2":
-          filteredProducts = products.filter(
-            (product) => product.status === "Hết hàng"
-          );
-          break;
-        case "3":
-          filteredProducts = products.filter(
-            (product) => product.status === "Nháp"
-          );
-          break;
-        case "4":
-          filteredProducts = products.filter(
-            (product) => product.status === "Chờ duyệt"
-          );
-          break;
-        case "5":
-          filteredProducts = products.filter(
-            (product) => product.status === "Đã tắt"
-          );
-          break;
-        default:
-          break;
+  const handleFilterChange = async () => {
+    const updatedFilterCriterias: FilterCriteria[] = [];
+
+    const categoryPromises: Promise<{
+      id: string;
+      name: string;
+    }>[] = [];
+
+    if (filters.category) {
+      filters.category.forEach((id) => {
+        categoryPromises.push(
+          CategoryService.getCategoryById(id).then((categoryInfo) => ({
+            id,
+            name: categoryInfo.name,
+          }))
+        );
+      });
+    }
+
+    const categories = await Promise.all(categoryPromises);
+
+    if (categories.length > 0) {
+      updatedFilterCriterias.push({
+        key: "Danh mục",
+        value: categories,
+      });
+    }
+
+    if (filters.status) {
+      setCurrentTab(filters.status);
+    }
+
+    if (filters.keyword) {
+      updatedFilterCriterias.push({
+        key: "Tên sản phẩm",
+        value: filters.keyword,
+      });
+    }
+
+    setFilterOptions(updatedFilterCriterias);
+  };
+
+  useEffect(() => {
+    console.log("Current Tab", currentTab);
+    const filterProducts = async () => {
+      const updatedQuery = new URLSearchParams(query);
+      if (currentTab == "") {
+        updatedQuery.delete("status");
+      } else {
+        updatedQuery.set("status", currentTab);
       }
 
-      setTabProducts(filteredProducts);
-      setFilteredProducts(tabProducts);
+      window.history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${updatedQuery.toString()}`
+      );
+
+      loadFilteredProducts();
     };
 
     filterProducts();
@@ -907,35 +578,54 @@ export default function ProductListPage() {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
             product.name.toLowerCase().includes(filter.value.toLowerCase())
           );
-        } else if (filter.key === "Mã sản phẩm") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.id.toLowerCase().includes(filter.value.toLowerCase())
-          );
-        } else if (filter.key === "SKU") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.SKU.toLowerCase().includes(filter.value.toLowerCase())
-          );
         } else if (filter.key === "Danh mục") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            filter.value.some((category: string) =>
-              product.category.toLowerCase().includes(category.toLowerCase())
-            )
-          );
-        } else if (filter.key === "Thương hiệu") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            filter.value.some((brand: string) =>
-              product.brand.toLowerCase().includes(brand.toLowerCase())
+            filter.value.some((category: { id: string; label: string }) =>
+              category.label
+                .toLowerCase()
+                .includes(category.label.toLowerCase())
             )
           );
         }
       });
 
-      setFilteredProducts((prev) => tempFilteredProducts);
+      //setFilteredProducts((prev) => tempFilteredProducts);
       console.log(currentTab);
     };
 
     filterProducts();
   }, [filterOptions]);
+
+  const filters: ProductFilterInput = {
+    keyword: query.get("keyword") || undefined,
+    category: query.get("category")
+      ? decodeURIComponent(query.get("category")!)!.split(",")
+      : undefined,
+    status: query.get("status") || undefined,
+    index: query.get("index") ? Number(query.get("index")) : undefined,
+    amount: query.get("amount") ? Number(query.get("amount")) : undefined,
+  };
+
+  useEffect(() => {
+    setFilter(filters);
+  }, [query]);
+
+  // useEffect(() => {
+  //   handleFilterChange();
+  // }, []);
+
+  useEffect(() => {
+    loadFilteredProducts();
+  }, [filter]);
+
+  useEffect(() => {
+    const loadAllCategories = async () => {
+      const data: _CategoryType[] = await CategoryService.getAllCategories();
+      setAllCategories(data);
+    };
+
+    loadAllCategories();
+  }, []);
 
   return (
     <div className="pt-4 pr-4 space-y-2">
@@ -972,35 +662,12 @@ export default function ProductListPage() {
       <Tabs
         type="card"
         activeKey={currentTab}
-        onChange={(tabKey) => setCurrentTab(tabKey)}
-      >
-        {tabItems.map((tab, index) => (
-          <Tabs.TabPane
-            tab={
-              <span style={{ fontWeight: "620" }}>
-                {tab.label} ({tab.number})
-              </span>
-            }
-            key={tab.key}
-            className="mb-2"
-          >
-            <Alert
-              className="text-xs"
-              message={
-                <>
-                  <strong>{tab.label}:</strong> {tab.description}
-                </>
-              }
-              type="info"
-              showIcon
-            />
-          </Tabs.TabPane>
-        ))}
-      </Tabs>
+        onChange={(activeKey) => setCurrentTab(activeKey)}
+        items={tabItems}
+      ></Tabs>
       <div className="flex items-center">
         <Search
-          addonBefore={selectBefore}
-          placeholder={`Nhập ${searchOption}`}
+          placeholder={`Nhập tên sản phẩm`}
           style={{
             borderRadius: "5px",
             width: 800,
@@ -1014,13 +681,13 @@ export default function ProductListPage() {
         />
 
         <FilterDropdown
+          initialSelectedOptions={
+            filterOptions.find((item) => item.key === "Danh mục")?.value || []
+          }
           name={"Danh mục"}
-          options={categories}
-          onSelection={handleFilterDropdownChange}
-        />
-        <FilterDropdown
-          name={"Thương hiệu"}
-          options={brands}
+          options={allCategories.map((c) => {
+            return { id: c._id, label: c.name };
+          })}
           onSelection={handleFilterDropdownChange}
         />
       </div>
@@ -1031,26 +698,30 @@ export default function ProductListPage() {
             {filterOptions.map((item, index) => {
               return (
                 <div
-                  // key={index}
+                  key={index}
                   className="flex flex-wrap items-center  text-xs max-w-4/5 "
                 >
                   {Array.isArray(item.value) ? (
-                    item.value.map((value: string, idx: number) => (
-                      <div
-                        key={index}
-                        className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
-                      >
-                        <p>
-                          {item.key}: {value}
-                        </p>
+                    item.value.map(
+                      (value: { id: string; label: string }, idx: number) => (
                         <div
-                          className=""
-                          onClick={() => removeFilterCriteria(item.key, value)}
+                          key={value.id}
+                          className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
                         >
-                          <CiCircleRemove size={15} />
+                          <p>
+                            {item.key}: {value.label}
+                          </p>
+                          <div
+                            className=""
+                            onClick={() =>
+                              removeFilterCriteria(item.key, value)
+                            }
+                          >
+                            <CiCircleRemove size={15} />
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      )
+                    )
                   ) : (
                     <div
                       key={index}
@@ -1089,7 +760,12 @@ export default function ProductListPage() {
         <p className="font-semibold text-lg m-4">
           Sản phẩm: {filteredProducts.length}
         </p>
-        <Dropdown menu={{ items: exportOptions }} placement="bottomLeft">
+
+        <Dropdown
+          menu={{ items: exportOptions }}
+          placement="bottomLeft"
+          disabled={selectedProducts.length === 0}
+        >
           <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2 theme-button">
             <p className="ml-2 truncate text-sm">Xuất sản phẩm</p>
             <RiArrowDropDownLine size={20} />
@@ -1098,10 +774,17 @@ export default function ProductListPage() {
       </div>
       <div>
         <Table
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                () => showDrawer(record);
+              },
+            };
+          }}
           pagination={{
             pageSizeOptions: ["10", "5"],
             showSizeChanger: true,
-            total: filteredProducts.length,
+            total: tabProducts.length,
             // onChange: (page, pageSize) => {
             //   fetchRecords(page, pageSize);
             // }
@@ -1112,7 +795,7 @@ export default function ProductListPage() {
             ...rowSelection,
           }}
           columns={columns}
-          dataSource={filteredProducts.concat(products)}
+          dataSource={filteredProducts}
           locale={{
             emptyText: <Empty description={<span>Trống</span>} />,
           }}

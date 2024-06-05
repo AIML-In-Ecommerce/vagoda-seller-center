@@ -8,3 +8,15 @@ export type ReviewType = {
   content: string;
   status: string;
 };
+
+export type _ReviewType = {
+  _id: string;
+  product: string;
+  user: string;
+  imageUrl: string;
+  rating: number;
+  content: string;
+  asset: string[];
+  conservation: string[];
+  like: string[];
+};

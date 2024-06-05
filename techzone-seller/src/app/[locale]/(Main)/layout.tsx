@@ -6,10 +6,9 @@ import "../globals.css";
 // import StyledComponentsRegistry from "../../../lib/AntdRegistry";
 import Navbar from "@/component/Navbar";
 import SidebarContentReactiveLayout from "@/component/SidebarContentReactiveLayout";
-import SocketProvider from "@/socket/SocketProvider";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { ReactNode } from "react";
-import { AntdRegistry } from '@ant-design/nextjs-registry';
 // import UserLayout from "@/component/UserLayout";
 
 interface RootLayoutProps {
@@ -31,29 +30,28 @@ export default function RootLayout({
   const messages = useMessages();
 
   return (
-
     <html lang={"en"}>
       {/* <body className={inter.className}> */}
       <body className="w-full relative">
         <NextIntlClientProvider locale={locale} messages={messages}>
           {/* <AuthProvider> */}
-          <SocketProvider>
-            {/* <UserLayout children={children} locale={locale} /> */}
-            {/* <UserLayout locale={locale}>{children}</UserLayout> */}
-            {/* </AuthProvider> */}
-            <AntdRegistry>
-              <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
-                <div className="fixed w-full z-50">
-                  <Navbar />
-                </div>
-                <div className="flex flex-row mt-16">
-                  <SidebarContentReactiveLayout>
-                    {children}
-                  </SidebarContentReactiveLayout>
-                </div>
+          {/* <SocketProvider> */}
+          {/* <UserLayout children={children} locale={locale} /> */}
+          {/* <UserLayout locale={locale}>{children}</UserLayout> */}
+          {/* </AuthProvider> */}
+          <AntdRegistry>
+            <div className=" w-full bg-cover bg-slate-50 min-h-screen overflow-hidden ">
+              <div className="fixed w-full z-50">
+                <Navbar />
               </div>
-            </AntdRegistry>
-          </SocketProvider>
+              <div className="flex flex-row mt-16">
+                <SidebarContentReactiveLayout>
+                  {children}
+                </SidebarContentReactiveLayout>
+              </div>
+            </div>
+          </AntdRegistry>
+          {/* </SocketProvider> */}
         </NextIntlClientProvider>
       </body>
     </html>

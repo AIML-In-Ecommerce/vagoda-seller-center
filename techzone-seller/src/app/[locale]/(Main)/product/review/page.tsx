@@ -1,33 +1,36 @@
-// "use client";
-// import FilterDropdown from "@/component/Product/FilterDropdown";
-// import { ReviewType } from "@/model/ReviewType";
+"use client";
+import FilterDropdown from "@/component/Product/FilterDropdown";
+import { _CategoryType } from "@/model/CategoryType";
+import { _ReviewType } from "@/model/ReviewType";
+import { CategoryService } from "@/services/Category";
+import { ReviewService } from "@/services/Review";
 
-// import {
-//   Breadcrumb,
-//   Button,
-//   Divider,
-//   Empty,
-//   Input,
-//   MenuProps,
-//   Rate,
-//   Select,
-//   Table,
-//   Tabs,
-//   Tooltip,
-// } from "antd";
-// import type { SearchProps } from "antd/es/input/Search";
-// import { useRouter } from "next/navigation";
-// import { useState } from "react";
-// import { CiCircleRemove } from "react-icons/ci";
-// import { GoStarFill } from "react-icons/go";
-// import { HiOutlineHome } from "react-icons/hi2";
+import {
+  Breadcrumb,
+  Button,
+  Divider,
+  Empty,
+  Input,
+  MenuProps,
+  Rate,
+  Table,
+  Tabs,
+  TabsProps,
+  Tooltip,
+} from "antd";
+import type { SearchProps } from "antd/es/input/Search";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { CiCircleRemove } from "react-icons/ci";
+import { GoStarFill } from "react-icons/go";
+import { HiOutlineHome } from "react-icons/hi2";
 
-// export interface FilterCriteria {
-//   key: string;
-//   value: any;
-// }
+export interface FilterCriteria {
+  key: string;
+  value: any;
+}
 
-// const { Search } = Input;
+const { Search } = Input;
 
 // const reviews: ReviewType[] = [
 //   {
@@ -87,399 +90,455 @@
 //   },
 // ];
 
-// const exportOptions: MenuProps["items"] = [
-//   {
-//     key: "0",
-//     label: "CSV",
-//   },
-//   {
-//     key: "1",
-//     label: "Excel",
-//   },
-// ];
+const exportOptions: MenuProps["items"] = [
+  {
+    key: "0",
+    label: "CSV",
+  },
+  {
+    key: "1",
+    label: "Excel",
+  },
+];
 
-// const options: FilterCriteria[] = [{ key: "Tên sản phẩm", value: "Máy tính" }];
+export default function ReviewProductPage() {
+  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>([]);
 
-// export default function ReviewProductPage() {
-//   const router = useRouter();
-//   const { Option } = Select;
-//   const [searchOption, setSearchOption] = useState("Tên sản phẩm");
-//   const [categorySearch, setCategorySearch] = useState("");
-//   const [brandSearch, setBrandSearch] = useState("");
-//   const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>(options);
-//   const [selectionType, setSelectionType] = useState("checkbox");
-//   const [selectedCategories, setSelectedCategories] = useState([]);
-//   const [visible, setVisible] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const query = useSearchParams();
+  const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
 
-//   const handleFilterDropdownChange = (value: string[], key: string) => {
-//     const updatedFilterOptions = filterOptions.filter((option) => {
-//       return option.key !== key;
-//     });
+  const router = useRouter();
 
-//     const newFilterCriteria: FilterCriteria = {
-//       key,
-//       value,
-//     };
+  const [allReviews, setAllReviews] = useState<_ReviewType[]>([]);
+  const [filteredReviews, setFilteredReviews] =
+    useState<_ReviewType[]>(allReviews);
+  const [currentTab, setCurrentTab] = useState("");
+  const [openProductDetail, setOpenProductDetail] = useState(false);
+  const [tabReviews, setTabReviews] = useState<_ReviewType[]>([]);
+  const [totalReview, setTotalReview] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-//     updatedFilterOptions.push(newFilterCriteria);
-//     setFilterOptions(updatedFilterOptions);
+  const handleFilterDropdownChange = (
+    value: { id: string; label: string }[],
+    key: string
+  ) => {
+    console.log("CHECKING", value, key);
+    const updatedFilterOptions = filterOptions.filter(
+      (option) => option.key !== key
+    );
 
-//     console.log("Filter", filterOptions);
-//   };
+    const newFilterCriteria: FilterCriteria = {
+      key,
+      value,
+    };
 
-//   const columns = [
-//     {
-//       title: "Mã đơn hàng",
-//       dataIndex: "orderId",
-//       render: (text: string, record: ReviewType) => (
-//         <div className="">
-//           <Tooltip placement="topLeft" title="Xem chi tiết đơn hàng">
-//             <a
-//               className="text-xs text-sky-500 underline"
-//               style={{ display: "flex", alignItems: "center" }}
-//             >
-//               {text}
-//             </a>
-//           </Tooltip>
-//         </div>
-//       ),
-//       width: "10%",
-//     },
-//     {
-//       title: "Sản phẩm",
-//       dataIndex: "productName",
-//       render: (text: string, record: ReviewType) => (
-//         <a style={{ display: "flex", alignItems: "center" }}>
-//           <img
-//             src={record.imageUrl}
-//             alt={text}
-//             style={{ marginRight: "8px", width: "32px", height: "32px" }}
-//           />
-//           {text}
-//         </a>
-//       ),
-//       width: "30%",
-//     },
-//     {
-//       title: "Đánh giá",
-//       dataIndex: "rating",
-//       render: (rating: number, record: ReviewType) => (
-//         <div className="flex space-x-2 ">
-//           {" "}
-//           <Rate disabled value={rating} className="small-rating" />
-//           <p>{rating}</p>
-//         </div>
-//       ),
-//       defaultSortOrder: "descend",
-//       sorter: (a: ReviewType, b: ReviewType) => a.rating - b.rating,
-//       width: "12%",
-//     },
-//     {
-//       title: "Nội dung",
-//       dataIndex: "content",
-//     },
-//     {
-//       title: "Trạng thái",
-//       dataIndex: "status",
-//     },
-//     {
-//       title: "Thao tác",
-//       dataIndex: "operation",
-//       render: (_: any, record: ReviewType) => {
-//         return (
-//           <div className="space-x-2">
-//             <Button type="primary" className="bg-sky-100 text-black">
-//               Xem chi tiết
-//             </Button>
-//           </div>
-//         );
-//       },
-//     },
-//   ];
+    updatedFilterOptions.push(newFilterCriteria);
+    setFilterOptions(updatedFilterOptions);
 
-//   const tabItems = [
-//     {
-//       label: <div className="">Tất cả</div>,
-//       number: 0,
-//     },
-//     {
-//       label: (
-//         <div className="flex space-x-1 items-center ">
-//           <p>1</p>
-//           <GoStarFill className="text-yellow-400" />
-//         </div>
-//       ),
-//       number: 0,
-//     },
-//     {
-//       label: (
-//         <div className="flex space-x-1 items-center ">
-//           <p>2</p>
-//           <GoStarFill className="text-yellow-400" />
-//         </div>
-//       ),
-//       number: 0,
-//     },
-//     {
-//       label: (
-//         <div className="flex space-x-1 items-center ">
-//           <p>3</p>
-//           <GoStarFill className="text-yellow-400" />
-//         </div>
-//       ),
-//       number: 0,
-//     },
-//     {
-//       label: (
-//         <div className="flex space-x-1 items-center ">
-//           <p>4</p>
-//           <GoStarFill className="text-yellow-400" />
-//         </div>
-//       ),
+    console.log("Filter", updatedFilterOptions);
+  };
 
-//       number: 0,
-//     },
-//     {
-//       label: (
-//         <div className="flex space-x-1 items-center ">
-//           <p>5</p>
-//           <GoStarFill className="text-yellow-400" />
-//         </div>
-//       ),
-//       number: 0,
-//     },
-//   ];
-//   const handleChangeSearchOption = (value: string) => {
-//     setSearchOption(value);
-//   };
-//   const handleCategorySearch = (e: any) => {
-//     setCategorySearch(e.target.value);
-//   };
-//   const handleBrandSearch = (e: any) => {
-//     setBrandSearch(e.target.value);
-//   };
+  const columns = [
+    {
+      title: "Mã sản phẩm",
+      dataIndex: "product",
+      render: (text: string, record: _ReviewType) => (
+        <div className="">
+          <Tooltip placement="topLeft" title="Xem chi tiết sản phẩm">
+            <a
+              className="text-xs text-sky-500 underline"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              {text}
+            </a>
+          </Tooltip>
+        </div>
+      ),
+      width: "10%",
+    },
+    {
+      title: "Người đánh giá",
+      dataIndex: "user",
+      render: (text: string, record: _ReviewType) => (
+        <div className="">
+          <p
+            className="text-xs text-sky-500 underline"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            {text}
+          </p>
+        </div>
+      ),
+      width: "10%",
+    },
+    // {
+    //   title: "Sản phẩm",
+    //   dataIndex: "productName",
+    //   render: (text: string, record: _ReviewType) => (
+    //     <a style={{ display: "flex", alignItems: "center" }}>
+    //       <img
+    //         src={record.imageUrl}
+    //         alt={text}
+    //         style={{ marginRight: "8px", width: "32px", height: "32px" }}
+    //       />
+    //       {text}
+    //     </a>
+    //   ),
+    //   width: "30%",
+    // },
+    {
+      title: "Đánh giá",
+      dataIndex: "rating",
+      render: (rating: number, record: _ReviewType) => (
+        <div className="flex space-x-2 items-center ">
+          {" "}
+          <Rate disabled value={rating} className="small-rating" />
+          <p>{rating}</p>
+        </div>
+      ),
+      defaultSortOrder: "descend",
+      sorter: (a: _ReviewType, b: _ReviewType) => a.rating - b.rating,
+      width: "15%",
+    },
+    {
+      title: "Nội dung",
+      dataIndex: "content",
+      width: "20%",
+    },
+    {
+      title: "Số lượt thích",
+      dataIndex: "like",
+      render: (likes: string[], record: _ReviewType) => (
+        <div className="flex space-x-2 ">
+          {" "}
+          <p>{likes.length}</p>
+        </div>
+      ),
+      defaultSortOrder: "descend",
+      sorter: (a: _ReviewType, b: _ReviewType) => a.like.length - b.like.length,
+      width: "12%",
+    },
+    {
+      title: "Thao tác",
+      dataIndex: "operation",
+      render: (_: any, record: _ReviewType) => {
+        return (
+          <div className="space-x-2">
+            <Button type="primary" className="bg-sky-100 text-black">
+              Xem chi tiết
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
-//   const categories = [
-//     "Laptop",
-//     "PC- Máy tính bộ",
-//     "Điện máy - Điện gia dụng",
-//     "Điện thoại & Phụ kiện",
-//     "Màn hình máy tính",
-//     "Linh kiện máy tính",
-//     "Phụ kiện máy tính",
-//     "Game & Stream",
+  const tabItems: TabsProps["items"] = [
+    {
+      key: "0",
+      label: <div className="">Tất cả</div>,
+    },
+    {
+      key: "1",
+      label: (
+        <div className="flex space-x-1 items-center ">
+          <p>1</p>
+          <GoStarFill className="text-yellow-400" />
+        </div>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <div className="flex space-x-1 items-center ">
+          <p>2</p>
+          <GoStarFill className="text-yellow-400" />
+        </div>
+      ),
+    },
+    {
+      key: "3",
+      label: (
+        <div className="flex space-x-1 items-center ">
+          <p>3</p>
+          <GoStarFill className="text-yellow-400" />
+        </div>
+      ),
+    },
+    {
+      key: "4",
+      label: (
+        <div className="flex space-x-1 items-center ">
+          <p>4</p>
+          <GoStarFill className="text-yellow-400" />
+        </div>
+      ),
+    },
+    {
+      key: "5",
+      label: (
+        <div className="flex space-x-1 items-center ">
+          <p>5</p>
+          <GoStarFill className="text-yellow-400" />
+        </div>
+      ),
+    },
+  ];
 
-//     "Phụ kiện",
-//     "Thiết bị âm thanh",
-//     "Thiết bị văn phòng",
-//     "Khác",
-//   ];
-//   const brands = [
-//     "Apple (Macbook)",
-//     "Acer",
-//     "ASUS",
-//     "Dell",
-//     "HP",
-//     "Lenovo",
-//     "LG",
-//     "MSI",
-//     "Gigabyte",
-//     "Microsoft",
-//     "Sharp",
-//     "Samsung",
-//     "Panasonic",
-//     "Toshiba",
-//     "AQUA",
-//     "Casper",
-//     "AOC",
-//     "Viewsonic",
-//     "Philips",
-//     "VSP",
-//   ];
+  // const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
+  //   const updatedFilterOptions = filterOptions.filter((option) => {
+  //     return (
+  //       option.key !== "Tên sản phẩm" &&
+  //       option.key !== "SKU" &&
+  //       option.key !== "Mã sản phẩm"
+  //     );
+  //   });
 
-//   const selectBefore = (
-//     <Select
-//       defaultValue="Tên sản phẩm"
-//       style={{ width: 130 }}
-//       onChange={handleChangeSearchOption}
-//       className=""
-//     >
-//       <Option value="tên sản phẩm">Tên sản phẩm</Option>
-//       <Option value="mã sản phẩm">Mã sản phẩm</Option>
-//       <Option value="SKU">SKU</Option>
-//     </Select>
-//   );
-//   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-//     const updatedFilterOptions = filterOptions.filter((option) => {
-//       return (
-//         option.key !== "Tên sản phẩm" &&
-//         option.key !== "SKU" &&
-//         option.key !== "Mã sản phẩm"
-//       );
-//     });
+  //   const newFilterCriteria: FilterCriteria = {
+  //     key: `${searchOption.charAt(0).toUpperCase() + searchOption.slice(1)}`,
+  //     value,
+  //   };
 
-//     const newFilterCriteria: FilterCriteria = {
-//       key: `${searchOption.charAt(0).toUpperCase() + searchOption.slice(1)}`,
-//       value,
-//     };
+  //   updatedFilterOptions.push(newFilterCriteria);
+  //   setFilterOptions(updatedFilterOptions);
+  // };
 
-//     updatedFilterOptions.push(newFilterCriteria);
-//     setFilterOptions(updatedFilterOptions);
-//   };
+  const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
+    if (value.length != 0) {
+      const updatedFilterOptions = filterOptions.filter((option) => {
+        return option.key !== "Tên sản phẩm";
+      });
+      const newFilterCriteria: FilterCriteria = {
+        key: `Tên sản phẩm`,
+        value,
+      };
 
-//   const clearAllFilterCriterias = () => {
-//     setFilterOptions([]);
-//   };
+      const updatedQuery = new URLSearchParams(query);
+      updatedQuery.set("keyword", value);
 
-//   const removeFilterCriteria = (key: string, value: any) => {
-//     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
+      window.history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${updatedQuery.toString()}`
+      );
 
-//     updatedFilterCriterias = updatedFilterCriterias.filter(
-//       (criteria) => criteria.key !== key
-//     );
+      updatedFilterOptions.push(newFilterCriteria);
+      setFilterOptions(updatedFilterOptions);
+      setSearchValue("");
+    }
+  };
 
-//     setFilterOptions(updatedFilterCriterias);
-//     console.log(updatedFilterCriterias);
-//   };
+  const clearAllFilterCriterias = () => {
+    setFilterOptions([]);
+  };
 
-//   return (
-//     <div className="pt-4 pr-4 space-y-2">
-//       <Breadcrumb
-//         className="text-xs"
-//         items={[
-//           {
-//             href: "/",
-//             title: (
-//               <div className="flex items-center">
-//                 <HiOutlineHome size={15} />
-//               </div>
-//             ),
-//           },
-//           {
-//             href: "/product/list",
-//             title: "Sản phẩm",
-//           },
-//           {
-//             href: "/product/review",
-//             title: "Quản lý đánh giá",
-//           },
-//         ]}
-//       />
-//       <p className="uppercase text-xl font-semibold">Quản lý đánh giá</p>
+  const removeFilterCriteria = (key: string, value: any) => {
+    let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
-//       <Tabs type="card">
-//         {tabItems.map((tab, index) => (
-//           <Tabs.TabPane
-//             tab={
-//               <span style={{ fontWeight: "620" }}>
-//                 {tab.label} ({tab.number})
-//               </span>
-//             }
-//             key={index}
-//             className="mb-2"
-//           ></Tabs.TabPane>
-//         ))}
-//       </Tabs>
-//       <div className="flex items-center">
-//         <Search
-//           addonBefore={selectBefore}
-//           placeholder={`Nhập ${searchOption}`}
-//           style={{
-//             borderRadius: "5px",
-//             width: 800,
-//           }}
-//           onSearch={onSearch}
-//           type="primary"
-//           enterButton
-//           className="theme-button "
-//         />
+    updatedFilterCriterias = updatedFilterCriterias.filter(
+      (criteria) => criteria.key !== key
+    );
 
-//         <FilterDropdown
-//           name={"Danh mục"}
-//           options={categories}
-//           onSelection={handleFilterDropdownChange}
-//         />
-//         <FilterDropdown
-//           name={"Thương hiệu"}
-//           options={brands}
-//           onSelection={handleFilterDropdownChange}
-//         />
-//       </div>
-//       {filterOptions.length > 0 && (
-//         <div className="flex items-center">
-//           <div className="text-sm mr-4 w-1/10">Đang lọc:</div>
-//           <div className="flex flex-wrap  items-center">
-//             {filterOptions.map((item, index) => {
-//               return (
-//                 <div
-//                   // key={index}
-//                   className="flex items-center  text-xs max-w-4/5 "
-//                 >
-//                   {Array.isArray(item.value) ? (
-//                     item.value.map((value: string, idx: number) => (
-//                       <div
-//                         key={index}
-//                         className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
-//                       >
-//                         <p>
-//                           {item.key}: {value}
-//                         </p>
-//                         <div
-//                           className=""
-//                           onClick={() => removeFilterCriteria(item.key, value)}
-//                         >
-//                           <CiCircleRemove size={15} />
-//                         </div>
-//                       </div>
-//                     ))
-//                   ) : (
-//                     <div
-//                       key={index}
-//                       className=" flex  rounded-2xl p-2 space-x-2 items-center  bg-sky-200 mx-2  my-1"
-//                     >
-//                       <p>
-//                         {item.key}: {item.value}
-//                       </p>
-//                       <div
-//                         className=""
-//                         onClick={() =>
-//                           removeFilterCriteria(item.key, item.value)
-//                         }
-//                       >
-//                         <CiCircleRemove size={15} />
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-//               );
-//             })}
-//           </div>
+    setFilterOptions(updatedFilterCriterias);
+    console.log(updatedFilterCriterias);
+  };
 
-//           <Button
-//             type="link"
-//             onClick={() => clearAllFilterCriterias()}
-//             className="w-1/10"
-//           >
-//             {" "}
-//             Xóa tất cả
-//           </Button>
-//         </div>
-//       )}
-//       <Divider />
-//       <div className="flex">
-//         <p className="font-semibold text-lg m-4">Sản phẩm: {reviews.length}</p>
-//       </div>
-//       <div>
-//         <Table
-//           bordered
-//           columns={columns}
-//           dataSource={reviews}
-//           locale={{
-//             emptyText: <Empty description={<span>Trống</span>} />, // Hiển thị Empty nếu không có dữ liệu
-//           }}
-//           className=""
-//         />
-//       </div>
-//     </div>
-//   );
-// }
+  // useEffect(() => {
+  //   console.log(" UseEffect Changed filter criteria");
+  //   const filterProducts = () => {
+  //     let tempFilteredProducts = [...tabReviews];
+
+  //     filterOptions.forEach((filter) => {
+  //       if (filter.key === "Tên sản phẩm") {
+  //         tempFilteredProducts = tempFilteredProducts.filter((product) =>
+  //           product.name.toLowerCase().includes(filter.value.toLowerCase())
+  //         );
+  //       } else if (filter.key === "Danh mục") {
+  //         tempFilteredProducts = tempFilteredProducts.filter((product) =>
+  //           filter.value.some((category: { id: string; label: string }) =>
+  //             category.label
+  //               .toLowerCase()
+  //               .includes(category.label.toLowerCase())
+  //           )
+  //         );
+  //       }
+  //     });
+
+  //     //setFilteredProducts((prev) => tempFilteredProducts);
+  //     console.log(currentTab);
+  //   };
+
+  //   filterProducts();
+  // }, [filterOptions]);
+
+  // const filters: ProductFilterInput = {
+  //   keyword: query.get("keyword") || undefined,
+  //   category: query.get("category")
+  //     ? decodeURIComponent(query.get("category")!)!.split(",")
+  //     : undefined,
+  //   status: query.get("status") || undefined,
+  //   index: query.get("index") ? Number(query.get("index")) : undefined,
+  //   amount: query.get("amount") ? Number(query.get("amount")) : undefined,
+  // };
+
+  // useEffect(() => {
+  //   setFilter(filters);
+  // }, [query]);
+
+  // useEffect(() => {
+  //   handleFilterChange();
+  // }, []);
+
+  const loadFilteredReviews = async () => {
+    const response: _ReviewType[] = await ReviewService.getAllReview();
+    setAllReviews(response);
+    setTabReviews(response);
+    setFilteredReviews(response);
+  };
+
+  useEffect(() => {
+    loadFilteredReviews();
+  }, []);
+
+  useEffect(() => {
+    const loadAllCategories = async () => {
+      const data: _CategoryType[] = await CategoryService.getAllCategories();
+      setAllCategories(data);
+    };
+
+    loadAllCategories();
+  }, []);
+
+  return (
+    <div className="pt-4 pr-4 space-y-2">
+      <Breadcrumb
+        className="text-xs"
+        items={[
+          {
+            href: "/",
+            title: (
+              <div className="flex items-center">
+                <HiOutlineHome size={15} />
+              </div>
+            ),
+          },
+          {
+            href: "/product/list",
+            title: "Sản phẩm",
+          },
+          {
+            href: "/product/review",
+            title: "Quản lý đánh giá",
+          },
+        ]}
+      />
+      <p className="uppercase text-xl font-semibold">Quản lý đánh giá</p>
+
+      <Tabs type="card" items={tabItems}></Tabs>
+      <div className="flex items-center">
+        <Search
+          placeholder={`Nhập tên sản phẩm`}
+          style={{
+            borderRadius: "5px",
+            width: 800,
+          }}
+          onSearch={onSearch}
+          type="primary"
+          enterButton
+          className="theme-button "
+          onChange={(e) => setSearchValue(e.target.value)}
+          value={searchValue}
+        />
+
+        <FilterDropdown
+          initialSelectedOptions={
+            filterOptions.find((item) => item.key === "Danh mục")?.value || []
+          }
+          name={"Danh mục"}
+          options={allCategories.map((c) => {
+            return { id: c._id, label: c.name };
+          })}
+          onSelection={handleFilterDropdownChange}
+        />
+      </div>
+      {filterOptions.length > 0 && (
+        <div className="flex items-center">
+          <div className="text-sm mr-4 w-1/10">Đang lọc:</div>
+          <div className="flex flex-wrap  items-center">
+            {filterOptions.map((item, index) => {
+              return (
+                <div
+                  // key={index}
+                  className="flex items-center  text-xs max-w-4/5 "
+                >
+                  {Array.isArray(item.value) ? (
+                    item.value.map((value: string, idx: number) => (
+                      <div
+                        key={index}
+                        className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
+                      >
+                        <p>
+                          {item.key}: {value}
+                        </p>
+                        <div
+                          className=""
+                          onClick={() => removeFilterCriteria(item.key, value)}
+                        >
+                          <CiCircleRemove size={15} />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      key={index}
+                      className=" flex  rounded-2xl p-2 space-x-2 items-center  bg-sky-200 mx-2  my-1"
+                    >
+                      <p>
+                        {item.key}: {item.value}
+                      </p>
+                      <div
+                        className=""
+                        onClick={() =>
+                          removeFilterCriteria(item.key, item.value)
+                        }
+                      >
+                        <CiCircleRemove size={15} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <Button
+            type="link"
+            onClick={() => clearAllFilterCriterias()}
+            className="w-1/10"
+          >
+            {" "}
+            Xóa tất cả
+          </Button>
+        </div>
+      )}
+      <Divider />
+      <div className="flex">
+        <p className="font-semibold text-lg m-4">
+          Sản phẩm: {allReviews.length}
+        </p>
+      </div>
+      <div>
+        <Table
+          bordered
+          columns={columns}
+          dataSource={allReviews}
+          locale={{
+            emptyText: <Empty description={<span>Trống</span>} />, // Hiển thị Empty nếu không có dữ liệu
+          }}
+          className=""
+        />
+      </div>
+    </div>
+  );
+}

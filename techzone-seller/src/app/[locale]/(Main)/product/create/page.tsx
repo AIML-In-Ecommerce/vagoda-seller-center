@@ -106,16 +106,7 @@ export default function CreateProductPage() {
         </>
       )}
       {!showCreateProduct && (
-        // <div>
-        //   <div className="flex items-center space-x-1">
-        //     <div className="" onClick={handleBack}>
-        //       <MdOutlineKeyboardBackspace size={25} />
-        //     </div>
-        //     <p className="font-semibold">Tạo sản phẩm mới</p>
-        //   </div>
-
-        // </div>
-        <CreateNewProduct handleBack={handleBack} />
+        <CreateNewProduct handleBack={handleBack} isCreating={true} />
       )}
       {!showBatchCreateProduct && (
         <div>

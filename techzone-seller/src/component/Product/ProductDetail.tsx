@@ -1,11 +1,14 @@
 "use client";
-import { ProductType } from "@/app/[locale]/(Main)/product/list/page";
-import { Col, Divider, Drawer, Image as ImageAntd, Row } from "antd";
+import { _ProductType } from "@/model/ProductType";
+import { Button, Col, Divider, Drawer, Image as ImageAntd, Row } from "antd";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { GoStarFill } from "react-icons/go";
+import { formatPrice } from "../utils/formatPrice";
 
 interface ProductDetailProps {
-  product: ProductType;
+  product: _ProductType;
   onClose: () => void;
   open: boolean;
 }
@@ -23,24 +26,35 @@ const DescriptionItem = ({ title, content }: DescriptionItemProps) => (
 );
 
 export default function ProductDetail(props: ProductDetailProps) {
-  const [mainImage, setMainImage] = useState(props.product.avatar_url[0]);
+  const router = useRouter();
+  const [mainImage, setMainImage] = useState(props.product.images[0]);
+
+  let status = "";
 
   let bgColor = "";
   switch (props.product.status) {
-    case "Đang bán":
+    case "AVAILABLE":
       bgColor = "bg-green-400";
+      status = "Đang bán";
       break;
-    case "Hết hàng":
+    case "SOLD_OUT":
       bgColor = "bg-red-400";
+      status = "Hết bán";
       break;
-    case "Chờ duyệt":
-      bgColor = "bg-yellow-400";
+    case "SALE":
+      bgColor = "bg-orange-400";
+      status = "Khuyến mãi";
       break;
-    case "Đã tắt":
+    case "DRAFT":
+      bgColor = "bg-sky-400";
+      status = "Nháp";
+      break;
+    case "DISABLED":
       bgColor = "bg-gray-400";
+      status = "Đã Tắt";
       break;
     default:
-      bgColor = "bg-blue-400";
+      bgColor = "bg-green-400";
   }
 
   return (
@@ -49,64 +63,55 @@ export default function ProductDetail(props: ProductDetailProps) {
       placement="right"
       closable={false}
       onClose={props.onClose}
-      visible={props.open}
+      open={props.open}
     >
       <div className="p-4">
-        <p className="text-xl font-semibold uppercase mb-4">
-          Thông tin chi tiết sản phẩm
-        </p>
+        <div className="flex justify-between">
+          <p className="text-xl font-semibold uppercase mb-4">
+            Thông tin chi tiết sản phẩm
+          </p>
+          <Button
+            onClick={() => router.push(`list/update/${props.product._id}`)}
+            className="flex space-x-2 items-center"
+          >
+            <p>Chỉnh sửa</p>
+            <FiEdit />
+          </Button>
+        </div>
+
         <Row className="flex mx-auto justify-center">
           <ImageAntd className="rounded-xl mb-4" width={240} src={mainImage} />
         </Row>
-        {/* <div className="m-2 flex mx-auto justify-center">
-          <div className="">
-            <List
-              grid={{ gutter: 16, column: 5 }}
-              dataSource={props.product.avatar_url}
-              renderItem={(item) => (
-                <List.Item>
-                  <div
-                    className={`cursor-pointer ${
-                      mainImage === item ? "border border-sky-500" : ""
-                    }`}
-                    onMouseEnter={() => setMainImage(item)}
-                    onClick={() => setMainImage(item)}
-                  >
-                    <img
-                      className=" rounded-sm mb-4 "
-                      src={item}
-                      alt="Product Thumbnail"
-                    />
-                  </div>
-                </List.Item>
-              )}
-            />
-          </div>
-        </div> */}
         <p className="text-md font-semibold uppercase mt-4 mb-2">
           Thông tin chung
         </p>
-        <DescriptionItem title="ID" content={props.product.id} />
+        <DescriptionItem title="ID" content={props.product._id} />
         <DescriptionItem title="Tên sản phẩm" content={props.product.name} />
         <Row>
           <Col span={12}>
-            <DescriptionItem title="Giá" content={props.product.price} />
+            <DescriptionItem
+              title="Giá"
+              content={formatPrice(props.product.finalPrice)}
+            />
           </Col>
           <Col span={12}>
             <DescriptionItem
               title="Số lượng trong kho"
-              content={props.product.inventory_number}
+              content={props.product.inventoryAmount}
             />
           </Col>
         </Row>
-        <DescriptionItem title="Danh mục" content={props.product.category} />
+        <DescriptionItem
+          title="Danh mục"
+          content={props.product.category.name}
+        />
         <DescriptionItem title="Thương hiệu" content={props.product.brand} />
         <div className="flex items-center">
           <Col span={12}>
             <div className="flex space-x-2 items-center ">
               <p className="font-semibold">Trạng thái: </p>
               <p className={`text-white ${bgColor} border rounded-lg p-1`}>
-                {props.product.status}
+                {status}
               </p>
             </div>
           </Col>
@@ -114,7 +119,7 @@ export default function ProductDetail(props: ProductDetailProps) {
             <div className="flex space-x-2 items-center">
               <p className="font-semibold">Đánh giá: </p>
               <p className="flex space-x-1 items-center">
-                <p>{props.product.rating}</p>
+                <p>{props.product.avgRating}</p>
                 <GoStarFill className="text-yellow-400" />
               </p>
             </div>
@@ -129,7 +134,7 @@ export default function ProductDetail(props: ProductDetailProps) {
         </p>
         <div className="space-y-1 flex items-center justify-center mx-auto w-full">
           <div className=" w-full">
-            {props.product.otherDescriptions.map((description, index) => (
+            {props.product.attribute.map((description, index) => (
               <div key={index} className={index % 2 === 0 ? "bg-slate-50" : ""}>
                 <Row className="p-2">
                   <Col className="font-semibold" span={12}>
