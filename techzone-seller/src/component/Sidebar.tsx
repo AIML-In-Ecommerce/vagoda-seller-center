@@ -78,6 +78,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   ) : (
     <LiaGripLinesVerticalSolid />
   );
+
   const handleMenuItemClick = (url: string | null) => {
     router.push(url ? url : "/");
   };
@@ -171,7 +172,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       url: "/seller",
     },
   ];
-
 
   const [option, setOption] = useState<string[]>([]);
   const pathname = usePathname();
@@ -271,62 +271,45 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
 
   return (
     <div className="relative z-50">
-      {/* <div className=" sm:w-0 relative z-50 h-full">
-      <div className="flex">
-        <div className="flex fixed h-full justify-center"> */}
-          {/* <div className="bg-white pt-4"></div> */}
-      <div className="fixed h-full items-center justify-center bg-white">
-        <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }}>
-            <Button
-              type="text"
-              icon={
-                collapsed ? <IoMenu className="" /> : <IoMdClose className="" />
-              }
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 48,
-                height: 48,
-              }}
-              className="mx-5"
-            />
-          </Header>
-        </Layout>
-        <div className="rounded-full">
-          {!collapsed && (
-            <Input
-              size="middle"
-              placeholder="Tìm kiếm"
-              suffix={<GoSearch />}
-              className="rounded-full w-11/12 m-1"
-              onChange={handleSearch}
-            />
-          )}
-        </div>
-
-            <Sider
-              trigger={null}
-              collapsible
-              collapsed={collapsed}
-              className="h-full"
-            >
-              {filteredMenuItems}
-            </Sider>
-          </div>
-          <div className="flex items-center  p-0 m-0 pb-24">
-            <Tooltip
-              placement="left"
-              title={collapsed ? "Mở sidebar" : "Đóng sidebar"}
-            >
-              <div
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-                className="text-slate-400 hover:text-black font-bold cursor-pointer"
+      <div className=" sm:w-0 relative z-50 h-full">
+        <div className="flex">
+          <div className="flex fixed h-full justify-center">
+            <div className="bg-white pt-4"></div>
+            <div>
+              <Sider
+                trigger={null}
+                collapsible
+                collapsed={collapsed}
+                className="h-full bg-white"
               >
-                {iconToShow}
-              </div>
-            </Tooltip>
+                <div className="rounded-full bg-white">
+                  {!collapsed && (
+                    <Input
+                      size="middle"
+                      placeholder="Tìm kiếm"
+                      suffix={<GoSearch />}
+                      className="rounded-full w-11/12 m-1"
+                      onChange={handleSearch}
+                    />
+                  )}
+                </div>
+                {filteredMenuItems}
+              </Sider>
+            </div>
+            <div className="flex items-center  p-0 m-0 pb-24">
+              <Tooltip
+                placement="left"
+                title={collapsed ? "Mở sidebar" : "Đóng sidebar"}
+              >
+                <div
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  className="text-slate-400 hover:text-black font-bold cursor-pointer"
+                >
+                  {iconToShow}
+                </div>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </div>
