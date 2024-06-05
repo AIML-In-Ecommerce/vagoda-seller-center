@@ -313,11 +313,11 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                             )
                         })}
                 </Flex>
-                <Typography.Text className="font-semibold">
+                <Typography.Text className="font-semibold px-1">
                     Vận chuyển
                 </Typography.Text>
                 <Flex className="w-full">
-                    <Row className="w-full">
+                    <Row className="w-full px-1">
                         <Col span={12}>
                             Đơn vị đảm nhiệm:
                         </Col>
@@ -331,11 +331,11 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
 
                 <Divider />
 
-                <Typography.Text className="font-semibold">
+                <Typography.Text className="font-semibold px-1">
                     Tổng tính toán
                 </Typography.Text>
                 <Flex className="w-full" vertical justify="start" align="start">
-                    <Row className="w-full border-b py-2">
+                    <Row className="w-full border-b py-2 px-1">
                         <Col span={16}>
                             Giá trị đơn hàng:
                         </Col>
@@ -345,7 +345,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                             </Flex>
                         </Col>
                     </Row>
-                    <Row className="w-full border-b py-2">
+                    <Row className="w-full border-b py-2 px-1">
                         <Col span={16}>
                             Phí vận chuyển:
                         </Col>
@@ -355,7 +355,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                             </Flex>
                         </Col>
                     </Row>
-                    <Row className="w-full border-b py-2">
+                    <Row className="w-full border-b py-2 px-1">
                         <Col span={16}>
                             Giảm giá áp dụng:
                         </Col>
@@ -365,7 +365,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                             </Flex>
                         </Col>
                     </Row>
-                    <Row className="w-full border-b py-2 bg-gray-100">
+                    <Row className="w-full border-b py-2 bg-gray-100 px-1">
                         <Col span={16}>
                             <Tag color="blue-inverse">Doanh thu</Tag>
                         </Col>
@@ -375,7 +375,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                             </Flex>
                         </Col>
                     </Row>
-                    <Row className="w-full border-b py-2 bg-gray-100">
+                    <Row className="w-full border-b py-2 bg-gray-100 px-1">
                         <Col span={16}>
                             <Tag color="gold-inverse">Lợi nhuận</Tag>
                         </Col>
@@ -389,11 +389,11 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
 
                 <Divider />
 
-                <Typography.Text className="font-semibold">
+                <Typography.Text className="font-semibold px-1">
                     Phương thức thanh toán
                 </Typography.Text>
                 <Flex className="w-full bg-gray-200 py-2">
-                    <Row className="w-full">
+                    <Row className="w-full px-1">
                         <Col span={12}>
                             Đã lựa chọn:
                         </Col>

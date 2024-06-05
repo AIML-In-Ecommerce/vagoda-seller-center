@@ -1,6 +1,6 @@
 'use client'
 
-import { Flex, Tabs, Typography } from "antd";
+import { Breadcrumb, Flex, Tabs, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
 import WaitingOrderTab from "./tab/WaitingOrderTab";
 import { OrderPropType } from "@/model/OrderPropType";
@@ -9,6 +9,9 @@ import ShippingOrderTab from "./tab/ShippingOrderTab";
 import CompletedOrderTab from "./tab/CompletedOrderTab";
 import CancelledOrderTab from "./tab/CancelledOrderTab";
 import { SocketIOContext } from "@/socket/SocketProvider";
+import { ItemType } from "antd/es/breadcrumb/Breadcrumb";
+import { HiOutlineHome } from "react-icons/hi2";
+import { AuthContext } from "@/context/AuthContext";
 
 
 interface OrderTabsProps
@@ -441,6 +444,22 @@ const CancelledMockData: OrderPropType[] =
 
 export default function OrderTabs({}: OrderTabsProps)
 {
+    const authContext = useContext(AuthContext)
+    
+    const breadcrumbItems: ItemType[] =
+    [
+        {
+            key: 1,
+            title: <Flex className="h-full" align="center" justify="center"><HiOutlineHome /></Flex>,
+            href: "/"
+        },
+        {
+            key: 2,
+            title: <Flex className="h-full" align="center" justify="center">Danh sách đơn hàng</Flex>,
+            href: "/order"
+        }
+    ]
+
     const defaultTabKey = "tab-01"
     const defaultTabLabelProp =
     <div className="w-full">
@@ -607,6 +626,14 @@ export default function OrderTabs({}: OrderTabsProps)
     return(
         <>
             <div className="w-full h-screen bg-white px-4 rounded-lg">
+                <Flex vertical className="w-full mb-4 py-2" justify="center" align="start" gap={6}>
+                    <Flex className="w-full" align="baseline">
+                        <Breadcrumb items={breadcrumbItems}/>
+                    </Flex>
+                    <Flex className="w-full" align="baseline">
+                        <Typography.Text className="text-2xl font-semibold">Danh sách đơn hàng</Typography.Text>
+                    </Flex>
+                </Flex>
                 <div>
                     <Tabs
                         activeKey={selectedTabKey}

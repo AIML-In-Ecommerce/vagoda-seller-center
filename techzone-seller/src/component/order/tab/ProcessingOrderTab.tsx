@@ -71,6 +71,16 @@ const OrderValueTooltip =
     </Typography.Text>
 </Flex>
 
+const OrderTimeTooltip =
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Bắt đầu - thời gian đơn hàng được xử lý hay lấy hàng
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Hạn - thời gian người bán cần xử lý đơn hàng trước hạn
+    </Typography.Text>
+</Flex>
+
 const filterPoolSetting = ProcessingOrderPoolSetting
 
 export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps)
@@ -155,7 +165,12 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
             }
         },
         {
-            title: "Thời gian lấy hàng",
+            title: <Flex align="center" gap={4}>
+                    <Typography.Text>Thời gian xác nhận</Typography.Text>
+                    <Tooltip title={OrderTimeTooltip}>
+                        <BiInfoCircle />
+                    </Tooltip>
+                </Flex>,
             dataIndex: "time",
             render: (value:any, record: ProcessingOrder) =>
             {

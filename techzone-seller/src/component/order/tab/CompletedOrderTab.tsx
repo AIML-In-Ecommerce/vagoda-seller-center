@@ -71,6 +71,16 @@ const OrderValueTooltip =
     </Typography.Text>
 </Flex>
 
+const OrderTimeTooltip =
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Giao lúc - thời gian đơn hàng được giao thành công
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Hạn xác nhận - thời gian người bán cần xác nhận hoàn thành đơn hàng trước hạn này
+    </Typography.Text>
+</Flex>
+
 const filterPoolSetting = CompletedOrderPoolSetting
 
 export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
@@ -155,7 +165,12 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
             }
         },
         {
-            title: "Thời gian xác nhận",
+            title: <Flex align="center" gap={4}>
+                <Typography.Text>Thời gian xác nhận</Typography.Text>
+                <Tooltip title={OrderTimeTooltip}>
+                    <BiInfoCircle />
+                </Tooltip>
+            </Flex>,
             dataIndex: "time",
             render: (value:any, record: CompletedOrder) =>
             {

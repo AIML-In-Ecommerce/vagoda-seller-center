@@ -4,7 +4,7 @@ import { createContext, useEffect, useMemo, useState } from 'react'
 import {io, Socket} from 'socket.io-client'
 
 
-const URL:string = process.env.NODE_ENV == "development" ? (process.env.SOCKET_URL == undefined ? "http://localhost:4000": process.env.SOCKET_URL) : "http://localhost:4000"
+const URL:string = process.env.NODE_ENV == "development" ? (process.env.NEXT_PUBLIC_SOCKET_URL == undefined ? "http://localhost:4000": process.env.NEXT_PUBLIC_SOCKET_URL) : "http://localhost:4000"
 
 interface SocketIOProps
 {
@@ -52,20 +52,17 @@ export default function SocketProvider({children}: SocketIOProps)
 
     const value: SocketIOContextProps = useMemo(() =>
     {
-        console.log("inside useMemo")
 
         if(isConnected == false && socketIO != null)
         {
 
             socketIO.on("connection", (args) =>
             {
-                console.log(args)
                 setIsConnected(true)
             })
 
             socketIO.on("disconnect", (reason: Socket.DisconnectReason) =>
             {
-                console.log(reason)
                 setIsConnected(false)
                 if(reason == "ping timeout")
                 {

@@ -70,6 +70,15 @@ const OrderValueTooltip =
     </Typography.Text>
 </Flex>
 
+const OrderTimeTooltip =
+<Flex vertical>
+    <Typography.Text className="text-sm text-white">
+        Nhận - thời gian đơn hàng được ghi nhận
+    </Typography.Text>
+    <Typography.Text className="text-sm text-white">
+        Hạn - thời gian người bán cần xác nhận trước hạn đó
+    </Typography.Text>
+</Flex>
 
 const filterPoolSetting = WaitingOrderFilterPoolSetting
 
@@ -153,7 +162,12 @@ export default function WaitingOrderTab({dataSource}: WaitingOrderTabProps)
             }
         },
         {
-            title: "Thời gian xác nhận",
+            title: <Flex align="center" gap={4}>
+                    <Typography.Text>Thời gian xác nhận</Typography.Text>
+                    <Tooltip title={OrderTimeTooltip}>
+                        <BiInfoCircle />
+                    </Tooltip>
+                </Flex>,
             dataIndex: "time",
             render: (value:any, record: WaitingOrder) =>
             {
