@@ -28,7 +28,7 @@ function getItem(
   key: React.Key,
   icon?: React.ReactNode,
   children?: MenuItem[],
-  url?: string
+  url?: string,
 ): MenuItem {
   return {
     key,
@@ -85,6 +85,10 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
         { label: "Tạo sản phẩm", url: "/product/create" },
         { label: "Quản lý đánh giá", url: "/product/review" },
         { label: "Lịch sử thay đổi", url: "/product/history" },
+        {
+          label: "Bộ sưu tập hình ảnh",
+          url: "/product/image-collection",
+        },
       ],
       url: null,
     },
@@ -185,7 +189,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
         {/* Filter menu items based on search text */}
         {menuItems
           .filter((item) =>
-            item.label.toLowerCase().includes(searchText.toLowerCase())
+            item.label.toLowerCase().includes(searchText.toLowerCase()),
           )
           .map((item) => (
             <React.Fragment key={item.key}>

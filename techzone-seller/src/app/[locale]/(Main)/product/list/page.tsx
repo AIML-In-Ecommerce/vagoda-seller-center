@@ -503,7 +503,7 @@ const rowSelection = {
     console.log(
       `selectedRowKeys: ${selectedRowKeys}`,
       "selectedRows: ",
-      selectedRows
+      selectedRows,
     );
   },
   getCheckboxProps: (record: ProductType) => ({
@@ -535,7 +535,7 @@ export default function ProductListPage() {
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<ProductType | null>(
-    null
+    null,
   );
   const [tabProducts, setTabProducts] = useState<ProductType[]>(products);
   const [loading, setLoading] = useState(false);
@@ -831,7 +831,7 @@ export default function ProductListPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     const index = updatedFilterCriterias.findIndex(
-      (criteria) => criteria.key === key
+      (criteria) => criteria.key === key,
     );
 
     if (index !== -1) {
@@ -840,7 +840,7 @@ export default function ProductListPage() {
       if (Array.isArray(valueFilterCriterias)) {
         updatedFilterCriterias[index].value = valueFilterCriterias.filter(
           (criteriaValue: string) =>
-            !value.toLowerCase().includes(criteriaValue.toLowerCase())
+            !value.toLowerCase().includes(criteriaValue.toLowerCase()),
         );
 
         if (updatedFilterCriterias[index].value.length === 0) {
@@ -863,27 +863,27 @@ export default function ProductListPage() {
       switch (currentTab) {
         case "1":
           filteredProducts = products.filter(
-            (product) => product.status === "Đang bán"
+            (product) => product.status === "Đang bán",
           );
           break;
         case "2":
           filteredProducts = products.filter(
-            (product) => product.status === "Hết hàng"
+            (product) => product.status === "Hết hàng",
           );
           break;
         case "3":
           filteredProducts = products.filter(
-            (product) => product.status === "Nháp"
+            (product) => product.status === "Nháp",
           );
           break;
         case "4":
           filteredProducts = products.filter(
-            (product) => product.status === "Chờ duyệt"
+            (product) => product.status === "Chờ duyệt",
           );
           break;
         case "5":
           filteredProducts = products.filter(
-            (product) => product.status === "Đã tắt"
+            (product) => product.status === "Đã tắt",
           );
           break;
         default:
@@ -905,27 +905,27 @@ export default function ProductListPage() {
       filterOptions.forEach((filter) => {
         if (filter.key === "Tên sản phẩm") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.name.toLowerCase().includes(filter.value.toLowerCase())
+            product.name.toLowerCase().includes(filter.value.toLowerCase()),
           );
         } else if (filter.key === "Mã sản phẩm") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.id.toLowerCase().includes(filter.value.toLowerCase())
+            product.id.toLowerCase().includes(filter.value.toLowerCase()),
           );
         } else if (filter.key === "SKU") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.SKU.toLowerCase().includes(filter.value.toLowerCase())
+            product.SKU.toLowerCase().includes(filter.value.toLowerCase()),
           );
         } else if (filter.key === "Danh mục") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
             filter.value.some((category: string) =>
-              product.category.toLowerCase().includes(category.toLowerCase())
-            )
+              product.category.toLowerCase().includes(category.toLowerCase()),
+            ),
           );
         } else if (filter.key === "Thương hiệu") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
             filter.value.some((brand: string) =>
-              product.brand.toLowerCase().includes(brand.toLowerCase())
-            )
+              product.brand.toLowerCase().includes(brand.toLowerCase()),
+            ),
           );
         }
       });
@@ -1031,7 +1031,7 @@ export default function ProductListPage() {
             {filterOptions.map((item, index) => {
               return (
                 <div
-                  // key={index}
+                  key={index}
                   className="flex flex-wrap items-center  text-xs max-w-4/5 "
                 >
                   {Array.isArray(item.value) ? (
