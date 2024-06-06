@@ -63,7 +63,7 @@ const rowSelection = {
     console.log(
       `selectedRowKeys: ${selectedRowKeys}`,
       "selectedRows: ",
-      selectedRows
+      selectedRows,
     );
   },
   getCheckboxProps: (record: _ProductType) => ({
@@ -95,7 +95,7 @@ export default function ProductListPage() {
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
-    null
+    null,
   );
   const [tabProducts, setTabProducts] = useState<_ProductType[]>([]);
   const [totalProduct, setTotalProduct] = useState(0);
@@ -236,11 +236,11 @@ export default function ProductListPage() {
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string
+    key: string,
   ) => {
     console.log("CHECKING", value, key);
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
+      (option) => option.key !== key,
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -411,7 +411,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -434,12 +434,12 @@ export default function ProductListPage() {
         : undefined;
       if (categoryValues) {
         const updatedCategoryValues = categoryValues.filter(
-          (item) => item != value.id
+          (item) => item != value.id,
         );
         if (updatedCategoryValues.length > 0) {
           updatedQuery.set(
             "category",
-            encodeURIComponent(updatedCategoryValues.join(","))
+            encodeURIComponent(updatedCategoryValues.join(",")),
           );
         } else {
           updatedQuery.delete("category");
@@ -452,7 +452,7 @@ export default function ProductListPage() {
     window.history.pushState(
       {},
       "",
-      `${window.location.pathname}?${updatedQuery.toString()}`
+      `${window.location.pathname}?${updatedQuery.toString()}`,
     );
   };
 
@@ -460,7 +460,7 @@ export default function ProductListPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     const index = updatedFilterCriterias.findIndex(
-      (criteria) => criteria.key === key
+      (criteria) => criteria.key === key,
     );
 
     if (index !== -1) {
@@ -469,7 +469,7 @@ export default function ProductListPage() {
       if (Array.isArray(valueFilterCriterias)) {
         updatedFilterCriterias[index].value = valueFilterCriterias.filter(
           (criteriaValue: { id: string; label: string }) =>
-            criteriaValue.id !== value.id
+            criteriaValue.id !== value.id,
         );
         console.log("removeFilterCriteria", updatedFilterCriterias);
 
@@ -518,7 +518,7 @@ export default function ProductListPage() {
           CategoryService.getCategoryById(id).then((categoryInfo) => ({
             id,
             name: categoryInfo.name,
-          }))
+          })),
         );
       });
     }
@@ -559,7 +559,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       loadFilteredProducts();
@@ -576,15 +576,15 @@ export default function ProductListPage() {
       filterOptions.forEach((filter) => {
         if (filter.key === "Tên sản phẩm") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.name.toLowerCase().includes(filter.value.toLowerCase())
+            product.name.toLowerCase().includes(filter.value.toLowerCase()),
           );
         } else if (filter.key === "Danh mục") {
           tempFilteredProducts = tempFilteredProducts.filter((product) =>
             filter.value.some((category: { id: string; label: string }) =>
               category.label
                 .toLowerCase()
-                .includes(category.label.toLowerCase())
-            )
+                .includes(category.label.toLowerCase()),
+            ),
           );
         }
       });
@@ -720,7 +720,7 @@ export default function ProductListPage() {
                             <CiCircleRemove size={15} />
                           </div>
                         </div>
-                      )
+                      ),
                     )
                   ) : (
                     <div
