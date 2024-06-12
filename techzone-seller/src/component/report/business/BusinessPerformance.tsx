@@ -1,6 +1,6 @@
 "use client";
 import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Space, Tooltip } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi";
 import CustomCarousel from "../../Carousel";
 import { TbInfoCircle } from "react-icons/tb";
@@ -11,6 +11,7 @@ import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import BPChart from "./BPChart";
 import HorizontalBarChart from "./HorizontalBarChart";
+import { POST_getTopProductsInSales } from "@/apis/statistic/StatisticAPI";
 
 dayjs.extend(LocalizedFormat)
 
@@ -101,7 +102,8 @@ export default function BusinessPerformancePage() {
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
-    const [selectedCategories, setSelectedCategories] = useState<BPCategory[]>([])
+    const [selectedCategories, setSelectedCategories] = useState<BPCategory[]>([]);
+    const [productSales, setProductSales] = useState([])
 
     const handlePreviousPeriod = (currentPeriod: [Dayjs, Dayjs], periodUnit: string) => {
         let previous: [Dayjs, Dayjs] = [...currentPeriod];
@@ -121,7 +123,7 @@ export default function BusinessPerformancePage() {
         }
         setCompareDates(previous);
     }
-    
+
     const switchPeriod = (periodUnit: string) => {
         let period: [Dayjs, Dayjs] = [dayjs().startOf('date'), dayjs().endOf('date')];
         switch (periodUnit) {
@@ -146,6 +148,18 @@ export default function BusinessPerformancePage() {
         setSelectedReportPeriod(e.target.value);
         switchPeriod(e.target.value);
     };
+
+    useEffect(() => {
+        const fetchProductsSales = async () => {
+            const [startTime, endTime] = DayjsToDate(selectedDates);
+            const response = await POST_getTopProductsInSales(
+                process.env.NEXT_PUBLIC_SHOP_ID as string,
+                startTime!, endTime!)
+            setProductSales(response.data)
+        }
+        fetchProductsSales();
+        setLastUpdateTime(dayjs());
+    }, [selectedDates])
 
     return (
         <React.Fragment>
@@ -191,7 +205,7 @@ export default function BusinessPerformancePage() {
                     <div className="flex flex-col lg:flex-row ">
                         <div className="font-semibold">Chỉ số chính</div>
                         <div className="lg:ml-4">
-                        {convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)} (So sánh với: {dateRangeToString(compareDates)})</div>
+                            {convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)} (So sánh với: {dateRangeToString(compareDates)})</div>
                     </div>
                     <div className="w-[100%] my-10 flex flex-col gap-10">
                         <div className="lg:hidden sm:block">
@@ -242,7 +256,11 @@ export default function BusinessPerformancePage() {
                             </div>
                         }>
                         <div className="w-[100%] mb-10 flex flex-col gap-5">
-                            <HorizontalBarChart/>
+                            {
+                                productSales.length !== 0 ?
+                                    <HorizontalBarChart items={productSales} />
+                                    : <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
+                            }
                         </div>
                     </Card>
                     <Card className="bg-white py-4 px-10 mt-5 flex flex-col lg:mb-20"
@@ -256,8 +274,11 @@ export default function BusinessPerformancePage() {
                             </div>
                         }>
                         <div className="w-[100%] mb-10 flex flex-col gap-5">
-                            <HorizontalBarChart/>
-                            {/* <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty> */}
+                            {
+                                productSales.length !== 0 ?
+                                    <HorizontalBarChart items={productSales} />
+                                    : <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
+                            }
                         </div>
                     </Card>
                 </div>

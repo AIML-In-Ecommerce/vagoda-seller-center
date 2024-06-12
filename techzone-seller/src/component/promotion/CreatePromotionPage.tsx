@@ -1,7 +1,8 @@
 "use client";
-import { Breadcrumb, FormProps, RadioChangeEvent, Tooltip } from 'antd'
+import { Affix, Breadcrumb, Divider, FormProps, RadioChangeEvent, Tooltip } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineHome } from 'react-icons/hi2'
+import runes from 'runes2';
 import {
     Button,
     Cascader,
@@ -24,8 +25,12 @@ import { MdInfoOutline } from 'react-icons/md';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { RiCoupon3Line } from 'react-icons/ri';
-import { DiscountType } from '@/model/PromotionType';
+import { DiscountType, PromotionType } from '@/model/PromotionType';
 import { FaPlus } from 'react-icons/fa6';
+import PromotionCard from '../booth-design/decorator/mini/PromotionCard';
+import { formatCurrencyFromValue } from '../util/CurrencyDisplay';
+import { useRouter } from 'next/navigation';
+import { TbDiscount, TbShoppingCartDiscount } from 'react-icons/tb';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -88,6 +93,13 @@ const generatePromotionCode = () => {
     return result.toUpperCase();
 }
 
+
+
+const DIRECT_PRICE_RECOMMEND = 10000;
+const PERCENTAGE_RECOMMEND = 8;
+const LIMIT_AMOUNT_RECOMMEND = 80000;
+const LOWER_BOUND_RECOMMEND = 100000;
+
 export default function CreatePromotionPage() {
     const [form] = Form.useForm<DiscountInfoField>();
     const discountName = Form.useWatch('name', form);
@@ -101,27 +113,73 @@ export default function CreatePromotionPage() {
     const isLimitAmountToReduce = Form.useWatch('isLimitAmountToReduce', form);
     const limitAmountToReduce = Form.useWatch('limitAmountToReduce', form);
     const quantity = Form.useWatch('quantity', form);
-    // const [discount, setDiscount] = useState<DiscountInfoField>(initialDiscount);
+    const [targetProducts, setTargetProducts] = useState<any[]>();
+    const router = useRouter();
+    const [discount, setDiscount] = useState<PromotionType>({
+        _id: "",
+        name: "",
+        description: "",
+        discountType: DiscountType.DIRECT_PRICE,
+        discountValue: 0,
+        upperBound: 0,
+        lowerBound: 0,
+        quantity: 0,
+        activeDate: date ? date[0]?.format('DD/MM/YYYY HH:mm') : "",
+        expiredDate: date ? date[1]?.format('DD/MM/YYYY HH:mm') : "",
+        createdAt: dayjs().format('DD/MM/YYYY HH:mm'),
+        code: discountCode,
+    } as PromotionType);
+    const [isSelected, setIsSelected] = useState<boolean>(false);
+    const [applyOption, setApplyOption] = useState<string>("all");
 
     useEffect(() => {
-        // setDiscount({
-        //     name: form.getFieldValue('name'),
-        //     code: form.getFieldValue('code'),
-        //     activeDate: new Date(),
-        //     expiredDate: undefined,
-        // } as DiscountInfoField)
-        console.log('form setDiscount', date);
-    }, [discountName, discountCode, date]);
+        setDiscount({
+            _id: "",
+            name: discountName,
+            description: "",
+            discountType: discountType,
+            discountValue: discountValue,
+            upperBound: limitAmountToReduce,
+            lowerBound: lowerBoundaryForOrder,
+            quantity: quantity,
+            activeDate: date ? date[0]?.format('DD/MM/YYYY HH:mm') : "",
+            expiredDate: date ? date[1]?.format('DD/MM/YYYY HH:mm') : "",
+            createdAt: dayjs().format('DD/MM/YYYY HH:mm'),
+            code: discountCode,
+        } as PromotionType)
+    }, [discountName, discountCode, date,
+        discountType, discountValue, limitAmountToReduce,
+        lowerBoundaryForOrder, quantity]);
 
     const handleUpdatePromotionCode = () => {
         const generateCode = generatePromotionCode();
-        form.setFieldsValue({ code: generateCode });
+        // form.setFieldsValue({ code: generateCode });
+        form.setFieldValue("code", generateCode);
     }
+
+    const handlePromotionInputChange = (e: any) => {
+        const transformedValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        form.setFieldValue("code", transformedValue);
+        form.validateFields(['code']);
+    };
+
+    const handleUpdateRecommendField = (fieldName: string, value: any) => {
+        form.setFieldValue(fieldName, value);
+        form.validateFields([fieldName]);
+    }
+
+
     const handleSwitchRecommendStats = () => {
         form.setFieldsValue({ isRecommendStats: !recommendStats });
     }
 
     const onProductListChange = ({ target: { value } }: RadioChangeEvent) => {
+        setApplyOption(value);
+        if (value === "all") {
+            setTargetProducts(undefined);
+        }
+        else setTargetProducts([]);
+
         console.log("Product list change...", value);
     }
 
@@ -139,7 +197,7 @@ export default function CreatePromotionPage() {
 
     return (
         <React.Fragment>
-            <div className="flex flex-col container py-5">
+            <div className="min-h-screen flex flex-col container py-5 select-none">
                 <div className="pr-4 px-4">
                     <Breadcrumb
                         className="text-xs"
@@ -167,8 +225,7 @@ export default function CreatePromotionPage() {
                     />
                 </div>
                 <div className="pr-4 px-4 mt-5 uppercase text-xl font-semibold">Mã giảm giá / Tạo mới</div>
-                <div className="pr-4 px-4 mt-5 lg:grid lg:grid-cols-7 gap-5">
-
+                <div className="pr-4 px-4 mt-5 mb-20 lg:grid lg:grid-cols-7 gap-5 relative">
                     <div className="col-start-1 col-span-5 p-5 bg-white container">
                         <div className="font-semibold text-lg">1. Thông tin cơ bản</div>
                         <Form {...formItemLayout}
@@ -195,7 +252,7 @@ export default function CreatePromotionPage() {
                                             <MdInfoOutline />
                                         </Tooltip>
                                     </div>
-                                } name="code" rules={[{ required: true }]}>
+                                } name="code" rules={[{ required: true, max: 10}]}>
                                     <div className="flex flex-col">
                                         <div className="flex flex-col lg:flex-row lg:items-center gap-2 justify-between mt-1">
                                             <div className="mb-2">Chỉ bao gồm từ 5 - 10 ký tự thường và chữ số.</div>
@@ -207,7 +264,17 @@ export default function CreatePromotionPage() {
                                                 </div>
                                             </Tooltip>
                                         </div>
-                                        <Input size="large" placeholder={"Điền ký tự mã giảm giá"} value={discountCode} />
+                                        <Input size="large"
+                                            count={{
+                                                show: true,
+                                                max: 10,
+                                                strategy: (txt) => runes(txt).length,
+                                                exceedFormatter: (txt, { max }) => runes(txt).slice(0, max).join(''),
+                                            }}
+                                            placeholder={"Điền ký tự mã giảm giá"}
+                                            value={discountCode}
+                                            
+                                            onChange={handlePromotionInputChange}  />
                                     </div>
                                 </Form.Item>
                                 <Form.Item label={
@@ -253,17 +320,49 @@ export default function CreatePromotionPage() {
                                 }>
                                     <Form.Item name="discountType">
                                         <Radio.Group size="large" className="grid grid-cols-2 items-center" onChange={onDiscountTypeChange} value={discountType} optionType="button">
-                                            <Radio className="text-center" value={DiscountType.DIRECT_PRICE}>Theo số tiền (VNĐ)</Radio>
-                                            <Radio className="text-center" value={DiscountType.PERCENTAGE}>Theo phần trăm</Radio>
+                                            <Radio className="truncate" value={DiscountType.DIRECT_PRICE}>Theo số tiền (VNĐ)</Radio>
+                                            <Radio className="truncate" value={DiscountType.PERCENTAGE}>Theo phần trăm</Radio>
                                         </Radio.Group>
                                     </Form.Item>
+                                    {
+                                        recommendStats ? (
+                                            <div className="flex flex-row items-center gap-1">
+                                                <div className="text-green-500 font-semibold text-lg"><TbDiscount /></div>
+                                                <div>Mức đề xuất: <span className="font-semibold">
+                                                    {
+                                                        discountType === DiscountType.DIRECT_PRICE
+                                                            ? formatCurrencyFromValue({ value: DIRECT_PRICE_RECOMMEND })
+                                                            : `${PERCENTAGE_RECOMMEND} %`
+                                                    }
+                                                </span>
+                                                </div>
+                                                <div className="flex flex-row items-center gap-1 text-blue-700 cursor-pointer hover:text-blue-900 select-none"
+                                                    onClick={() => handleUpdateRecommendField('discountValue',
+                                                        discountType === DiscountType.DIRECT_PRICE ? DIRECT_PRICE_RECOMMEND : PERCENTAGE_RECOMMEND
+                                                    )}>
+                                                    <div>Áp dụng</div>
+                                                </div>
+                                            </div>
+                                        ) : <></>
+                                    }
                                     <Form.Item name="discountValue" rules={[{ required: true }]}>
-                                        <Input size="large" addonAfter={
-                                            discountType === DiscountType.DIRECT_PRICE ? "đ" : "%"
-                                        } value={discountValue}
-                                            placeholder={
-                                                discountType === DiscountType.DIRECT_PRICE ? "Nhập số tiền" : "Nhập số phần trăm"
-                                            } />
+                                        {
+                                            discountType === DiscountType.DIRECT_PRICE ?
+                                                <InputNumber style={{ width: '100%' }} size="large" addonAfter="đ" value={discountValue}
+                                                    placeholder={"Nhập số tiền"}
+                                                    defaultValue={0}
+                                                    min={0}
+                                                    max={1000000000}
+                                                    controls={false}
+                                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number} /> :
+                                                <InputNumber style={{ width: '100%' }} size="large" addonAfter="%" value={discountValue}
+                                                    defaultValue={0}
+                                                    min={0}
+                                                    max={100}
+                                                    controls={false}
+                                                    placeholder={"Nhập số phần trăm"} />
+                                        }
                                     </Form.Item>
                                 </Form.Item>
                                 {
@@ -272,19 +371,43 @@ export default function CreatePromotionPage() {
                                             <div className="flex flex-row items-center gap-2">
                                                 <div className="font-semibold">Số tiền giảm tối đa</div>
                                             </div>
-                                        } name="">
+                                        }>
                                             <Form.Item name="isLimitAmountToReduce">
                                                 <Radio.Group size="large" className="grid grid-cols-2 items-center" onChange={onHasLimitAmountToReduce} value={isLimitAmountToReduce} optionType="button">
-                                                    <Radio className="text-center" value={false}>Không giới hạn</Radio>
-                                                    <Radio className="text-center" value={true}>Giới hạn số tiền tối đa</Radio>
+                                                    <Radio className="truncate" value={false}>Không giới hạn</Radio>
+                                                    <Radio className="truncate" value={true}>Giới hạn số tiền tối đa</Radio>
                                                 </Radio.Group>
                                             </Form.Item>
                                             {
+                                                recommendStats && (isLimitAmountToReduce === true) ? (
+                                                    <>
+                                                        <div className="flex flex-row items-center gap-1">
+                                                            <div className="text-green-500 font-semibold text-lg"><TbDiscount /></div>
+                                                            <div>Mức đề xuất: <span className="font-semibold">
+                                                                {
+                                                                    formatCurrencyFromValue({ value: LIMIT_AMOUNT_RECOMMEND })
+                                                                }
+                                                            </span>
+                                                            </div>
+                                                            <div className="flex flex-row items-center gap-1 text-blue-700 cursor-pointer hover:text-blue-900 select-none"
+                                                                onClick={() => handleUpdateRecommendField('limitAmountToReduce', LIMIT_AMOUNT_RECOMMEND)}>
+                                                                <div>Áp dụng</div>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                ) : <></>
+                                            }
+                                            {
                                                 isLimitAmountToReduce === true ? (
                                                     <Form.Item name="limitAmountToReduce" rules={[{ required: true }]}>
-                                                        <Input size="large" addonAfter={"đ"}
-                                                            value={limitAmountToReduce}
-                                                            placeholder={"Nhập số tiền"} />
+                                                        <InputNumber style={{ width: '100%' }} size="large" addonAfter="đ" value={limitAmountToReduce}
+                                                            placeholder={"Nhập số tiền"}
+                                                            defaultValue={0}
+                                                            min={0}
+                                                            max={1000000000}
+                                                            controls={false}
+                                                            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                            parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number} />
                                                     </Form.Item>) : <></>
                                             }
                                         </Form.Item>) : <></>
@@ -296,16 +419,41 @@ export default function CreatePromotionPage() {
                                 }>
                                     <Form.Item name="isHasLowerBoundaryForOrder">
                                         <Radio.Group size="large" className="grid grid-cols-2 items-center" onChange={onHasLowerBoundaryForOrder} value={isHasLowerBoundaryForOrder} optionType="button">
-                                            <Radio className="text-center" value={false}>Không ràng buộc</Radio>
-                                            <Radio className="text-center" value={true}>Giới hạn đơn hàng tối thiểu</Radio>
+                                            <Radio className="truncate" value={false}>Không ràng buộc</Radio>
+                                            <Radio className="truncate" value={true}>Giới hạn đơn hàng tối thiểu</Radio>
                                         </Radio.Group>
                                     </Form.Item>
                                     {
+                                        recommendStats && (isHasLowerBoundaryForOrder === true) ? (
+                                            <>
+                                                <div className="flex flex-row items-center gap-1">
+                                                    <div className="text-green-500 font-semibold text-lg"><TbDiscount /></div>
+                                                    <div>Mức đề xuất: <span className="font-semibold">
+                                                        {
+                                                            formatCurrencyFromValue({ value: LOWER_BOUND_RECOMMEND })
+                                                        }
+                                                    </span>
+                                                    </div>
+                                                    <div className="flex flex-row items-center gap-1 text-blue-700 cursor-pointer hover:text-blue-900 select-none"
+                                                        onClick={() => handleUpdateRecommendField('lowerBoundaryForOrder', LOWER_BOUND_RECOMMEND)}>
+                                                        <div>Áp dụng</div>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ) : <></>
+
+                                    }
+                                    {
                                         isHasLowerBoundaryForOrder === true ? (
                                             <Form.Item name="lowerBoundaryForOrder" rules={[{ required: true }]}>
-                                                <Input size="large" addonAfter={"đ"}
-                                                    value={lowerBoundaryForOrder}
-                                                    placeholder={"Nhập số tiền"} />
+                                                <InputNumber style={{ width: '100%' }} size="large" addonAfter="đ" value={lowerBoundaryForOrder}
+                                                    placeholder={"Nhập số tiền"}
+                                                    defaultValue={0}
+                                                    min={0}
+                                                    max={1000000000}
+                                                    controls={false}
+                                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                                    parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number} />
                                             </Form.Item>) : <></>
                                     }
                                 </Form.Item>
@@ -314,7 +462,13 @@ export default function CreatePromotionPage() {
                                         <div className="font-semibold">Số lượng mã giảm giá</div>
                                     </div>
                                 } name="quantity">
-                                    <Input size="large" value={quantity} placeholder={"Nhập số luợng"} />
+                                    <InputNumber style={{ width: '100%' }} size="large" value={quantity}
+                                        placeholder={"Nhập số lượng"}
+                                        defaultValue={0}
+                                        min={0}
+                                        controls={false}
+                                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                        parser={(value) => value?.replace(/\$\s?|(,*)/g, '') as unknown as number} />
                                 </Form.Item>
                             </div>
                         </Form>
@@ -322,8 +476,8 @@ export default function CreatePromotionPage() {
                     <div className="col-start-1 col-span-5 p-5 bg-white container">
                         <div className="font-semibold text-lg">3. Sản phẩm áp dụng</div>
                         <div className="w-full mt-4">
-                            <Radio.Group onChange={onProductListChange} className="flex flex-col gap-5 lg:gap-0 lg:grid lg:grid-cols-2">
-                                <Radio value="all_product" className="border-2 border-slate-300 hover:border-blue-500 rounded-sm px-2 py-4">
+                            <Radio.Group onChange={onProductListChange} value={applyOption} className="flex flex-col gap-5 lg:gap-0 lg:grid lg:grid-cols-2">
+                                <Radio value="all" className={`border-2 hover:border-blue-500 rounded-sm px-2 py-4 ${applyOption === "all" ? "border-blue-500" : "border-slate-300 "}`}>
                                     <div className="flex flex-row items-center gap-3">
                                         <Image src={"https://cdn-icons-png.flaticon.com/512/617/617043.png"}
                                             width={40}
@@ -331,7 +485,7 @@ export default function CreatePromotionPage() {
                                         <div className="font-semibold">Tất cả sản phẩm</div>
                                     </div>
                                 </Radio>
-                                <Radio value="list_product" className="border-2 border-slate-300 hover:border-blue-500 rounded-sm px-2 py-4 relative">
+                                <Radio value="list" className={`border-2 hover:border-blue-500 rounded-sm px-2 py-4 relative ${applyOption === "list" ? "border-blue-500" : "border-slate-300"}`}>
                                     <div className="flex flex-row items-center justify-between">
                                         <div className="flex flex-row items-center gap-3">
                                             <Image src={"https://cdn-icons-png.flaticon.com/256/8574/8574201.png"}
@@ -353,40 +507,54 @@ export default function CreatePromotionPage() {
                             </Radio.Group>
                         </div>
                     </div>
-                    <div className="row-start-1 col-start-6 col-span-2 row-span-2">
+                    <div className="row-start-1 col-start-6 col-span-2 row-span-2 container">
                         <div className="flex flex-col items-center space-y-3">
                             <div className="font-semibold">Tóm tắt điều kiện áp dụng mã</div>
                             <div className="p-4 bg-sky-100 border-2 border-blue-300 w-full">
                                 <ul className="list-disc list-inside">
                                     {
                                         discountType === DiscountType.PERCENTAGE ? (
-                                            <li>Giảm <span className="text-blue-500 font-semibold">{discountValue}%</span> - {isLimitAmountToReduce ? <span>Tối đa <span className="text-blue-500 font-semibold">{limitAmountToReduce} ₫</span></span> : <span className="text-blue-500 font-semibold">Không giới hạn số tiền tối đa</span> }</li>
-                                        ) : <li>Giảm <span className="text-blue-500 font-semibold">{discountValue}đ</span></li>
+                                            <li>Giảm <span className="text-blue-500 font-semibold">{discountValue}%</span> - {isLimitAmountToReduce ? <span>Tối đa <span className="text-blue-500 font-semibold">{formatCurrencyFromValue({ value: limitAmountToReduce })}</span></span> : <span className="text-blue-500 font-semibold">Không giới hạn số tiền tối đa</span>}</li>
+                                        ) : <li>Giảm <span className="text-blue-500 font-semibold">{formatCurrencyFromValue({ value: discountValue })}</span></li>
                                     }
                                     {/* <li>Hiện mã giảm giá trong [Trang Chi Tiết Sản Phẩm]</li> */}
                                     <li>Thời gian hiệu lực: <span className="text-blue-500 font-semibold">{date ? date[0]?.format('DD/MM/YYYY HH:mm') : "--"} → {date ? date[1]?.format('DD/MM/YYYY HH:mm') : "--"}</span></li>
                                     {
-                                        isHasLowerBoundaryForOrder ? (
+                                        isHasLowerBoundaryForOrder === false ? (
                                             <li>Giá trị đơn hàng tối thiểu: <span className="text-blue-500 font-semibold">Không ràng buộc</span></li>
-                                        ) : <li>Giá trị đơn hàng tối thiểu: <span className="text-blue-500 font-semibold">{lowerBoundaryForOrder}₫</span></li>
+                                        ) : <li>Giá trị đơn hàng tối thiểu: <span className="text-blue-500 font-semibold">{formatCurrencyFromValue({ value: lowerBoundaryForOrder })}</span></li>
                                     }
                                     {/* <li>Nhóm khách hàng áp dụng: Tất cả khách hàng</li> */}
                                     <li>Tổng số lượng mã giảm giá: <span className="text-blue-500 font-semibold">{quantity}</span></li>
                                     {/* <li>Không giới hạn số lần sử dụng mỗi khách hàng</li> */}
-                                    <li>Áp dụng cho:
-                                        <span className="text-blue-500 font-semibold">
-                                            {
-
-                                            }
-                                        </span>
+                                    <li>Áp dụng cho: <span className="text-blue-500 font-semibold">
+                                        {
+                                            targetProducts ? `${targetProducts.length} sản phẩm` : "Tất cả sản phẩm"
+                                        }
+                                    </span>
                                     </li>
                                 </ul>
                             </div>
                             <div className="font-semibold">Hiển thị mẫu trên ứng dụng</div>
-
+                            <div className="w-full p-5 bg-slate-200">
+                                <PromotionCard item={discount!} isSelected={isSelected}
+                                    applyDiscount={() => { setIsSelected(true) }}
+                                    removeDiscount={() => { setIsSelected(false) }} />
+                            </div>
                         </div>
                     </div>
+                    {/* Sticky bottom */}
+                    <div className="col-start-1 col-span-5 w-full bg-white h-16 sticky bottom-0 inset-x-0 flex justify-end items-center p-4">
+                        <Button size="large" onClick={() => router.push('/marketing-center/promotion-tool/coupons')}>
+                            Quay lại
+                        </Button>
+                        <div className="px-2">&nbsp;</div>
+                        <Button type="primary" size="large" onClick={() => form.submit()}>
+                            Tạo mới
+                        </Button>
+                    </div>
                 </div>
+
             </div >
         </React.Fragment >
     )

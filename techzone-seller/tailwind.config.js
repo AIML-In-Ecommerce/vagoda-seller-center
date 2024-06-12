@@ -17,6 +17,7 @@ module.exports = {
     "border-[#f97316]",
     "border-[#0ea5e9]",
     "border-[#10b981]",
+    "border-blue-500",
     { pattern: /(bg|text|border)-./ },
     { pattern: /^\-?m(\w?)-/ },
   ],
