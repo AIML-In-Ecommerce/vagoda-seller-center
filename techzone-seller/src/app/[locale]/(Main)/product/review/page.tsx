@@ -123,7 +123,6 @@ export default function ReviewProductPage() {
     value: { id: string; label: string }[],
     key: string
   ) => {
-    console.log("CHECKING", value, key);
     const updatedFilterOptions = filterOptions.filter(
       (option) => option.key !== key
     );
@@ -135,8 +134,6 @@ export default function ReviewProductPage() {
 
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
-
-    console.log("Filter", updatedFilterOptions);
   };
 
   const columns = [
@@ -341,11 +338,9 @@ export default function ReviewProductPage() {
     );
 
     setFilterOptions(updatedFilterCriterias);
-    console.log(updatedFilterCriterias);
   };
 
   // useEffect(() => {
-  //   console.log(" UseEffect Changed filter criteria");
   //   const filterProducts = () => {
   //     let tempFilteredProducts = [...tabReviews];
 
@@ -366,7 +361,6 @@ export default function ReviewProductPage() {
   //     });
 
   //     //setFilteredProducts((prev) => tempFilteredProducts);
-  //     console.log(currentTab);
   //   };
 
   //   filterProducts();

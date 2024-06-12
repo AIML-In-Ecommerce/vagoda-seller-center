@@ -80,32 +80,76 @@ export default function ProductDetail(props: ProductDetailProps) {
         </div>
 
         <Row className="flex mx-auto justify-center">
-          <ImageAntd className="rounded-xl mb-4" width={240} src={mainImage} />
+          <ImageAntd
+            className="rounded-xl mb-4"
+            width={240}
+            src={props.product.images[0]}
+          />
         </Row>
         <p className="text-md font-semibold uppercase mt-4 mb-2">
           Thông tin chung
         </p>
-        <DescriptionItem title="ID" content={props.product._id} />
-        <DescriptionItem title="Tên sản phẩm" content={props.product.name} />
-        <Row>
+        <Row className=" mb-1">
+          <Col span={12}>
+            <DescriptionItem title="ID" content={props.product._id} />
+          </Col>
           <Col span={12}>
             <DescriptionItem
-              title="Giá"
+              title="Tên sản phẩm"
+              content={props.product.name}
+            />
+          </Col>
+        </Row>
+
+        <Row className=" mb-1">
+          <Col span={12}>
+            <DescriptionItem
+              title="Giá ban đầu"
+              content={formatPrice(props.product.originalPrice)}
+            />
+          </Col>
+          <Col span={12}>
+            <DescriptionItem
+              title="Giá sau khi giảm"
               content={formatPrice(props.product.finalPrice)}
             />
           </Col>
+        </Row>
+        <Row className="mb-1">
+          <Col span={12}>
+            <DescriptionItem
+              title="Danh mục"
+              content={`${props.product.category.name} /${
+                props.product.subCategory ? props.product.subCategory.name : ""
+              } /${
+                props.product.subCategoryType
+                  ? props.product.subCategoryType.name
+                  : ""
+              }`}
+            />
+          </Col>
+          <Col span={12}>
+            <DescriptionItem
+              title="Thương hiệu"
+              content={props.product.brand}
+            />
+          </Col>
+        </Row>
+        <Row className="mb-1">
           <Col span={12}>
             <DescriptionItem
               title="Số lượng trong kho"
               content={props.product.inventoryAmount}
             />
           </Col>
+          <Col span={12}>
+            <DescriptionItem
+              title="Phí hệ thống"
+              content={props.product.platformFee}
+            />
+          </Col>
         </Row>
-        <DescriptionItem
-          title="Danh mục"
-          content={props.product.category.name}
-        />
-        <DescriptionItem title="Thương hiệu" content={props.product.brand} />
+
         <div className="flex items-center">
           <Col span={12}>
             <div className="flex space-x-2 items-center ">
@@ -127,23 +171,76 @@ export default function ProductDetail(props: ProductDetailProps) {
         </div>
         <Divider />
         <p className="text-md font-semibold uppercase">Mô tả</p>
-        <p>{props.product.description}</p>
+        <div dangerouslySetInnerHTML={{ __html: props.product.description }} />
+
         <Divider />
         <p className="text-md font-semibold uppercase mb-2">
           Các thông số khác
         </p>
         <div className="space-y-1 flex items-center justify-center mx-auto w-full">
           <div className=" w-full">
-            {props.product.attribute.map((description, index) => (
-              <div key={index} className={index % 2 === 0 ? "bg-slate-50" : ""}>
+            {/* {props.product.attribute.colors && (
+              <div key={"color"} className={"bg-slate-50"}>
                 <Row className="p-2">
                   <Col className="font-semibold" span={12}>
-                    {description.label}
+                    Màu sắc
                   </Col>
-                  <Col span={12}>{description.value}</Col>
+                  <Col span={12}>
+                    {props.product.attribute.colors.map((color) => (
+                      <div className="flex space-x-2 items-center">
+                        <ColorPicker
+                          defaultValue={color.color.value}
+                          disabled
+                        />
+                        <p>{color.color.label}</p>
+                      </div>
+                    ))}
+                  </Col>
                 </Row>
               </div>
-            ))}
+            )} */}
+            {props.product.attribute.size && (
+              <div key={"size"} className="">
+                <Row className="p-2">
+                  <Col className="font-semibold" span={12}>
+                    Kích cỡ
+                  </Col>
+                  <Col span={12}>{props.product.attribute.size.join(", ")}</Col>
+                </Row>
+              </div>
+            )}
+            {props.product.attribute.material && (
+              <div key={"material"} className={"bg-slate-50"}>
+                <Row className="p-2">
+                  <Col className="font-semibold" span={12}>
+                    Chất liệu
+                  </Col>
+                  <Col span={12}>{props.product.attribute.material}</Col>
+                </Row>
+              </div>
+            )}
+            {props.product.attribute.manufacturingPlace && (
+              <div key={"warranty"} className="">
+                <Row className="p-2">
+                  <Col className="font-semibold" span={12}>
+                    Nơi sản xuất
+                  </Col>
+                  <Col span={12}>
+                    {props.product.attribute.manufacturingPlace}
+                  </Col>
+                </Row>
+              </div>
+            )}
+            {props.product.attribute.warranty && (
+              <div key={"warranty"} className="bg-slate-50">
+                <Row className="p-2">
+                  <Col className="font-semibold" span={12}>
+                    Bảo hành
+                  </Col>
+                  <Col span={12}>{props.product.attribute.warranty}</Col>
+                </Row>
+              </div>
+            )}
           </div>
         </div>
       </div>

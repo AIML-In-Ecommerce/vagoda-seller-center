@@ -30,11 +30,8 @@ export default function FilterDropdown(props: FilterDropdownProps) {
     }
   };
 
-  
-
   const handleFilter = () => {
     setVisible(false);
-    console.log("NAME", props.name);
 
     if (selectedOptions.length == 0) {
       return;
@@ -55,7 +52,6 @@ export default function FilterDropdown(props: FilterDropdownProps) {
     );
 
     props.onSelection(selectedOptions, props.name);
-    console.log("Selected options", selectedOptions);
   };
 
   const handleCategorySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,7 +135,6 @@ export default function FilterDropdown(props: FilterDropdownProps) {
   ];
 
   useEffect(() => {
-    console.log("CHI", props.initialSelectedOptions);
     setSelectedOptions(props.initialSelectedOptions || []);
   }, [props.initialSelectedOptions]);
 
