@@ -650,6 +650,7 @@ export default function ProductListPage() {
               return (
                 <div
                   key={index}
+                  key={index}
                   className="flex flex-wrap items-center  text-xs max-w-4/5 "
                 >
                   {Array.isArray(item.value) ? (
