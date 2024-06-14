@@ -4,7 +4,7 @@ import { ShopInfoType } from "@/model/ShopInfoType";
 import { usePathname, useRouter } from "next/navigation";
 import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
-import AuthService, { RefreshTokenReponseData } from "@/services/auth.service";
+import AuthService, { RefreshTokenReponseData, SignInResponseData } from "@/services/auth.service";
 
 
 interface AuthContextProviderInitProps
@@ -23,12 +23,13 @@ interface AuthContextProps
     methods: AuthContextFunctions | null
 }
 
-interface AuthContextFunctions
+export interface AuthContextFunctions
 {
     // validateAuthRequest: (sessionInfoID: string) => boolean,
-    login: (stringifiedInfo: string, accessToken: string, 
-        refreshToken: string, refreshTokenExpiredDate: string | Date) => boolean,
+    login: (authInfo: SignInResponseData) => boolean,
+    forceSignIn: () => void,
     logout: () => void,
+    refreshToken: () => Promise<boolean | null>,
     getAccessToken: () => string | null
 }
 
@@ -69,31 +70,15 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
         return 1
     }
 
-    function validateAuthRequest(receivedSessionInfoID: string)
-    {
-        const stringifiedObject = sessionStorage.getItem(receivedSessionInfoID)
-        if(stringifiedObject == null)
-        {
-            return false
-        }
-
-        const parsedObject: ShopInfoType = JSON.parse(stringifiedObject)
-        
-        localStorage.setItem(authLocalStorageID, receivedSessionInfoID)
-        setShopInfo(parsedObject)
-
-        return true
-    }
-
-    function login(stringifiedInfo: string, accessToken: string, 
-        refreshToken: string, refreshTokenExpiredDate: string | Date)
+    function login(authInfo: SignInResponseData)
     // function login()
     {
         try
         {
-            localStorage.setItem(authLocalStorageID, stringifiedInfo)
-            Cookies.set(accessTokenCookieKey, accessToken)
-            Cookies.set(refreshTokenCookieKey, refreshToken, {expires: new Date(refreshTokenExpiredDate)})
+            const stringifiedSellerInfo = JSON.stringify(authInfo.sellerInfo)
+            localStorage.setItem(authLocalStorageID, stringifiedSellerInfo)
+            Cookies.set(accessTokenCookieKey, authInfo.accessToken, {expires: new Date(authInfo.accessTokenExpiredDate)})
+            Cookies.set(refreshTokenCookieKey, authInfo.refreshToken, {expires: new Date(authInfo.refreshTokenExpiredDate)})
             return true
         }
         catch(error)
@@ -109,6 +94,11 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
 
     async function refreshToken()
     {
+        const accessToken = Cookies.get(accessTokenCookieKey)
+        if(accessToken != null)
+        {
+            return true
+        }
         const currentRefreshToken = Cookies.get(refreshTokenCookieKey)
         if(currentRefreshToken == null) //reture false to force the user re-authenticate
         {
@@ -126,8 +116,8 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
 
         const data = response.data as RefreshTokenReponseData
 
-        Cookies.set(accessTokenCookieKey, data.accessToken)
-        Cookies.set(refreshTokenCookieKey, data.refreshToken, {expires: data.refreshTokenExpiredDate})
+        Cookies.set(accessTokenCookieKey, data.accessToken, {expires: new Date(data.accessTokenExpiredDate)})
+        Cookies.set(refreshTokenCookieKey, data.refreshToken, {expires: new Date(data.refreshTokenExpiredDate)})
 
         return true
     }
@@ -143,11 +133,19 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
         Cookies.remove(refreshTokenCookieKey)
     }
 
+    function forceSignIn()
+    {
+        logout()
+        router.replace("/auth/account")
+    }
+
     const supportMethodValue: AuthContextFunctions =
     {
         // validateAuthRequest: validateAuthRequest,
         login: login,
         logout: logout,
+        forceSignIn: forceSignIn,
+        refreshToken: refreshToken,
         getAccessToken: getAccessToken,
     }
 
