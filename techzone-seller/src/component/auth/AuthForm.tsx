@@ -107,14 +107,6 @@ export default function AuthForm(props: AuthFormProps) {
     }
     else if(response.statusCode == 200 || response.statusCode == 201)
     {
-      const responseData: SignInResponseData = response.data
-      const shopInfo = responseData.sellerInfo
-      const accessToken = responseData.accessToken as string
-      const refreshToken = responseData.refreshToken as string
-      const refreshTokenExpiredDate = new Date(responseData.refreshTokenExpiredDate)
-
-      const stringifiedString = JSON.stringify(shopInfo)
-
       //set access token and refresh token to cookie
       
       setResultModalState("success")
@@ -124,7 +116,8 @@ export default function AuthForm(props: AuthFormProps) {
 
       if(authContext.methods)
       {
-        const check = authContext.methods.login(stringifiedString, accessToken, refreshToken, refreshTokenExpiredDate)
+        const authInfo = response.data as SignInResponseData
+        const check = authContext.methods.login(authInfo)
         
         if(check == true)
         {

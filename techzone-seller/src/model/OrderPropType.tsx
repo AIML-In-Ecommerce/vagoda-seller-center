@@ -1,26 +1,48 @@
+import { AttributeProductType } from "./ProductType";
 
 export const OrderStatusValues = 
 {
-    PENDING: "PENDING",
-    PROCESSING: "PROCESSING",
-    SHIPPING: "SHIPPING",
-    COMPLETED: "COMPLETED",
-    CANCELLED: "CANCELLED"
+    WAITING_ONLINE_PAYMENT: "WAITING_ONLINE_PAYMENT", // đối với đơn hàng thanh toán trực tuyến như ZaloPay, đơn hàng đang đợi được thanh toán trước (giống Shopee)
+    PENDING: "PENDING", // đơn hàng đang chờ xác nhận bởi người bán
+    PROCESSING: "PROCESSING", // người bán đã xác nhận đơn hàng => chờ lấy hàng
+    SHIPPING: "SHIPPING", // đã chuẩn bị hàng xong và đã giao cho đơn vị vận chuyển
+    COMPLETED: "COMPLETED", // giao hàng thành công
+    CANCELLED: "CANCELLED",
+}
+
+interface CoordinateInOrder
+{
+    lng: number,
+    lat: number
 }
 
 export interface ProductInOrder
 {
-    _id: string,
-    image: string,
-    name: string,
-    originPrice: number,
-    purchasedPrice: number,
-    quantity: number
+    _id: string;
+    name: string;
+    images: string[];
+    description: string;
+    avgRating: number;
+    soldQuantity: number;
+    purchasedPrice: number;
+    originalPrice: number;
+    isFlashSale: boolean;
+    status: string;
+    category: { id: string; name: string };
+    subCategory: { id: string; name: string };
+    subCategoryType: { id: string; name: string };
+    brand: string;
+    inventoryAmount: number;
+    attribute: AttributeProductType[];
+    profit: number;
+    platformFee: number;
+    quantity: number;
 }
 
 export interface PromotionInOrder
 {
     _id: string,
+    shop: string,
     name: string,
     discountType: string,
     discountValue: number,
@@ -36,54 +58,50 @@ export const PromotionTypeConvention =
 export interface OrderStatus
 {
     status: string,
-    time: EpochTimeStamp,
-    deadline: EpochTimeStamp,
-    complete: EpochTimeStamp | null
+    time: Date,
+    deadline: Date,
+    complete: Date | null
 }
 
 export type OrderPropType =
 {
     _id: string,
-    shopId: string,
+    shop: {
+        _id: string,
+        name: string,
+        location: string
+    },
     user: 
     {
         _id: string,
         name: string,
         phoneNumber: string,
     },
-    product: ProductInOrder[],
-    promotion: PromotionInOrder[],
+    products: ProductInOrder[],
+    promotion: PromotionInOrder,
     paymentMethod:
     {
-        _id: string,
-        name: string
-    },
-    shipping:
-    {
-        _id: string,
+        kind: string,
         name: string,
-        fee: number
+        isPaid: boolean,
+        paidAt: Date | null
     },
-    totalPrice:
+    shippingAddress:
     {
-        product: number,
-        discount: number,
-        shipping: number,
-        total: number,
-        profit: number
-    },
-    address:
-    {
+        _id: string,
         receiverName: string,
-        address: string,
+        street: string,
+        idProvince: string,
+        idDistrict: string,
+        idCommune: string,
+        country: string,
+        coordinate: CoordinateInOrder | null,
         phoneNumber: string,
-        coordinate:
-        {
-            lng: number,
-            lat: number
-        },
         label: string,
-        isDefault: boolean
-    }
+        isDefault: boolean,
+    },
+    totalPrice: number,
+    profit: number,
+    shippingFee: number,
     orderStatus: OrderStatus[]
 }
