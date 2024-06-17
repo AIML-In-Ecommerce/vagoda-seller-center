@@ -167,6 +167,38 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
         }
     }
 
+    function getTotalProductPrice(products: ProductInOrder[])
+    {
+        let total = 0
+        products.forEach((product) =>
+        {
+            total = total + product.purchasedPrice*product.quantity
+        })
+
+        return total
+    }
+
+    function getTotalPromitionDiscount(promotion: PromotionInOrder)
+    {
+        if(promotion == null)
+        {
+            return 0
+        }
+
+        let total = 0
+        if(promotion.discountType == PromotionTypeConvention.DIRECT_PRICE)
+        {
+            total += promotion.discountValue
+        }
+        else if(promotion.discountType == PromotionTypeConvention.PERCENTAGE)
+        {
+            //TODO: fix this later
+            total += 1000
+        }
+
+        return total
+    }
+
     useEffect(() =>
     {
         if(orderProps == null)
@@ -220,20 +252,20 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                     <Flex vertical>
                         <Flex gap={2}>
                             <Typography.Text>
-                                {orderProps.address.receiverName}
+                                {orderProps.shippingAddress.receiverName}
                             </Typography.Text>
                             - 
                             <Typography.Text className="text-blue-500">
-                                {orderProps.address.phoneNumber}
+                                {orderProps.shippingAddress.phoneNumber}
                             </Typography.Text>
                         </Flex>
                         <Flex justify="start" align="center" wrap="wrap" gap={2}>
                             <Typography.Text className="text-gray-400 text-xs">
-                                {orderProps.address.address}
+                                {orderProps.shippingAddress.street}
                             </Typography.Text>
                              - 
                             <Tag color="orange">
-                                {orderProps.address.label}
+                                {orderProps.shippingAddress.label}
                             </Tag>
                         </Flex>
                     </Flex>
@@ -246,7 +278,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Typography.Text>
                     </Flex>
                     <Link className="text-gray-400 text-md" href={"#"} prefetch={false}>
-                            {orderProps.shopId}
+                            {orderProps.shop._id} - {orderProps.shop.name}
                     </Link>
                 </Flex>
                 <Row className="w-full bg-gray-300 font-semibold my-2 px-2">
@@ -261,7 +293,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                     </Col>
                 </Row>
                 <Flex className="w-full max-h-60 min-h-20 overflow-auto px-2" vertical align="center" justify="start">
-                        {orderProps.product.map((product: ProductInOrder) =>
+                        {orderProps.products.map((product: ProductInOrder) =>
                         {
                             
                             return(
@@ -293,25 +325,29 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                     </Col>
                 </Row>
                 <Flex vertical className="w-full min-h-20 overflow-auto px-2" align="center" justify="start">
-                    {orderProps.promotion.map((promotion: PromotionInOrder) =>
-                        {
-                            
-                            return(
-                                <>
-                                    <Row className="w-full border-b py-2">
-                                        <Col span={10}>
-                                            <Typography.Text>{promotion.name}</Typography.Text>
-                                        </Col>
-                                        <Col span={10}>
-                                            <Typography.Text>{currencyFormater(MyLocaleRef.VN, promotion.discountValue)}</Typography.Text>
-                                        </Col>
-                                        <Col span={4}>
-                                            <Typography.Text>{getDiscountType(promotion.discountType)}</Typography.Text>
-                                        </Col>
-                                    </Row>
-                                </>
-                            )
-                        })}
+                    {
+                        orderProps.promotion != null ?
+                        <Row className="w-full border-b py-2">
+                            <Col span={10}>
+                                <Typography.Text>{orderProps.promotion.name}</Typography.Text>
+                            </Col>
+                            <Col span={10}>
+                                <Typography.Text>{currencyFormater(MyLocaleRef.VN, orderProps.promotion.discountValue)}</Typography.Text>
+                            </Col>
+                            <Col span={4}>
+                                <Typography.Text>{getDiscountType(orderProps.promotion.discountType)}</Typography.Text>
+                            </Col>
+                        </Row>
+                        :
+                        <Row className="w-full border-b py-2">
+                            <Col span={10}>
+                            </Col>
+                            <Col span={10}>
+                            </Col>
+                            <Col span={4}>
+                            </Col>
+                        </Row>
+                    }
                 </Flex>
                 <Typography.Text className="font-semibold px-1">
                     Vận chuyển
@@ -323,7 +359,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Col>
                         <Col span={12}>
                             <Flex justify="end" align="baseline">
-                                {orderProps.shipping.name}
+                                FashionStyle Deli
                             </Flex>
                         </Col>
                     </Row>
@@ -341,7 +377,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Col>
                         <Col span={8}>
                             <Flex className="w-full" justify="end" align="baseline">
-                                {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice.product)}
+                                {currencyFormater(MyLocaleRef.VN, getTotalProductPrice(orderProps.products))}
                             </Flex>
                         </Col>
                     </Row>
@@ -351,7 +387,8 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Col>
                         <Col span={8}>
                             <Flex className="w-full" justify="end" align="baseline">
-                                {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice.shipping)}
+                                0 đ
+                                {/* {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice.shipping)} */}
                             </Flex>
                         </Col>
                     </Row>
@@ -361,7 +398,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Col>
                         <Col span={8}>
                             <Flex className="w-full" justify="end" align="baseline">
-                                {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice.discount)}
+                                {currencyFormater(MyLocaleRef.VN, getTotalPromitionDiscount(orderProps.promotion))}
                             </Flex>
                         </Col>
                     </Row>
@@ -371,7 +408,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Col>
                         <Col span={8}>
                             <Flex className="w-full" justify="end" align="baseline">
-                                {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice.total)}
+                                {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice)}
                             </Flex>
                         </Col>
                     </Row>
@@ -381,7 +418,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                         </Col>
                         <Col span={8}>
                             <Flex className="w-full" justify="end" align="baseline">
-                                {currencyFormater(MyLocaleRef.VN, orderProps.totalPrice.profit)}
+                                {currencyFormater(MyLocaleRef.VN, orderProps.profit)}
                             </Flex>
                         </Col>
                     </Row>
