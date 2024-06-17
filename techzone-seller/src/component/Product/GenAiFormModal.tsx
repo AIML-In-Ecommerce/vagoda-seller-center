@@ -1,5 +1,13 @@
 import ColorImage from "@/component/Product/ColorImage";
-import { Button, ColorPicker, Form, FormProps, Select, Switch } from "antd";
+import {
+  Button,
+  ColorPicker,
+  ConfigProvider,
+  Form,
+  FormProps,
+  Select,
+  Switch,
+} from "antd";
 import TextArea from "antd/es/input/TextArea";
 import React, { useState } from "react";
 
@@ -226,263 +234,284 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
   ) => {};
 
   return (
-    <Form
-      form={form}
-      initialValues={{ remember: true }}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      autoComplete="off"
+    <ConfigProvider
+      theme={{
+        token: {
+          fontSize: 12,
+        },
+        components: {
+          Form: {
+            paddingContentVertical: 0,
+            verticalLabelPadding: "0 0 0px",
+          },
+        },
+      }}
     >
-      <div className="grid grid-cols-4 gap-2 px-8 pt-8 pb-8">
-        <div className="col-span-2">
-          <div className="flex flex-col mb-16">
-            {" "}
-            <p className="text-2xl font-bold uppercase">
-              Tạo hình ảnh sản phẩm{" "}
-            </p>
-            <p className="text-slate-400">
-              Chức năng tạo hình ảnh sản phẩm bằng AI
-            </p>
-          </div>
-          <p className="font-semibold">Ảnh sản phẩm</p>
-          <div>
-            <Form.Item<FieldType>
-              name="image_link"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng tải ảnh sản phẩm lên",
-                },
-              ]}
-              className="p-0 m-0"
-            >
-              <ColorImage
-                isDisplayLarge={true}
-                setFileString={(data) => {
-                  setProductImageLink(data);
-                  form.setFieldValue("image_link", data);
-                }}
-                maxNumber={1}
-                initialUrl={null}
-              />
-            </Form.Item>
-          </div>
-        </div>
-        <div className="col-span-2">
-          <div className="flex items-center">
-            <p className="font-bold text-xl mr-4">Đặc điểm người mẫu</p>
-            <div className="flex-1 flex items-center">
-              <hr className="w-full font-semibold border-t-1 border-gray-300" />
+      <Form
+        form={form}
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
+      >
+        <div className="grid grid-cols-4  px-8 pt-8 pb-8">
+          <div className="col-span-2">
+            <div className="flex flex-col mb-8">
+              {" "}
+              <p className="text-2xl font-bold uppercase">
+                Tạo hình ảnh sản phẩm{" "}
+              </p>
+              <p className="text-slate-400">
+                Chức năng tạo hình ảnh sản phẩm bằng AI
+              </p>
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-4">
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Quốc tịch</div>
-              </div>
+            <p className="font-semibold">Ảnh sản phẩm</p>
+            <div>
               <Form.Item<FieldType>
-                name="nationality"
-                initialValue={"Mĩ"}
+                name="image_link"
                 rules={[
                   {
                     required: true,
-                    message: "Vui lòng chọn quốc tịch",
+                    message: "Vui lòng tải ảnh sản phẩm lên",
                   },
                 ]}
                 className="p-0 m-0"
               >
-                <Select
-                  defaultValue="Mĩ"
-                  style={{ width: "100%" }}
-                  options={nationalityList}
-                />
-              </Form.Item>
-            </div>
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Giới tính</div>
-              </div>
-              <Form.Item<FieldType>
-                name="gender"
-                initialValue={"Nam"}
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn giới tính",
-                  },
-                ]}
-              >
-                <Select
-                  defaultValue="Nam"
-                  style={{ width: "100%" }}
-                  options={genderList}
-                />
-              </Form.Item>
-            </div>
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Màu da</div>
-              </div>
-              <Form.Item<FieldType>
-                initialValue={"Trắng"}
-                name="skinColor"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn màu da",
-                  },
-                ]}
-              >
-                <Select
-                  defaultValue="Trắng"
-                  style={{ width: "100%" }}
-                  options={skinColorList}
-                />
-              </Form.Item>
-            </div>
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Màu mắt</div>
-              </div>
-              <Form.Item<FieldType>
-                initialValue={"Nâu"}
-                name="eyesColor"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn màu mắt",
-                  },
-                ]}
-              >
-                <Select
-                  defaultValue="Nâu"
-                  style={{ width: "100%" }}
-                  options={eyesColorList}
-                />
-              </Form.Item>
-            </div>
-
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Kiểu tóc</div>
-              </div>
-              <Form.Item<FieldType>
-                initialValue={"Tóc đầu đinh"}
-                name="hairStyle"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn kiểu tóc",
-                  },
-                ]}
-              >
-                <Select
-                  defaultValue="Tóc đầu đinh"
-                  style={{ width: "100%" }}
-                  options={hairStyleList}
-                />
-              </Form.Item>
-            </div>
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Màu tóc</div>
-              </div>
-
-              <Form.Item<FieldType>
-                initialValue={"Nâu"}
-                name="hairColor"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn màu tóc",
-                  },
-                ]}
-              >
-                <Select
-                  defaultValue="Nâu"
-                  style={{ width: "100%" }}
-                  options={hairColorList}
-                />
-              </Form.Item>
-            </div>
-            <div className="">
-              <div className="flex items-center space-x-1 font-semibold text-sm">
-                <div className="text-red-500 font-bold text-lg">*</div>{" "}
-                <div className="">Dáng người</div>
-              </div>
-              <Form.Item<FieldType>
-                initialValue={"Mập"}
-                name="bodyShape"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn dáng người",
-                  },
-                ]}
-              >
-                <Select
-                  defaultValue="Mập"
-                  style={{ width: "100%" }}
-                  options={bodyShapeList}
+                <ColorImage
+                  isDisplayLarge={true}
+                  setFileString={(data) => {
+                    setProductImageLink(data);
+                    form.setFieldValue("image_link", data);
+                  }}
+                  maxNumber={1}
+                  initialUrl={null}
                 />
               </Form.Item>
             </div>
           </div>
-          <div className="">
-            <div className="flex  justify-between font-smibold">
-              <div className="flex  space-x-1 items-center font-semibold text-sm">
-                <div className="text-red-500  text-lg">*</div>{" "}
-                <div className="">Khung cảnh</div>
-              </div>
-              <div className="flex space-x-2 text-xs items-center ">
-                <p>Tự nhập mô tả</p>{" "}
-                <Switch
-                  size="small"
-                  onClick={() => setEnterInputOption(!enterInputOption)}
-                />
+          <div className="col-span-2">
+            <div className="flex items-center">
+              <p className="font-bold text-xl mr-4 mb-2">Đặc điểm người mẫu</p>
+              <div className="flex-1 flex items-center">
+                <hr className="w-full font-semibold border-t-1 border-gray-300" />
               </div>
             </div>
-            <Form.Item<FieldType>
-              initialValue={"Quán cà phê"}
-              name="background"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng chọn khung cảnh",
-                },
-              ]}
+
+            <div className="grid grid-cols-2 gap-x-4 gap-y-0">
+              <div className="m-0 p-0">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Quốc tịch</div>
+                </div>
+                <Form.Item<FieldType>
+                  name="nationality"
+                  initialValue={"Mĩ"}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn quốc tịch",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Mĩ"
+                    style={{ width: "100%" }}
+                    options={nationalityList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="m-0 p-0">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Giới tính</div>
+                </div>
+                <Form.Item<FieldType>
+                  name="gender"
+                  initialValue={"Nam"}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn giới tính",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Nam"
+                    style={{ width: "100%" }}
+                    options={genderList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Màu da</div>
+                </div>
+                <Form.Item<FieldType>
+                  initialValue={"Trắng"}
+                  name="skinColor"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn màu da",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Trắng"
+                    style={{ width: "100%" }}
+                    options={skinColorList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Màu mắt</div>
+                </div>
+                <Form.Item<FieldType>
+                  initialValue={"Nâu"}
+                  name="eyesColor"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn màu mắt",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Nâu"
+                    style={{ width: "100%" }}
+                    options={eyesColorList}
+                  />
+                </Form.Item>
+              </div>
+
+              <div className="">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Kiểu tóc</div>
+                </div>
+                <Form.Item<FieldType>
+                  initialValue={"Tóc đầu đinh"}
+                  name="hairStyle"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn kiểu tóc",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Tóc đầu đinh"
+                    style={{ width: "100%" }}
+                    options={hairStyleList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Màu tóc</div>
+                </div>
+
+                <Form.Item<FieldType>
+                  initialValue={"Nâu"}
+                  name="hairColor"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn màu tóc",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Nâu"
+                    style={{ width: "100%" }}
+                    options={hairColorList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Dáng người</div>
+                </div>
+                <Form.Item<FieldType>
+                  initialValue={"Mập"}
+                  name="bodyShape"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn dáng người",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="Mập"
+                    style={{ width: "100%" }}
+                    options={bodyShapeList}
+                  />
+                </Form.Item>
+              </div>
+            </div>
+            <div className="">
+              <div className="flex  justify-between font-smibold">
+                <div className="flex  space-x-1 items-center font-semibold text-sm">
+                  <div className="text-red-500  ">*</div>{" "}
+                  <div className="text-xs">Khung cảnh</div>
+                </div>
+                <div className="flex space-x-2 text-xs items-center ">
+                  <p>Tự nhập mô tả</p>{" "}
+                  <Switch
+                    size="small"
+                    onClick={() => setEnterInputOption(!enterInputOption)}
+                  />
+                </div>
+              </div>
+              <Form.Item<FieldType>
+                initialValue={"Quán cà phê"}
+                name="background"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn khung cảnh",
+                  },
+                ]}
+                style={{ margin: 4 }}
+              >
+                {enterInputOption ? (
+                  <TextArea
+                    rows={4}
+                    placeholder="Hãy chia sẻ những gì bạn muốn chúng tôi giúp đỡ "
+                  />
+                ) : (
+                  <Select
+                    defaultValue="Quán cà phê"
+                    style={{ width: "47%" }}
+                    options={backgroundList}
+                  />
+                )}
+              </Form.Item>
+            </div>
+            <Button
+              type="primary"
+              className=" bg-gradient-to-r from-cyan-500 to-blue-500 w-full mt-8"
+              htmlType="submit"
             >
-              {enterInputOption ? (
-                <TextArea
-                  rows={4}
-                  placeholder="Hãy chia sẻ những gì bạn muốn chúng tôi giúp đỡ "
-                />
-              ) : (
-                <Select
-                  defaultValue="Quán cà phê"
-                  style={{ width: "50%" }}
-                  options={backgroundList}
-                />
-              )}
-            </Form.Item>
+              Bắt đầu
+            </Button>
           </div>
-          <Button
-            type="primary"
-            className=" bg-gradient-to-r from-cyan-500 to-blue-500 w-full"
-            htmlType="submit"
-          >
-            Bắt đầu
-          </Button>
-        </div>
-      </div>{" "}
-    </Form>
+        </div>{" "}
+      </Form>
+    </ConfigProvider>
   );
 };
 
