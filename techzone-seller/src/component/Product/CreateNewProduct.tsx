@@ -104,7 +104,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
       link: color.image,
       color: {
         label: color.colorName,
-        value: color.colorName,
+        value: color.colorCode,
       },
     }));
 
@@ -238,6 +238,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
         <div className="">
           <p className="font-semibold">Màu sắc</p>
           <ColorOption
+            initialValue={colorData}
             onFormChange={(values) => setColorData(values.colors || [])}
           />
 
@@ -313,18 +314,19 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
         sizes: currentProduct.attribute.size,
         material: currentProduct.attribute.material,
         warranty: currentProduct.attribute.warranty,
+        manufacturingPlace: currentProduct.attribute.manufacturingPlace,
 
-        // color: currentProduct.attribute.colors.map((color) => ({
-        //   colorCode: color.color.value,
-        //   colorName: color.color.label,
-        //   image: color.link,
-        // })),
+        color: currentProduct.attribute.colors.map((color) => ({
+          colorCode: color.color.value,
+          colorName: color.color.label,
+          image: color.link,
+        })),
         images: currentProduct.images,
       };
 
       form.setFieldsValue(initialValues);
       setDescriptionText(currentProduct.description);
-      // setColorData(initialValues.color);
+      setColorData(initialValues.color);
       setImageList(currentProduct.images);
       let categoryList: string[] = [];
       if (props.updatingProduct?.category._id)

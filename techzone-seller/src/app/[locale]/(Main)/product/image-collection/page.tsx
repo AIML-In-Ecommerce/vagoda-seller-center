@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Breadcrumb, Button, Divider } from "antd";
-import { HiOutlineHome, HiOutlineInformationCircle } from "react-icons/hi2";
-import { useRouter } from "next/navigation";
+import GenAiFormModal from "@/component/Product/GenAiFormModal";
+import GenAiResultModal from "@/component/Product/GenAiResultModal";
+import { Breadcrumb, Button, Divider, Modal } from "antd";
+import { useRef, useState } from "react";
 import { FaMagic } from "react-icons/fa";
-import Image from "next/image";
+import { HiOutlineHome } from "react-icons/hi2";
 import "./local.css";
-import { color } from "chart.js/helpers";
 
 const imgList = [
   "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg",
@@ -20,59 +19,27 @@ const imgList = [
   "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716347947/master_living_room_fjwzlm.png",
 ];
 
-interface ImageGridProps {
-  imgList: string[];
-}
+// interface ImageGridProps {
+//   imgList: string[];
+// }
 
 const ImageCollection = () => {
-  const router = useRouter();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [genaiModalOpen, setGenAiModalOpen] = useState<boolean>(false);
   const previewModalRef = useRef<HTMLDivElement>(null);
-  const aiModalRef = useRef<HTMLDivElement>(null);
 
-  const gender = useRef<string>();
-  const country = useRef<string>();
-  const stature = useState<string>();
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
+  const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
+
+  const handleFormSubmit = async (values: any) => {
+    console.log("Form submitted:", values);
+    const imageUrl = "URL_ẢNH_TẠO_BỞI_AI";
+    setGeneratedImageUrl(imageUrl);
+  };
 
   const openPreview = (image: string) => {
     setPreviewImage(image);
   };
-
-  const closePreview = () => {
-    setPreviewImage(null);
-  };
-
-  const openModal = () => {
-    setGenAiModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setGenAiModalOpen(false);
-  };
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      previewModalRef.current &&
-      !previewModalRef.current.contains(event.target as Node)
-    ) {
-      closePreview();
-    }
-
-    if (
-      aiModalRef.current &&
-      !aiModalRef.current.contains(event.target as Node)
-    ) {
-      closeModal();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <div className="pt-4 pr-4 flex flex-col">
@@ -136,28 +103,28 @@ const ImageCollection = () => {
       )}
 
       {genaiModalOpen && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div
-            ref={aiModalRef}
-            className="w-[80vw] h-[90vh] overflow-auto bg-white px-10 py-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Divider style={{ borderColor: "#cbd5e1" }}>
-              <div className="flex flex-col gap-2 justify-center items-center">
-                <div className="text-3xl font-medium">
-                  Tạo hình ảnh sản phẩm
-                </div>
-                <div className="text-base font-semibold text-slate-400">
-                  Sản sàng tạo hình ảnh sản phẩm sử dụng AI hoàn toàn miễn phí
-                </div>
-              </div>
-            </Divider>
-            <div className="w-full h-[50%] grid grid-cols-2 gap-4">
-              <div className="col-span-1 rounded-2xl border-2 border-slate-200  "></div>
-              <div className="col-span-1 rounded border-slate-300 "></div>
-            </div>
-          </div>
-        </div>
+        <Modal
+          centered
+          open={genaiModalOpen}
+          width={900}
+          onCancel={() => {
+            setGenAiModalOpen(false);
+            setIsFormVisible(true);
+          }}
+          footer={null}
+        >
+          {isFormVisible ? (
+            <GenAiFormModal
+              onClose={() => setIsFormVisible(false)}
+              onSubmit={handleFormSubmit}
+            />
+          ) : (
+            <GenAiResultModal
+              onClose={() => setIsFormVisible(true)}
+              imageUrl={generatedImageUrl}
+            />
+          )}
+        </Modal>
       )}
     </div>
   );

@@ -1,9 +1,11 @@
 "use client";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, ColorPicker, Form, Input, Space, Typography } from "antd";
+import { useEffect } from "react";
 import ColorImage from "./ColorImage";
 
 interface ColorOptionProps {
+  initialValue: { colorCode: string; colorName: string; image: string }[];
   onFormChange: (values: any) => void;
 }
 
@@ -21,6 +23,12 @@ export default function ColorOption(props: ColorOptionProps) {
     const { colors } = form.getFieldsValue();
     props.onFormChange(form.getFieldsValue());
   };
+
+  useEffect(() => {
+    console.log("Form", props.initialValue);
+    form.setFieldsValue({ colors: props.initialValue });
+  }, [props.initialValue, form]);
+
   return (
     <div className="m-2">
       <Form
@@ -55,28 +63,25 @@ export default function ColorOption(props: ColorOptionProps) {
                         return "#" + color.toHex();
                       }}
                       initialValue={"#1677ff"}
-                      // rules={[
-                      //   { required: true, message: "Vui lòng chọn mã màu" },
-                      // ]}
                     >
                       <ColorPicker defaultValue="#1677ff" showText />
                     </Form.Item>{" "}
                   </div>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "colorName"]}
-                    rules={[
-                      { required: true, message: "Vui lòng đặt tên màu" },
-                    ]}
-                  >
-                    <div className="space-y-1">
-                      <p className="font-semibold">
-                        <span className="text-red-400 font-bold">*</span> Tên
-                        màu sắc
-                      </p>
+                  <div className="space-y-1">
+                    <p className="font-semibold">
+                      <span className="text-red-400 font-bold">*</span> Tên màu
+                      sắc
+                    </p>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "colorName"]}
+                      rules={[
+                        { required: true, message: "Vui lòng đặt tên màu" },
+                      ]}
+                    >
                       <Input placeholder="Đen" />
-                    </div>
-                  </Form.Item>
+                    </Form.Item>
+                  </div>
                   <Form.Item
                     {...restField}
                     name={[name, "image"]}
@@ -94,6 +99,12 @@ export default function ColorOption(props: ColorOptionProps) {
                       </p>
                       <div className="ml-2">
                         <ColorImage
+                          isDisplayLarge={false}
+                          initialUrl={form.getFieldValue([
+                            "colors",
+                            index,
+                            "image",
+                          ])}
                           setFileString={(fileString: string) => {
                             handleImageChange(fileString, index);
                           }}

@@ -1,6 +1,14 @@
 "use client";
 import { _ProductType } from "@/model/ProductType";
-import { Button, Col, Divider, Drawer, Image as ImageAntd, Row } from "antd";
+import {
+  Button,
+  Col,
+  ColorPicker,
+  Divider,
+  Drawer,
+  Image as ImageAntd,
+  Row,
+} from "antd";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FiEdit } from "react-icons/fi";
@@ -178,69 +186,89 @@ export default function ProductDetail(props: ProductDetailProps) {
           Các thông số khác
         </p>
         <div className="space-y-1 flex items-center justify-center mx-auto w-full">
-          <div className=" w-full">
-            {/* {props.product.attribute.colors && (
-              <div key={"color"} className={"bg-slate-50"}>
-                <Row className="p-2">
-                  <Col className="font-semibold" span={12}>
-                    Màu sắc
-                  </Col>
-                  <Col span={12}>
-                    {props.product.attribute.colors.map((color) => (
-                      <div className="flex space-x-2 items-center">
-                        <ColorPicker
-                          defaultValue={color.color.value}
-                          disabled
-                        />
-                        <p>{color.color.label}</p>
-                      </div>
-                    ))}
-                  </Col>
-                </Row>
-              </div>
-            )} */}
-            {props.product.attribute.size && (
-              <div key={"size"} className="">
-                <Row className="p-2">
-                  <Col className="font-semibold" span={12}>
-                    Kích cỡ
-                  </Col>
-                  <Col span={12}>{props.product.attribute.size.join(", ")}</Col>
-                </Row>
-              </div>
-            )}
-            {props.product.attribute.material && (
-              <div key={"material"} className={"bg-slate-50"}>
-                <Row className="p-2">
-                  <Col className="font-semibold" span={12}>
-                    Chất liệu
-                  </Col>
-                  <Col span={12}>{props.product.attribute.material}</Col>
-                </Row>
-              </div>
-            )}
-            {props.product.attribute.manufacturingPlace && (
-              <div key={"warranty"} className="">
-                <Row className="p-2">
-                  <Col className="font-semibold" span={12}>
-                    Nơi sản xuất
-                  </Col>
-                  <Col span={12}>
-                    {props.product.attribute.manufacturingPlace}
-                  </Col>
-                </Row>
-              </div>
-            )}
-            {props.product.attribute.warranty && (
-              <div key={"warranty"} className="bg-slate-50">
-                <Row className="p-2">
-                  <Col className="font-semibold" span={12}>
-                    Bảo hành
-                  </Col>
-                  <Col span={12}>{props.product.attribute.warranty}</Col>
-                </Row>
-              </div>
-            )}
+          <div className="w-full p-2 border border-1 rounded-xl">
+            {(() => {
+              let counter = 0;
+              const incrementCounter = () =>
+                counter++ % 2 === 0 ? "bg-slate-50" : "";
+
+              return (
+                <>
+                  {props.product.attribute.colors && (
+                    <div key={"color"} className={incrementCounter()}>
+                      <Row className="p-2">
+                        <Col className="font-semibold " span={12}>
+                          Màu sắc
+                        </Col>
+                        <Col span={12}>
+                          {props.product.attribute.colors.map(
+                            (color, index) => (
+                              <div
+                                key={index}
+                                className="flex space-x-2 items-center py-1"
+                              >
+                                <ColorPicker
+                                  defaultValue={color.color.value}
+                                  disabled
+                                />
+                                <p>{color.color.label}</p>
+                              </div>
+                            )
+                          )}
+                        </Col>
+                      </Row>
+                    </div>
+                  )}
+                  {props.product.attribute.size && (
+                    <div key={"size"} className={incrementCounter()}>
+                      <Row className="p-2">
+                        <Col className="font-semibold" span={12}>
+                          Kích cỡ
+                        </Col>
+                        <Col span={12}>
+                          {props.product.attribute.size.join(", ")}
+                        </Col>
+                      </Row>
+                    </div>
+                  )}
+                  {props.product.attribute.material && (
+                    <div key={"material"} className={incrementCounter()}>
+                      <Row className="p-2">
+                        <Col className="font-semibold" span={12}>
+                          Chất liệu
+                        </Col>
+                        <Col span={12}>{props.product.attribute.material}</Col>
+                      </Row>
+                    </div>
+                  )}
+                  {props.product.attribute.manufacturingPlace && (
+                    <div
+                      key={"manufacturingPlace"}
+                      className={incrementCounter()}
+                    >
+                      <Row className="p-2">
+                        <Col className="font-semibold" span={12}>
+                          Nơi sản xuất
+                        </Col>
+                        <Col span={12}>
+                          {props.product.attribute.manufacturingPlace}
+                        </Col>
+                      </Row>
+                    </div>
+                  )}
+                  {props.product.attribute.warranty && (
+                    <div key={"warranty"} className={incrementCounter()}>
+                      <Row className="p-2">
+                        <Col className="font-semibold" span={12}>
+                          Bảo hành
+                        </Col>
+                        <Col span={12}>{props.product.attribute.warranty}</Col>
+                      </Row>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
