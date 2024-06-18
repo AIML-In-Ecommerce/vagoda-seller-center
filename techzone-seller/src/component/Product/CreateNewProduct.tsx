@@ -1,16 +1,20 @@
+"use client";
 import {
   Button,
   Collapse,
+  CollapseProps,
   Form,
+  FormProps,
   Input,
   InputNumber,
+  message,
+  Select,
+  SelectProps,
   Steps,
-  UploadFile,
-  UploadProps
 } from "antd";
 
 import { Editor } from "@tinymce/tinymce-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
 import CategoryDropdown from "./CategoryDropdown";
@@ -18,7 +22,10 @@ import CategoryDropdown from "./CategoryDropdown";
 import { ProductCreatedInput } from "@/apis/ProductAPI";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ProductType } from "@/model/ProductType";
+import { CategoryService } from "@/services/Category";
 import { ProductService } from "@/services/Product";
+import { useRouter } from "next/navigation";
+import ColorOption from "./ColorOption";
 import ImageUploader from "./ImageUploader";
 
 type FieldType = {
@@ -63,8 +70,12 @@ const sizeOptions: SelectProps["options"] = [
   { label: "4XL", value: "4XL" },
 ];
 
-export default function CreateNewProduct() {
+export default function CreateNewProduct(props: CreateNewProductProps) {
+  const router = useRouter();
+  const [form] = Form.useForm();
+  const [imageList, setImageList] = useState<string[]>([]);
   const [step, setStep] = useState(0);
+  const [category, setCategory] = useState<string[]>([]);
   const [isExpand, setIsExpand] = useState(true);
   const [status, setStatus] = useState<string>(
     props.updatingProduct ? props.updatingProduct.status : "AVAILABLE"
@@ -196,62 +207,130 @@ export default function CreateNewProduct() {
     setCollapseActiveKeys([]);
   };
   const [descriptionText, setDescriptionText] = useState("");
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as FileType);
-    }
-
-    setPreviewImage(file.url || (file.preview as string));
-    setPreviewOpen(true);
-  };
-
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
-    setFileList(newFileList);
-
-  const uploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      <FiPlusCircle className="flex-col item-center justify-center mx-auto my-auto " />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </button>
+  const [currentProduct, setCurrentProduct] = useState<_ProductType | null>(
+    props.updatingProduct ?? null
   );
+  const editorRef = useRef<Editor | null>(null);
 
   const handleStepChange = (currentStep: number) => {
     setStep(currentStep);
     setCollapseActiveKeys([`${currentStep + 1}`]);
   };
-  const handleSelectChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
-  const categories = [
-    { value: "Laptop", label: "Laptop" },
-    { value: "PC- Máy tính bộ", label: "PC- Máy tính bộ" },
-    { value: "Điện máy - Điện gia dụng", label: "Điện máy - Điện gia dụng" },
-    { value: "Điện thoại & Phụ kiện", label: "Điện thoại & Phụ kiện" },
-    { value: "Màn hình máy tính", label: "Màn hình máy tính" },
-    { value: "Linh kiện máy tính", label: "Linh kiện máy tính" },
-    { value: "Phụ kiện máy tính", label: "Phụ kiện máy tính" },
-    { value: "Game & Stream", label: "Game & Stream" },
-    { value: "Phụ kiện", label: "Phụ kiện" },
-    { value: "Thiết bị âm thanh", label: "Thiết bị âm thanh" },
-    { value: "Thiết bị văn phòng", label: "Thiết bị văn phòng" },
-    { value: "Khác", label: "Khác" },
-  ];
 
-  const text = `
-    A dog is a type of domesticated animal.
-    Known for its loyalty and faithfulness,
-    it can be found as a welcome guest in many households across the world.
-  `;
+  const otherInfo: CollapseProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <div className="flex justify-center mx-auto items-center text-sky-500 font-semibold">
+          Hiển thị thông tin khác
+        </div>
+      ),
+      children: (
+        <div className="">
+          <p className="font-semibold">Màu sắc</p>
+          <ColorOption
+            initialValue={colorData}
+            onFormChange={(values) => setColorData(values.colors || [])}
+          />
+
+          <div className="">
+            <p className="font-semibold">Kích thước</p>
+            <Form.Item<FieldType> name="sizes">
+              <Select
+                mode="multiple"
+                allowClear
+                style={{ width: "100%" }}
+                placeholder="Có thể chọn một hoặc nhiều kích cỡ "
+                options={sizeOptions}
+              />
+            </Form.Item>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="">
+              <p className="font-semibold">Chất liệu</p>
+              <Form.Item<FieldType> name="material">
+                <Input placeholder="vải cotton" />
+              </Form.Item>
+            </div>
+            <div className="">
+              <p className="font-semibold">Nơi sản xuất</p>
+              <Form.Item<FieldType> name="manufacturingPlace">
+                <Input placeholder="Pháp" />
+              </Form.Item>
+            </div>
+            <div className="">
+              <p className="font-semibold">Bảo hành</p>
+              <Form.Item<FieldType> name="warranty">
+                <Input placeholder="đổi trả trong vòng 7 ngày" />
+              </Form.Item>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+  ];
 
   const items = [
     { title: "Thông tin chung" },
     { title: "Mô tả sản phẩm" },
     { title: "Thêm hình ảnh" },
   ];
+
+  const getValueProps = (value: any) => {
+    return {
+      value: value,
+    };
+  };
+
+  useEffect(() => {
+    const loadAllCategories = async () => {
+      const data: _CategoryType[] = await CategoryService.getAllCategories();
+      setAllCategories(data);
+    };
+
+    loadAllCategories();
+  }, []);
+
+  useEffect(() => {
+    if (currentProduct) {
+      const initialValues = {
+        name: currentProduct.name,
+        description: currentProduct.description,
+
+        brand: currentProduct.brand,
+        originalPrice: currentProduct.originalPrice,
+        finalPrice: currentProduct.finalPrice,
+        inventoryAmount: currentProduct.inventoryAmount,
+        sizes: currentProduct.attribute.size,
+        material: currentProduct.attribute.material,
+        warranty: currentProduct.attribute.warranty,
+        manufacturingPlace: currentProduct.attribute.manufacturingPlace,
+
+        color: currentProduct.attribute.colors.map((color) => ({
+          colorCode: color.color.value,
+          colorName: color.color.label,
+          image: color.link,
+        })),
+        images: currentProduct.images,
+      };
+
+      form.setFieldsValue(initialValues);
+      setDescriptionText(currentProduct.description);
+      setColorData(initialValues.color);
+      setImageList(currentProduct.images);
+      let categoryList: string[] = [];
+      if (props.updatingProduct?.category._id)
+        categoryList.push(props.updatingProduct.category._id);
+      if (props.updatingProduct?.subCategory._id)
+        categoryList.push(props.updatingProduct.subCategory._id);
+      if (props.updatingProduct?.subCategoryType._id)
+        categoryList.push(props.updatingProduct.subCategoryType._id);
+
+      setCategory(categoryList);
+    }
+  }, [currentProduct]);
 
   return (
     <Form
@@ -552,27 +631,56 @@ export default function CreateNewProduct() {
                     Tạo mới
                   </Button>
 
-          <Button className="border-cyan-500 text-cyan-500">Lưu nháp</Button>
-          <Button>Hủy</Button>
+                  <Button
+                    className="border-cyan-500 text-cyan-500"
+                    onClick={() => {
+                      setStatus("DRAFT");
+                      form.submit();
+                    }}
+                  >
+                    Lưu nháp
+                  </Button>
+                  <Button className="mx-2" onClick={() => props.handleBack()}>
+                    Hủy
+                  </Button>
+                </div>
+              ) : (
+                <div className="">
+                  <Button
+                    type="primary"
+                    className=""
+                    onClick={() => {
+                      form.submit();
+                    }}
+                  >
+                    Cập nhật
+                  </Button>
+                  <Button className="mx-2" onClick={() => props.handleBack()}>
+                    Hủy
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="w-64 fixed right-4 bg-white rounded-lg border border-slate-300 p-4 h-48 ">
+            <Button
+              type="link"
+              onClick={isExpand ? handleCollapseInfo : handleExpandInfo}
+              className="text-xs"
+            >
+              {isExpand ? "Thu gọn " : "Mở rộng "}thông tin
+            </Button>
+            <Steps
+              className="text-xs "
+              direction="vertical"
+              size="small"
+              current={step}
+              onChange={handleStepChange}
+              items={items}
+            />
+          </div>
         </div>
       </div>
-      <div className="w-64 fixed right-8 bg-white rounded-lg border border-slate-300 p-4 h-48 ">
-        <Button
-          type="link"
-          onClick={isExpand ? handleCollapseInfo : handleExpandInfo}
-          className="text-xs"
-        >
-          {isExpand ? "Thu gọn " : "Mở rộng "}thông tin
-        </Button>
-        <Steps
-          className="text-xs "
-          direction="vertical"
-          size="small"
-          current={step}
-          onChange={handleStepChange}
-          items={items}
-        />
-      </div>
-    </div>
+    </Form>
   );
 }

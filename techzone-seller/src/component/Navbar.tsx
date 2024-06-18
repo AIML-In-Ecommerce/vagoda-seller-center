@@ -32,15 +32,15 @@ export default function Navbar() {
     {
       key: "0",
       label: (
-        <div className="flex w-full">
+        <div className="flex w-full items-center gap-2">
           <Image
             src={mall_logo}
-            width={15}
-            height={15}
+            width={30}
+            height={30}
             alt="Logo"
-            className="rounded-full w-1/4 m-1"
+            className="rounded-full"
           />
-          <div className="w-3/4 ml-2">
+          <div className="flex flex-col">
             <p className="font-bold text-sm"> Thảo Lăng</p>
             <p className="text-xs"> langthao200243@gmail.com</p>
           </div>
@@ -149,25 +149,25 @@ export default function Navbar() {
   ];
   return (
     <>
-      <header className="navbar border-bottom shadow-lg  bg-white items-center space-x-8 w-full border-2">
-        <header className="flex items-center  h-30 space-x-4 justify-between ">
+      <header className="navbar border-bottom shadow-lg bg-white items-center space-x-8 w-full border-2 z-50">
+        <header className="flex items-center h-30 space-x-4 justify-between ">
           <div className="flex items-center space-x-1">
-            <div className="mb-0 ml-4">
+            <div className="mb-0 mx-5">
               <Image src={logo} width={50} height={30} alt="Logo" />
             </div>
             <p className="uppercase font-bold text-md">seller center</p>
           </div>
 
-          <div className="right-0  flex space-x-4 mt-1">
+          <div className="right-0 flex space-x-4 mt-1">
             <div className="right-0 justify-end flex space-x-4">
-              <div className="flex items-center justify-center  hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
+              <div className="flex items-center justify-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
                 <IoChatbubbleEllipsesOutline
                   size={40}
                   className=" border rounded-full p-2"
                 />
               </div>
 
-              <div className="flex items-center justify-center   hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
+              <div className="flex items-center justify-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
                 <Badge
                   className="site-badge-count-109"
                   count={countItemsCart > 100 ? 109 : 10}
@@ -188,8 +188,8 @@ export default function Navbar() {
                     alt="Logo"
                     className="rounded-full"
                   />
-                  <p className="ml-2 truncate text-sm">
-                    langthao200243@gmail.com
+                  <p className="ml-2 text-sm">
+                  Thảo Lăng
                   </p>
                   <RiArrowDropDownLine size={20} />
                 </div>

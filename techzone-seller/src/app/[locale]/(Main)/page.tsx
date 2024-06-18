@@ -1,23 +1,16 @@
+import HomePage from "@/component/home/HomePage";
+import React from "react";
+
 export default function Home() {
+  //Home overview:
+  // + Banner (slider): Hiển thị các chức năng nhanh.
+  // + Thông tin đơn hàng mới nhất.
+  // + Hiệu quả kinh doanh: Filter theo (7 ngày, 30 ngày, Tùy chỉnh)
+  // + Hiểu quả vận hành: Tỉ lệ hủy đơn, Tỉ lệ xử lý đúng hạn, Tỉ lệ giao đúng hạn (ML dành cho hệ thống), Tỉ lệ phản hồi chat.
+
   return (
-    // <div className=" text-red underline font-bold text-center">
-    //   <Image
-    //     src={logo}
-    //     width={1500}
-    //     height={1500}
-    //     alt="Logo"
-    //     className="rounded-full m-1"
-    //   />
-    //   <Image
-    //     src={logo}
-    //     width={1500}
-    //     height={1500}
-    //     alt="Logo"
-    //     className="rounded-full m-1"
-    //   />
-    // </div>
-    <>
-      <div>Hello Moasfojasfasjfoaskfokasofko</div>
-    </>
+    <React.Fragment>
+      <HomePage />
+    </React.Fragment>
   );
 }

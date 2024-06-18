@@ -1,39 +1,40 @@
 "use client";
-import { Button, Input, Layout, Menu, theme } from "antd";
-import { Header } from "antd/es/layout/layout";
+import { Input, Menu, theme, Tooltip } from "antd";
 import Sider from "antd/es/layout/Sider";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { BsHouseHeart, BsPersonVideo, BsShop } from "react-icons/bs";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
-import { IoMdClose } from "react-icons/io";
-import { IoMenu } from "react-icons/io5";
-import { LiaBoxSolid, LiaWalletSolid } from "react-icons/lia";
+import {
+  LiaBoxSolid,
+  LiaGripLinesVerticalSolid,
+  LiaWalletSolid,
+} from "react-icons/lia";
 import { RiTodoLine } from "react-icons/ri";
 import { TbSpeakerphone } from "react-icons/tb";
 
-// type MenuItem = Required<MenuProps>["items"][number];
 type MenuItem = {
   key: string;
   icon?: React.ReactNode;
   label: React.ReactNode;
   url: string | null;
-  children?: MenuItem[];
+  items?: MenuItem[];
 };
 
 function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  children?: MenuItem[],
+  items?: MenuItem[],
   url?: string
 ): MenuItem {
   return {
     key,
     icon,
-    children,
+    items,
     label,
     url,
   } as MenuItem;
@@ -44,9 +45,40 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const [searchText, setSearchText] = useState("");
   const router = useRouter();
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+  const iconToShow = isHovered ? (
+    collapsed ? (
+      <FiChevronRight
+        fontWeight={"bold"}
+        height={96}
+        size={22}
+        className="text-slate-400 hover:text-black font-bold "
+        onClick={() => setCollapsed(!collapsed)}
+      />
+    ) : (
+      <FiChevronLeft
+        fontWeight={"bold"}
+        height={96}
+        size={22}
+        className="text-slate-400 hover:text-black font-bold "
+        onClick={() => setCollapsed(!collapsed)}
+      />
+    )
+  ) : (
+    <LiaGripLinesVerticalSolid />
+  );
+
   const handleMenuItemClick = (url: string | null) => {
     router.push(url ? url : "/");
   };
@@ -68,8 +100,8 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "2",
       icon: <RiTodoLine />,
       label: "Đơn hàng",
-      children: [
-        { label: "Danh sách đơn hàng", url: "/order/list" },
+      items: [
+        { label: "Danh sách đơn hàng", url: "/order" },
         { label: "Đổi trả bảo hành", url: "/order/return-order" },
         { label: "Quản lý hóa đơn", url: "/order/invoice" },
       ],
@@ -79,11 +111,15 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "3",
       icon: <LiaBoxSolid />,
       label: "Sản phẩm",
-      children: [
+      items: [
         { label: "Danh sách sản phẩm", url: "/product/list" },
         { label: "Tạo sản phẩm", url: "/product/create" },
         { label: "Quản lý đánh giá", url: "/product/review" },
         { label: "Lịch sử thay đổi", url: "/product/history" },
+        {
+          label: "Bộ sưu tập hình ảnh",
+          url: "/product/image-collection",
+        },
       ],
       url: null,
     },
@@ -97,7 +133,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "5",
       icon: <AiOutlineLineChart />,
       label: "Trung tâm phát triển",
-      children: [
+      items: [
         { label: "Hiệu quả kinh doanh", url: "/report/business-performance" },
         { label: "Chỉ số sản phẩm", url: "/report/product-sale-traffic" },
         { label: "Chỉ số khuyến mãi", url: "/report/coupon-insight" },
@@ -109,7 +145,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "6",
       icon: <TbSpeakerphone />,
       label: "Trung tâm marketing",
-      children: [
+      items: [
         {
           label: "Công cụ khuyến mãi",
           url: "/marketing-center/promotion-tool",
@@ -127,9 +163,9 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "8",
       icon: <BsHouseHeart />,
       label: "Thiết kế gian hàng",
-      children: [
-        { label: "Trang trí gian hàng", url: "/seller-store/template" },
-        { label: "Bổ sưu tập", url: "/seller-store/collection" },
+      items: [
+        { label: "Trang trí gian hàng", url: "/booth-design/decorator" },
+        { label: "Bộ sưu tập", url: "/booth-design/collection" },
       ],
       url: null,
     },
@@ -141,94 +177,145 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     },
   ];
 
-  const filteredMenuItems = (
-    <Menu
-      theme="light"
-      mode="inline"
-      defaultSelectedKeys={["1"]}
-      style={{ height: "75vh", overflowY: "auto", width: "100%" }}
-      className=" text-xs overflow-auto custom-scrollbar"
-    >
-      {/* Filter menu items based on search text */}
-      {menuItems
-        .filter((item) =>
-          item.label.toLowerCase().includes(searchText.toLowerCase())
-        )
-        .map((item) => (
-          <React.Fragment key={item.key}>
-            {/* Hiển thị mục menu chính */}
+  const [option, setOption] = useState<string[]>([]);
+  const pathname = usePathname();
 
-            {/* Nếu mục menu có children, hiển thị chúng */}
-            {item.children && item.children.length > 0 ? (
-              <Menu.SubMenu
-                key={`${item.key}-submenu`}
-                title={item.label}
-                icon={item.icon}
-              >
-                {item.children.map((child, index) => (
-                  <Menu.Item
-                    key={`${item.key}-${index}`}
-                    onClick={() => handleMenuItemClick(child.url)}
-                  >
-                    {child.label}
-                  </Menu.Item>
-                ))}
-              </Menu.SubMenu>
-            ) : (
-              <Menu.Item
-                key={item.key}
-                icon={item.icon}
-                onClick={() => handleMenuItemClick(item.url)}
-              >
-                {item.label}
-              </Menu.Item>
-            )}
-          </React.Fragment>
-        ))}
-    </Menu>
+  useEffect(() => {
+    if (pathname.includes("/order")) {
+      option.push("2");
+      setOption(option);
+    } else if (pathname.includes("/product")) {
+      option.push("3");
+      if (pathname.includes("/product/list")) {
+        option.push("3-0");
+      } else if (pathname.includes("/product/create")) {
+        option.push("3-1");
+      } else if (pathname.includes("/product/review")) {
+        option.push("3-2");
+      } else if (pathname.includes("/product/history")) {
+        option.push("3-3");
+      }
+      setOption(option);
+    } else if (pathname.includes("/warehouse-management")) {
+      setOption(["4"]);
+    } else if (pathname.includes("/report")) {
+      option.push("5");
+      if (pathname.includes("/report/business-performance")) {
+        option.push("5-0");
+      } else if (pathname.includes("/report/product-sale-traffic")) {
+        option.push("5-1");
+      } else if (pathname.includes("/report/coupon-insight")) {
+        option.push("5-2");
+      } else if (pathname.includes("/report/seller-performance")) {
+        option.push("5-3");
+      }
+      setOption(option);
+    } else if (pathname.includes("/marketing-center/promotion-tool")) {
+      setOption(["6", "6-0"]);
+    } else if (pathname.includes("/fee-structure")) {
+      setOption(["7"]);
+    } else if (pathname.includes("/booth-design")) {
+      option.push("8");
+      if (pathname.includes("/booth-design/decorator")) {
+        option.push("8-0");
+      } else if (pathname.includes("/booth-design/collection")) {
+        option.push("8-1");
+      }
+      setOption(option);
+    } else if (pathname.includes("/seller")) {
+      setOption(["9"]);
+    } else setOption(["1"]);
+  }, []);
+
+  const filteredMenuItems = (
+    <div className="ant-layout-sider-items bg-white">
+      <Menu
+        theme="light"
+        mode="inline"
+        defaultSelectedKeys={option}
+        style={{ height: "auto", overflowY: "auto", width: "100%" }}
+        className="text-xs overflow-auto custom-scrollbar h-screen"
+      >
+        {menuItems
+          .filter((item) =>
+            item.label.toLowerCase().includes(searchText.toLowerCase())
+          )
+          .map((item) => (
+            <React.Fragment key={item.key}>
+              {item.items && item.items.length > 0 ? (
+                <Menu.SubMenu
+                  key={`${item.key}-submenu`}
+                  title={item.label}
+                  icon={item.icon}
+                  className="bg-white"
+                >
+                  {item.items.map((child, index) => (
+                    <Menu.Item
+                      key={`${item.key}-${index}`}
+                      onClick={() => handleMenuItemClick(child.url)}
+                    >
+                      {child.label}
+                    </Menu.Item>
+                  ))}
+                </Menu.SubMenu>
+              ) : (
+                <Menu.Item
+                  key={item.key}
+                  icon={item.icon}
+                  onClick={() => handleMenuItemClick(item.url)}
+                >
+                  {item.label}
+                </Menu.Item>
+              )}
+            </React.Fragment>
+          ))}
+      </Menu>
+    </div>
   );
 
   return (
-    <div className="relative">
-      <div className="fixed h-full items-center justify-center bg-white shadow-lg">
-        <Layout>
-          <Header style={{ padding: 0, background: colorBgContainer }}>
-            <Button
-              type="text"
-              icon={
-                collapsed ? <IoMenu className="" /> : <IoMdClose className="" />
-              }
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 48,
-                height: 48,
-              }}
-              className="mx-5"
-            />
-          </Header>
-        </Layout>
-        <div className="rounded-full">
-          {!collapsed && (
-            <Input
-              size="middle"
-              placeholder="Tìm kiếm"
-              suffix={<GoSearch />}
-              className="rounded-full w-11/12 m-1"
-              onChange={handleSearch}
-            />
-          )}
+    <div className="relative z-50">
+      <div className=" sm:w-0 relative z-50 h-full">
+        <div className="flex">
+          <div className="flex fixed h-full justify-center">
+            <div className="bg-white pt-4"></div>
+            <div>
+              <Sider
+                trigger={null}
+                collapsible
+                collapsed={collapsed}
+                className="h-full bg-white"
+              >
+                <div className="rounded-full bg-white">
+                  {!collapsed && (
+                    <Input
+                      size="middle"
+                      placeholder="Tìm kiếm"
+                      suffix={<GoSearch />}
+                      className="rounded-full w-11/12 m-1"
+                      onChange={handleSearch}
+                    />
+                  )}
+                </div>
+                {filteredMenuItems}
+              </Sider>
+            </div>
+            <div className="flex items-center  p-0 m-0 pb-24">
+              <Tooltip
+                placement="left"
+                title={collapsed ? "Mở sidebar" : "Đóng sidebar"}
+              >
+                <div
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  className="text-slate-400 hover:text-black font-bold cursor-pointer"
+                >
+                  {iconToShow}
+                </div>
+              </Tooltip>
+            </div>
+          </div>
         </div>
-
-        <Sider
-          trigger={null}
-          collapsible
-          collapsed={collapsed}
-          collapsedWidth={80}
-          className="h-full"
-        >
-          {filteredMenuItems}
-        </Sider>
       </div>
     </div>
   );

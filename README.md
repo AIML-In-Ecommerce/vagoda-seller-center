@@ -1,1 +1,0 @@
-# techzone-seller-center

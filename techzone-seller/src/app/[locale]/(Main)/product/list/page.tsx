@@ -1,28 +1,37 @@
 "use client";
+import { ProductFilterInput } from "@/apis/ProductAPI";
+import { OptionType } from "@/component/Product/CreateBatchProduct";
 import FilterDropdown from "@/component/Product/FilterDropdown";
+import ProductDetail from "@/component/Product/ProductDetail";
+import { formatPrice } from "@/component/utils/formatPrice";
+import { _CategoryType } from "@/model/CategoryType";
+import { _ProductType } from "@/model/ProductType";
+import { CategoryService } from "@/services/Category";
+import { ProductService } from "@/services/Product";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import {
   Alert,
   Breadcrumb,
   Button,
   Divider,
-  Dropdown,
   Empty,
   Input,
   MenuProps,
   Popconfirm,
-  Select,
   Table,
   Tabs,
+  TabsProps,
   Tooltip,
+  message,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { CiCircleRemove } from "react-icons/ci";
 import { HiOutlineHome, HiOutlineInformationCircle } from "react-icons/hi2";
-import { RiArrowDropDownLine, RiDeleteBinLine } from "react-icons/ri";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 export interface FilterCriteria {
   key: string;
@@ -30,129 +39,28 @@ export interface FilterCriteria {
 }
 
 const { Search } = Input;
-interface ProductType {
+export interface ProductType {
   key: string;
   name: string;
   inventory_number: number;
   price: number;
   system_fee: number;
   profit: number;
-  avatar_url: string;
+  avatar_url: string[];
+  id: string;
+  SKU: string;
+  category: string;
+  brand: string;
+  status: string;
+  rating: number;
+  description: string;
+  otherDescriptions: OptionType[];
 }
 
-const products: ProductType[] = [
-  {
-    key: "1",
-    name: "Laptop Dell XPS 15",
-    inventory_number: 20,
-    price: 45000000,
-    system_fee: 2000000,
-    profit: 43000000,
-    avatar_url:
-      "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "2",
-    name: "Máy lạnh Panasonic Inverter 1.5HP ",
-    inventory_number: 15,
-    price: 12000000,
-    system_fee: 1000000,
-    profit: 11000000,
-    avatar_url:
-      "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "3",
-    name: "Tai nghe Bluetooth Sony WH-1000XM4",
-    inventory_number: 30,
-    price: 8000000,
-    system_fee: 500000,
-    profit: 7500000,
-    avatar_url:
-      "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "4",
-    name: "Máy ảnh Canon EOS R6",
-    inventory_number: 10,
-    price: 60000000,
-    system_fee: 3000000,
-    profit: 57000000,
-    avatar_url:
-      "https://images.pexels.com/photos/18135362/pexels-photo-18135362/free-photo-of-nikon-camera-hanging-on-gray-background.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "5",
-    name: "Smartphone Samsung Galaxy S21 Ultra",
-    inventory_number: 25,
-    price: 30000000,
-    system_fee: 1500000,
-    profit: 28500000,
-    avatar_url:
-      "https://images.pexels.com/photos/17944743/pexels-photo-17944743/free-photo-of-close-up-of-a-man-holding-a-green-samsung-galaxy-s21.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "6",
-    name: "Quạt điện Mitsubishi Electric 5 cánh",
-    inventory_number: 18,
-    price: 5000000,
-    system_fee: 800000,
-    profit: 4500000,
-    avatar_url:
-      "https://images.pexels.com/photos/3675622/pexels-photo-3675622.jpeg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "7",
-    name: "Laptop Asus ROG Zephyrus G14",
-    inventory_number: 12,
-    price: 35000000,
-    system_fee: 2000000,
-    profit: 33000000,
-    avatar_url:
-      "https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600",
-  },
-  {
-    key: "8",
-    name: "Tai nghe AirPods Pro",
-    inventory_number: 40,
-    price: 6000000,
-    system_fee: 1000000,
-    profit: 5000000,
-    avatar_url:
-      "https://media.istockphoto.com/id/1346147559/photo/modern-wireless-bluetooth-headphones-with-charging-case-on-a-blue-background.jpg?b=1&s=612x612&w=0&k=20&c=LzlNQUIRWviMaqDo5gtbkmPUiy_ruH57MrZH7fQsRKc=",
-  },
-  {
-    key: "9",
-    name: "TV Sony Bravia OLED 4K 55 inch",
-    inventory_number: 8,
-    price: 45000000,
-    system_fee: 3000000,
-    profit: 42000000,
-    avatar_url:
-      "https://media.istockphoto.com/id/173240143/photo/tv-with-two-clipping-paths.jpg?b=1&s=612x612&w=0&k=20&c=FrmX0is8iAP4R9GTxuLXVRJ3u2WhbAQnOYwIjyRBHU8=",
-  },
-  {
-    key: "10",
-    name: "Máy giặt LG Inverter 10kg",
-    inventory_number: 22,
-    price: 15000000,
-    system_fee: 1500000,
-    profit: 13500000,
-    avatar_url:
-      "https://media.istockphoto.com/id/1310076735/photo/laundry-room-with-a-washing-machine.jpg?b=1&s=612x612&w=0&k=20&c=BVDtEWahh0HZndALgqBBjuVc5IefTRjTWbYdJed1zmM=",
-  },
-];
-
 const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: ProductType[]) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      "selectedRows: ",
-      selectedRows
-    );
-  },
-  getCheckboxProps: (record: ProductType) => ({
-    disabled: record.name === "Disabled User", // Column configuration not to be checked
+  onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {},
+  getCheckboxProps: (record: _ProductType) => ({
+    disabled: record.name === "Disabled User",
     name: record.name,
   }),
 };
@@ -168,23 +76,164 @@ const exportOptions: MenuProps["items"] = [
   },
 ];
 
-const options: FilterCriteria[] = [{ key: "Tên sản phẩm", value: "Máy tính" }];
-
 export default function ProductListPage() {
   const router = useRouter();
-  const { Option } = Select;
-  const [searchOption, setSearchOption] = useState("Tên sản phẩm");
-  const [categorySearch, setCategorySearch] = useState("");
-  const [brandSearch, setBrandSearch] = useState("");
-  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>(options);
-  const [selectionType, setSelectionType] = useState("checkbox");
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [visible, setVisible] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>([]);
 
-  const handleFilterDropdownChange = (value: string[], key: string) => {
-    const updatedFilterOptions = filterOptions.filter((option) => {
-      return option.key !== key;
-    });
+  const [filter, setFilter] = useState<ProductFilterInput>({});
+  const [allProducts, setAllProducts] = useState<_ProductType[]>([]);
+  const [filteredProducts, setFilteredProducts] =
+    useState<_ProductType[]>(allProducts);
+  const [currentTab, setCurrentTab] = useState("");
+  const [openProductDetail, setOpenProductDetail] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
+    null
+  );
+  const [tabProducts, setTabProducts] = useState<_ProductType[]>([]);
+  const [totalProduct, setTotalProduct] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<_ProductType[]>([]);
+
+  const query = useSearchParams();
+
+  const showDrawer = (product: _ProductType) => {
+    setSelectedProduct(product);
+    setOpenProductDetail(true);
+  };
+
+  const onClose = () => {
+    setOpenProductDetail(false);
+  };
+
+  const deleteProduct = async (product_id: string) => {
+    const response: { status: number; message: string } =
+      await ProductService.deleteProductById(product_id);
+
+    if (response.status == 200) {
+      message.success("Xóa sản phẩm thành công");
+    } else {
+      message.error("Không thể xóa sản phẩm");
+    }
+    await loadFilteredProducts();
+  };
+  const tabItems: TabsProps["items"] = [
+    {
+      key: "",
+      label: <span style={{ fontWeight: "620" }}>Tất cả </span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Tất cả:</strong> Mục này chứa các sản phẩm đã được duyệt
+              để bán hàng, không bao gồm sản phẩm ở trạng thái Nháp và Khóa vĩnh
+              viễn.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
+    },
+    {
+      key: "AVAILABLE",
+      label: <span style={{ fontWeight: "620" }}>Đang bán</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Đang bán:</strong> Mục này chứa các sản phẩm có thể bán.
+              Bao gồm sản phẩm đang hiển thị và bị hạn chế hiển thị trong kết
+              quả tìm kiếm.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
+    },
+    {
+      key: "SOLD_OUT",
+      label: <span style={{ fontWeight: "620" }}>Hết hàng</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Hết hàng:</strong> Mục này chứa các sản phẩm có lựa chọn
+              đã hết hàng hoặc hết hàng toàn bộ. Cập nhật giá trị ở cột Tồn có
+              thể bán &gt; 0 để bán lại.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
+    },
+    {
+      key: "DRAFT",
+      label: <span style={{ fontWeight: "620" }}>Nháp</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Nháp:</strong> Mục này chứa các sản phẩm đang lưu nháp
+              hoặc được tạo bằng tính năng Tạo mới / Sao chép hàng loạt nhưng
+              chưa đính kèm tài liệu yêu cầu.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
+    },
+    {
+      key: "SALE",
+      label: <span style={{ fontWeight: "620" }}>Khuyến mãi</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Khuyến mãi:</strong> Mục này chứa các sản phẩm mà Nhà bán
+              đang bán giảm giá.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
+    },
+    {
+      key: "DISABLED",
+      label: <span style={{ fontWeight: "620" }}>Đã tắt</span>,
+      children: (
+        <Alert
+          className="text-xs"
+          message={
+            <>
+              <strong>Đã tắt:</strong> Mục này chứa các sản phẩm mà Nhà bán đã
+              tắt toàn bộ lựa chọn Khách hàng không thể xem và đặt hàng.
+            </>
+          }
+          type="info"
+          showIcon
+        />
+      ),
+    },
+  ];
+
+  const handleFilterDropdownChange = (
+    value: { id: string; label: string }[],
+    key: string
+  ) => {
+    const updatedFilterOptions = filterOptions.filter(
+      (option) => option.key !== key
+    );
 
     const newFilterCriteria: FilterCriteria = {
       key,
@@ -193,22 +242,23 @@ export default function ProductListPage() {
 
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
-
-    console.log("Filter", filterOptions);
   };
 
   const columns = [
     {
       title: "Sản phẩm",
       dataIndex: "name",
-      render: (text: string, record: ProductType) => (
-        <a style={{ display: "flex", alignItems: "center" }}>
+      render: (text: string, record: _ProductType) => (
+        <a
+          style={{ display: "flex", alignItems: "center" }}
+          onClick={() => showDrawer(record)}
+        >
           <img
-            src={record.avatar_url}
+            src={record.images ? record.images[0] : ""}
             alt={text}
             style={{ marginRight: "8px", width: "32px", height: "32px" }}
           />
-          {text}
+          {text ? text : ""}
         </a>
       ),
       width: "30%",
@@ -218,6 +268,7 @@ export default function ProductListPage() {
         <div className="flex space-x-1 items-center">
           <p>Tồn có thể bán</p>
           <Tooltip
+            className="flex space-x-1 items-center"
             title={
               <div className="tooltip-content">
                 <p className="mb-4">
@@ -236,15 +287,18 @@ export default function ProductListPage() {
           </Tooltip>
         </div>
       ),
-      dataIndex: "inventory_number",
-      defaultSortOrder: "descend",
-      sorter: (a: ProductType, b: ProductType) =>
-        a.inventory_number - b.inventory_number,
+      dataIndex: "inventoryAmount",
+      defaultSortOrder: "descend" as const,
+      sorter: (a: _ProductType, b: _ProductType) =>
+        a.inventoryAmount - b.inventoryAmount,
+      width: "14%",
     },
     {
       title: "Giá bán",
-      dataIndex: "price",
-      sorter: (a: ProductType, b: ProductType) => a.price - b.price,
+      dataIndex: "finalPrice",
+      render: (text: number) => formatPrice(text),
+      sorter: (a: _ProductType, b: _ProductType) => a.finalPrice - b.finalPrice,
+      width: "10%",
     },
     {
       title: () => (
@@ -264,8 +318,11 @@ export default function ProductListPage() {
           </Tooltip>
         </div>
       ),
-      dataIndex: "system_fee",
-      sorter: (a: ProductType, b: ProductType) => a.system_fee - b.system_fee,
+      dataIndex: "platformFee",
+      render: (text: number) => formatPrice(text),
+      sorter: (a: _ProductType, b: _ProductType) =>
+        a.platformFee - b.platformFee,
+      width: "17%",
     },
     {
       title: () => (
@@ -293,21 +350,29 @@ export default function ProductListPage() {
         </div>
       ),
       dataIndex: "profit",
-      sorter: (a: ProductType, b: ProductType) => a.profit - b.profit,
+      sorter: (a: _ProductType, b: _ProductType) => a.profit - b.profit,
+      width: "15%",
     },
     {
       title: "Thao tác",
       dataIndex: "operation",
-      render: (_: any, record: ProductType) => {
+      render: (_: any, record: _ProductType) => {
         return (
-          <div className="space-x-2">
-            <Button type="primary" className="bg-sky-100 text-black">
-              <BiEditAlt />
+          <div className="xl:space-x-1 space-x-2">
+            <Button
+              type="primary"
+              className="bg-sky-100 text-black"
+              // onClick={() => showDrawer(record)}
+            >
+              <Link href={`list/update/${record._id}`}>
+                <BiEditAlt />
+              </Link>
             </Button>
             <Popconfirm
               title="Bạn chắc chắn muốn xóa sản phẩm này không ?"
               description="Sản phẩm sẽ bị xóa hoàn toàn và không thể hồi phục lại được."
               icon={<QuestionCircleOutlined style={{ color: "red" }} />}
+              onConfirm={() => deleteProduct(record._id)}
             >
               <Button type="primary" danger>
                 <RiDeleteBinLine />
@@ -316,139 +381,202 @@ export default function ProductListPage() {
           </div>
         );
       },
+      width: "14%",
     },
   ];
 
-  const tabItems = [
-    {
-      label: "Tất cả",
-      description:
-        "Mục này chứa các sản phẩm đã được duyệt để bán hàng, không bao gồm sản phẩm ở trạng thái Nháp, Chờ duyệt và Khóa vĩnh viễn.",
-      number: 0,
-    },
-    {
-      label: "Đang bán",
-      description:
-        "Mục này chứa các sản phẩm có thể bán. Bao gồm sản phẩm đang hiển thị và bị hạn chế hiển thị trong kết quả tìm kiếm.",
-      number: 0,
-    },
-    {
-      label: "Hết hàng",
-      description:
-        "Mục này chứa các sản phẩm có lựa chọn đã hết hàng hoặc hết hàng toàn bộ. Cập nhật giá trị ở cột Tồn có thể bán > 0 để bán lại.",
-      number: 0,
-    },
-    {
-      label: "Nháp",
-      description:
-        "Mục này chứa các sản phẩm đang lưu nháp hoặc được tạo bằng tính năng Tạo mới / Sao chép hàng loạt nhưng chưa đính kèm tài liệu yêu cầu.",
-      number: 0,
-    },
-    {
-      label: "Chờ duyệt",
-      description:
-        "Mục này chứa các sản phẩm đang chờ duyệt bởi Tiki. Duyệt thành công sẽ tự động chuyển qua mục Đang bán, bị từ chối chuyển qua mục Vi phạm.",
-      number: 0,
-    },
-    {
-      label: "Đã tắt",
-      description:
-        "Mục này chứa các sản phẩm mà Nhà bán đã tắt toàn bộ lựa chọn Khách hàng không thể xem và đặt hàng.",
-      number: 0,
-    },
-  ];
-  const handleChangeSearchOption = (value: string) => {
-    setSearchOption(value);
-  };
-  const handleCategorySearch = (e: any) => {
-    setCategorySearch(e.target.value);
-  };
-  const handleBrandSearch = (e: any) => {
-    setBrandSearch(e.target.value);
-  };
-
-  const categories = [
-    "Laptop",
-    "PC- Máy tính bộ",
-    "Điện máy - Điện gia dụng",
-    "Điện thoại & Phụ kiện",
-    "Màn hình máy tính",
-    "Linh kiện máy tính",
-    "Phụ kiện máy tính",
-    "Game & Stream",
-
-    "Phụ kiện",
-    "Thiết bị âm thanh",
-    "Thiết bị văn phòng",
-    "Khác",
-  ];
-  const brands = [
-    "Apple (Macbook)",
-    "Acer",
-    "ASUS",
-    "Dell",
-    "HP",
-    "Lenovo",
-    "LG",
-    "MSI",
-    "Gigabyte",
-    "Microsoft",
-    "Sharp",
-    "Samsung",
-    "Panasonic",
-    "Toshiba",
-    "AQUA",
-    "Casper",
-    "AOC",
-    "Viewsonic",
-    "Philips",
-    "VSP",
-  ];
-
-  const selectBefore = (
-    <Select
-      defaultValue="Tên sản phẩm"
-      style={{ width: 130 }}
-      onChange={handleChangeSearchOption}
-      className=""
-    >
-      <Option value="tên sản phẩm">Tên sản phẩm</Option>
-      <Option value="mã sản phẩm">Mã sản phẩm</Option>
-      <Option value="SKU">SKU</Option>
-    </Select>
-  );
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-    const updatedFilterOptions = filterOptions.filter((option) => {
-      return (
-        option.key !== "Tên sản phẩm" &&
-        option.key !== "SKU" &&
-        option.key !== "Mã sản phẩm"
+    if (value.length != 0) {
+      const updatedFilterOptions = filterOptions.filter((option) => {
+        return option.key !== "Tên sản phẩm";
+      });
+      const newFilterCriteria: FilterCriteria = {
+        key: `Tên sản phẩm`,
+        value,
+      };
+
+      const updatedQuery = new URLSearchParams(query);
+      updatedQuery.set("keyword", value);
+
+      window.history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${updatedQuery.toString()}`
       );
-    });
 
-    const newFilterCriteria: FilterCriteria = {
-      key: `${searchOption.charAt(0).toUpperCase() + searchOption.slice(1)}`,
-      value,
-    };
-
-    updatedFilterOptions.push(newFilterCriteria);
-    setFilterOptions(updatedFilterOptions);
+      updatedFilterOptions.push(newFilterCriteria);
+      setFilterOptions(updatedFilterOptions);
+      setSearchValue("");
+    }
   };
 
   const clearAllFilterCriterias = () => {
-    setFilterOptions([]);
+    router.push(`/product/list`);
+    setFilterOptions((prevFilterCriterias) => []);
+  };
+
+  const updateURL = (key: string, value: any) => {
+    const updatedQuery = new URLSearchParams(query.toString());
+    if (key == "Danh mục") {
+      const categoryValues = query.get("category")
+        ? decodeURIComponent(query.get("category")!)!.split(",")
+        : undefined;
+      if (categoryValues) {
+        const updatedCategoryValues = categoryValues.filter(
+          (item) => item != value.id
+        );
+        if (updatedCategoryValues.length > 0) {
+          updatedQuery.set(
+            "category",
+            encodeURIComponent(updatedCategoryValues.join(","))
+          );
+        } else {
+          updatedQuery.delete("category");
+        }
+      }
+    } else {
+      updatedQuery.delete("keyword");
+    }
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
   };
 
   const removeFilterCriteria = (key: string, value: any) => {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
-    updatedFilterCriterias = updatedFilterCriterias.filter(
-      (criteria) => criteria.key !== key
+    const index = updatedFilterCriterias.findIndex(
+      (criteria) => criteria.key === key
     );
 
-    setFilterOptions(updatedFilterCriterias);
-    console.log(updatedFilterCriterias);
+    if (index !== -1) {
+      const valueFilterCriterias = updatedFilterCriterias[index].value;
+
+      if (Array.isArray(valueFilterCriterias)) {
+        updatedFilterCriterias[index].value = valueFilterCriterias.filter(
+          (criteriaValue: { id: string; label: string }) =>
+            criteriaValue.id !== value.id
+        );
+
+        if (updatedFilterCriterias[index].value.length === 0) {
+          updatedFilterCriterias.splice(index, 1);
+        }
+      } else {
+        if (valueFilterCriterias.toLowerCase() === value.toLowerCase()) {
+          updatedFilterCriterias.splice(index, 1);
+        }
+      }
+
+      setFilterOptions((prevFilterCriterias) => updatedFilterCriterias);
+      updateURL(key, value);
+    }
   };
+
+  const loadFilteredProducts = async () => {
+    const response: {
+      total: number;
+      totalPages: number;
+      products: _ProductType[];
+    } = await ProductService.getProductByFilter(filter);
+    setAllProducts(response.products);
+    setTotalProduct(response.total);
+    setTotalPages(response.totalPages);
+    setTabProducts(response.products);
+    setFilteredProducts(response.products);
+  };
+
+  // const handleFilterChange = async () => {
+  //   const updatedFilterCriterias: FilterCriteria[] = [];
+
+  //   const categoryPromises: Promise<{
+  //     id: string;
+  //     name: string;
+  //   }>[] = [];
+
+  //   if (filters.category) {
+  //     filters.category.forEach((id) => {
+  //       categoryPromises.push(
+  //         CategoryService.getCategoryById(id).then((categoryInfo) => ({
+  //           id,
+  //           name: categoryInfo.name,
+  //         }))
+  //       );
+  //     });
+  //   }
+
+  //   const categories = await Promise.all(categoryPromises);
+
+  //   if (categories.length > 0) {
+  //     updatedFilterCriterias.push({
+  //       key: "Danh mục",
+  //       value: categories,
+  //     });
+  //   }
+
+  //   if (filters.status) {
+  //     setCurrentTab(filters.status);
+  //   }
+
+  //   if (filters.keyword) {
+  //     updatedFilterCriterias.push({
+  //       key: "Tên sản phẩm",
+  //       value: filters.keyword,
+  //     });
+  //   }
+
+  //   setFilterOptions(updatedFilterCriterias);
+  // };
+
+  useEffect(() => {
+    const filterProducts = async () => {
+      const updatedQuery = new URLSearchParams(query);
+      if (currentTab == "") {
+        updatedQuery.delete("status");
+      } else {
+        updatedQuery.set("status", currentTab);
+      }
+
+      window.history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${updatedQuery.toString()}`
+      );
+
+      loadFilteredProducts();
+    };
+
+    filterProducts();
+  }, [currentTab]);
+
+  const filters: ProductFilterInput = {
+    keyword: query.get("keyword") || undefined,
+    category: query.get("category")
+      ? decodeURIComponent(query.get("category")!)!.split(",")
+      : undefined,
+    status: query.get("status") || undefined,
+    index: query.get("index") ? Number(query.get("index")) : undefined,
+    amount: query.get("amount") ? Number(query.get("amount")) : undefined,
+  };
+
+  useEffect(() => {
+    setFilter(filters);
+  }, [query]);
+
+  useEffect(() => {
+    loadFilteredProducts();
+  }, [filter]);
+
+  useEffect(() => {
+    const loadAllCategories = async () => {
+      const data: _CategoryType[] = await CategoryService.getAllCategories();
+      setAllCategories(data);
+    };
+
+    loadAllCategories();
+  }, []);
 
   return (
     <div className="pt-4 pr-4 space-y-2">
@@ -482,34 +610,15 @@ export default function ProductListPage() {
           + Tạo sản phẩm
         </Button>
       </div>
-      <Tabs type="card">
-        {tabItems.map((tab, index) => (
-          <Tabs.TabPane
-            tab={
-              <span style={{ fontWeight: "620" }}>
-                {tab.label} ({tab.number})
-              </span>
-            }
-            key={index}
-            className="mb-2"
-          >
-            <Alert
-              className="text-xs"
-              message={
-                <>
-                  <strong>{tab.label}:</strong> {tab.description}
-                </>
-              }
-              type="info"
-              showIcon
-            />
-          </Tabs.TabPane>
-        ))}
-      </Tabs>
+      <Tabs
+        type="card"
+        activeKey={currentTab}
+        onChange={(activeKey) => setCurrentTab(activeKey)}
+        items={tabItems}
+      ></Tabs>
       <div className="flex items-center">
         <Search
-          addonBefore={selectBefore}
-          placeholder={`Nhập ${searchOption}`}
+          placeholder={`Nhập tên sản phẩm`}
           style={{
             borderRadius: "5px",
             width: 800,
@@ -518,50 +627,57 @@ export default function ProductListPage() {
           type="primary"
           enterButton
           className="theme-button "
+          onChange={(e) => setSearchValue(e.target.value)}
+          value={searchValue}
         />
 
         <FilterDropdown
+          initialSelectedOptions={
+            filterOptions.find((item) => item.key === "Danh mục")?.value || []
+          }
           name={"Danh mục"}
-          options={categories}
-          onSelection={handleFilterDropdownChange}
-        />
-        <FilterDropdown
-          name={"Thương hiệu"}
-          options={brands}
+          options={allCategories.map((c) => {
+            return { id: c._id, label: c.name };
+          })}
           onSelection={handleFilterDropdownChange}
         />
       </div>
       {filterOptions.length > 0 && (
         <div className="flex items-center">
           <div className="text-sm mr-4 w-1/10">Đang lọc:</div>
-          <div className="flex flex-wrap  items-center">
+          <div className="flex flex-wrap items-center">
             {filterOptions.map((item, index) => {
               return (
                 <div
-                  // key={index}
-                  className="flex items-center  text-xs max-w-4/5 "
+                  key={index}
+                  key={index}
+                  className="flex flex-wrap items-center  text-xs max-w-4/5 "
                 >
                   {Array.isArray(item.value) ? (
-                    item.value.map((value: string, idx: number) => (
-                      <div
-                        key={index}
-                        className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
-                      >
-                        <p>
-                          {item.key}: {value}
-                        </p>
+                    item.value.map(
+                      (value: { id: string; label: string }, idx: number) => (
                         <div
-                          className=""
-                          onClick={() => removeFilterCriteria(item.key, value)}
+                          key={value.id}
+                          className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
                         >
-                          <CiCircleRemove size={15} />
+                          <p>
+                            {item.key}: {value.label}
+                          </p>
+                          <div
+                            className=""
+                            onClick={() =>
+                              removeFilterCriteria(item.key, value)
+                            }
+                          >
+                            <CiCircleRemove size={15} />
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      )
+                    )
                   ) : (
                     <div
                       key={index}
-                      className=" flex  rounded-2xl p-2 space-x-2 items-center  bg-sky-200 mx-2  my-1"
+                      className="flex flex-wrap  rounded-2xl p-2 space-x-2 items-center  bg-sky-200 mx-2  my-1"
                     >
                       <p>
                         {item.key}: {item.value}
@@ -593,45 +709,47 @@ export default function ProductListPage() {
       )}
       <Divider />
       <div className="flex">
-        <p className="font-semibold text-lg m-4">Sản phẩm: {products.length}</p>
-        <Dropdown menu={{ items: exportOptions }} placement="bottomLeft">
-          <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2 theme-button">
-            <p className="ml-2 truncate text-sm">Xuất sản phẩm</p>
-            <RiArrowDropDownLine size={20} />
-          </div>
-        </Dropdown>
+        <p className="font-semibold text-lg m-4">
+          Sản phẩm: {filteredProducts.length}
+        </p>
       </div>
       <div>
         <Table
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                () => showDrawer(record);
+              },
+            };
+          }}
+          pagination={{
+            pageSizeOptions: ["10", "5"],
+            showSizeChanger: true,
+            total: tabProducts.length,
+            // onChange: (page, pageSize) => {
+            //   fetchRecords(page, pageSize);
+            // }
+          }}
           bordered
           rowSelection={{
             type: "checkbox",
             ...rowSelection,
           }}
           columns={columns}
-          dataSource={products}
+          dataSource={filteredProducts}
           locale={{
-            emptyText: <Empty description={<span>Trống</span>} />, // Hiển thị Empty nếu không có dữ liệu
+            emptyText: <Empty description={<span>Trống</span>} />,
           }}
           className=""
         />
       </div>
-      {/* <Form form={form} component={false}>
-        <Table
-          components={{
-            body: {
-              cell: EditableCell,
-            },
-          }}
-          bordered
-          dataSource={data}
-          columns={mergedColumns}
-          rowClassName="editable-row"
-          pagination={{
-            onChange: cancel,
-          }}
+      {selectedProduct && (
+        <ProductDetail
+          product={selectedProduct}
+          onClose={onClose}
+          open={openProductDetail}
         />
-      </Form> */}
+      )}
     </div>
   );
 }
