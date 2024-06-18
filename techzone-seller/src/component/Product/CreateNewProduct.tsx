@@ -2,39 +2,189 @@ import {
   Button,
   Collapse,
   Form,
-  GetProp,
-  Image,
   Input,
   InputNumber,
-  Select,
-  Space,
   Steps,
-  Upload,
   UploadFile,
-  UploadProps,
+  UploadProps
 } from "antd";
-import TextArea from "antd/es/input/TextArea";
+
+import { Editor } from "@tinymce/tinymce-react";
 import { useState } from "react";
-import { FiMinusCircle, FiPlusCircle } from "react-icons/fi";
 
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+import { MdOutlineKeyboardBackspace } from "react-icons/md";
+import CategoryDropdown from "./CategoryDropdown";
 
-const getBase64 = (file: FileType): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
+import { ProductCreatedInput } from "@/apis/ProductAPI";
+import { _CategoryType } from "@/model/CategoryType";
+import { _ProductType } from "@/model/ProductType";
+import { ProductService } from "@/services/Product";
+import ImageUploader from "./ImageUploader";
+
+type FieldType = {
+  name: string;
+  description: string;
+  category: string[];
+  brand: string;
+  originalPrice: number;
+  finalPrice: number;
+  shop: string;
+  // status: string;
+  inventoryAmount: number;
+  images: string[];
+  attribute: {
+    key: string;
+    value: any;
+  }[];
+  sizes: string[];
+  material: string;
+  warranty: string;
+  manufacturingPlace: string;
+  color: {
+    image: string;
+    colorCode: string;
+    colorName: string;
+  }[];
+};
+
+interface CreateNewProductProps {
+  handleBack: () => void;
+  isCreating: boolean;
+  updatingProduct?: _ProductType | null;
+}
+
+const sizeOptions: SelectProps["options"] = [
+  { label: "S", value: "S" },
+  { label: "M", value: "M" },
+  { label: "L", value: "L" },
+  { label: "XL", value: "XL" },
+  { label: "2XL", value: "2XL" },
+  { label: "3XL", value: "3XL" },
+  { label: "4XL", value: "4XL" },
+];
 
 export default function CreateNewProduct() {
   const [step, setStep] = useState(0);
   const [isExpand, setIsExpand] = useState(true);
-  const [collapseActiveKeys, setCollapseActiveKeys] = useState<string[]>([
-    "1",
-    "2",
-    "3",
-  ]);
+  const [status, setStatus] = useState<string>(
+    props.updatingProduct ? props.updatingProduct.status : "AVAILABLE"
+  );
+  const [collapseActiveKeys, setCollapseActiveKeys] = useState(["1", "2", "3"]);
+  const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
+  const [colorData, setColorData] = useState<
+    { colorCode: string; colorName: string; image: string }[]
+  >([]);
+  const [coverImageIndex, setCoverImageIndex] = useState<number | null>(null);
+  const [creatingProductMessage, contextHolder] = message.useMessage();
+
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    const colorList: {
+      link: string;
+      color: { label: string; value: string };
+    }[] = colorData.map((color) => ({
+      link: color.image,
+      color: {
+        label: color.colorName,
+        value: color.colorCode,
+      },
+    }));
+
+    if (
+      coverImageIndex !== null &&
+      coverImageIndex >= 0 &&
+      coverImageIndex < imageList.length
+    ) {
+      const [selectedImage] = imageList.splice(coverImageIndex, 1);
+      imageList.unshift(selectedImage);
+    }
+
+    const createdProductData: ProductCreatedInput = {
+      shop: "",
+      name: values.name,
+      description: descriptionText,
+      category: category[0] ? category[0] : "",
+      subCategory: category[1] ? category[1] : "",
+      subCategoryType: category[2] ? category[2] : null,
+      brand: values.brand,
+      originalPrice: values.originalPrice,
+      finalPrice: values.finalPrice,
+      status: status,
+      inventoryAmount: values.inventoryAmount,
+      images: imageList,
+      attribute: {
+        colors: colorList,
+        size: values.sizes,
+        material: values.material,
+        warranty: values.warranty,
+        manufacturingPlace: values.manufacturingPlace,
+      },
+    };
+
+    if (props.isCreating) {
+      try {
+        const { status, message } = await ProductService.createProduct(
+          createdProductData
+        );
+        creatingProductMessage.open({
+          type: status === 200 ? "success" : "error",
+          content: message,
+        });
+
+        setTimeout(() => {
+          router.push("/product/list");
+        }, 500);
+      } catch (error) {
+        console.error("Error creating product:", error);
+        creatingProductMessage.open({
+          type: "error",
+          content: "Không thể tạo sản phẩm",
+        });
+      }
+    } else {
+      try {
+        const { status, message } = await ProductService.updateProduct(
+          createdProductData,
+          props.updatingProduct?._id ? props.updatingProduct._id.toString() : ""
+        );
+        creatingProductMessage.open({
+          type: status === 200 ? "success" : "error",
+          content: message,
+        });
+
+        setTimeout(() => {
+          router.push("/product/list");
+        }, 500);
+      } catch (error) {
+        console.error("Error updating product:", error);
+        creatingProductMessage.open({
+          type: "error",
+          content: "Không thể cập nhật sản phẩm",
+        });
+      }
+    }
+  };
+
+  const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
+    errorInfo
+  ) => {};
+
+  let bgColor = "";
+  switch (props.updatingProduct?.status) {
+    case "AVAILABLE":
+      bgColor = "bg-green-400";
+      break;
+    case "SOLD_OUT":
+      bgColor = "bg-red-400";
+      break;
+    case "SALE":
+      bgColor = "bg-orange-400";
+      break;
+    case "Đã tắt":
+      bgColor = "bg-gray-400";
+      break;
+    default:
+      bgColor = "bg-blue-400";
+  }
 
   const handleExpandInfo = () => {
     setIsExpand(true);
@@ -104,156 +254,303 @@ export default function CreateNewProduct() {
   ];
 
   return (
-    <div className="flex m-2 mt-6 justify-between">
-      <div className="w-3/4 bg-white rounded-lg border border-slate-300 ">
-        <Collapse
-          activeKey={collapseActiveKeys}
-          onChange={(keys) => setCollapseActiveKeys(keys)}
-        >
-          <Collapse.Panel
-            key="1"
-            header={<p className="font-bold">1. Thông tin chung</p>}
-          >
-            <div className="flex items-center space-x-1 font-semibold text-sm">
-              <div className="text-red-500 font-bold text-lg">*</div>{" "}
-              <div className="">Tên sản phẩm</div>
-            </div>
-            <Input showCount maxLength={255} />
-            <div className="mt-4 flex items-center space-x-1 font-semibold text-sm">
-              <div className="text-red-500 font-bold text-lg">*</div>{" "}
-              <div className="">Danh mục</div>
-            </div>
-            <Select
-              defaultValue="Laptop"
-              style={{ width: "100%" }}
-              onChange={handleSelectChange}
-              options={categories}
-              className=""
-            />
-            <div className="mt-4 flex items-center space-x-1 font-semibold text-sm">
-              <div className="text-red-500 font-bold text-lg">*</div>{" "}
-              <div className="">Giá</div>
-            </div>
-            <InputNumber
-              className="w-full mb-4"
-              defaultValue={1000}
-              formatter={(value) =>
-                `đ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              // parser={(value: number) => value!.replace(/\$\s?|(,*)/g, "")}
-            />
-          </Collapse.Panel>
-          <Collapse.Panel
-            key="2"
-            header={<p className="font-bold">2. Mô tả sản phẩm</p>}
-          >
-            <div className="flex items-center space-x-1 font-semibold text-sm">
-              <div className="text-red-500 font-bold text-lg">*</div>{" "}
-              <div className="">Mô tả</div>
-            </div>
-            <TextArea
-              value={descriptionText}
-              onChange={(e) => setDescriptionText(e.target.value)}
-              autoSize={{ minRows: 3, maxRows: 10 }}
-            />
-            <div className="mt-4 mb-2 flex items-center space-x-1 font-semibold text-sm">
-              Mô tả khác
-            </div>
-            <Form
-              className="items-center justify-center mx-auto"
-              name="dynamic_form_nest_item"
-              style={{ maxWidth: 600 }}
-              autoComplete="off"
+    <Form
+      form={form}
+      initialValues={{ remember: true }}
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
+      autoComplete="off"
+    >
+      <div>
+        <div className="flex items-center space-x-1">
+          <div className="" onClick={() => props.handleBack()}>
+            <MdOutlineKeyboardBackspace size={25} />
+          </div>
+          {currentProduct ? (
+            <p className="font-semibold flex space-x-2 items-center">
+              <p>{currentProduct.name}</p>
+              <p
+                className={`text-white ${bgColor} border rounded-lg p-1 text-xs`}
+              >
+                {currentProduct.status}
+              </p>
+            </p>
+          ) : (
+            <p className="font-semibold">Tạo sản phẩm mới</p>
+          )}
+        </div>
+        <div className="flex m-2 mt-6 justify-between">
+          <div className="w-3/4 bg-white rounded-lg border border-slate-300 ">
+            <Collapse
+              activeKey={collapseActiveKeys}
+              onChange={(keys) => setCollapseActiveKeys(keys as string[])}
             >
-              <Form.List name="users">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <Space
-                        key={key}
-                        style={{ display: "flex", marginBottom: 8 }}
-                        align="baseline"
-                      >
-                        <Form.Item
-                          {...restField}
-                          name={[name, "first"]}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Missing configuration label",
-                            },
-                          ]}
-                        >
-                          <Input placeholder="Label" />
-                        </Form.Item>
-                        <Form.Item
-                          {...restField}
-                          name={[name, "last"]}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Missing configuration value",
-                            },
-                          ]}
-                        >
-                          <Input placeholder="Value" />
-                        </Form.Item>
-                        <FiMinusCircle onClick={() => remove(name)} />
-                      </Space>
-                    ))}
-                    <Form.Item>
-                      <Button
-                        type="dashed"
-                        onClick={() => add()}
-                        block
-                        icon={<FiPlusCircle />}
-                      >
-                        Add field
-                      </Button>
+              <Collapse.Panel
+                key="1"
+                header={<p className="font-bold">1. Thông tin chung</p>}
+              >
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                  <div className="">Tên sản phẩm</div>
+                </div>
+                <Form.Item<FieldType>
+                  name="name"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập tên sản phẩm" },
+                  ]}
+                >
+                  <Input
+                    showCount
+                    maxLength={255}
+                    placeholder="Nhập tên sản phẩm"
+                  />
+                </Form.Item>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="">
+                    <div className="mt-2 flex items-center space-x-1 font-semibold text-sm">
+                      <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                      <div className="">Danh mục</div>
+                    </div>
+                    <Form.Item
+                      name="category"
+                      valuePropName="category"
+                      getValueFromEvent={(value: any) => {}}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn danh mục sản phẩm",
+                        },
+                      ]}
+                    >
+                      <CategoryDropdown
+                        category={category}
+                        allCategory={allCategories}
+                        prevCategory={category}
+                        setCategory={(category: string[]) => {
+                          form.setFieldValue("category", category);
+                          setCategory(category);
+                        }}
+                      />{" "}
                     </Form.Item>
-                  </>
-                )}
-              </Form.List>
-              {/* <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-              </Form.Item> */}
-            </Form>
-          </Collapse.Panel>
-          <Collapse.Panel
-            key="3"
-            header={<p className="font-bold">3. Thêm hình ảnh</p>}
-          >
-            <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
-              Tối đa 12 ảnh, cho phép loại file: .png, .jpg
-            </div>
-            <Upload
-              action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-              listType="picture-card"
-              fileList={fileList}
-              onPreview={handlePreview}
-              onChange={handleChange}
-            >
-              {fileList.length >= 8 ? null : uploadButton}
-            </Upload>
-            {previewImage && (
-              <Image
-                wrapperStyle={{ display: "none" }}
-                preview={{
-                  visible: previewOpen,
-                  onVisibleChange: (visible) => setPreviewOpen(visible),
-                  afterOpenChange: (visible) => !visible && setPreviewImage(""),
-                }}
-                src={previewImage}
-              />
-            )}
-          </Collapse.Panel>
-        </Collapse>
-        <div className=" flex flex-row-reverse space-x-2 p-4">
-          <Button type="primary" className="bg-theme mx-2">
-            Tạo mới
-          </Button>
+                  </div>
+                  <div className="">
+                    <div className="mt-2 flex items-center space-x-1 font-semibold text-sm">
+                      <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                      <div className="">Thương hiệu</div>
+                    </div>
+                    <Form.Item<FieldType>
+                      name="brand"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập thương hiệu",
+                        },
+                      ]}
+                    >
+                      <Input placeholder="Celine" />
+                    </Form.Item>
+                  </div>
+
+                  <div className="">
+                    <div className="mt-2 flex items-center space-x-1 font-semibold text-sm">
+                      <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                      <div className="">Giá ban đầu</div>
+                    </div>
+                    <Form.Item<FieldType>
+                      name="originalPrice"
+                      initialValue={200000}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập giá ban đầu",
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full mb-4"
+                        defaultValue={200000}
+                        step={1000}
+                        formatter={(value) =>
+                          `đ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                      />
+                    </Form.Item>
+                  </div>
+
+                  <div className="">
+                    <div className="mt-2 flex items-center space-x-1 font-semibold text-sm">
+                      <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                      <div className="">Giá sau khi giảm giá</div>
+                    </div>
+                    <Form.Item<FieldType>
+                      name="finalPrice"
+                      initialValue={100000}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập giá sau khi giảm giá",
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full mb-4"
+                        defaultValue={100000}
+                        step={1000}
+                        formatter={(value) =>
+                          `đ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                      />
+                    </Form.Item>
+                  </div>
+                  <div className="">
+                    <div className="mt-2 flex items-center space-x-1 font-semibold text-sm">
+                      <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                      <div className="">Số lượng hàng trong kho</div>
+                    </div>
+                    <Form.Item<FieldType>
+                      name="inventoryAmount"
+                      initialValue={100}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập số lượng hàng trong kho",
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full mb-4"
+                        defaultValue={100}
+                        formatter={(value) =>
+                          ` ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <Collapse
+                  items={otherInfo}
+                  defaultActiveKey={["1"]}
+                  className="mt-2"
+                />
+              </Collapse.Panel>
+
+              <Collapse.Panel
+                key="2"
+                header={<p className="font-bold">2. Mô tả sản phẩm</p>}
+              >
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold text-lg">*</div>{" "}
+                  <div className="">Mô tả</div>
+                </div>
+                <Form.Item<FieldType>
+                  name="description"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập mô tả sản phẩm" },
+                  ]}
+                >
+                  <Editor
+                    onEditorChange={(content, editor) => {
+                      setDescriptionText(content);
+                    }}
+                    apiKey="z34ywiojqhkcw0gkzqfv1wf2cvba4graf9pk4w88ttj0tqd4"
+                    // onInit={(_evt, editor) => (editorRef.current = editor)}
+                    initialValue="<p>Thêm mô tả sản phẩm ở đây</p>"
+                    init={{
+                      height: 500,
+                      menubar: true,
+                      plugins: [
+                        "advlist",
+                        "autolink",
+                        "lists",
+                        "link",
+                        "image",
+                        "charmap",
+                        "preview",
+                        "anchor",
+                        "searchreplace",
+                        "visualblocks",
+                        "code",
+                        "fullscreen",
+                        "insertdatetime",
+                        "media",
+                        "table",
+                        "code",
+                        "help",
+                        "wordcount",
+                      ],
+                      toolbar:
+                        "undo redo | blocks | " +
+                        "bold italic forecolor | alignleft aligncenter " +
+                        "alignright alignjustify | bullist numlist outdent indent | " +
+                        "removeformat | help" +
+                        "removeformat | help | table" +
+                        "image",
+                      image_list: [
+                        {
+                          title: "My image 1",
+                          value: "https://www.example.com/my1.gif",
+                        },
+                        {
+                          title: "My image 2",
+                          value: "http://www.moxiecode.com/my2.gif",
+                        },
+                      ],
+                      content_style:
+                        "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                    }}
+                  />
+                </Form.Item>
+              </Collapse.Panel>
+              <Collapse.Panel
+                key="3"
+                header={<p className="font-bold">3. Thêm hình ảnh</p>}
+              >
+                <div className="flex  space-x-1 font-semibold ">
+                  <div className="text-red-500 font-bold text-sm">*</div>{" "}
+                  <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
+                    Tối đa 12 ảnh, cho phép loại file: .png, .jpg. <hr />
+                    Tick vào ô hình ảnh để đặt ảnh bìa (mặc định ảnh đầu tiên)
+                  </div>
+                </div>
+
+                <Form.Item<FieldType>
+                  name="images"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng tải lên ít nhất 1 ảnh",
+                    },
+                  ]}
+                >
+                  <ImageUploader
+                    fileUrls={imageList}
+                    setFileString={(images: string[]) => {
+                      form.setFieldValue("images", images);
+                      setImageList(images);
+                    }}
+                    setCoverImageIndex={setCoverImageIndex}
+                    maxNumber={12}
+                    minNumber={1}
+                  />
+                </Form.Item>
+              </Collapse.Panel>
+            </Collapse>
+            <div className="flex flex-row-reverse space-x-2 p-4">
+              {props.isCreating ? (
+                <div>
+                  <Button
+                    type="primary"
+                    className="bg-theme mx-2"
+                    // htmlType="submit"
+                    onClick={() => {
+                      setStatus("AVAILABLE");
+                      form.submit();
+                    }}
+                  >
+                    Tạo mới
+                  </Button>
 
           <Button className="border-cyan-500 text-cyan-500">Lưu nháp</Button>
           <Button>Hủy</Button>
