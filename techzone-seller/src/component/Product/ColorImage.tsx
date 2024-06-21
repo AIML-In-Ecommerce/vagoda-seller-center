@@ -1,85 +1,45 @@
+import { UploadService } from "@/services/Upload";
 import type { GetProp, UploadFile, UploadProps } from "antd";
-import { Upload } from "antd";
+import { ConfigProvider, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
-import axios from "axios";
 import FormData from "form-data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { BsPersonBoundingBox } from "react-icons/bs";
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 interface ColorImageProps {
+  initialUrl: string | null;
   setFileString: (fileString: string) => void;
   maxNumber: number;
+  isDisplayLarge: boolean;
 }
 
 export default function ColorImage(props: ColorImageProps) {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  // const onChange: UploadProps["onChange"] = async ({
-  //   fileList: newFileList,
-  // }) => {
-  //   if (newFileList.length > 0 && newFileList[0].originFileObj) {
-  //     const file = newFileList[0].originFileObj as File;
-  //     const formData = new FormData();
+  const uploadStyle = props.isDisplayLarge ? { width: 260, height: 260 } : {};
 
-  //     formData.append("image", file);
-
-  //     try {
-  //       const response = await axios.post(
-  //         "http://14.225.218.109:3010/upload",
-
-  //         formData,
-  //         {
-  //           headers: {
-  //             "Content-Type": "multipart/form-data",
-  //           },
-  //         }
-  //       );
-  //       console.log("RESULT", response);
-  //       if (response.status === 200) {
-  //         const imageUrl = response.data.data.path;
-  //         console.log("Image URL: " + imageUrl);
-  //         props.setFileString(imageUrl);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error uploading image");
-  //     }
-  //   }
-  //   setFileList(newFileList);
-  // };
-
-  const onChange: UploadProps["onChange"] = async ({
-    fileList: newFileList,
-  }) => {
-    if (newFileList.length > 0 && newFileList[0].originFileObj) {
+  const onChange: UploadProps["onChange"] = async (value: any) => {
+    const { fileList: newFileList } = value;
+    if (
+      (newFileList.length > 0 && newFileList[0].originFileObj) ||
+      fileList.length < newFileList.length
+    ) {
       const file = newFileList[0].originFileObj as File;
       const formData = new FormData();
       formData.append("image", file);
 
-      try {
-        const response = await axios.post(
-          "http://14.225.218.109:3010/upload",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+      const imageUrl = await UploadService.getURLImage(formData);
 
-        if (response.status === 200) {
-          const imageUrl = response.data.data.path;
-          props.setFileString(imageUrl);
+      const updatedFile = {
+        ...newFileList[0],
+        status: "done",
+        url: imageUrl,
+      };
 
-          const updatedFile = {
-            ...newFileList[0],
-            status: "done",
-            url: imageUrl,
-          };
-
-          setFileList([updatedFile] as UploadFile[]);
-        }
-      } catch (error) {
-        console.error("Error uploading image", error);
+      if (imageUrl) {
+        props.setFileString(imageUrl);
+        setFileList([updatedFile] as UploadFile[]);
       }
     } else {
       setFileList(newFileList);
@@ -101,31 +61,110 @@ export default function ColorImage(props: ColorImageProps) {
     imgWindow?.document.write(image.outerHTML);
   };
 
-  const getBase64 = (file: FileType): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
+  const handleModalOk = async (value: any) => {
+    if (value) {
+      const file = value as File;
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const imageUrl = await UploadService.getURLImage(formData);
+
+      const updatedFile = {
+        ...value,
+        status: "done",
+        url: imageUrl,
+      };
+
+      if (imageUrl) {
+        props.setFileString(imageUrl);
+        setFileList([updatedFile] as UploadFile[]);
+      }
+    } else {
+      setFileList([value]);
+    }
+  };
+
+  useEffect(() => {
+    // Initialize fileList with existing file URLs
+    if (props.initialUrl) {
+      const initialFile = {
+        uid: props.initialUrl,
+        name: `image-${props.initialUrl}`,
+        status: "done",
+        url: props.initialUrl,
+      };
+      setFileList([initialFile] as UploadFile[]);
+    }
+  }, [props.initialUrl]);
 
   return (
-    <ImgCrop
-      rotationSlider
-      quality={1}
-      showGrid
-      showReset
-      modalTitle={"Chỉnh sửa ảnh"}
-    >
-      <Upload
-        listType="picture-card"
-        fileList={fileList}
-        onChange={onChange}
-        onPreview={onPreview}
-        maxCount={props.maxNumber}
+    <div>
+      <ImgCrop
+        rotationSlider
+        quality={1}
+        showGrid
+        showReset
+        modalTitle={"Chỉnh sửa ảnh"}
+        onModalOk={handleModalOk}
       >
-        {fileList.length < props.maxNumber && "+ Upload"}
-      </Upload>
-    </ImgCrop>
+        <ConfigProvider
+          theme={
+            props.isDisplayLarge
+              ? {
+                  token: {
+                    colorFillAlter: "rgba(25,24,25, 0.58)",
+                    lineWidth: 2,
+                    paddingXS: 0,
+                    borderRadiusXS: 8,
+                    borderRadiusOuter: 8,
+                    colorBorder: "#fdfdfd94",
+                    colorPrimaryHover: "rgba(25,24,25, 0.58)",
+                    colorBgMask: "rgba(25,24,25, 0.58)",
+                    colorPrimary: "rgba(25,24,25, 0.58)",
+                    fontSize: 16,
+
+                    controlHeightLG: 100,
+                  },
+                }
+              : {}
+          }
+        >
+          <Upload
+            listType="picture-card"
+            fileList={fileList}
+            onChange={onChange}
+            onPreview={onPreview}
+            maxCount={props.maxNumber}
+            itemRender={(originNode, file) => (
+              <div
+                style={{
+                  ...uploadStyle,
+                  borderRadius: "5%",
+                  overflow: "hidden",
+                  padding: 0,
+                }}
+              >
+                {originNode}
+              </div>
+            )}
+            style={{ padding: 0 }}
+          >
+            {fileList.length < props.maxNumber &&
+              (props.isDisplayLarge ? (
+                <div className="flex flex-col items-center justify-center mx-auto space-y-2">
+                  <div className="text-white">
+                    <BsPersonBoundingBox size={100} />
+                  </div>
+                  <p className="italic text-white text-xs">
+                    Bấm để tải ảnh sản phẩm lên
+                  </p>
+                </div>
+              ) : (
+                "+ Tải lên"
+              ))}
+          </Upload>
+        </ConfigProvider>
+      </ImgCrop>
+    </div>
   );
 }

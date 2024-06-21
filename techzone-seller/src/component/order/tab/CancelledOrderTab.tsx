@@ -1,18 +1,21 @@
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
 import { OrderPropType } from "@/model/OrderPropType"
 import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { BiInfoCircle } from "react-icons/bi"
 import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool"
 import { TableRowSelection } from "antd/es/table/interface"
 import OrderDetailDrawer from "../util/OrderDetailDrawer"
 import { CancelledOrderPoolSetting } from "@/component_config/order/filter_pool/CancelledOrderPoolSetting"
+import { AuthContext } from "@/context/AuthContext"
 
 
 
 interface CancelledOrderTabProp
 {
-    dataSource: OrderPropType[]
+    tabKey: string,
+    dataSource: OrderPropType[],
+    askToRefreshData: (tabKey: string) => void
 }
 
 enum StatusType
@@ -27,6 +30,12 @@ interface DisplayStatus
     type: StatusType
 }
 
+interface CoordinateInOrder
+{
+    lng: number,
+    lat: number
+}
+
 interface CancelledOrder
 {
     key: string,
@@ -36,11 +45,7 @@ interface CancelledOrder
         receiverName: string,
         address: string,
         phoneNumber: string,
-        coordinate:
-        {
-            lng: number,
-            lat: number
-        },
+        coordinate: CoordinateInOrder | null,
         label: string,
         isDefault: boolean
     }
@@ -81,7 +86,7 @@ const OrderTimeTooltip =
 
 const filterPoolSetting = CancelledOrderPoolSetting
 
-export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
+export default function CancelledOrderTab({tabKey, dataSource, askToRefreshData}: CancelledOrderTabProp)
 {
     const cancelledTabFilterPoolKey = "cancelled-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
@@ -94,6 +99,7 @@ export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
 
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
+    const authContext = useContext(AuthContext)
 
     const dataColumns: TableColumnType<CancelledOrder>[] = 
     [
@@ -250,10 +256,14 @@ export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
 
     useEffect(() =>
     {
+        if(data.length == 0)
+        {
+            setDataToDisplay([])
+        }
         const display = data.map((value: OrderPropType) =>
         {
             let totalProducts = 0;
-            value.product.forEach((selection) =>
+            value.products.forEach((selection) =>
             {
                 totalProducts += selection.quantity
             })
@@ -263,12 +273,11 @@ export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
                 name: "Đang chờ",
                 type: StatusType.PENDING
             }
-            const today = Date.now()
+            const today = new Date()
 
-            const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
+            const deadlineTime = value.orderStatus[value.orderStatus.length - 1].deadline
 
-
-            if(today > time)
+            if(today > deadlineTime)
             {
                 orderStatus =
                 {
@@ -282,15 +291,12 @@ export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
                 key: value._id,
                 status: orderStatus,
                 delivery: {
-                    receiverName: value.address.receiverName,
-                    address: value.address.address,
-                    phoneNumber: value.address.phoneNumber,
-                    coordinate: {
-                        lng: value.address.coordinate.lng,
-                        lat: value.address.coordinate.lat
-                    },
-                    label: value.address.label,
-                    isDefault: value.address.isDefault
+                    receiverName: value.shippingAddress.receiverName,
+                    address: value.shippingAddress.street,
+                    phoneNumber: value.shippingAddress.phoneNumber,
+                    coordinate: value.shippingAddress.coordinate,
+                    label: value.shippingAddress.label,
+                    isDefault: value.shippingAddress.isDefault
                 },
                 time: {
                     orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
@@ -298,9 +304,9 @@ export default function CancelledOrderTab({dataSource}: CancelledOrderTabProp)
                 },
                 price: {
                     totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.totalPrice.shipping),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice.total),
-                    profit: currencyFormater(MyLocaleRef.VN, value.totalPrice.profit)
+                    shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                    profit: currencyFormater(MyLocaleRef.VN, value.profit)
                 }
             }
 

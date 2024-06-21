@@ -3,17 +3,21 @@
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
 import { OrderPropType } from "@/model/OrderPropType"
 import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { BiInfoCircle } from "react-icons/bi"
 import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool"
 import { TableRowSelection } from "antd/es/table/interface"
 import OrderDetailDrawer from "../util/OrderDetailDrawer"
 import { ShippingOrderPoolSetting } from "@/component_config/order/filter_pool/ShippingOrderPoolSetting"
+import { AuthContext } from "@/context/AuthContext"
+import OrderService from "@/services/order.service"
 
 
 interface ShippingOrderTabProps
 {
-    dataSource: OrderPropType[]
+    tabKey: string,
+    dataSource: OrderPropType[],
+    askToRefreshData: (tabKey: string) => void
 }
 
 enum StatusType
@@ -28,6 +32,12 @@ interface DisplayStatus
     type: StatusType
 }
 
+interface CoordinateInOrder
+{
+    lng: number,
+    lat: number
+}
+
 interface ShippingOrder
 {
     key: string,
@@ -37,11 +47,7 @@ interface ShippingOrder
         receiverName: string,
         address: string,
         phoneNumber: string,
-        coordinate:
-        {
-            lng: number,
-            lat: number
-        },
+        coordinate: CoordinateInOrder | null,
         label: string,
         isDefault: boolean
     }
@@ -79,7 +85,7 @@ const OrderTimeTooltip =
     </Typography.Text>
 </Flex>
 
-export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
+export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}: ShippingOrderTabProps)
 {
     const shippingTabFilterPoolKey = "shipping-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
@@ -91,6 +97,8 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
     const [orderDetailOpen, setOrderDetailOpen] = useState<boolean>(false) 
 
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
+
+    const authContext = useContext(AuthContext)
 
     const dataColumns: TableColumnType<ShippingOrder>[] = 
     [
@@ -247,10 +255,14 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 
     useEffect(() =>
     {
+        if(data.length == 0)
+        {
+            setDataToDisplay([])
+        }
         const display = data.map((value: OrderPropType) =>
         {
             let totalProducts = 0;
-            value.product.forEach((selection) =>
+            value.products.forEach((selection) =>
             {
                 totalProducts += selection.quantity
             })
@@ -260,34 +272,18 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
                 name: "Đang chờ",
                 type: StatusType.PENDING
             }
-            // const today = Date.now()
-
-            // const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
-
-
-            // if(today > time)
-            // {
-            //     orderStatus =
-            //     {
-            //         name: "Đang chờ và đã quá hạn",
-            //         type: StatusType.EXPIRED
-            //     }
-            // }
 
             const item: ShippingOrder =
             {
                 key: value._id,
                 status: orderStatus,
                 delivery: {
-                    receiverName: value.address.receiverName,
-                    address: value.address.address,
-                    phoneNumber: value.address.phoneNumber,
-                    coordinate: {
-                        lng: value.address.coordinate.lng,
-                        lat: value.address.coordinate.lat
-                    },
-                    label: value.address.label,
-                    isDefault: value.address.isDefault
+                    receiverName: value.shippingAddress.receiverName,
+                    address: value.shippingAddress.street,
+                    phoneNumber: value.shippingAddress.phoneNumber,
+                    coordinate: value.shippingAddress.coordinate,
+                    label: value.shippingAddress.label,
+                    isDefault: value.shippingAddress.isDefault
                 },
                 time: {
                     orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
@@ -295,9 +291,9 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
                 },
                 price: {
                     totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.totalPrice.shipping),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice.total),
-                    profit: currencyFormater(MyLocaleRef.VN, value.totalPrice.profit)
+                    shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                    profit: currencyFormater(MyLocaleRef.VN, value.profit)
                 }
             }
 
@@ -335,16 +331,60 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
         setOrderDetailOpen(false)
     }
 
-    function handleConfirmOrderOnClick(params: any)
+    async function handleConfirmOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.methods == null)
+        {
+            return
+        }
+        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
+        if(isRefreshedSuccessfully == false)
+        {
+            authContext.methods.forceSignIn()
+        }
+        else
+        {
+            const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.methods.getAccessToken() as string,
+            targetOrderId)
+            if(isUpdateSuccessfully == null)
+            {
+                authContext.methods.forceSignIn()
+            }
+            else if(isUpdateSuccessfully == true)
+            {
+                askToRefreshData(tabKey)
+            }
+        }
     }
 
-    function handleCancelOrderOnClick(params: any)
+    async function handleCancelOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.methods == null)
+        {
+            return
+        }
+        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
+        if(isRefreshedSuccessfully == false)
+        {
+            authContext.methods.forceSignIn()
+        }
+        else
+        {
+            const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.methods.getAccessToken() as string,
+            targetOrderId)
+            if(isUpdateSuccessfully == null)
+            {
+                authContext.methods.forceSignIn()
+            }
+            else if(isUpdateSuccessfully == true)
+            {
+                askToRefreshData(tabKey)
+            }
+        }
     }
 
     function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: ShippingOrder[])
@@ -357,11 +397,30 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
         setSelectedOrderIds(selectedOrderIds)
     }
 
-    function handleConfirmManyOrder(soids: string[])
+    async function handleConfirmManyOrder(soids: string[])
     {
-        console.log(soids)
-
-        //TODO: call api to update order status here
+        if(authContext.methods == null)
+            {
+                return
+            }
+            //TODO: call api to update order status here
+            const isRefreshedSuccessfully = await authContext.methods.refreshToken()
+            if(isRefreshedSuccessfully == false)
+            {
+                authContext.methods.forceSignIn()
+            }
+            else
+            {
+                const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.methods.getAccessToken() as string, soids)
+                if(isUpdateSuccessfully == null)
+                {
+                    authContext.methods.forceSignIn()
+                }
+                else if(isUpdateSuccessfully == true)
+                {
+                    askToRefreshData(tabKey)
+                }
+            }
     }
 
     const rowSelection: TableRowSelection<ShippingOrder> = 

@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useEffect, useMemo, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { createContext, useMemo, useState } from "react";
+import { Socket } from "socket.io-client";
 
 const URL: string =
   process.env.NODE_ENV == "development"

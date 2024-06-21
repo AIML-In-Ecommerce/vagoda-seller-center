@@ -92,14 +92,49 @@ export const ProductService = {
 
       if (response.data) {
         const formatedData: { status: number; message: string } = response;
-        return formatedData;
+        return {
+          status: formatedData.status,
+          message: "Tạo sản phẩm thành công",
+        };
       }
 
       return { status: 500, message: "Không thể tạo sản phẩm" };
     } catch (error) {
-      console.log("@SERVICE_deleteProductById: ", error);
+      console.log("@SERVICE_createProduct: ", error);
 
       return { status: 500, message: "Không thể tạo sản phẩm" };
+    }
+  },
+  updateProduct: async (
+    input: ProductCreatedInput,
+    product_id: string
+  ): Promise<{
+    status: number;
+    message: string;
+  }> => {
+    try {
+      console.log("IDDD", product_id);
+      const response: any = await ProductAPI.updateProduct(
+        {
+          ...input,
+          shop: "65f1e8bbc4e39014df775166",
+        },
+        product_id
+      );
+
+      if (response.data) {
+        const formatedData: { status: number; message: string } = response;
+        return {
+          status: formatedData.status,
+          message: "Cập nhật sản phẩm thành công",
+        };
+      }
+
+      return { status: 500, message: "Không thể cập nhật sản phẩm" };
+    } catch (error) {
+      console.log("@SERVICE_updateProductById: ", error);
+
+      return { status: 500, message: "Không thể cập nhật sản phẩm" };
     }
   },
 };

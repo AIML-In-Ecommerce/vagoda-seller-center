@@ -10,10 +10,10 @@ interface Option {
 }
 
 interface CategoryDropdownProps {
+  category: string[];
   prevCategory: string[];
   setCategory: (category: string[]) => void;
   allCategory: _CategoryType[];
-  getValueProps?: (value: any) => any;
 }
 type DefaultOptionType = GetProp<CascaderProps, "options">[number];
 
@@ -34,39 +34,32 @@ function convertToOptions(categories: _CategoryType[]): Option[] {
 
 export default function CategoryDropdown(props: CategoryDropdownProps) {
   const [options, setOptions] = useState<Option[]>([]);
-  const [categoryLine, setCategoryLine] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string[]>(
     props.prevCategory
   );
-  const valueProps = props.getValueProps
-    ? props.getValueProps(selectedCategory)
-    : {};
 
-  const [previousValue, setPreviousValue] = useState<string | number | null>(
-    null
-  );
-
+  // useEffect(() => {
+  //   setOptions(convertToOptions(props.allCategory));
+  // }, [props.allCategory]);
   useEffect(() => {
     setOptions(convertToOptions(props.allCategory));
   }, [props.allCategory]);
+
+  useEffect(() => {
+    setSelectedCategory(props.category);
+  }, [props.category]);
 
   const onChange: CascaderProps<Option>["onChange"] = (
     value: any,
     selectedOptions: Option[] | undefined
   ) => {
-    console.log("CHANGE", value, selectedOptions);
     if (selectedOptions && selectedOptions.length > 0) {
-      const selectedLabels = selectedOptions
-        .map((option) => option.label)
-        .join(" / ");
-      setCategoryLine(selectedLabels);
-
       setSelectedCategory(value);
       console.log("Selected", value);
     } else {
-      setCategoryLine(null);
+      // setCategoryLine(null);
     }
-    setPreviousValue(value); // Lưu giá trị trước khi thay đổi
+
     props.setCategory(value);
   };
 
@@ -84,12 +77,6 @@ export default function CategoryDropdown(props: CategoryDropdownProps) {
       <Divider style={{ margin: 0 }} />
       {menus}
       <Divider style={{ margin: 0 }} />
-      {/* <div className="flex space-x-2 my-2">
-        <div className="font-semibold">Đang chọn: </div>
-        <div className="text-sky-500">
-          {categoryLine ? categoryLine : "---"}
-        </div>
-      </div> */}
     </div>
   );
 
