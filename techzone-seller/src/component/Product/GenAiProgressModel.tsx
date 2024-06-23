@@ -3,25 +3,18 @@ import { Button, Image } from "antd";
 import React, { useEffect, useState } from "react";
 import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
-interface GenAiResultModalProps {
+interface GenAiProgressModalProps {
   onClose: () => void;
   imageUrl: string;
 }
 
-const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
+const GenAiProgressModal: React.FC<GenAiProgressModalProps> = ({
   onClose,
   imageUrl,
 }) => {
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [isRunning, setIsRunning] = useState<boolean>(true);
   const [imageLink, setImageLink] = useState<string>(imageUrl);
-
-  useEffect(() => {
-    setImageLink(
-      "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg",
-    );
-  }, []);
-
-  console.log("result");
+  console.log("In progress");
 
   return (
     <div
@@ -74,4 +67,4 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   );
 };
 
-export default GenAiResultModal;
+export default GenAiProgressModal;

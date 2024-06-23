@@ -7,6 +7,10 @@ import { useRef, useState } from "react";
 import { FaMagic } from "react-icons/fa";
 import { HiOutlineHome } from "react-icons/hi2";
 import "./local.css";
+import axios from "axios";
+import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
+
+type Status = "FORM" | "IN_PROGRESS" | "COMPLETED";
 
 const imgList = [
   "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg",
@@ -30,15 +34,71 @@ const ImageCollection = () => {
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
+  const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
 
   const handleFormSubmit = async (values: any) => {
-    console.log("Form submitted:", values);
-    const imageUrl = "URL_ẢNH_TẠO_BỞI_AI";
-    setGeneratedImageUrl(imageUrl);
+    setGenAiStatus("IN_PROGRESS");
+    console.log("Value: ", values);
+    const promptTemplate = `hyperdetailed photography, soft light, head portrait, (white background:13, skin details, sharp and in focus,\n${values.gender} ${values.nationality} student,\n${values.bodyShape} body shape,\n${values.skinColor} skin,\n${values.hairColor} ${values.hairStyle},\nbig ${values.eyesColor} eyes,\nhigh nose,\nslim,\ncute,\nbeautiful`;
+    const contextTemplate = `${values.gender} is wearing ${values.clothType} and ${values.posture} in ${values.background}`;
+    const postBody = {
+      prompt: promptTemplate,
+      context: contextTemplate,
+      garmentImgUrl: values.imageLink,
+    };
+
+    setTimeout(() => setGenAiStatus("COMPLETED"), 3000);
+
+    // try {
+    //   console.log("Post body:  ", postBody);
+    //   const response = await axios.post(
+    //     "http://localhost:8000/genai/generate-product-image",
+    //     postBody,
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //     },
+    //   );
+
+    //   if (response.status == 200) {
+    //     console.log("Response: ", response);
+    //     const imageUrl = response.data.genaiProductImage;
+    //     setGeneratedImageUrl(imageUrl);
+    //   }
+    // } catch (error) {
+    //   console.error("Error fetching generate product image:", error);
+    // }
   };
 
   const openPreview = (image: string) => {
     setPreviewImage(image);
+  };
+
+  const renderModal = () => {
+    switch (genAiStatus) {
+      case "FORM":
+        return (
+          <GenAiFormModal
+            onClose={() => setIsFormVisible(false)}
+            onSubmit={handleFormSubmit}
+          />
+        );
+      case "IN_PROGRESS":
+        return (
+          <GenAiProgressModal
+            onClose={() => setIsFormVisible(true)}
+            imageUrl={generatedImageUrl}
+          />
+        );
+      case "COMPLETED":
+        return (
+          <GenAiResultModal
+            onClose={() => setIsFormVisible(true)}
+            imageUrl={generatedImageUrl}
+          />
+        );
+    }
   };
 
   return (
@@ -109,11 +169,11 @@ const ImageCollection = () => {
           width={900}
           onCancel={() => {
             setGenAiModalOpen(false);
-            setIsFormVisible(true);
+            // setIsFormVisible(true);
           }}
           footer={null}
         >
-          {isFormVisible ? (
+          {/* {isFormVisible ? (
             <GenAiFormModal
               onClose={() => setIsFormVisible(false)}
               onSubmit={handleFormSubmit}
@@ -123,7 +183,8 @@ const ImageCollection = () => {
               onClose={() => setIsFormVisible(true)}
               imageUrl={generatedImageUrl}
             />
-          )}
+          )} */}
+          {renderModal()}
         </Modal>
       )}
     </div>
