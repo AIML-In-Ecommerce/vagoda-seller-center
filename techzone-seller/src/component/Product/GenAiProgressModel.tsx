@@ -8,12 +8,7 @@ interface GenAiProgressModalProps {
   imageUrl: string;
 }
 
-const GenAiProgressModal: React.FC<GenAiProgressModalProps> = ({
-  onClose,
-  imageUrl,
-}) => {
-  const [isRunning, setIsRunning] = useState<boolean>(true);
-  const [imageLink, setImageLink] = useState<string>(imageUrl);
+const GenAiProgressModal: React.FC = () => {
   console.log("In progress");
 
   return (
@@ -33,36 +28,11 @@ const GenAiProgressModal: React.FC<GenAiProgressModalProps> = ({
           Chức năng tạo hình ảnh sản phẩm bằng AI
         </p>
       </div>
-      {isRunning ? (
-        <div className=" flex  w-full h-full justify-center items-center my-auto">
-          <span className="loader"></span>
-          <span className="text-loader text-xl">Chờ xíu nhé</span>
-        </div>
-      ) : (
-        <div className="space-y-2  flex flex-col justify-center items-center">
-          <div className="rounded-lg overflow-hidden">
-            <Image height={320} width={320} src={imageLink} />
-          </div>
 
-          <div className="flex justify-center w-full space-x-2 ">
-            <Button
-              type="primary"
-              className="bg-slate-400 "
-              style={{ width: "20%" }}
-              onClick={() => onClose()}
-            >
-              Tạo lại
-            </Button>
-            <Button
-              type="primary"
-              className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
-              style={{ width: "20%" }}
-            >
-              Lưu vào bộ sưu tập
-            </Button>
-          </div>
-        </div>
-      )}
+      <div className=" flex  w-full h-full justify-center items-center my-auto">
+        <span className="loader"></span>
+        <span className="text-loader text-xl">Chờ xíu nhé</span>
+      </div>
     </div>
   );
 };

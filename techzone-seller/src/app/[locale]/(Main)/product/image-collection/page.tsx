@@ -23,6 +23,15 @@ const imgList = [
   "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716347947/master_living_room_fjwzlm.png",
 ];
 
+const mockResponse = {
+  prompt:
+    "hyperdetailed photography, soft light, head portrait, (white background:13, skin details, sharp and in focus,",
+  context: "men is wearing shirt and standing in coffee shop",
+  genaiProductImage: [
+    "https://replicate.delivery/pbxt/6i9Pee4fj2fKfiUOJK5NVRC7BRdpOhhWkBSUCrJETV2X4hNYC/ComfyUI_00001_.webp",
+  ],
+};
+
 // interface ImageGridProps {
 //   imgList: string[];
 // }
@@ -47,28 +56,27 @@ const ImageCollection = () => {
       garmentImgUrl: values.imageLink,
     };
 
-    setTimeout(() => setGenAiStatus("COMPLETED"), 3000);
+    try {
+      console.log("Post body:  ", postBody);
+      const response = await axios.post(
+        "http://localhost:8000/genai/generate-product-image",
+        postBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
 
-    // try {
-    //   console.log("Post body:  ", postBody);
-    //   const response = await axios.post(
-    //     "http://localhost:8000/genai/generate-product-image",
-    //     postBody,
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     },
-    //   );
-
-    //   if (response.status == 200) {
-    //     console.log("Response: ", response);
-    //     const imageUrl = response.data.genaiProductImage;
-    //     setGeneratedImageUrl(imageUrl);
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching generate product image:", error);
-    // }
+      if (response.status == 200) {
+        console.log("Response: ", response);
+        const imageUrl = response.data.data.genaiProductImage[0];
+        setGeneratedImageUrl(imageUrl);
+        setGenAiStatus("COMPLETED");
+      }
+    } catch (error) {
+      console.error("Error fetching generate product image:", error);
+    }
   };
 
   const openPreview = (image: string) => {
@@ -85,16 +93,11 @@ const ImageCollection = () => {
           />
         );
       case "IN_PROGRESS":
-        return (
-          <GenAiProgressModal
-            onClose={() => setIsFormVisible(true)}
-            imageUrl={generatedImageUrl}
-          />
-        );
+        return <GenAiProgressModal />;
       case "COMPLETED":
         return (
           <GenAiResultModal
-            onClose={() => setIsFormVisible(true)}
+            tryAgainFnc={() => setGenAiStatus("FORM")}
             imageUrl={generatedImageUrl}
           />
         );
