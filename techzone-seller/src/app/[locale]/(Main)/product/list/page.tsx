@@ -14,7 +14,6 @@ import {
   Breadcrumb,
   Button,
   Divider,
-  Dropdown,
   Empty,
   Input,
   MenuProps,
@@ -32,7 +31,7 @@ import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { CiCircleRemove } from "react-icons/ci";
 import { HiOutlineHome, HiOutlineInformationCircle } from "react-icons/hi2";
-import { RiArrowDropDownLine, RiDeleteBinLine } from "react-icons/ri";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 export interface FilterCriteria {
   key: string;
@@ -59,13 +58,7 @@ export interface ProductType {
 }
 
 const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      "selectedRows: ",
-      selectedRows
-    );
-  },
+  onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {},
   getCheckboxProps: (record: _ProductType) => ({
     disabled: record.name === "Disabled User",
     name: record.name,
@@ -95,7 +88,7 @@ export default function ProductListPage() {
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
-    null
+    null,
   );
   const [tabProducts, setTabProducts] = useState<_ProductType[]>([]);
   const [totalProduct, setTotalProduct] = useState(0);
@@ -236,11 +229,10 @@ export default function ProductListPage() {
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string
+    key: string,
   ) => {
-    console.log("CHECKING", value, key);
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
+      (option) => option.key !== key,
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -250,8 +242,6 @@ export default function ProductListPage() {
 
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
-
-    console.log("Filter", updatedFilterOptions);
   };
 
   const columns = [
@@ -264,11 +254,11 @@ export default function ProductListPage() {
           onClick={() => showDrawer(record)}
         >
           <img
-            src={record.images[0]}
+            src={record.images ? record.images[0] : ""}
             alt={text}
             style={{ marginRight: "8px", width: "32px", height: "32px" }}
           />
-          {text}
+          {text ? text : ""}
         </a>
       ),
       width: "30%",
@@ -411,7 +401,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -426,7 +416,6 @@ export default function ProductListPage() {
   };
 
   const updateURL = (key: string, value: any) => {
-    console.log("UPDATE", key, value);
     const updatedQuery = new URLSearchParams(query.toString());
     if (key == "Danh mục") {
       const categoryValues = query.get("category")
@@ -434,12 +423,12 @@ export default function ProductListPage() {
         : undefined;
       if (categoryValues) {
         const updatedCategoryValues = categoryValues.filter(
-          (item) => item != value.id
+          (item) => item != value.id,
         );
         if (updatedCategoryValues.length > 0) {
           updatedQuery.set(
             "category",
-            encodeURIComponent(updatedCategoryValues.join(","))
+            encodeURIComponent(updatedCategoryValues.join(",")),
           );
         } else {
           updatedQuery.delete("category");
@@ -452,7 +441,7 @@ export default function ProductListPage() {
     window.history.pushState(
       {},
       "",
-      `${window.location.pathname}?${updatedQuery.toString()}`
+      `${window.location.pathname}?${updatedQuery.toString()}`,
     );
   };
 
@@ -460,7 +449,7 @@ export default function ProductListPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     const index = updatedFilterCriterias.findIndex(
-      (criteria) => criteria.key === key
+      (criteria) => criteria.key === key,
     );
 
     if (index !== -1) {
@@ -469,9 +458,8 @@ export default function ProductListPage() {
       if (Array.isArray(valueFilterCriterias)) {
         updatedFilterCriterias[index].value = valueFilterCriterias.filter(
           (criteriaValue: { id: string; label: string }) =>
-            criteriaValue.id !== value.id
+            criteriaValue.id !== value.id,
         );
-        console.log("removeFilterCriteria", updatedFilterCriterias);
 
         if (updatedFilterCriterias[index].value.length === 0) {
           updatedFilterCriterias.splice(index, 1);
@@ -488,10 +476,6 @@ export default function ProductListPage() {
   };
 
   const loadFilteredProducts = async () => {
-    console.log("INPUT", {
-      ...filter,
-      shopId: "65f1e8bbc4e39014df775166",
-    });
     const response: {
       total: number;
       totalPages: number;
@@ -504,50 +488,49 @@ export default function ProductListPage() {
     setFilteredProducts(response.products);
   };
 
-  const handleFilterChange = async () => {
-    const updatedFilterCriterias: FilterCriteria[] = [];
+  // const handleFilterChange = async () => {
+  //   const updatedFilterCriterias: FilterCriteria[] = [];
 
-    const categoryPromises: Promise<{
-      id: string;
-      name: string;
-    }>[] = [];
+  //   const categoryPromises: Promise<{
+  //     id: string;
+  //     name: string;
+  //   }>[] = [];
 
-    if (filters.category) {
-      filters.category.forEach((id) => {
-        categoryPromises.push(
-          CategoryService.getCategoryById(id).then((categoryInfo) => ({
-            id,
-            name: categoryInfo.name,
-          }))
-        );
-      });
-    }
+  //   if (filters.category) {
+  //     filters.category.forEach((id) => {
+  //       categoryPromises.push(
+  //         CategoryService.getCategoryById(id).then((categoryInfo) => ({
+  //           id,
+  //           name: categoryInfo.name,
+  //         }))
+  //       );
+  //     });
+  //   }
 
-    const categories = await Promise.all(categoryPromises);
+  //   const categories = await Promise.all(categoryPromises);
 
-    if (categories.length > 0) {
-      updatedFilterCriterias.push({
-        key: "Danh mục",
-        value: categories,
-      });
-    }
+  //   if (categories.length > 0) {
+  //     updatedFilterCriterias.push({
+  //       key: "Danh mục",
+  //       value: categories,
+  //     });
+  //   }
 
-    if (filters.status) {
-      setCurrentTab(filters.status);
-    }
+  //   if (filters.status) {
+  //     setCurrentTab(filters.status);
+  //   }
 
-    if (filters.keyword) {
-      updatedFilterCriterias.push({
-        key: "Tên sản phẩm",
-        value: filters.keyword,
-      });
-    }
+  //   if (filters.keyword) {
+  //     updatedFilterCriterias.push({
+  //       key: "Tên sản phẩm",
+  //       value: filters.keyword,
+  //     });
+  //   }
 
-    setFilterOptions(updatedFilterCriterias);
-  };
+  //   setFilterOptions(updatedFilterCriterias);
+  // };
 
   useEffect(() => {
-    console.log("Current Tab", currentTab);
     const filterProducts = async () => {
       const updatedQuery = new URLSearchParams(query);
       if (currentTab == "") {
@@ -559,7 +542,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       loadFilteredProducts();
@@ -567,34 +550,6 @@ export default function ProductListPage() {
 
     filterProducts();
   }, [currentTab]);
-
-  useEffect(() => {
-    console.log(" UseEffect Changed filter criteria");
-    const filterProducts = () => {
-      let tempFilteredProducts = [...tabProducts];
-
-      filterOptions.forEach((filter) => {
-        if (filter.key === "Tên sản phẩm") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.name.toLowerCase().includes(filter.value.toLowerCase())
-          );
-        } else if (filter.key === "Danh mục") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            filter.value.some((category: { id: string; label: string }) =>
-              category.label
-                .toLowerCase()
-                .includes(category.label.toLowerCase())
-            )
-          );
-        }
-      });
-
-      //setFilteredProducts((prev) => tempFilteredProducts);
-      console.log(currentTab);
-    };
-
-    filterProducts();
-  }, [filterOptions]);
 
   const filters: ProductFilterInput = {
     keyword: query.get("keyword") || undefined,
@@ -609,10 +564,6 @@ export default function ProductListPage() {
   useEffect(() => {
     setFilter(filters);
   }, [query]);
-
-  // useEffect(() => {
-  //   handleFilterChange();
-  // }, []);
 
   useEffect(() => {
     loadFilteredProducts();
@@ -720,7 +671,7 @@ export default function ProductListPage() {
                             <CiCircleRemove size={15} />
                           </div>
                         </div>
-                      )
+                      ),
                     )
                   ) : (
                     <div
@@ -760,17 +711,6 @@ export default function ProductListPage() {
         <p className="font-semibold text-lg m-4">
           Sản phẩm: {filteredProducts.length}
         </p>
-
-        <Dropdown
-          menu={{ items: exportOptions }}
-          placement="bottomLeft"
-          disabled={selectedProducts.length === 0}
-        >
-          <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2 theme-button">
-            <p className="ml-2 truncate text-sm">Xuất sản phẩm</p>
-            <RiArrowDropDownLine size={20} />
-          </div>
-        </Dropdown>
       </div>
       <div>
         <Table

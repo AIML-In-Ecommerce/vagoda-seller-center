@@ -1,21 +1,21 @@
-import { ReviewAPI } from "@/apis/ReviewAPI";
-import { _ReviewType } from "@/model/ReviewType";
+import { UploadAPI } from "@/apis/UploadAPI";
+import FormData from "form-data";
 
 export const UploadService = {
-  getAllReview: async (): Promise<_ReviewType[]> => {
+  getURLImage: async (data: FormData): Promise<string> => {
     try {
-      const response: any = await ReviewAPI.getAllReview();
+      const response: any = await UploadAPI.getURLImage(data);
 
-      if (response.data && Array.isArray(response.data)) {
-        const formatedData: _ReviewType[] = response.data;
-        return formatedData;
+      if (response.data) {
+        const { path } = response.data;
+        return path;
       }
 
-      return [];
+      return "";
     } catch (error) {
-      console.log("@SERVICE_getAllReview: ", error);
+      console.log("@SERVICE_getURLImage: ", error);
 
-      return [];
+      return "";
     }
   },
 };

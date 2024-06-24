@@ -121,11 +121,10 @@ export default function ReviewProductPage() {
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string
+    key: string,
   ) => {
-    console.log("CHECKING", value, key);
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
+      (option) => option.key !== key,
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -135,8 +134,6 @@ export default function ReviewProductPage() {
 
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
-
-    console.log("Filter", updatedFilterOptions);
   };
 
   const columns = [
@@ -320,7 +317,7 @@ export default function ReviewProductPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -337,15 +334,13 @@ export default function ReviewProductPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     updatedFilterCriterias = updatedFilterCriterias.filter(
-      (criteria) => criteria.key !== key
+      (criteria) => criteria.key !== key,
     );
 
     setFilterOptions(updatedFilterCriterias);
-    console.log(updatedFilterCriterias);
   };
 
   // useEffect(() => {
-  //   console.log(" UseEffect Changed filter criteria");
   //   const filterProducts = () => {
   //     let tempFilteredProducts = [...tabReviews];
 
@@ -366,7 +361,6 @@ export default function ReviewProductPage() {
   //     });
 
   //     //setFilteredProducts((prev) => tempFilteredProducts);
-  //     console.log(currentTab);
   //   };
 
   //   filterProducts();
@@ -469,7 +463,7 @@ export default function ReviewProductPage() {
             {filterOptions.map((item, index) => {
               return (
                 <div
-                  // key={index}
+                  key={index}
                   className="flex items-center  text-xs max-w-4/5 "
                 >
                   {Array.isArray(item.value) ? (
