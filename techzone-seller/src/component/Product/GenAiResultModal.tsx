@@ -12,14 +12,7 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   tryAgainFnc,
   imageUrl,
 }) => {
-  // const [isRunning, setIsRunning] = useState<boolean>(false);
   const [imageLink, setImageLink] = useState<string>(imageUrl);
-
-  // useEffect(() => {
-  //   setImageLink(
-  //     "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg",
-  //   );
-  // }, []);
 
   console.log("result");
 
