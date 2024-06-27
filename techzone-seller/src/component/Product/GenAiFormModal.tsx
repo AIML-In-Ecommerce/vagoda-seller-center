@@ -11,23 +11,26 @@ import {
 import TextArea from "antd/es/input/TextArea";
 import React, { useState } from "react";
 
+const clothTypeList = [
+  { value: "shirt", label: "Áo" },
+  { value: "pants", label: "Quần" },
+];
+
 const nationalityList = [
-  { value: "Mĩ", label: "Mĩ" },
-  { value: "Úc", label: "Úc" },
-  { value: "Anh", label: "Anh" },
-  { value: "Trung Quốc", label: "Trung Quốc" },
-  { value: "Ả Rập", label: "Ả Rập" },
-  { value: "Việt Nam", label: "Việt Nam" },
+  { value: "Vietnamese", label: "Việt Nam" },
+  { value: "American", label: "Mĩ" },
+  { value: "Chinese", label: "Trung Quốc" },
+  { value: "Arab", label: "Ả Rập" },
 ];
 
 const genderList = [
-  { value: "Nam", label: "Nam" },
-  { value: "Nữ", label: "Nữ" },
+  { value: "men", label: "Nam" },
+  { value: "woman", label: "Nữ" },
 ];
 
 const skinColorList = [
   {
-    value: "Trắng",
+    value: "white",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#FFFFFF" disabled />
@@ -36,16 +39,7 @@ const skinColorList = [
     ),
   },
   {
-    value: "Da",
-    label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#F4E9DE" disabled />
-        <p>Da</p>
-      </div>
-    ),
-  },
-  {
-    value: "Vàng",
+    value: "yellow",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#EFD4B6" disabled />
@@ -54,7 +48,7 @@ const skinColorList = [
     ),
   },
   {
-    value: "Nâu",
+    value: "brown",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#AF895E" disabled />
@@ -63,7 +57,7 @@ const skinColorList = [
     ),
   },
   {
-    value: "Đen",
+    value: "black",
     label: (
       <div className="flex space-x-1">
         <ColorPicker size="small" defaultValue="#403B35" disabled />
@@ -75,7 +69,7 @@ const skinColorList = [
 
 const eyesColorList = [
   {
-    value: "Nâu",
+    value: "brown",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#6B4226" disabled />
@@ -84,7 +78,7 @@ const eyesColorList = [
     ),
   },
   {
-    value: "Xanh dương",
+    value: "blue",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#3487E4" disabled />
@@ -93,7 +87,7 @@ const eyesColorList = [
     ),
   },
   {
-    value: "Xanh lục",
+    value: "green",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#2E8B57" disabled />
@@ -102,7 +96,7 @@ const eyesColorList = [
     ),
   },
   {
-    value: "Xám",
+    value: "gray",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#A9A9A9" disabled />
@@ -111,7 +105,7 @@ const eyesColorList = [
     ),
   },
   {
-    value: "Đen",
+    value: "black",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#C19A6B" disabled />
@@ -122,19 +116,15 @@ const eyesColorList = [
 ];
 
 const hairStyleList = [
-  { value: "Tóc đầu đinh", label: "Tóc đầu đinh" },
-  { value: "Tóc đầu nấm", label: "Tóc đầu nấm" },
-  { value: "Tóc hai mái", label: "Tóc hai mái" },
-  { value: "Tóc bob", label: "Tóc bob" },
-  { value: "Tóc mái ngố", label: "Tóc mái ngố" },
-  { value: "Tóc thẳng dài", label: "Tóc thẳng" },
-  { value: "Tóc dài xoăn", label: "Tóc xoăn" },
-  { value: "Tóc gợn sóng", label: "Tóc gợn sóng" },
+  { value: "long hair", label: "Tóc dài" },
+  { value: "short hair", label: "Tóc ngắn" },
+  { value: "curly hair", label: "Tóc xoăn" },
+  { value: "wavy hair", label: "Tóc gợn sóng" },
 ];
 
 const hairColorList = [
   {
-    value: "Nâu",
+    value: "brown",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#6B4226" disabled />
@@ -143,7 +133,7 @@ const hairColorList = [
     ),
   },
   {
-    value: "Xanh dương",
+    value: "blue",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#3487E4" disabled />
@@ -152,7 +142,7 @@ const hairColorList = [
     ),
   },
   {
-    value: "Vàng",
+    value: "yellow",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#F4D613" disabled />
@@ -161,7 +151,7 @@ const hairColorList = [
     ),
   },
   {
-    value: "Xám khói ",
+    value: "smoky gray",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#A9A9A9" disabled />
@@ -170,7 +160,7 @@ const hairColorList = [
     ),
   },
   {
-    value: "Đen",
+    value: "black",
     label: (
       <div className="flex space-x-1">
         <ColorPicker defaultValue="#000000" disabled />
@@ -181,24 +171,30 @@ const hairColorList = [
 ];
 
 const bodyShapeList = [
-  { value: "Mập", label: "Mập" },
-  { value: "Gầy", label: "Gầy" },
-  { value: "Tương đối", label: "Tương đối" },
-  { value: "Mảnh khảnh", label: "Mảnh khảnh" },
-  { value: "Vạm vỡ", label: "Vạm vỡ" },
-  { value: "Có cơ bắp", label: "Có cơ bắp" },
+  { value: "fat", label: "Mập" },
+  { value: "thin", label: "Gầy" },
+  { value: "proportional", label: "Cân đối" },
+  { value: "slender", label: "Mảnh mai" },
+  { value: "burly", label: "Vạm vỡ" },
+  { value: "muscular", label: "Có cơ bắp" },
+];
+
+const postureList = [
+  { value: "standing", label: "Đứng" },
+  { value: "sitting", label: "Ngồi" },
 ];
 
 const backgroundList = [
-  { value: "Quán cà phê", label: "Quán cà phê" },
-  { value: "Trung tâm thương mại", label: "Trung tâm thương mại" },
-  { value: "Góc phố", label: "Góc phố" },
-  { value: "Nhà hàng", label: "Nhà hàng" },
-  { value: "Trong nhà", label: "Trong nhà" },
+  { value: "coffee shop", label: "Quán cà phê" },
+  { value: "shopping mall", label: "Trung tâm thương mại" },
+  { value: "restaurant", label: "Nhà hàng" },
+  { value: "park", label: "Công viên" },
+  { value: "stadium", label: "Sân vận động" },
 ];
 
 type FieldType = {
-  image_link: string;
+  clothType: string;
+  imageLink: string;
   nationality: string;
   gender: string[];
   skinColor: string;
@@ -206,6 +202,7 @@ type FieldType = {
   hairStyle: string;
   hairColor: string;
   bodyShape: string;
+  posture: string;
   background: string;
 };
 
@@ -225,12 +222,12 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
   const onFinish = async (values: FieldType) => {
     onSubmit({
       ...values,
-      image_link: productImageLink ? productImageLink : "",
+      imageLink: productImageLink ? productImageLink : "",
     });
     onClose();
   };
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo
+    errorInfo,
   ) => {};
 
   return (
@@ -256,7 +253,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
       >
         <div className="grid grid-cols-4  px-8 pt-8 pb-8">
           <div className="col-span-2">
-            <div className="flex flex-col mb-8">
+            <div className="flex flex-col mb-4">
               {" "}
               <p className="text-2xl font-bold uppercase">
                 Tạo hình ảnh sản phẩm{" "}
@@ -265,28 +262,58 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                 Chức năng tạo hình ảnh sản phẩm bằng AI
               </p>
             </div>
-            <p className="font-semibold">Ảnh sản phẩm</p>
-            <div>
-              <Form.Item<FieldType>
-                name="image_link"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng tải ảnh sản phẩm lên",
-                  },
-                ]}
-                className="p-0 m-0"
-              >
-                <ColorImage
-                  isDisplayLarge={true}
-                  setFileString={(data) => {
-                    setProductImageLink(data);
-                    form.setFieldValue("image_link", data);
-                  }}
-                  maxNumber={1}
-                  initialUrl={null}
-                />
-              </Form.Item>
+
+            <div className="grid grid-cols-2">
+              <div className="col-span-1">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Loại sản phẩm</div>
+                </div>
+                <Form.Item<FieldType>
+                  initialValue={"shirt"}
+                  name="clothType"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn loại sản phẩm",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="shirt"
+                    style={{ width: "100%" }}
+                    options={clothTypeList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="col-span-2">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Ảnh sản phẩm</div>
+                </div>
+                {/* <p className="font-semibold">Ảnh sản phẩm</p> */}
+                <Form.Item<FieldType>
+                  name="imageLink"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng tải ảnh sản phẩm lên",
+                    },
+                  ]}
+                  className="p-0 m-0"
+                >
+                  <ColorImage
+                    isDisplayLarge={true}
+                    setFileString={(data) => {
+                      setProductImageLink(data);
+                      form.setFieldValue("imageLink", data);
+                    }}
+                    maxNumber={1}
+                    initialUrl={null}
+                  />
+                </Form.Item>
+              </div>
             </div>
           </div>
           <div className="col-span-2">
@@ -301,21 +328,21 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
               <div className="m-0 p-0">
                 <div className="flex items-center space-x-1 font-semibold text-sm">
                   <div className="text-red-500 font-bold ">*</div>{" "}
-                  <div className="text-xs">Quốc tịch</div>
+                  <div className="text-xs">Quốc gia</div>
                 </div>
                 <Form.Item<FieldType>
                   name="nationality"
-                  initialValue={"Mĩ"}
+                  initialValue={"Vietnamese"}
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn quốc tịch",
+                      message: "Vui lòng chọn quốc gia",
                     },
                   ]}
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Mĩ"
+                    defaultValue="Vietnamese"
                     style={{ width: "100%" }}
                     options={nationalityList}
                   />
@@ -328,7 +355,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                 </div>
                 <Form.Item<FieldType>
                   name="gender"
-                  initialValue={"Nam"}
+                  initialValue={"men"}
                   rules={[
                     {
                       required: true,
@@ -338,7 +365,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Nam"
+                    defaultValue="men"
                     style={{ width: "100%" }}
                     options={genderList}
                   />
@@ -350,7 +377,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   <div className="text-xs">Màu da</div>
                 </div>
                 <Form.Item<FieldType>
-                  initialValue={"Trắng"}
+                  initialValue={"white"}
                   name="skinColor"
                   rules={[
                     {
@@ -361,7 +388,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Trắng"
+                    defaultValue="white"
                     style={{ width: "100%" }}
                     options={skinColorList}
                   />
@@ -373,7 +400,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   <div className="text-xs">Màu mắt</div>
                 </div>
                 <Form.Item<FieldType>
-                  initialValue={"Nâu"}
+                  initialValue={"brown"}
                   name="eyesColor"
                   rules={[
                     {
@@ -384,7 +411,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Nâu"
+                    defaultValue="brown"
                     style={{ width: "100%" }}
                     options={eyesColorList}
                   />
@@ -397,7 +424,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   <div className="text-xs">Kiểu tóc</div>
                 </div>
                 <Form.Item<FieldType>
-                  initialValue={"Tóc đầu đinh"}
+                  initialValue={"long hair"}
                   name="hairStyle"
                   rules={[
                     {
@@ -408,7 +435,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Tóc đầu đinh"
+                    defaultValue="long hair"
                     style={{ width: "100%" }}
                     options={hairStyleList}
                   />
@@ -421,7 +448,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                 </div>
 
                 <Form.Item<FieldType>
-                  initialValue={"Nâu"}
+                  initialValue={"brown"}
                   name="hairColor"
                   rules={[
                     {
@@ -432,7 +459,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Nâu"
+                    defaultValue="brown"
                     style={{ width: "100%" }}
                     options={hairColorList}
                   />
@@ -444,7 +471,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   <div className="text-xs">Dáng người</div>
                 </div>
                 <Form.Item<FieldType>
-                  initialValue={"Mập"}
+                  initialValue={"fat"}
                   name="bodyShape"
                   rules={[
                     {
@@ -455,9 +482,32 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="Mập"
+                    defaultValue="fat"
                     style={{ width: "100%" }}
                     options={bodyShapeList}
+                  />
+                </Form.Item>
+              </div>
+              <div className="">
+                <div className="flex items-center space-x-1 font-semibold text-sm">
+                  <div className="text-red-500 font-bold ">*</div>{" "}
+                  <div className="text-xs">Tư thế</div>
+                </div>
+                <Form.Item<FieldType>
+                  initialValue={"standing"}
+                  name="posture"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn tư thế",
+                    },
+                  ]}
+                  style={{ margin: 4 }}
+                >
+                  <Select
+                    defaultValue="standing"
+                    style={{ width: "100%" }}
+                    options={postureList}
                   />
                 </Form.Item>
               </div>
@@ -477,7 +527,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                 </div>
               </div>
               <Form.Item<FieldType>
-                initialValue={"Quán cà phê"}
+                initialValue={"coffee shop"}
                 name="background"
                 rules={[
                   {
@@ -494,7 +544,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   />
                 ) : (
                   <Select
-                    defaultValue="Quán cà phê"
+                    defaultValue="coffee shop"
                     style={{ width: "47%" }}
                     options={backgroundList}
                   />

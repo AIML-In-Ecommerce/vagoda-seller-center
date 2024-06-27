@@ -4,23 +4,17 @@ import React, { useEffect, useState } from "react";
 import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
 interface GenAiResultModalProps {
-  onClose: () => void;
+  tryAgainFnc: () => void;
   imageUrl: string;
 }
 
 const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
-  onClose,
+  tryAgainFnc,
   imageUrl,
 }) => {
-  const [isRunning, setIsRunning] = useState<boolean>(true);
   const [imageLink, setImageLink] = useState<string>(imageUrl);
 
-  useEffect(() => {
-    setImageLink(
-      "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg"
-    );
-    setTimeout(() => setIsRunning(false), 3000);
-  }, []);
+  console.log("result");
 
   return (
     <div
@@ -39,36 +33,30 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
           Chức năng tạo hình ảnh sản phẩm bằng AI
         </p>
       </div>
-      {isRunning ? (
-        <div className=" flex  w-full h-full justify-center items-center my-auto">
-          <span className="loader"></span>
-          <span className="text-loader text-xl">Chờ xíu nhé</span>
-        </div>
-      ) : (
-        <div className="space-y-2  flex flex-col justify-center items-center">
-          <div className="rounded-lg overflow-hidden">
-            <Image height={320} width={320} src={imageLink} />
-          </div>
 
-          <div className="flex justify-center w-full space-x-2 ">
-            <Button
-              type="primary"
-              className="bg-slate-400 "
-              style={{ width: "20%" }}
-              onClick={() => onClose()}
-            >
-              Tạo lại
-            </Button>
-            <Button
-              type="primary"
-              className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
-              style={{ width: "20%" }}
-            >
-              Lưu vào bộ sưu tập
-            </Button>
-          </div>
+      <div className="space-y-2  flex flex-col justify-center items-center">
+        <div className="rounded-lg overflow-hidden">
+          <Image height={320} width={320} src={imageLink} />
         </div>
-      )}
+
+        <div className="flex justify-center w-full space-x-2 ">
+          <Button
+            type="primary"
+            className="bg-slate-400 "
+            style={{ width: "20%" }}
+            onClick={() => tryAgainFnc()}
+          >
+            Tạo lại
+          </Button>
+          <Button
+            type="primary"
+            className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
+            style={{ width: "20%" }}
+          >
+            Lưu vào bộ sưu tập
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

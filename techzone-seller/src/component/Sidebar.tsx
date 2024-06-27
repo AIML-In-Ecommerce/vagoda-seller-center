@@ -29,7 +29,7 @@ function getItem(
   key: React.Key,
   icon?: React.ReactNode,
   items?: MenuItem[],
-  url?: string
+  url?: string,
 ): MenuItem {
   return {
     key,
@@ -238,7 +238,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       >
         {menuItems
           .filter((item) =>
-            item.label.toLowerCase().includes(searchText.toLowerCase())
+            item.label.toLowerCase().includes(searchText.toLowerCase()),
           )
           .map((item) => (
             <React.Fragment key={item.key}>

@@ -120,10 +120,10 @@ export default function ReviewProductPage() {
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string
+    key: string,
   ) => {
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
+      (option) => option.key !== key,
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -322,7 +322,7 @@ export default function ReviewProductPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -339,7 +339,7 @@ export default function ReviewProductPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     updatedFilterCriterias = updatedFilterCriterias.filter(
-      (criteria) => criteria.key !== key
+      (criteria) => criteria.key !== key,
     );
 
     setFilterOptions(updatedFilterCriterias);
@@ -494,7 +494,7 @@ export default function ReviewProductPage() {
             {filterOptions.map((item, index) => {
               return (
                 <div
-                  // key={index}
+                  key={index}
                   className="flex items-center  text-xs max-w-4/5 "
                 >
                   {Array.isArray(item.value) ? (

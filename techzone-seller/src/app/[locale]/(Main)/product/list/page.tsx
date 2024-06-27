@@ -88,7 +88,7 @@ export default function ProductListPage() {
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
-    null
+    null,
   );
   const [tabProducts, setTabProducts] = useState<_ProductType[]>([]);
   const [totalProduct, setTotalProduct] = useState(0);
@@ -229,10 +229,10 @@ export default function ProductListPage() {
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string
+    key: string,
   ) => {
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
+      (option) => option.key !== key,
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -401,7 +401,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -423,12 +423,12 @@ export default function ProductListPage() {
         : undefined;
       if (categoryValues) {
         const updatedCategoryValues = categoryValues.filter(
-          (item) => item != value.id
+          (item) => item != value.id,
         );
         if (updatedCategoryValues.length > 0) {
           updatedQuery.set(
             "category",
-            encodeURIComponent(updatedCategoryValues.join(","))
+            encodeURIComponent(updatedCategoryValues.join(",")),
           );
         } else {
           updatedQuery.delete("category");
@@ -441,7 +441,7 @@ export default function ProductListPage() {
     window.history.pushState(
       {},
       "",
-      `${window.location.pathname}?${updatedQuery.toString()}`
+      `${window.location.pathname}?${updatedQuery.toString()}`,
     );
   };
 
@@ -449,7 +449,7 @@ export default function ProductListPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     const index = updatedFilterCriterias.findIndex(
-      (criteria) => criteria.key === key
+      (criteria) => criteria.key === key,
     );
 
     if (index !== -1) {
@@ -458,7 +458,7 @@ export default function ProductListPage() {
       if (Array.isArray(valueFilterCriterias)) {
         updatedFilterCriterias[index].value = valueFilterCriterias.filter(
           (criteriaValue: { id: string; label: string }) =>
-            criteriaValue.id !== value.id
+            criteriaValue.id !== value.id,
         );
 
         if (updatedFilterCriterias[index].value.length === 0) {
@@ -554,7 +554,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
+        `${window.location.pathname}?${updatedQuery.toString()}`,
       );
 
       loadFilteredProducts();
@@ -683,7 +683,7 @@ export default function ProductListPage() {
                             <CiCircleRemove size={15} />
                           </div>
                         </div>
-                      )
+                      ),
                     )
                   ) : (
                     <div

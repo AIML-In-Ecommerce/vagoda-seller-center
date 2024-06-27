@@ -17,7 +17,7 @@ interface ColorImageProps {
 export default function ColorImage(props: ColorImageProps) {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const uploadStyle = props.isDisplayLarge ? { width: 260, height: 260 } : {};
+  const uploadStyle = props.isDisplayLarge ? { width: 250, height: 250 } : {};
 
   const onChange: UploadProps["onChange"] = async (value: any) => {
     const { fileList: newFileList } = value;
