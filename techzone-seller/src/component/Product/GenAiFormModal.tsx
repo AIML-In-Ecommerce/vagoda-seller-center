@@ -32,8 +32,8 @@ const skinColorList = [
   {
     value: "white",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#FFFFFF" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#FFFFFF" disabled />
         <p>Trắng</p>
       </div>
     ),
@@ -41,8 +41,8 @@ const skinColorList = [
   {
     value: "yellow",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#EFD4B6" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#EFD4B6" disabled />
         <p>Vàng</p>
       </div>
     ),
@@ -50,8 +50,8 @@ const skinColorList = [
   {
     value: "brown",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#AF895E" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#AF895E" disabled />
         <p>Nâu</p>
       </div>
     ),
@@ -59,8 +59,8 @@ const skinColorList = [
   {
     value: "black",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker size="small" defaultValue="#403B35" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#403B35" disabled />
         <p>Đen</p>
       </div>
     ),
@@ -71,8 +71,8 @@ const eyesColorList = [
   {
     value: "brown",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#6B4226" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#6B4226" disabled />
         <p>Nâu</p>
       </div>
     ),
@@ -80,8 +80,8 @@ const eyesColorList = [
   {
     value: "blue",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#3487E4" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#3487E4" disabled />
         <p>Xanh dương</p>
       </div>
     ),
@@ -89,8 +89,8 @@ const eyesColorList = [
   {
     value: "green",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#2E8B57" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#2E8B57" disabled />
         <p>Xanh lục</p>
       </div>
     ),
@@ -98,8 +98,8 @@ const eyesColorList = [
   {
     value: "gray",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#A9A9A9" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#A9A9A9" disabled />
         <p>Xám</p>
       </div>
     ),
@@ -107,8 +107,8 @@ const eyesColorList = [
   {
     value: "black",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#C19A6B" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#C19A6B" disabled />
         <p>Hổ phách</p>
       </div>
     ),
@@ -126,8 +126,8 @@ const hairColorList = [
   {
     value: "brown",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#6B4226" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#6B4226" disabled />
         <p>Nâu</p>
       </div>
     ),
@@ -135,8 +135,8 @@ const hairColorList = [
   {
     value: "blue",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#3487E4" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#3487E4" disabled />
         <p>Xanh dương</p>
       </div>
     ),
@@ -144,17 +144,17 @@ const hairColorList = [
   {
     value: "yellow",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#F4D613" disabled />
-        <p>Xanh lục</p>
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#F4D613" disabled />
+        <p>Vàng</p>
       </div>
     ),
   },
   {
     value: "smoky gray",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#A9A9A9" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#A9A9A9" disabled />
         <p>Xám</p>
       </div>
     ),
@@ -162,8 +162,8 @@ const hairColorList = [
   {
     value: "black",
     label: (
-      <div className="flex space-x-1">
-        <ColorPicker defaultValue="#000000" disabled />
+      <div className="flex space-x-1 items-center">
+        <ColorPicker size="small" value="#000000" disabled />
         <p>Đen</p>
       </div>
     ),
@@ -227,7 +227,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
     onClose();
   };
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo,
+    errorInfo
   ) => {};
 
   return (

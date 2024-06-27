@@ -7,16 +7,20 @@ import {
   FormProps,
   Input,
   InputNumber,
-  message,
+  Modal,
   Select,
   SelectProps,
   Steps,
+  message,
 } from "antd";
 
 import { Editor } from "@tinymce/tinymce-react";
 import { useEffect, useRef, useState } from "react";
 
-import { MdOutlineKeyboardBackspace } from "react-icons/md";
+import {
+  MdOutlineCollections,
+  MdOutlineKeyboardBackspace,
+} from "react-icons/md";
 import CategoryDropdown from "./CategoryDropdown";
 
 import { ProductCreatedInput } from "@/apis/ProductAPI";
@@ -25,6 +29,7 @@ import { _ProductType } from "@/model/ProductType";
 import { CategoryService } from "@/services/Category";
 import { ProductService } from "@/services/Product";
 import { useRouter } from "next/navigation";
+import { FaMagic } from "react-icons/fa";
 import ColorOption from "./ColorOption";
 import ImageUploader from "./ImageUploader";
 
@@ -77,6 +82,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string[]>([]);
   const [isExpand, setIsExpand] = useState(true);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [status, setStatus] = useState<string>(
     props.updatingProduct ? props.updatingProduct.status : "AVAILABLE"
   );
@@ -584,7 +590,33 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
               </Collapse.Panel>
               <Collapse.Panel
                 key="3"
-                header={<p className="font-bold">3. Thêm hình ảnh</p>}
+                header={
+                  <div className=" flex justify-between items-center">
+                    <p className="font-bold">3. Thêm hình ảnh</p>
+                    <div className="flex space-x-2">
+                      <Button
+                        // onClick={() => {
+                        //   setIsImageModalOpen(true);
+                        // }}
+                        type="primary"
+                        className=" bg-lime-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center "
+                      >
+                        <MdOutlineCollections />
+                        Chọn ảnh từ bộ sưu tập
+                      </Button>
+                      <Button
+                        // onClick={() => {
+                        //   setGenAiModalOpen(true);
+                        // }}
+                        type="primary"
+                        className=" bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center hover:from-cyan-700 hover:to-blue-700 "
+                      >
+                        <FaMagic />
+                        Tạo hình ảnh bằng AI
+                      </Button>
+                    </div>
+                  </div>
+                }
               >
                 <div className="flex  space-x-1 font-semibold ">
                   <div className="text-red-500 font-bold text-sm">*</div>{" "}
@@ -615,6 +647,16 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   />
                 </Form.Item>
               </Collapse.Panel>
+              <Modal
+                centered
+                open={isImageModalOpen}
+                width={900}
+                onCancel={() => {
+                  setIsImageModalOpen(false);
+                  // setIsFormVisible(true);
+                }}
+                footer={null}
+              ></Modal>
             </Collapse>
             <div className="flex flex-row-reverse space-x-2 p-4">
               {props.isCreating ? (

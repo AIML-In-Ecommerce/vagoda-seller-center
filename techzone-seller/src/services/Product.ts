@@ -139,7 +139,6 @@ export const ProductService = {
     message: string;
   }> => {
     try {
-      console.log("IDDD", product_id);
       const response: any = await ProductAPI.updateProduct(
         {
           ...input,
