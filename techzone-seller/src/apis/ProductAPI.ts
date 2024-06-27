@@ -41,6 +41,14 @@ export interface ProductCreatedInput {
   };
 }
 
+export interface FileInfoInput {
+  shop: string;
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
 const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_PRODUCT_PORT}`;
 
 export const ProductAPI = {
@@ -87,14 +95,20 @@ export const ProductAPI = {
     }
   },
   createBatchProduct: async (fileData: FormData) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
-    const URL = `${BACKEND_SERVER_PREFIX}/product`;
+    console.log("INPUT", fileData);
+    const URL = `${BACKEND_SERVER_PREFIX}/import`;
+
+    fileData.append("shopId", "65f1e8bbc4e39014df775166");
     try {
-      const response = await axios.post(URL, { shopId: "" });
+      const response = await axios.post(URL, fileData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       console.log("RESULT", response);
       return response.data;
     } catch (error) {
-      console.log("API_ERROR_ProductAPI_createProduct: ", error);
+      console.log("API_ERROR_ProductAPI_createBatchProduct: ", error);
     }
   },
   updateProduct: async (input: ProductCreatedInput, product_id: string) => {
@@ -106,6 +120,33 @@ export const ProductAPI = {
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_updateProduct: ", error);
+    }
+  },
+  getFileInfoByFilter: async (input: FileInfoInput) => {
+    let URL = `${BACKEND_SERVER_PREFIX}/files/filter?shop=${input.shop}`;
+    const params = new URLSearchParams();
+
+    if (input.name) {
+      params.append("name", input.name);
+    }
+    if (input.status) {
+      params.append("status", input.status);
+    }
+    if (input.startDate) {
+      params.append("startDate", input.startDate);
+    }
+    if (input.endDate) {
+      params.append("endDate", input.endDate);
+    }
+
+    const fullURL = `${URL}&${params.toString()}`;
+    console.log("RESULT", fullURL);
+
+    try {
+      const response = await axios.get(fullURL);
+      return response.data;
+    } catch (error) {
+      console.log("API_ERROR_ProductAPI_getFileInfoByFilter: ", error);
     }
   },
 };

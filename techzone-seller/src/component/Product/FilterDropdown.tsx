@@ -78,7 +78,7 @@ export default function FilterDropdown(props: FilterDropdownProps) {
       label: (
         <div className="flex ">
           <Input
-            size="middle"
+            size="small"
             placeholder="Tìm kiếm"
             suffix={<GoSearch />}
             className="rounded-full  m-1"
@@ -146,9 +146,9 @@ export default function FilterDropdown(props: FilterDropdownProps) {
       placement="bottomLeft"
       className="max-w-sm"
       trigger={["click"]}
-      overlayStyle={{ maxHeight: 100, overflowY: "auto" }}
+      overlayStyle={{ maxHeight: 70 }}
     >
-      <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-2 rounded-lg border m-2">
+      <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-2 rounded-lg border ">
         <p className="ml-2 truncate text-sm">{props.name}</p>
         <RiArrowDropDownLine size={20} />
       </div>

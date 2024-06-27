@@ -16,7 +16,6 @@ import {
   Table,
   Tabs,
   TabsProps,
-  Tooltip,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -135,55 +134,57 @@ export default function ReviewProductPage() {
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
   };
+  const convertDataTable = (data: _ReviewType[]) => {
+    const result = data.map((record: _ReviewType, index) => ({
+      ...record,
+      index: index + 1,
+    }));
+    return result;
+  };
 
   const columns = [
     {
-      title: "Mã sản phẩm",
-      dataIndex: "product",
+      title: "STT",
+      dataIndex: "index",
+      width: "5%",
       render: (text: string, record: _ReviewType) => (
-        <div className="">
-          <Tooltip placement="topLeft" title="Xem chi tiết sản phẩm">
-            <a
-              className="text-xs text-sky-500 underline"
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              {text}
-            </a>
-          </Tooltip>
-        </div>
+        <div className="text-xs">{text}</div>
       ),
-      width: "10%",
     },
+
     {
       title: "Người đánh giá",
       dataIndex: "user",
       render: (text: string, record: _ReviewType) => (
         <div className="">
           <p
-            className="text-xs text-sky-500 underline"
+            className="text-xs"
             style={{ display: "flex", alignItems: "center" }}
           >
-            {text}
+            {record.user.fullName}
           </p>
         </div>
       ),
       width: "10%",
     },
-    // {
-    //   title: "Sản phẩm",
-    //   dataIndex: "productName",
-    //   render: (text: string, record: _ReviewType) => (
-    //     <a style={{ display: "flex", alignItems: "center" }}>
-    //       <img
-    //         src={record.imageUrl}
-    //         alt={text}
-    //         style={{ marginRight: "8px", width: "32px", height: "32px" }}
-    //       />
-    //       {text}
-    //     </a>
-    //   ),
-    //   width: "30%",
-    // },
+    {
+      title: "Sản phẩm",
+      dataIndex: "product",
+      render: (text: string, record: _ReviewType) => (
+        <div
+          style={{ display: "flex", alignItems: "center" }}
+          className="text-xs"
+        >
+          <img
+            src={record.product.images ? record.product.images[0] : ""}
+            alt={text}
+            style={{ marginRight: "8px", width: "32px", height: "32px" }}
+          />
+          {record.product.name ? record.product.name : ""}
+        </div>
+      ),
+      width: "20%",
+    },
     {
       title: "Đánh giá",
       dataIndex: "rating",
@@ -191,10 +192,10 @@ export default function ReviewProductPage() {
         <div className="flex space-x-2 items-center ">
           {" "}
           <Rate disabled value={rating} className="small-rating" />
-          <p>{rating}</p>
+          <p className="text-xs">{rating}</p>
         </div>
       ),
-      defaultSortOrder: "descend",
+      // defaultSortOrder: "descend",
       sorter: (a: _ReviewType, b: _ReviewType) => a.rating - b.rating,
       width: "15%",
     },
@@ -202,32 +203,36 @@ export default function ReviewProductPage() {
       title: "Nội dung",
       dataIndex: "content",
       width: "20%",
+      render: (text: string, record: _ReviewType) => (
+        <div className="text-xs">{text}</div>
+      ),
     },
     {
       title: "Số lượt thích",
       dataIndex: "like",
       render: (likes: string[], record: _ReviewType) => (
-        <div className="flex space-x-2 ">
+        <div className="flex space-x-2 text-xs ">
           {" "}
           <p>{likes.length}</p>
         </div>
       ),
-      defaultSortOrder: "descend",
+      // defaultSortOrder: "descend",
       sorter: (a: _ReviewType, b: _ReviewType) => a.like.length - b.like.length,
-      width: "12%",
+      width: "10%",
     },
     {
       title: "Thao tác",
       dataIndex: "operation",
       render: (_: any, record: _ReviewType) => {
         return (
-          <div className="space-x-2">
-            <Button type="primary" className="bg-sky-100 text-black">
+          <div className="space-x-2 ">
+            <Button type="primary" className="bg-sky-100 text-black text-xs">
               Xem chi tiết
             </Button>
           </div>
         );
       },
+      width: "10%",
     },
   ];
 
@@ -430,31 +435,57 @@ export default function ReviewProductPage() {
       <p className="uppercase text-xl font-semibold">Quản lý đánh giá</p>
 
       <Tabs type="card" items={tabItems}></Tabs>
-      <div className="flex items-center">
-        <Search
-          placeholder={`Nhập tên sản phẩm`}
-          style={{
-            borderRadius: "5px",
-            width: 800,
-          }}
-          onSearch={onSearch}
-          type="primary"
-          enterButton
-          className="theme-button "
-          onChange={(e) => setSearchValue(e.target.value)}
-          value={searchValue}
-        />
 
-        <FilterDropdown
-          initialSelectedOptions={
-            filterOptions.find((item) => item.key === "Danh mục")?.value || []
-          }
-          name={"Danh mục"}
-          options={allCategories.map((c) => {
-            return { id: c._id, label: c.name };
-          })}
-          onSelection={handleFilterDropdownChange}
-        />
+      <div className="flex items-center space-x-8">
+        <div className="">
+          <p className="font-semibold">Tìm kiếm sản phẩm</p>
+          <Search
+            placeholder={`Nhập tên sản phẩm`}
+            style={{
+              borderRadius: "5px",
+              width: 300,
+            }}
+            onSearch={onSearch}
+            type="primary"
+            enterButton
+            className="theme-button pt-2"
+            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+          />
+        </div>
+
+        <div className="">
+          <p className="font-semibold">Tìm kiếm người đánh giá</p>
+          <Search
+            placeholder={`Nhập tên người đánh giá`}
+            style={{
+              borderRadius: "5px",
+              width: 300,
+            }}
+            onSearch={onSearch}
+            type="primary"
+            enterButton
+            className="theme-button pt-2"
+            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+          />
+        </div>
+        <div className="">
+          <p className="font-semibold">Danh mục</p>
+          <FilterDropdown
+            initialSelectedOptions={
+              filterOptions.find((item) => item.key === "Danh mục")?.value || []
+            }
+            name={"Danh mục"}
+            options={allCategories.map((c) => {
+              return { id: c._id, label: c.name };
+            })}
+            onSelection={handleFilterDropdownChange}
+          />
+        </div>
+        <Button type="text" className="mt-5 text-sky-400">
+          Xóa bộ lọc
+        </Button>
       </div>
       {filterOptions.length > 0 && (
         <div className="flex items-center">
@@ -526,9 +557,9 @@ export default function ReviewProductPage() {
         <Table
           bordered
           columns={columns}
-          dataSource={allReviews}
+          dataSource={convertDataTable(allReviews)}
           locale={{
-            emptyText: <Empty description={<span>Trống</span>} />, // Hiển thị Empty nếu không có dữ liệu
+            emptyText: <Empty description={<span>Trống</span>} />,
           }}
           className=""
         />

@@ -64,3 +64,12 @@ export enum ProductStatus {
   SOLD_OUT = "SOLD_OUT",
   SALE = "SALE",
 }
+
+export type ImportInfoType = {
+  _id: string;
+  createdAt: string;
+  url: string;
+  products: _ProductType[];
+  name: string;
+  status: string;
+};

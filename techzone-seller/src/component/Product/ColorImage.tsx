@@ -28,6 +28,7 @@ export default function ColorImage(props: ColorImageProps) {
       const file = newFileList[0].originFileObj as File;
       const formData = new FormData();
       formData.append("image", file);
+      console.log(" uploaded", formData);
 
       const imageUrl = await UploadService.getURLImage(formData);
 

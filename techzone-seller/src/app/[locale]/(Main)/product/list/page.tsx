@@ -17,12 +17,12 @@ import {
   Empty,
   Input,
   MenuProps,
+  message,
   Popconfirm,
   Table,
   Tabs,
   TabsProps,
   Tooltip,
-  message,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import Link from "next/link";
@@ -530,6 +530,18 @@ export default function ProductListPage() {
   //   setFilterOptions(updatedFilterCriterias);
   // };
 
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query);
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
   useEffect(() => {
     const filterProducts = async () => {
       const updatedQuery = new URLSearchParams(query);
@@ -616,7 +628,7 @@ export default function ProductListPage() {
         onChange={(activeKey) => setCurrentTab(activeKey)}
         items={tabItems}
       ></Tabs>
-      <div className="flex items-center">
+      <div className="flex items-center space-x-6 mt-4">
         <Search
           placeholder={`Nhập tên sản phẩm`}
           style={{
@@ -649,7 +661,6 @@ export default function ProductListPage() {
             {filterOptions.map((item, index) => {
               return (
                 <div
-                  key={index}
                   key={index}
                   className="flex flex-wrap items-center  text-xs max-w-4/5 "
                 >
@@ -709,9 +720,7 @@ export default function ProductListPage() {
       )}
       <Divider />
       <div className="flex">
-        <p className="font-semibold text-lg m-4">
-          Sản phẩm: {filteredProducts.length}
-        </p>
+        <p className="font-semibold text-lg m-4">Sản phẩm: {totalProduct}</p>
       </div>
       <div>
         <Table
@@ -723,12 +732,14 @@ export default function ProductListPage() {
             };
           }}
           pagination={{
-            pageSizeOptions: ["10", "5"],
+            defaultPageSize: 20,
+            pageSizeOptions: ["20", "10", "5"],
+
             showSizeChanger: true,
-            total: tabProducts.length,
-            // onChange: (page, pageSize) => {
-            //   fetchRecords(page, pageSize);
-            // }
+            total: totalProduct,
+            onChange: (page, pageSize) => {
+              fetchRecords(page, pageSize);
+            },
           }}
           bordered
           rowSelection={{

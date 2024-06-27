@@ -1,3 +1,6 @@
+import { _ProductType } from "./ProductType";
+import { UserType } from "./UserType";
+
 export type ReviewType = {
   id: string;
   orderId: string;
@@ -11,8 +14,8 @@ export type ReviewType = {
 
 export type _ReviewType = {
   _id: string;
-  product: string;
-  user: string;
+  product: _ProductType;
+  user: UserType;
   imageUrl: string;
   rating: number;
   content: string;
