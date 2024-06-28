@@ -548,8 +548,9 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                       setDescriptionText(content);
                     }}
                     apiKey="z34ywiojqhkcw0gkzqfv1wf2cvba4graf9pk4w88ttj0tqd4"
-                    // onInit={(_evt, editor) => (editorRef.current = editor)}
-                    initialValue={descriptionText}
+                    //onInit={(_evt, editor) => (editorRef.current = editor)}
+                    initialValue={"<p>Thêm mô tả sản phẩm ở đây</p>"}
+                    value={descriptionText}
                     init={{
                       height: 500,
                       menubar: true,

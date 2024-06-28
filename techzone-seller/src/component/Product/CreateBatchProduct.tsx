@@ -671,7 +671,8 @@ export default function CreateBatchProduct() {
             <div className="scroll-auto " style={{ minHeight: "400px" }}>
               <Table
                 pagination={{
-                  pageSizeOptions: ["10", "5"],
+                  pageSize: 20,
+                  pageSizeOptions: ["20", "10", "5"],
                   showSizeChanger: true,
                   total: selectedRow?.length,
                 }}
