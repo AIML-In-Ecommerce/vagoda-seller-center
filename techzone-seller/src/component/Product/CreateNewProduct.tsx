@@ -617,6 +617,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   isOpen={genaiDescriptionModalOpen}
                   openModal={setGenaiDescriptionModalOpen}
                   setDescription={setDescriptionText}
+                  shortDescription={descriptionText}
                 />
               </Collapse.Panel>
               <Collapse.Panel
