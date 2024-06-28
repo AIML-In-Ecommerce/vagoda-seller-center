@@ -1,5 +1,4 @@
 "use client";
-import FilterDropdown from "@/component/Product/FilterDropdown";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ReviewType } from "@/model/ReviewType";
 import { CategoryService } from "@/services/Category";
@@ -13,6 +12,7 @@ import {
   Input,
   MenuProps,
   Rate,
+  Select,
   Table,
   Tabs,
   TabsProps,
@@ -30,64 +30,6 @@ export interface FilterCriteria {
 }
 
 const { Search } = Input;
-
-// const reviews: ReviewType[] = [
-//   {
-//     id: "1",
-//     orderId: "ORD123",
-//     productName: "Laptop Dell XPS 15",
-//     SKU: "SKU123",
-//     imageUrl:
-//       "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 5,
-//     content: "Sản phẩm tuyệt vời, vượt xa mong đợi!",
-//     status: "Đã trả lời",
-//   },
-//   {
-//     id: "2",
-//     orderId: "ORD456",
-//     productName: "Máy lạnh Panasonic Inverter 1.5HP ",
-//     SKU: "SKU456",
-//     imageUrl:
-//       "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 4,
-//     content: "Sản phẩm tốt, nhưng có thể cải thiện.",
-//     status: "Chưa trả lời",
-//   },
-//   {
-//     id: "3",
-//     orderId: "ORD789",
-//     productName: "Tai nghe Bluetooth Sony WH-1000XM4",
-//     SKU: "SKU789",
-//     imageUrl:
-//       "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 3,
-//     content: "Sản phẩm trung bình, không có gì đặc biệt.",
-//     status: "Chưa trả lời",
-//   },
-//   {
-//     id: "4",
-//     orderId: "ORD101112",
-//     productName: "Máy ảnh Canon EOS R6",
-//     SKU: "SKU101112",
-//     imageUrl:
-//       "https://images.pexels.com/photos/18135362/pexels-photo-18135362/free-photo-of-nikon-camera-hanging-on-gray-background.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 2,
-//     content: "Sản phẩm thất vọng, không như mô tả.",
-//     status: "Chưa trả lời",
-//   },
-//   {
-//     id: "5",
-//     orderId: "ORD131415",
-//     productName: "Smartphone Samsung Galaxy S21 Ultra",
-//     SKU: "SKU131415",
-//     imageUrl:
-//       "https://images.pexels.com/photos/17944743/pexels-photo-17944743/free-photo-of-close-up-of-a-man-holding-a-green-samsung-galaxy-s21.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 1,
-//     content: "Sản phẩm kinh khủng, không đề nghị.",
-//     status: "Đã trả lời",
-//   },
-// ];
 
 const exportOptions: MenuProps["items"] = [
   {
@@ -117,13 +59,14 @@ export default function ReviewProductPage() {
   const [tabReviews, setTabReviews] = useState<_ReviewType[]>([]);
   const [totalReview, setTotalReview] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [filterResponseStatus, setFilterResponseStatus] = useState<string>("");
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string,
+    key: string
   ) => {
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key,
+      (option) => option.key !== key
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -227,7 +170,7 @@ export default function ReviewProductPage() {
         return (
           <div className="space-x-2 ">
             <Button type="primary" className="bg-sky-100 text-black text-xs">
-              Xem chi tiết
+              Phản hồi
             </Button>
           </div>
         );
@@ -322,7 +265,7 @@ export default function ReviewProductPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`,
+        `${window.location.pathname}?${updatedQuery.toString()}`
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -339,7 +282,7 @@ export default function ReviewProductPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     updatedFilterCriterias = updatedFilterCriterias.filter(
-      (criteria) => criteria.key !== key,
+      (criteria) => criteria.key !== key
     );
 
     setFilterOptions(updatedFilterCriterias);
@@ -388,6 +331,22 @@ export default function ReviewProductPage() {
   // useEffect(() => {
   //   handleFilterChange();
   // }, []);
+
+  const onStatusFilter = (value: string) => {
+    setFilterResponseStatus(value);
+    const updatedQuery = new URLSearchParams(query);
+
+    if (value.length != 0) {
+      updatedQuery.set("status", value);
+    } else {
+      updatedQuery.delete("status");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
 
   const loadFilteredReviews = async () => {
     const response: _ReviewType[] = await ReviewService.getAllReview();
@@ -470,7 +429,7 @@ export default function ReviewProductPage() {
             value={searchValue}
           />
         </div>
-        <div className="">
+        {/* <div className="">
           <p className="font-semibold">Danh mục</p>
           <FilterDropdown
             initialSelectedOptions={
@@ -481,6 +440,20 @@ export default function ReviewProductPage() {
               return { id: c._id, label: c.name };
             })}
             onSelection={handleFilterDropdownChange}
+          />
+        </div> */}
+        <div className="">
+          <div className="font-semibold">Kết quả import</div>
+          <Select
+            onChange={onStatusFilter}
+            defaultValue="Tất cả"
+            style={{ width: 160 }}
+            options={[
+              { value: "", label: "Tất cả" },
+              { value: "SUCCESS", label: "Đã phản hồi" },
+              { value: "FALURE", label: "Chưa phản hồi" },
+            ]}
+            value={filterResponseStatus}
           />
         </div>
         <Button type="text" className="mt-5 text-sky-400">

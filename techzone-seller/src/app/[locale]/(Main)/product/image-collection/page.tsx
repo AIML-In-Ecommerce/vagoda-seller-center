@@ -1,14 +1,13 @@
 "use client";
 
 import GenAiFormModal from "@/component/Product/GenAiFormModal";
+import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 import GenAiResultModal from "@/component/Product/GenAiResultModal";
 import { Breadcrumb, Button, Divider, Modal } from "antd";
 import { useRef, useState } from "react";
 import { FaMagic } from "react-icons/fa";
 import { HiOutlineHome } from "react-icons/hi2";
 import "./local.css";
-import axios from "axios";
-import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 
 type Status = "FORM" | "IN_PROGRESS" | "COMPLETED";
 
@@ -80,7 +79,7 @@ const ImageCollection = () => {
 
     setTimeout(() => {
       setGeneratedImageUrl(
-        "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg",
+        "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg"
       );
       setGenAiStatus("COMPLETED");
     }, 3000);
@@ -106,6 +105,11 @@ const ImageCollection = () => {
           <GenAiResultModal
             tryAgainFnc={() => setGenAiStatus("FORM")}
             imageUrl={generatedImageUrl}
+            isCreatingProductMode={false}
+            addImage={function (image_link: string): void {
+              // throw new Error("Function not implemented.");
+            }}
+            closeModal={setGenAiModalOpen}
           />
         );
     }

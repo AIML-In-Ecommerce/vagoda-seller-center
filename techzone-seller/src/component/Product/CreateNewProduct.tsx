@@ -7,10 +7,10 @@ import {
   FormProps,
   Input,
   InputNumber,
-  Modal,
   Select,
   SelectProps,
   Steps,
+  Tooltip,
   message,
 } from "antd";
 
@@ -30,7 +30,11 @@ import { CategoryService } from "@/services/Category";
 import { ProductService } from "@/services/Product";
 import { useRouter } from "next/navigation";
 import { FaMagic } from "react-icons/fa";
+import { HiLightBulb } from "react-icons/hi2";
+import AIDescriptionModal from "./AIDescriptionModal";
 import ColorOption from "./ColorOption";
+import GenAIImageModal from "./GenAIImageModal";
+import ImageCollectionModal from "./ImageCollectionModal";
 import ImageUploader from "./ImageUploader";
 
 type FieldType = {
@@ -43,7 +47,11 @@ type FieldType = {
   shop: string;
   // status: string;
   inventoryAmount: number;
-  images: string[];
+  images: {
+    link: string;
+    color: { label: string; value: string };
+    type: string;
+  }[];
   attribute: {
     key: string;
     value: any;
@@ -81,12 +89,20 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
   const [imageList, setImageList] = useState<string[]>([]);
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string[]>([]);
+  const [isImageModalCollectionOpen, setIsImageModalCollectionOpen] =
+    useState(false);
+  const [genaiModalOpen, setGenAiModalOpen] = useState<boolean>(false);
+  const [genaiDescriptionModalOpen, setGenaiDescriptionModalOpen] =
+    useState<boolean>(false);
   const [isExpand, setIsExpand] = useState(true);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [status, setStatus] = useState<string>(
     props.updatingProduct ? props.updatingProduct.status : "AVAILABLE"
   );
-  const [collapseActiveKeys, setCollapseActiveKeys] = useState(["1", "2", "3"]);
+  const [collapseActiveKeys, setCollapseActiveKeys] = useState<string[]>([
+    "1",
+    "2",
+    "3",
+  ]);
   const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
   const [colorData, setColorData] = useState<
     { colorCode: string; colorName: string; image: string }[]
@@ -212,7 +228,9 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     setIsExpand(false);
     setCollapseActiveKeys([]);
   };
-  const [descriptionText, setDescriptionText] = useState("");
+  const [descriptionText, setDescriptionText] = useState(
+    "<p>Thêm mô tả sản phẩm ở đây</p>"
+  );
 
   const [currentProduct, setCurrentProduct] = useState<_ProductType | null>(
     props.updatingProduct ?? null
@@ -284,10 +302,8 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     { title: "Thêm hình ảnh" },
   ];
 
-  const getValueProps = (value: any) => {
-    return {
-      value: value,
-    };
+  const addImage = (link: string) => {
+    setImageList((prev) => [...prev, link]);
   };
 
   useEffect(() => {
@@ -401,21 +417,13 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                       name="category"
                       valuePropName="category"
                       getValueFromEvent={(value: any) => {}}
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn danh mục sản phẩm",
-                        },
-                      ]}
                     >
                       <CategoryDropdown
                         category={category}
                         allCategory={allCategories}
                         prevCategory={category}
-                        setCategory={(category: string[]) => {
-                          form.setFieldValue("category", category);
-                          setCategory(category);
-                        }}
+                        setCategory={setCategory}
+                        // getValueProps={getValueProps}
                       />{" "}
                     </Form.Item>
                   </div>
@@ -541,7 +549,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                     }}
                     apiKey="z34ywiojqhkcw0gkzqfv1wf2cvba4graf9pk4w88ttj0tqd4"
                     // onInit={(_evt, editor) => (editorRef.current = editor)}
-                    initialValue="<p>Thêm mô tả sản phẩm ở đây</p>"
+                    initialValue={descriptionText}
                     init={{
                       height: 500,
                       menubar: true,
@@ -587,36 +595,32 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                     }}
                   />
                 </Form.Item>
+                <Tooltip
+                  placement="leftTop"
+                  color="blue"
+                  title={"Viết gợi ý về sản phẩm và AI sẽ giúp bạn ! "}
+                >
+                  <Button
+                    type="default"
+                    className="bg-white  text-black"
+                    onClick={() => setGenaiDescriptionModalOpen(true)}
+                  >
+                    <div className="flex space-x-2 items-center">
+                      <HiLightBulb size={16} color="#FFDA35" />
+                      <p>Gợi ý từ trợ lý AI</p>
+                    </div>
+                  </Button>
+                </Tooltip>
+
+                <AIDescriptionModal
+                  isOpen={genaiDescriptionModalOpen}
+                  openModal={setGenaiDescriptionModalOpen}
+                  setDescription={setDescriptionText}
+                />
               </Collapse.Panel>
               <Collapse.Panel
                 key="3"
-                header={
-                  <div className=" flex justify-between items-center">
-                    <p className="font-bold">3. Thêm hình ảnh</p>
-                    <div className="flex space-x-2">
-                      <Button
-                        // onClick={() => {
-                        //   setIsImageModalOpen(true);
-                        // }}
-                        type="primary"
-                        className=" bg-lime-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center "
-                      >
-                        <MdOutlineCollections />
-                        Chọn ảnh từ bộ sưu tập
-                      </Button>
-                      <Button
-                        // onClick={() => {
-                        //   setGenAiModalOpen(true);
-                        // }}
-                        type="primary"
-                        className=" bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center hover:from-cyan-700 hover:to-blue-700 "
-                      >
-                        <FaMagic />
-                        Tạo hình ảnh bằng AI
-                      </Button>
-                    </div>
-                  </div>
-                }
+                header={<p className="font-bold">3. Thêm hình ảnh</p>}
               >
                 <div className="flex  space-x-1 font-semibold ">
                   <div className="text-red-500 font-bold text-sm">*</div>{" "}
@@ -626,37 +630,46 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   </div>
                 </div>
 
-                <Form.Item<FieldType>
-                  name="images"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng tải lên ít nhất 1 ảnh",
-                    },
-                  ]}
-                >
-                  <ImageUploader
-                    fileUrls={imageList}
-                    setFileString={(images: string[]) => {
-                      form.setFieldValue("images", images);
-                      setImageList(images);
+                <div className="flex flex-row-reverse mb-4 ">
+                  <Button
+                    onClick={() => {
+                      setIsImageModalCollectionOpen(true);
                     }}
-                    setCoverImageIndex={setCoverImageIndex}
-                    maxNumber={12}
-                    minNumber={1}
+                    type="primary"
+                    className="ml-2 bg-cyan-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center "
+                  >
+                    <MdOutlineCollections />
+                    Bộ sưu tập
+                  </Button>
+                  <ImageCollectionModal
+                    isOpen={isImageModalCollectionOpen}
+                    openModal={setIsImageModalCollectionOpen}
+                    addImage={addImage}
                   />
-                </Form.Item>
+                  <Button
+                    onClick={() => setGenAiModalOpen(true)}
+                    type="primary"
+                    className="bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center hover:from-cyan-700 hover:to-blue-700"
+                  >
+                    <FaMagic />
+                    Tạo ảnh bằng AI
+                  </Button>
+
+                  <GenAIImageModal
+                    openModal={genaiModalOpen}
+                    setOpenModal={setGenAiModalOpen}
+                    addImage={addImage}
+                  />
+                </div>
+
+                <ImageUploader
+                  fileUrls={imageList}
+                  setFileString={setImageList}
+                  setCoverImageIndex={setCoverImageIndex}
+                  maxNumber={12}
+                  minNumber={1}
+                />
               </Collapse.Panel>
-              <Modal
-                centered
-                open={isImageModalOpen}
-                width={900}
-                onCancel={() => {
-                  setIsImageModalOpen(false);
-                  // setIsFormVisible(true);
-                }}
-                footer={null}
-              ></Modal>
             </Collapse>
             <div className="flex flex-row-reverse space-x-2 p-4">
               {props.isCreating ? (

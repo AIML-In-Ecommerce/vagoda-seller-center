@@ -151,7 +151,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         itemRender={itemRender}
         maxCount={props.maxNumber}
       >
-        {fileList.length < props.maxNumber && "+ Upload"}
+        {fileList.length < props.maxNumber && "+ Tải ảnh"}
       </Upload>
     </ImgCrop>
   );
