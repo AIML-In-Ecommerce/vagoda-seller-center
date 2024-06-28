@@ -96,7 +96,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     useState<boolean>(false);
   const [isExpand, setIsExpand] = useState(true);
   const [status, setStatus] = useState<string>(
-    props.updatingProduct ? props.updatingProduct.status : "AVAILABLE"
+    props.updatingProduct ? props.updatingProduct.status : "AVAILABLE",
   );
   const [collapseActiveKeys, setCollapseActiveKeys] = useState<string[]>([
     "1",
@@ -156,7 +156,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     if (props.isCreating) {
       try {
         const { status, message } = await ProductService.createProduct(
-          createdProductData
+          createdProductData,
         );
         creatingProductMessage.open({
           type: status === 200 ? "success" : "error",
@@ -177,7 +177,9 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
       try {
         const { status, message } = await ProductService.updateProduct(
           createdProductData,
-          props.updatingProduct?._id ? props.updatingProduct._id.toString() : ""
+          props.updatingProduct?._id
+            ? props.updatingProduct._id.toString()
+            : "",
         );
         creatingProductMessage.open({
           type: status === 200 ? "success" : "error",
@@ -198,7 +200,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo
+    errorInfo,
   ) => {};
 
   let bgColor = "";
@@ -229,11 +231,11 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     setCollapseActiveKeys([]);
   };
   const [descriptionText, setDescriptionText] = useState(
-    "<p>Thêm mô tả sản phẩm ở đây</p>"
+    "<p>Thêm mô tả sản phẩm ở đây</p>",
   );
 
   const [currentProduct, setCurrentProduct] = useState<_ProductType | null>(
-    props.updatingProduct ?? null
+    props.updatingProduct ?? null,
   );
   const editorRef = useRef<Editor | null>(null);
 
@@ -548,7 +550,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                       setDescriptionText(content);
                     }}
                     apiKey="z34ywiojqhkcw0gkzqfv1wf2cvba4graf9pk4w88ttj0tqd4"
-                    // onInit={(_evt, editor) => (editorRef.current = editor)}
+                    onInit={(_evt, editor) => (editorRef.current = editor)}
                     initialValue={descriptionText}
                     init={{
                       height: 500,
@@ -616,6 +618,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   isOpen={genaiDescriptionModalOpen}
                   openModal={setGenaiDescriptionModalOpen}
                   setDescription={setDescriptionText}
+                  shortDescription={descriptionText}
                 />
               </Collapse.Panel>
               <Collapse.Panel

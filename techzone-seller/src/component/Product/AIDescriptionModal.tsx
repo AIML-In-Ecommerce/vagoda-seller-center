@@ -1,4 +1,5 @@
 import { Button, Modal } from "antd";
+import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { HiLightBulb } from "react-icons/hi2";
 
@@ -6,6 +7,7 @@ interface AIDescriptionModalProp {
   isOpen: boolean;
   openModal: (isOpen: boolean) => void;
   setDescription: (text: string) => void;
+  shortDescription: string;
 }
 
 const mockDescription = `<p class="QN2lPu">&Aacute;o sơ mi nam ngắn tay cổ vest form đẹp LADOS 8085 vải đũi thấm h&uacute;t, sang trọng dễ phối đồ</p>
@@ -36,9 +38,44 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const ref = useRef(null);
 
+  console.log("Short Description: ", props.shortDescription);
+
   useEffect(() => {
     import("@lottiefiles/lottie-player");
   });
+
+  const getDescriptionFromAI = async (shortDescription: string) => {
+    setIsLoading(true);
+    const postBody = {
+      prompt: shortDescription,
+    };
+
+    console.log("PostBody: ", postBody);
+
+    try {
+      const rawResponse = await axios.post(
+        "http://localhost:8000/genai/generate-product-description",
+        postBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      if (rawResponse.status == 200) {
+        console.log("AI Response: ", rawResponse.data);
+        // let response = JSON.parse(rawResponse.data);
+        setDescription(rawResponse.data.data);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Error in conservation:", error);
+    }
+  };
+
+  useEffect(() => {
+    getDescriptionFromAI(props.shortDescription);
+  }, [props.isOpen]);
 
   const displayLoading = (
     <div className="flex items-center justify-center h-full">
@@ -59,13 +96,13 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
     props.openModal(false);
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setDescription(mockDescription);
-      setIsLoading(false);
-    }, 3000);
-  }, [props.isOpen]);
+  // useEffect(() => {
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setDescription(mockDescription);
+  //     setIsLoading(false);
+  //   }, 3000);
+  // }, [props.isOpen]);
 
   return (
     <Modal
