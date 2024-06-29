@@ -17,34 +17,20 @@ const ShopService =
         const response = await GET_getShopInfo(shopId)
         if(response == null)
         {
-            return defaultErrorResponse
+            return null
         }
 
         const statusCode = JSON.parse(JSON.stringify(response.status))
 
         if(statusCode != 200 && statusCode != 201)
         {
-            const result: APIFunctionResponse =
-            {
-                statusCode: statusCode,
-                message: "Internal Server error",
-                data: undefined
-            }
-
-            return result
+            return null
         }
 
         const data: APIResponseSchema = JSON.parse(JSON.stringify(response.data))
         const shopInfo = data.data as ShopInfoType        
 
-        const result: APIFunctionResponse = 
-        {
-            statusCode: statusCode,
-            message: "Get shop's info successfully",
-            data: shopInfo
-        }
-
-        return result
+        return shopInfo
     },
 
 }

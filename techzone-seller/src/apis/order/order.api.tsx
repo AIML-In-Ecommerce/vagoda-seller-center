@@ -3,24 +3,23 @@ import axios from "axios"
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX
 const SERVICE_PORT = process.env.NEXT_PUBLIC_ORDER_PORT
+const API_URL: string = `${process.env.NEXT_PUBLIC_S_BACKEND_PREFIX}`
+
 
 const OrderAPI =
 {
-    async getOrdersByShopId(accessToken: string, targetOrderStatus: string)
+    async getOrdersByShopId(shopId: string, targetOrderStatus: string)
     {
-        const url = `${BACKEND_PREFIX}:${SERVICE_PORT}/order/seller/orders`
+        const url = `${API_URL}/order/seller/orders`
 
         try
         {
             const response = await axios.get(url, {
                 params:
                 {
+                    shopId: shopId,
                     orderStatus: targetOrderStatus
                 },
-                headers:
-                {
-                    Authorization: `Bearer ${accessToken}`
-                }
             })
 
             if(response.status == 200)
@@ -38,9 +37,9 @@ const OrderAPI =
         }
     },
 
-    async updateOnOrderStatus(accessToken: string, orderId: string, specStatusCode: string | undefined)
+    async updateOnOrderStatus(shopId: string, orderId: string, specStatusCode: string | undefined)
     {
-        const url = `${BACKEND_PREFIX}:${SERVICE_PORT}/order/seller/status/update_one`
+        const url = `${API_URL}/order/seller/status/update_one`
         const requestBody = 
         {
             orderId: orderId,
@@ -52,9 +51,9 @@ const OrderAPI =
         {
             const response = await axios.put(url, requestBody,
                 {
-                    headers:
+                    params:
                     {
-                        Authorization: `Bearer ${accessToken}`
+                        shopId: shopId
                     }
                 }
             )
@@ -76,11 +75,11 @@ const OrderAPI =
         }
     },
 
-    async updateManyOrderStatus(accessToken: string, orderIds: string[], specStatusCode: string | undefined)
+    async updateManyOrderStatus(shopId: string, orderIds: string[], specStatusCode: string | undefined)
     {
         try
         {
-            const url = `${BACKEND_PREFIX}:${SERVICE_PORT}/order/seller/status/update_many`
+            const url = `${API_URL}/order/seller/status/update_many`
             const requestBody = 
             {
                 orderIds: orderIds,
@@ -90,9 +89,9 @@ const OrderAPI =
 
             const response =  await axios.put(url, requestBody,
                 {
-                    headers:
+                    params:
                     {
-                        Authorization: `Bearer ${accessToken}`
+                        shopId: shopId
                     }
                 }
             )

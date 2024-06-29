@@ -11,6 +11,7 @@ import OrderDetailDrawer from "../util/OrderDetailDrawer";
 import { TableRowSelection } from "antd/es/table/interface";
 import { AuthContext } from "@/context/AuthContext";
 import OrderService from "@/services/order.service";
+import { NotificationContext } from "@/context/NotificationContext";
 
 
 
@@ -103,6 +104,12 @@ export default function ProcessingOrderTab({tabKey, dataSource, askToRefreshData
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
     const authContext = useContext(AuthContext)
+    const notificationContext = useContext(NotificationContext)
+
+    useEffect(() =>
+    {
+        setData(dataSource)
+    }, [dataSource])
 
     const dataColumns: TableColumnType<ProcessingOrder>[] = 
     [
@@ -263,60 +270,63 @@ export default function ProcessingOrderTab({tabKey, dataSource, askToRefreshData
         {
             setDataToDisplay([])
         }
-        const display = data.map((value: OrderPropType) =>
+        else
         {
-            let totalProducts = 0;
-            value.products.forEach((selection) =>
+            const display = data.map((value: OrderPropType) =>
             {
-                totalProducts += selection.quantity
-            })
-
-            let orderStatus: DisplayStatus =
-            {
-                name: "Đang chờ",
-                type: StatusType.PENDING
-            }
-            const today = new Date()
-
-            const deadlineTime = value.orderStatus[value.orderStatus.length - 1].deadline
-
-            if(today > deadlineTime)
-            {
-                orderStatus =
+                let totalProducts = 0;
+                value.products.forEach((selection) =>
                 {
-                    name: "Đang chờ và đã quá hạn",
-                    type: StatusType.EXPIRED
+                    totalProducts += selection.quantity
+                })
+    
+                let orderStatus: DisplayStatus =
+                {
+                    name: "Đang chờ",
+                    type: StatusType.PENDING
                 }
-            }
-
-            const item: ProcessingOrder =
-            {
-                key: value._id,
-                status: orderStatus,
-                delivery: {
-                    receiverName: value.shippingAddress.receiverName,
-                    address: value.shippingAddress.street,
-                    phoneNumber: value.shippingAddress.phoneNumber,
-                    coordinate: value.shippingAddress.coordinate,
-                    label: value.shippingAddress.label,
-                    isDefault: value.shippingAddress.isDefault
-                },
-                time: {
-                    orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
-                    deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
-                },
-                price: {
-                    totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
-                    profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                const today = new Date()
+    
+                const deadlineTime = new Date(value.orderStatus[value.orderStatus.length - 1].deadline)
+    
+                if(today > deadlineTime)
+                {
+                    orderStatus =
+                    {
+                        name: "Đang chờ và đã quá hạn",
+                        type: StatusType.EXPIRED
+                    }
                 }
-            }
-
-            return item
-        })
-
-        setDataToDisplay(display)
+    
+                const item: ProcessingOrder =
+                {
+                    key: value._id,
+                    status: orderStatus,
+                    delivery: {
+                        receiverName: value.shippingAddress.receiverName,
+                        address: value.shippingAddress.street,
+                        phoneNumber: value.shippingAddress.phoneNumber,
+                        coordinate: value.shippingAddress.coordinate,
+                        label: value.shippingAddress.label,
+                        isDefault: value.shippingAddress.isDefault
+                    },
+                    time: {
+                        orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
+                        deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
+                    },
+                    price: {
+                        totalProduct: totalProducts,
+                        shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                        totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                        profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                    }
+                }
+    
+                return item
+            })
+    
+            setDataToDisplay(display)
+        }
     },
     [data])
 
@@ -351,27 +361,29 @@ export default function ProcessingOrderTab({tabKey, dataSource, askToRefreshData
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
-        if(authContext.methods == null)
+        if(authContext.shopInfo == null)
         {
             return
         }
-        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-        if(isRefreshedSuccessfully == false)
+
+        const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.shopInfo._id as string,
+        targetOrderId)
+        if(isUpdateSuccessfully == null)
         {
-            authContext.methods.forceSignIn()
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận xử lý thất bại",
+                description: `Không thể xác nhận xử lý cho đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
         }
         else
         {
-            const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.methods.getAccessToken() as string,
-            targetOrderId)
-            if(isUpdateSuccessfully == null)
-            {
-                authContext.methods.forceSignIn()
-            }
-            else if(isUpdateSuccessfully == true)
-            {
-                askToRefreshData(tabKey)
-            }
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận xử lý thành công`,
+                description: `Xác nhận xử lý thành công cho đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
         }
     }
 
@@ -379,27 +391,29 @@ export default function ProcessingOrderTab({tabKey, dataSource, askToRefreshData
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
-        if(authContext.methods == null)
+        if(authContext.shopInfo == null)
         {
             return
         }
-        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-        if(isRefreshedSuccessfully == false)
+
+        const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.shopInfo._id as string,
+        targetOrderId)
+        if(isUpdateSuccessfully == null)
         {
-            authContext.methods.forceSignIn()
+            notificationContext?.notificationAPI.error({
+                message: "Hủy đơn hàng thất bại",
+                description: `Không thể hủy đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
         }
         else
         {
-            const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.methods.getAccessToken() as string,
-            targetOrderId)
-            if(isUpdateSuccessfully == null)
-            {
-                authContext.methods.forceSignIn()
-            }
-            else if(isUpdateSuccessfully == true)
-            {
-                askToRefreshData(tabKey)
-            }
+            notificationContext?.notificationAPI.success({
+                message: `Hủy đơn hàng thành công`,
+                description: `Đã hủy thành công đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
         }
     }
 
@@ -415,27 +429,28 @@ export default function ProcessingOrderTab({tabKey, dataSource, askToRefreshData
 
     async function handleConfirmManyOrder(soids: string[])
     {
-        if(authContext.methods == null)
+        if(authContext.shopInfo == null)
         {
             return
         }
-        //TODO: call api to update order status here
-        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-        if(isRefreshedSuccessfully == false)
+
+        const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.shopInfo._id as string, soids)
+        if(isUpdateSuccessfully == null)
         {
-            authContext.methods.forceSignIn()
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận xử lý thất bại",
+                description: `Không thể xác nhận xử lý cho các đơn hàng đã chọn`,
+                placement: "top"
+            })
         }
         else
         {
-            const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.methods.getAccessToken() as string, soids)
-            if(isUpdateSuccessfully == null)
-            {
-                authContext.methods.forceSignIn()
-            }
-            else if(isUpdateSuccessfully == true)
-            {
-                askToRefreshData(tabKey)
-            }
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận xử lý thành công`,
+                description: `Đã xác nhận xử lý cho các đơn hàng đã chọn`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
         }
     }
 

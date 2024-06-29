@@ -11,6 +11,7 @@ import OrderDetailDrawer from "../util/OrderDetailDrawer"
 import { ShippingOrderPoolSetting } from "@/component_config/order/filter_pool/ShippingOrderPoolSetting"
 import { AuthContext } from "@/context/AuthContext"
 import OrderService from "@/services/order.service"
+import { NotificationContext } from "@/context/NotificationContext"
 
 
 interface ShippingOrderTabProps
@@ -99,6 +100,13 @@ export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}:
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
     const authContext = useContext(AuthContext)
+
+    const notificationContext = useContext(NotificationContext)
+
+    useEffect(() =>
+    {
+        setData(dataSource)
+    }, [dataSource])
 
     const dataColumns: TableColumnType<ShippingOrder>[] = 
     [
@@ -259,48 +267,52 @@ export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}:
         {
             setDataToDisplay([])
         }
-        const display = data.map((value: OrderPropType) =>
+        else
         {
-            let totalProducts = 0;
-            value.products.forEach((selection) =>
+            const display = data.map((value: OrderPropType) =>
             {
-                totalProducts += selection.quantity
-            })
-
-            let orderStatus: DisplayStatus =
-            {
-                name: "Đang chờ",
-                type: StatusType.PENDING
-            }
-
-            const item: ShippingOrder =
-            {
-                key: value._id,
-                status: orderStatus,
-                delivery: {
-                    receiverName: value.shippingAddress.receiverName,
-                    address: value.shippingAddress.street,
-                    phoneNumber: value.shippingAddress.phoneNumber,
-                    coordinate: value.shippingAddress.coordinate,
-                    label: value.shippingAddress.label,
-                    isDefault: value.shippingAddress.isDefault
-                },
-                time: {
-                    orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
-                    deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
-                },
-                price: {
-                    totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
-                    profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                let totalProducts = 0;
+                value.products.forEach((selection) =>
+                {
+                    totalProducts += selection.quantity
+                })
+    
+                let orderStatus: DisplayStatus =
+                {
+                    name: "Đang chờ",
+                    type: StatusType.PENDING
                 }
-            }
-
-            return item
-        })
-
-        setDataToDisplay(display)
+    
+                const item: ShippingOrder =
+                {
+                    key: value._id,
+                    status: orderStatus,
+                    delivery: {
+                        receiverName: value.shippingAddress.receiverName,
+                        address: value.shippingAddress.street,
+                        phoneNumber: value.shippingAddress.phoneNumber,
+                        coordinate: value.shippingAddress.coordinate,
+                        label: value.shippingAddress.label,
+                        isDefault: value.shippingAddress.isDefault
+                    },
+                    time: {
+                        orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
+                        deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
+                    },
+                    price: {
+                        totalProduct: totalProducts,
+                        shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                        totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                        profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                    }
+                }
+    
+                return item
+            })
+    
+            setDataToDisplay(display)
+    
+        }
     },
     [data])
 
@@ -335,27 +347,29 @@ export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}:
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
-        if(authContext.methods == null)
+        if(authContext.shopInfo == null)
         {
             return
         }
-        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-        if(isRefreshedSuccessfully == false)
+
+        const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.shopInfo._id as string,
+        targetOrderId)
+        if(isUpdateSuccessfully == null)
         {
-            authContext.methods.forceSignIn()
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận vận chuyển thất bái",
+                description: `Không thể xác nhận vận chuyển đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
         }
-        else
+        else if(isUpdateSuccessfully == true)
         {
-            const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.methods.getAccessToken() as string,
-            targetOrderId)
-            if(isUpdateSuccessfully == null)
-            {
-                authContext.methods.forceSignIn()
-            }
-            else if(isUpdateSuccessfully == true)
-            {
-                askToRefreshData(tabKey)
-            }
+            notificationContext?.notificationAPI.success({
+                message: "Xác nhận vận chuyển thành công",
+                description: `Xác nhận vận chuyển đơn hàng${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
         }
     }
 
@@ -363,28 +377,21 @@ export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}:
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
-        if(authContext.methods == null)
+        if(authContext.shopInfo == null)
         {
             return
         }
-        const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-        if(isRefreshedSuccessfully == false)
-        {
-            authContext.methods.forceSignIn()
-        }
-        else
-        {
-            const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.methods.getAccessToken() as string,
-            targetOrderId)
-            if(isUpdateSuccessfully == null)
-            {
-                authContext.methods.forceSignIn()
-            }
-            else if(isUpdateSuccessfully == true)
-            {
-                askToRefreshData(tabKey)
-            }
-        }
+
+        // const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.shopInfo._id as string,
+        // targetOrderId)
+        // if(isUpdateSuccessfully == null)
+        // {
+
+        // }
+        // else if(isUpdateSuccessfully == true)
+        // {
+        //     askToRefreshData(tabKey)
+        // }
     }
 
     function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: ShippingOrder[])
@@ -399,28 +406,30 @@ export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}:
 
     async function handleConfirmManyOrder(soids: string[])
     {
-        if(authContext.methods == null)
-            {
-                return
-            }
-            //TODO: call api to update order status here
-            const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-            if(isRefreshedSuccessfully == false)
-            {
-                authContext.methods.forceSignIn()
-            }
-            else
-            {
-                const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.methods.getAccessToken() as string, soids)
-                if(isUpdateSuccessfully == null)
-                {
-                    authContext.methods.forceSignIn()
-                }
-                else if(isUpdateSuccessfully == true)
-                {
-                    askToRefreshData(tabKey)
-                }
-            }
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.shopInfo._id as string, soids)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận vận chuyển thất bại",
+                description: "Không thể xác nhận vận chuyển cho các đơn hàng đã chọn",
+                placement: "top"
+            })
+        }
+        else if(isUpdateSuccessfully == true)
+        {
+            notificationContext?.notificationAPI.success({
+                message: "Xác nhận vận chuyển thành công",
+                description: "Xác nhận vận chuyển cho các đơn hàng đã chọn",
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
+
     }
 
     const rowSelection: TableRowSelection<ShippingOrder> = 

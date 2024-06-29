@@ -8,6 +8,8 @@ import { TableRowSelection } from "antd/es/table/interface"
 import OrderDetailDrawer from "../util/OrderDetailDrawer"
 import { CancelledOrderPoolSetting } from "@/component_config/order/filter_pool/CancelledOrderPoolSetting"
 import { AuthContext } from "@/context/AuthContext"
+import OrderService from "@/services/order.service"
+import { NotificationContext } from "@/context/NotificationContext"
 
 
 
@@ -20,8 +22,9 @@ interface CancelledOrderTabProp
 
 enum StatusType
 {
-    PENDING,
-    EXPIRED
+    WAITING_REVIEW,
+    EXPIRED_WATING,
+    COMPLETED_REVIEW
 }
 
 interface DisplayStatus
@@ -100,6 +103,12 @@ export default function CancelledOrderTab({tabKey, dataSource, askToRefreshData}
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
     const authContext = useContext(AuthContext)
+    const notificationContext = useContext(NotificationContext)
+
+    useEffect(() =>
+    {
+        setData(dataSource)
+    }, [dataSource])
 
     const dataColumns: TableColumnType<CancelledOrder>[] = 
     [
@@ -115,14 +124,20 @@ export default function CancelledOrderTab({tabKey, dataSource, askToRefreshData}
                     let statusDisplay = <></>
                     switch(record.status.type)
                     {
-                        case StatusType.PENDING:
+                        case StatusType.WAITING_REVIEW:
                             {
                                 statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"geekblue"}>{record.status.name}</Tag>
                                 break;
                             }
-                        case StatusType.EXPIRED:
+                        case StatusType.EXPIRED_WATING:
                             {
-                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"orange"}>{record.status.name}</Tag>
+                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"red"}>{record.status.name}</Tag>
+                                break;
+                            }
+                        case StatusType.COMPLETED_REVIEW:
+                            {
+                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"green"}>{record.status.name}</Tag>
+                                break;
                             }
                     }
                     return statusDisplay
@@ -260,60 +275,73 @@ export default function CancelledOrderTab({tabKey, dataSource, askToRefreshData}
         {
             setDataToDisplay([])
         }
-        const display = data.map((value: OrderPropType) =>
+        else
         {
-            let totalProducts = 0;
-            value.products.forEach((selection) =>
+            const display = data.map((value: OrderPropType) =>
             {
-                totalProducts += selection.quantity
-            })
-
-            let orderStatus: DisplayStatus =
-            {
-                name: "Đang chờ",
-                type: StatusType.PENDING
-            }
-            const today = new Date()
-
-            const deadlineTime = value.orderStatus[value.orderStatus.length - 1].deadline
-
-            if(today > deadlineTime)
-            {
-                orderStatus =
+                let totalProducts = 0;
+                value.products.forEach((selection) =>
                 {
-                    name: "Đang chờ và đã quá hạn",
-                    type: StatusType.EXPIRED
+                    totalProducts += selection.quantity
+                })
+    
+                let orderStatus: DisplayStatus =
+                {
+                    name: "Đang chờ xem xét",
+                    type: StatusType.WAITING_REVIEW
                 }
-            }
-
-            const item: CancelledOrder =
-            {
-                key: value._id,
-                status: orderStatus,
-                delivery: {
-                    receiverName: value.shippingAddress.receiverName,
-                    address: value.shippingAddress.street,
-                    phoneNumber: value.shippingAddress.phoneNumber,
-                    coordinate: value.shippingAddress.coordinate,
-                    label: value.shippingAddress.label,
-                    isDefault: value.shippingAddress.isDefault
-                },
-                time: {
-                    orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
-                    deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
-                },
-                price: {
-                    totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
-                    profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                const today = new Date()
+    
+                const completedTime = value.orderStatus[value.orderStatus.length - 1].complete != null ? new Date(value.orderStatus[value.orderStatus.length - 1].complete!) : null
+                const deadlineTime = new Date(value.orderStatus[value.orderStatus.length - 1].deadline)
+    
+                if(today > deadlineTime)
+                {
+                    orderStatus =
+                    {
+                        name: "Đang chờ xem xét và quá hạn",
+                        type: StatusType.EXPIRED_WATING
+                    }
                 }
-            }
+                else if(completedTime != null)
+                {
+                    orderStatus =
+                    {
+                        name: "Đã xem xét",
+                        type: StatusType.COMPLETED_REVIEW
+                    }
+                }
 
-            return item
-        })
 
-        setDataToDisplay(display)
+                const item: CancelledOrder =
+                {
+                    key: value._id,
+                    status: orderStatus,
+                    delivery: {
+                        receiverName: value.shippingAddress.receiverName,
+                        address: value.shippingAddress.street,
+                        phoneNumber: value.shippingAddress.phoneNumber,
+                        coordinate: value.shippingAddress.coordinate,
+                        label: value.shippingAddress.label,
+                        isDefault: value.shippingAddress.isDefault
+                    },
+                    time: {
+                        orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
+                        deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
+                    },
+                    price: {
+                        totalProduct: totalProducts,
+                        shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                        totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                        profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                    }
+                }
+    
+                return item
+            })
+    
+            setDataToDisplay(display)
+        }
     },
     [data])
 
@@ -345,10 +373,33 @@ export default function CancelledOrderTab({tabKey, dataSource, askToRefreshData}
         setOrderDetailOpen(false)
     }
 
-    function handleConfirmOrderOnClick(params: any)
+    async function handleConfirmOrderOnClick(params: any)
     {
         const targetOrderId = params as string
-        //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.shopInfo._id, targetOrderId)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: `Xác nhận xem xét thất bại`,
+                description: `Không thể xác nhận xem xét cho đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            console.log("success")
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận xem xét thành công`,
+                description: `Xác nhận xem xét hủy cho đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
     function handleCancelOrderOnClick(params: any)
@@ -367,11 +418,31 @@ export default function CancelledOrderTab({tabKey, dataSource, askToRefreshData}
         setSelectedOrderIds(selectedOrderIds)
     }
 
-    function handleConfirmManyOrder(soids: string[])
+    async function handleConfirmManyOrder(soids: string[])
     {
-        console.log(soids)
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
 
-        //TODO: call api to update order status here
+        const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.shopInfo._id, soids)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: `Xác nhận xem xét thất bại`,
+                description: `Không thể xác nhận xem xét hủy hàng loạt`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận xem xét thành công`,
+                description: `Xác nhận xem xét hủy hàng loạt cho các đơn hàng`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
     const rowSelection: TableRowSelection<CancelledOrder> = 
