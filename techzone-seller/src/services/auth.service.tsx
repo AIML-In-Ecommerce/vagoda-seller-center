@@ -21,6 +21,7 @@ export interface RegisterResponseData
 
 export interface RefreshTokenReponseData
 {
+    userId: string,
     accessToken: string,
     accessTokenExpiredDate: string | Date,
     refreshToken: string,

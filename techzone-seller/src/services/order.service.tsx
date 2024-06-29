@@ -6,9 +6,9 @@ import { OrderPropType, OrderStatusValues } from "@/model/OrderPropType";
 
 const OrderService = 
 {
-    async getOrders(accessToken: string, targetOrderStatus: string)
+    async getOrders(shopId: string, targetOrderStatus: string)
     {
-        const orders = await OrderAPI.getOrdersByShopId(accessToken, targetOrderStatus) as OrderPropType[]
+        const orders = await OrderAPI.getOrdersByShopId(shopId, targetOrderStatus) as OrderPropType[]
         if(orders == null)
         {
             return [] as OrderPropType[]
@@ -17,21 +17,21 @@ const OrderService =
         return orders
     },
 
-    async updateOneOrderStatus(accessToken: string, orderId: string)
+    async updateOneOrderStatus(shopId: string, orderId: string)
     {
-        const result = await OrderAPI.updateOnOrderStatus(accessToken, orderId, undefined)
+        const result = await OrderAPI.updateOnOrderStatus(shopId, orderId, undefined)
         return result
     },
 
-    async cancelOneOrderStatus(accessToken: string, orderId: string)
+    async cancelOneOrderStatus(shopId: string, orderId: string)
     {
-        const result = await OrderAPI.updateOnOrderStatus(accessToken, orderId, OrderStatusValues.CANCELLED)
+        const result = await OrderAPI.updateOnOrderStatus(shopId, orderId, OrderStatusValues.CANCELLED)
         return result
     },
 
-    async updateManyOrdersStatus(accessToken: string, orderIds: string[])
+    async updateManyOrdersStatus(shopId: string, orderIds: string[])
     {
-        const result = await OrderAPI.updateManyOrderStatus(accessToken, orderIds, undefined)
+        const result = await OrderAPI.updateManyOrderStatus(shopId, orderIds, undefined)
         if(result == null)
         {
             return false

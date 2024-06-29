@@ -239,7 +239,7 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                     </Tag>
                     <Flex gap={2}>
                         <Typography.Text>
-                            {orderProps.user.name}
+                            {orderProps.user.fullName}
                         </Typography.Text>
                          - 
                         <Typography.Text className="text-blue-500">

@@ -2,9 +2,10 @@
 
 import { ShopInfoType } from "@/model/ShopInfoType";
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
+import { createContext, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import AuthService, { RefreshTokenReponseData, SignInResponseData } from "@/services/auth.service";
+import ShopService from "@/services/shop.service";
 
 
 interface AuthContextProviderInitProps
@@ -29,13 +30,22 @@ export interface AuthContextFunctions
     login: (authInfo: SignInResponseData) => boolean,
     forceSignIn: () => void,
     logout: () => void,
-    refreshToken: () => Promise<boolean | null>,
+    refreshToken: () => Promise<string | null>,
     getAccessToken: () => string | null
+}
+
+const currentShopInfoStorage = localStorage.getItem(authLocalStorageID)
+
+let defaultShopInfo = null
+
+if(currentShopInfoStorage != null)
+{
+    defaultShopInfo = JSON.parse(currentShopInfoStorage)
 }
 
 const defaultContextValue: AuthContextProps = 
 {
-    shopInfo: null,
+    shopInfo: defaultShopInfo,
     methods: null,
 }
 
@@ -48,8 +58,26 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
 
     const [shopInfo, setShopInfo] = useState<ShopInfoType | null>(null)
 
+    // const shopInfoRef = useRef<ShopInfoType| null>(null)
+
     const router = useRouter()
     const currentPathname = usePathname()
+
+    useEffect(() =>
+    {
+        try
+        {
+            const shopInfoStorage = localStorage.getItem(authLocalStorageID)
+            if(shopInfoStorage != null)
+            {
+                setShopInfo((prev) => JSON.parse(shopInfoStorage))
+            }
+        }
+        catch(error)
+        {
+            console.error(error)
+        }
+    }, [])
 
     async function validateClientAuth()
     {
@@ -71,7 +99,6 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
     }
 
     function login(authInfo: SignInResponseData)
-    // function login()
     {
         try
         {
@@ -79,6 +106,9 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
             localStorage.setItem(authLocalStorageID, stringifiedSellerInfo)
             Cookies.set(accessTokenCookieKey, authInfo.accessToken, {expires: new Date(authInfo.accessTokenExpiredDate)})
             Cookies.set(refreshTokenCookieKey, authInfo.refreshToken, {expires: new Date(authInfo.refreshTokenExpiredDate)})
+
+            setShopInfo((prev) => authInfo.sellerInfo)
+            // shopInfoRef.current = authInfo.sellerInfo
             return true
         }
         catch(error)
@@ -94,24 +124,19 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
 
     async function refreshToken()
     {
-        const accessToken = Cookies.get(accessTokenCookieKey)
-        if(accessToken != null)
-        {
-            return true
-        }
         const currentRefreshToken = Cookies.get(refreshTokenCookieKey)
         if(currentRefreshToken == null) //reture false to force the user re-authenticate
         {
-            return false
+            return null
         }
         const response = await AuthService.refreshToken(currentRefreshToken)
         if(response.statusCode == 500)
         {
-            return false
+            return null
         }
         else if(response.statusCode != 200 && response.statusCode != 201)
         {
-            return false
+            return null
         }
 
         const data = response.data as RefreshTokenReponseData
@@ -119,15 +144,42 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
         Cookies.set(accessTokenCookieKey, data.accessToken, {expires: new Date(data.accessTokenExpiredDate)})
         Cookies.set(refreshTokenCookieKey, data.refreshToken, {expires: new Date(data.refreshTokenExpiredDate)})
 
-        return true
+        return data.userId
     }
 
+    async function reloadShopInfo(userId: string) {
+        //should call this function when the accessToken has existed
+        try {
+            if (shopInfo == null) {
+                const stringifiedInfo = localStorage.getItem(authLocalStorageID);
+                if (stringifiedInfo != null) {
+                    const initUserInfo = JSON.parse(stringifiedInfo) as ShopInfoType;
+                    setShopInfo((prev) => initUserInfo);
+                    // shopInfoRef.current = initUserInfo
+                    return true;
+                }
 
+                const newShopInfo = await ShopService.getShopInfoByShopId(userId);
+                if (newShopInfo == null) {
+                    return false;
+                }
+
+                localStorage.setItem(authLocalStorageID, JSON.stringify(newShopInfo));
+                setShopInfo((prev) => newShopInfo as ShopInfoType)
+                // shopInfoRef.current = newShopInfo.data
+            }
+        } 
+        catch (error) 
+        {
+            return false;
+        }
+    }
 
     function logout()
     {
         localStorage.removeItem(authLocalStorageID)
-
+        // shopInfoRef.current = null
+        setShopInfo(null)
         //remove token here
         Cookies.remove(accessTokenCookieKey)
         Cookies.remove(refreshTokenCookieKey)
@@ -136,7 +188,7 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
     function forceSignIn()
     {
         logout()
-        router.replace("/auth/account")
+        router.replace("/auth")
     }
 
     const supportMethodValue: AuthContextFunctions =
@@ -154,13 +206,20 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
     //check authentication
     useEffect(() =>
     {
-        console.log("current pathname: " + currentPathname)
-
-        async function checkAuthentication()
+        console.log("current path: ", currentPathname)
+        const storedValue = localStorage.getItem(authLocalStorageID);
+        if (storedValue != null && shopInfo == null) 
         {
-            
-        if(matcher.includes(currentPathname) == true)
-            {
+            const currentuserInfo = JSON.parse(
+                storedValue as string
+            ) as ShopInfoType;
+              setShopInfo((prev) => currentuserInfo);
+            // shopInfoRef.current = currentuserInfo
+        }
+        async function checkAuthentication()
+        {   
+            // if(matcher.includes(currentPathname) == true)
+            // {
                 const authCase = await validateClientAuth()
                 switch(authCase)
                 {
@@ -170,24 +229,27 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
                     }
                     case 0: //no available access token -> refresh token
                     {
-                        const isRefreshedSuccessfully = await refreshToken()
-                        if(isRefreshedSuccessfully == false)
+                        const refreshShopId = await refreshToken()
+                        if(refreshShopId == null)
                         {
                             // force to login
                             logout()
-                            router.replace("/auth/account")
+                            forceSignIn()
                         }
-
+                        else
+                        {
+                            await reloadShopInfo(refreshShopId)
+                        }
                         break;
                     }
                     case -1: // no refresh token -> re-authenticate (login again)
                     {
                         logout()
-                        router.replace("auth/account")
+                        forceSignIn()
                         break;
                     }
                 }
-            }
+            // }
         }
 
         checkAuthentication()

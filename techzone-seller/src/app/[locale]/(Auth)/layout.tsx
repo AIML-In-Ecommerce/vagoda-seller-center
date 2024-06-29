@@ -3,9 +3,10 @@ import { Inter } from "next/font/google";
 import "../../globals.css";
 // import { AuthProvider } from "@/context/AuthContext";
 // import { RecoveryProvider } from "@/context/RecoveryContext";
+import { ReactNode, useContext } from "react";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { notFound } from "next/navigation";
-import { ReactNode } from "react";
+import { NotificationContext } from "@/context/NotificationContext";
 // import { SessionProvider } from "next-auth/react";
 // import Providers from "@/component/Providers";
 
@@ -28,6 +29,8 @@ export default function AuthLayout({
   params: { locale },
 }: AuthLayoutProps) {
   const messages = useMessages();
+  const notificationContext = useContext(NotificationContext)
+
   if (!locales.includes(locale as any)) notFound();
   return (
     <html lang={locale}>
@@ -36,6 +39,7 @@ export default function AuthLayout({
           {/* <AuthProvider>
             <RecoveryProvider>{children}</RecoveryProvider>
           </AuthProvider> */}
+          {notificationContext?.notificationContextHolder}
           {children}
         </NextIntlClientProvider>
       </body>
