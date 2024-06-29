@@ -14,10 +14,12 @@ import {
   Layout,
   Breadcrumb,
   Skeleton,
+  notification,
+  NotificationArgsProps,
 } from "antd";
 import Search from "antd/es/input/Search";
 import { TableRowSelection } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
 import {
   DELETE_DeleteCollection,
@@ -31,6 +33,8 @@ interface CollectionColumn {
   createDate: string;
   status: string; // active/inactive
 }
+
+type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function CollectionPage() {
   // mock data
@@ -47,6 +51,18 @@ export default function CollectionPage() {
   const [rawData, setRawData] = useState<CollectionColumn[]>([]);
   const [dataToDisplay, setDataToDisplay] = useState<CollectionColumn[]>([]);
   const [searchText, setSearchText] = useState("");
+
+  // notification
+  const [api, contextHolder] = notification.useNotification();
+
+  const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
+  const openNotification = (title: string, content: ReactElement) => {
+    api.info({
+      message: `${title}`,
+      description: content,
+      placement,
+    });
+  };
 
   // functions
 
@@ -83,9 +99,9 @@ export default function CollectionPage() {
     selectedOrderIds.forEach(async (selectedId) => {
       const response = await DELETE_DeleteCollection(selectedId);
       if (response.status === 200) {
-        alert("Xoá bộ sưu tập thành công!");
+        openNotification("Xoá bộ sưu tập thành công!", <></>);
       } else {
-        alert("Xoá bộ sưu tập thất bại...");
+        openNotification("Xoá bộ sưu tập thất bại...", <></>);
         // console.log(response.message);
         return;
       }
@@ -97,7 +113,6 @@ export default function CollectionPage() {
     setOpenDeleteModal(false);
     setSelectedRowKeys([]);
     setSelectedOrderIds([]);
-    // TODO: toast update successfully
   };
 
   const dataColumns: TableColumnType<CollectionColumn>[] = [
@@ -237,7 +252,7 @@ export default function CollectionPage() {
   return (
     <Layout>
       {(collections && (
-        <div className="m-5">
+        <div className="m-5 min-h-screen">
           <Breadcrumb
             className="text-xs"
             items={[

@@ -12,8 +12,10 @@ import {
   Input,
   Breadcrumb,
   Skeleton,
+  notification,
+  NotificationArgsProps,
 } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { useParams } from "next/navigation";
 import { CollectionType } from "@/model/CollectionType";
@@ -26,6 +28,8 @@ import {
   GET_GetCollection,
   PUT_UpdateCollection,
 } from "@/apis/collection/CollectionAPI";
+
+type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function CollectionDetailPage() {
   // mock data
@@ -88,6 +92,18 @@ export default function CollectionDetailPage() {
     );
   }, [name, isSwitched, productIdList, imageUrl]);
 
+  // notification
+  const [api, contextHolder] = notification.useNotification();
+
+  const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
+  const openNotification = (title: string, content: ReactElement) => {
+    api.info({
+      message: `${title}`,
+      description: content,
+      placement,
+    });
+  };
+
   // function
   const handleSave = async () => {
     if (!collection) return;
@@ -107,13 +123,12 @@ export default function CollectionDetailPage() {
     const response = await PUT_UpdateCollection(updatedCollection);
 
     if (response.status === 200) {
-      //TODO: push router to collection OR toast success message
-      alert("Cập nhật bộ sưu tập thành công!");
+      openNotification("Cập nhật bộ sưu tập thành công!", <></>);
 
       // console.log(response.message);
       // console.log(response.data);
     } else {
-      alert("Cập nhật bộ sưu tập thất bại!");
+      openNotification("Cập nhật bộ sưu tập thất bại!", <></>);
 
       // console.log(response.message);
     }
@@ -152,6 +167,7 @@ export default function CollectionDetailPage() {
 
   return (
     <Layout>
+      {contextHolder}
       {(collection && products && (
         <div className="m-5 grid grid-cols-6 lg:grid-cols-8 h-fit">
           <div className="col-span-1">

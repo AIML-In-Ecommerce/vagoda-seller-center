@@ -7,12 +7,13 @@ import {
   ConfigProvider,
   FloatButton,
   Input,
+  notification,
+  NotificationArgsProps,
   Skeleton,
   Tabs,
 } from "antd";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
-import Search from "antd/es/transfer/search";
 import WidgetEditorBar from "@/component/booth-design/decorator/WidgetEditorBar";
 import WidgetList from "@/component/booth-design/decorator/WidgetList";
 import {
@@ -42,6 +43,8 @@ import {
   PUT_UpdateWidgetVisibility,
 } from "@/apis/widget/WidgetAPI";
 import { GoSearch } from "react-icons/go";
+
+type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function BoothDecoratorPage() {
   // mock data
@@ -171,6 +174,18 @@ export default function BoothDecoratorPage() {
   const [shop, setShop] = useState<ShopType>();
   const [widgets, setWidgets] = useState<WidgetType[]>([]);
 
+  // notification
+  const [api, contextHolder] = notification.useNotification();
+
+  const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
+  const openNotification = (title: string, content: ReactElement) => {
+    api.info({
+      message: `${title}`,
+      description: content,
+      placement,
+    });
+  };
+
   // widget drawer
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -211,7 +226,8 @@ export default function BoothDecoratorPage() {
     }
 
     setWidgets([...widgets]);
-    // TODO: toast update successfully
+
+    openNotification("Cập nhật thành công!", <></>);
   };
 
   // delete widget
@@ -242,7 +258,8 @@ export default function BoothDecoratorPage() {
 
         setOpenDeleteModal(false);
         setDeletableWidget(tempWidget);
-        // TODO: toast update successfully
+
+        openNotification("Xóa thành công!", <></>);
       } else console.log(response.message);
     } else console.log(response.message);
   };
@@ -308,13 +325,15 @@ export default function BoothDecoratorPage() {
     const response = await PUT_UpdateShopInfoDesign(shop._id, design);
     if (response.status == 200) {
       setShopInfo(design);
+      openNotification("Cập nhật thành công", <></>);
     } else console.log(response.message);
   };
 
   return (
     <div>
+      {contextHolder}
       {(widgets && (
-        <div className="m-5 grid grid-cols-3 h-fit">
+        <div className="m-5 grid grid-cols-3 h-fit min-h-screen">
           <div className="col-span-2">
             <div className="bg-white p-2 mb-1">
               <Breadcrumb
@@ -449,6 +468,7 @@ export default function BoothDecoratorPage() {
                   deleteWidget={handleDeleteWidget}
                   shopInfo={shopInfo}
                   setShopInfo={handleUpdateShopInfo}
+                  notify={openNotification}
                 />
               )) || <Skeleton active style={{ margin: 10 }} />}
             </Affix>

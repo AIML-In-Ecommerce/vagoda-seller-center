@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Flex, Input, Select, Skeleton, Tooltip } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
@@ -19,6 +19,8 @@ interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
   setSaveStatus(saveStatus: SaveStatusEnum): void;
+
+  notify(message: string, content: ReactElement): void;
 }
 
 export default function CategoryWidget(props: WidgetProps) {
@@ -122,9 +124,9 @@ export default function CategoryWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyCategoryWidget(proxyCategoryWidget);
       props.updateWidgets();
-      alert("Cập nhật widget thành công!");
+      props.notify("Cập nhật widget thành công!", <></>);
     } else {
-      alert("Cập nhật widget thất bại...");
+      props.notify("Cập nhật widget thất bại...", <></>);
       // console.log(response.message);
     }
   };
