@@ -380,7 +380,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
             <p className="font-semibold">Tạo sản phẩm mới</p>
           )}
         </div>
-        <div className="flex m-2 mt-6 justify-between">
+        <div className="flex my-2 mr-2 mt-6 justify-between">
           <div className="w-3/4 bg-white rounded-lg border border-slate-300 ">
             <Collapse
               activeKey={collapseActiveKeys}
@@ -624,44 +624,47 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                 key="3"
                 header={<p className="font-bold">3. Thêm hình ảnh</p>}
               >
-                <div className="flex  space-x-1 font-semibold ">
-                  <div className="text-red-500 font-bold text-sm">*</div>{" "}
-                  <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
-                    Tối đa 12 ảnh, cho phép loại file: .png, .jpg. <hr />
-                    Tick vào ô hình ảnh để đặt ảnh bìa (mặc định ảnh đầu tiên)
+                <div className="flex  space-x-1 font-semibold items-center justify-between">
+                  <div className="flex">
+                    <div className="text-red-500 font-bold text-sm">*</div>{" "}
+                    <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
+                      Tối đa 12 ảnh(flie .png, .jpg). Tick vào ô chọn làm ảnh
+                      bìa (mặc định ảnh đầu tiên)
+                    </div>
                   </div>
-                </div>
+                  <div className="flex flex-row-reverse ">
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        setIsImageModalCollectionOpen(true);
+                      }}
+                      type="primary"
+                      className="text-xs ml-2 bg-cyan-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center "
+                    >
+                      <MdOutlineCollections />
+                      Bộ sưu tập
+                    </Button>
+                    <ImageCollectionModal
+                      isOpen={isImageModalCollectionOpen}
+                      openModal={setIsImageModalCollectionOpen}
+                      addImage={addImage}
+                    />
+                    <Button
+                      size="small"
+                      onClick={() => setGenAiModalOpen(true)}
+                      type="primary"
+                      className="text-xs bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center hover:from-cyan-700 hover:to-blue-700"
+                    >
+                      <FaMagic />
+                      Tạo ảnh bằng AI
+                    </Button>
 
-                <div className="flex flex-row-reverse mb-4 ">
-                  <Button
-                    onClick={() => {
-                      setIsImageModalCollectionOpen(true);
-                    }}
-                    type="primary"
-                    className="ml-2 bg-cyan-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center "
-                  >
-                    <MdOutlineCollections />
-                    Bộ sưu tập
-                  </Button>
-                  <ImageCollectionModal
-                    isOpen={isImageModalCollectionOpen}
-                    openModal={setIsImageModalCollectionOpen}
-                    addImage={addImage}
-                  />
-                  <Button
-                    onClick={() => setGenAiModalOpen(true)}
-                    type="primary"
-                    className="bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center hover:from-cyan-700 hover:to-blue-700"
-                  >
-                    <FaMagic />
-                    Tạo ảnh bằng AI
-                  </Button>
-
-                  <GenAIImageModal
-                    openModal={genaiModalOpen}
-                    setOpenModal={setGenAiModalOpen}
-                    addImage={addImage}
-                  />
+                    <GenAIImageModal
+                      openModal={genaiModalOpen}
+                      setOpenModal={setGenAiModalOpen}
+                      addImage={addImage}
+                    />
+                  </div>
                 </div>
 
                 <ImageUploader

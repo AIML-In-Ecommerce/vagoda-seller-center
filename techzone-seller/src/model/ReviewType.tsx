@@ -1,3 +1,4 @@
+import { RawCommentType } from "./CommentType";
 import { _ProductType } from "./ProductType";
 import { UserType } from "./UserType";
 
@@ -20,6 +21,8 @@ export type _ReviewType = {
   rating: number;
   content: string;
   asset: string[];
-  conservation: string[];
+  conversation: RawCommentType[];
   like: string[];
+  isResponse: boolean;
+  createdAt: string;
 };

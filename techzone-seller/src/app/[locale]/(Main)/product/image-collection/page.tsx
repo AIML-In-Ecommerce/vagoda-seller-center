@@ -1,15 +1,25 @@
 "use client";
 
+import { GET_GetShop, PUT_RemoveImageCollection } from "@/apis/shop/ShopAPI";
 import GenAiFormModal from "@/component/Product/GenAiFormModal";
 import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 import GenAiResultModal from "@/component/Product/GenAiResultModal";
-import { Breadcrumb, Button, Divider, Modal } from "antd";
-import { useRef, useState } from "react";
+import {
+  Breadcrumb,
+  Button,
+  Divider,
+  message,
+  Modal,
+  notification,
+  NotificationArgsProps,
+} from "antd";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import { FaMagic } from "react-icons/fa";
 import { HiOutlineHome } from "react-icons/hi2";
+import { RiDeleteBinLine } from "react-icons/ri";
 import "./local.css";
 
-type Status = "FORM" | "IN_PROGRESS" | "COMPLETED";
+type NotificationPlacement = NotificationArgsProps["placement"];
 
 const imgList = [
   "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg",
@@ -31,10 +41,6 @@ const mockResponse = {
   ],
 };
 
-// interface ImageGridProps {
-//   imgList: string[];
-// }
-
 const ImageCollection = () => {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [genaiModalOpen, setGenAiModalOpen] = useState<boolean>(false);
@@ -43,6 +49,17 @@ const ImageCollection = () => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
+  const [imageCollection, setImageCollection] = useState<string[]>([]);
+  const [api, contextHolder] = notification.useNotification();
+
+  const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
+  const openNotification = (title: string, content: ReactElement) => {
+    api.info({
+      message: `${title}`,
+      description: content,
+      placement,
+    });
+  };
 
   const handleFormSubmit = async (values: any) => {
     setGenAiStatus("IN_PROGRESS");
@@ -106,14 +123,35 @@ const ImageCollection = () => {
             tryAgainFnc={() => setGenAiStatus("FORM")}
             imageUrl={generatedImageUrl}
             isCreatingProductMode={false}
-            addImage={function (image_link: string): void {
-              // throw new Error("Function not implemented.");
-            }}
+            addImage={function (image_link: string): void {}}
             closeModal={setGenAiModalOpen}
           />
         );
     }
   };
+
+  const deleteImage = async (image_link: string) => {
+    const response: { status: number; message: string } =
+      await PUT_RemoveImageCollection("65f1e8bbc4e39014df775166", image_link);
+
+    if (response.status == 200) {
+      message.success("Xóa sản phẩm thành công");
+    } else {
+      message.error("Không thể xóa sản phẩm");
+    }
+
+    loadImageCollection();
+    setPreviewImage(null);
+  };
+  const loadImageCollection = async () => {
+    const { data } = await GET_GetShop("65f1e8bbc4e39014df775166");
+    if (data) {
+      setImageCollection(data.imageCollection);
+    }
+  };
+  useEffect(() => {
+    loadImageCollection();
+  }, []);
 
   return (
     <div className="pt-4 pr-4 flex flex-col">
@@ -153,7 +191,7 @@ const ImageCollection = () => {
       <Divider className="my-4" />
 
       <div className="grid-wrapper">
-        {imgList.map((image, index) => (
+        {imageCollection.map((image, index) => (
           <div key={index} onClick={() => openPreview(image)}>
             <img src={image} alt={`Image ${index}`} />
           </div>
@@ -161,17 +199,31 @@ const ImageCollection = () => {
       </div>
 
       {previewImage && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div
+          className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50"
+          onClick={() => setPreviewImage(null)}
+        >
           <div
             ref={previewModalRef}
-            className="max-w-full h-[80vh] overflow-auto"
-            onClick={(e) => e.stopPropagation()}
+            className="max-w-full h-[80vh] overflow-auto space-x-4"
+            // onClick={(e) => e.stopPropagation()}
           >
             <img
               src={previewImage}
               alt="Preview"
               className=" max-w-full max-h-full"
             />
+            <Button
+              type="primary"
+              danger
+              className=""
+              onClick={() => deleteImage(previewImage)}
+            >
+              <div className="flex space-x-2 items-center">
+                <RiDeleteBinLine />
+                <p>Xóa ảnh</p>
+              </div>
+            </Button>
           </div>
         </div>
       )}
@@ -183,21 +235,9 @@ const ImageCollection = () => {
           width={900}
           onCancel={() => {
             setGenAiModalOpen(false);
-            // setIsFormVisible(true);
           }}
           footer={null}
         >
-          {/* {isFormVisible ? (
-            <GenAiFormModal
-              onClose={() => setIsFormVisible(false)}
-              onSubmit={handleFormSubmit}
-            />
-          ) : (
-            <GenAiResultModal
-              onClose={() => setIsFormVisible(true)}
-              imageUrl={generatedImageUrl}
-            />
-          )} */}
           {renderModal()}
         </Modal>
       )}

@@ -1,6 +1,7 @@
 "use client";
-import { Button, Image } from "antd";
+import { Button, Image, message } from "antd";
 // import fs from "fs-extra";
+import { PUT_AddImageCollection } from "@/apis/shop/ShopAPI";
 import React, { useState } from "react";
 import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
@@ -21,49 +22,17 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
 }) => {
   const [imageLink, setImageLink] = useState<string>(imageUrl);
 
-  console.log("result");
+  const handleSaveImage = async () => {
+    console.log("LINK", imageLink);
+    const response: { status: number; message: string } =
+      await PUT_AddImageCollection("65f1e8bbc4e39014df775166", imageLink);
 
-  // const downloadImage = async (url: string, filePath: string) => {
-  //   const response = await axios({
-  //     url,
-  //     responseType: "stream",
-  //   });
-
-  //   return new Promise((resolve, reject) => {
-  //     const writer = fs.createWriteStream(filePath);
-  //     response.data.pipe(writer);
-  //     writer.on("finish", resolve);
-  //     writer.on("error", reject);
-  //   });
-  // };
-
-  // const handleSaveImage = async () => {
-  //   const localFilePath = "temp-image.jpg";
-  //   try {
-  //     await downloadImage(imageUrl, localFilePath);
-  //     console.log("Image downloaded successfully");
-
-  //     // Upload the image
-  //     const formData = new FormData();
-  //     console.log(
-  //       "Uploading fileed image...",
-  //       fs.createReadStream(localFilePath)
-  //     );
-  //     formData.append("file", fs.createReadStream(localFilePath));
-
-  //     const image_url = await UploadService.getURLImage(formData);
-
-  //     if (image_url) {
-  //       message.success("Lưu ảnh thành công");
-  //     } else {
-  //       message.error("Không thể lưu ảnh");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   } finally {
-  //     fs.unlinkSync(localFilePath);
-  //   }
-  // };
+    if (response.status == 200) {
+      message.success("Thêm hình ảnh sản phẩm thành công");
+    } else {
+      message.error("Không thể thêm hình ảnh sản phẩm");
+    }
+  };
 
   return (
     <div
@@ -101,7 +70,7 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
             type="primary"
             className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
             style={{ width: "20%" }}
-            // onClick={handleSaveImage}
+            onClick={handleSaveImage}
           >
             Lưu vào bộ sưu tập
           </Button>

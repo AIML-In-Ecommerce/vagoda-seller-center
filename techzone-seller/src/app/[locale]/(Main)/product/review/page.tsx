@@ -1,4 +1,6 @@
 "use client";
+import { ReviewInputType } from "@/apis/ReviewAPI";
+import ReviewInfoDrawer from "@/component/review/ReviewInfoDrawer";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ReviewType } from "@/model/ReviewType";
 import { CategoryService } from "@/services/Category";
@@ -16,11 +18,11 @@ import {
   Table,
   Tabs,
   TabsProps,
+  Tag,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CiCircleRemove } from "react-icons/ci";
 import { GoStarFill } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
 
@@ -43,40 +45,32 @@ const exportOptions: MenuProps["items"] = [
 ];
 
 export default function ReviewProductPage() {
-  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>([]);
-
-  const [searchValue, setSearchValue] = useState("");
   const query = useSearchParams();
   const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
-
-  const router = useRouter();
-
   const [allReviews, setAllReviews] = useState<_ReviewType[]>([]);
-  const [filteredReviews, setFilteredReviews] =
-    useState<_ReviewType[]>(allReviews);
-  const [currentTab, setCurrentTab] = useState("");
-  const [openProductDetail, setOpenProductDetail] = useState(false);
-  const [tabReviews, setTabReviews] = useState<_ReviewType[]>([]);
   const [totalReview, setTotalReview] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [filterResponseStatus, setFilterResponseStatus] = useState<string>("");
 
-  const handleFilterDropdownChange = (
-    value: { id: string; label: string }[],
-    key: string
-  ) => {
-    const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
-    );
+  const [selectedReview, setSelectedReview] = useState<_ReviewType | null>(
+    null
+  );
+  const [openReviewModal, setOpenReviewDetail] = useState(false);
 
-    const newFilterCriteria: FilterCriteria = {
-      key,
-      value,
-    };
+  const [searchValue, setSearchValue] = useState("");
+  const [filteredResponseStatus, setFilteredResponseStatus] =
+    useState<string>("");
+  const [filteredCategory, setFilteredCategory] = useState<string>("");
+  const [filteredRating, setFilteredRating] = useState<string>("0");
 
-    updatedFilterOptions.push(newFilterCriteria);
-    setFilterOptions(updatedFilterOptions);
+  const onClose = () => {
+    setOpenReviewDetail(false);
   };
+
+  const showDrawer = (review: _ReviewType) => {
+    setSelectedReview(review);
+    setOpenReviewDetail(true);
+  };
+
   const convertDataTable = (data: _ReviewType[]) => {
     const result = data.map((record: _ReviewType, index) => ({
       ...record,
@@ -164,12 +158,32 @@ export default function ReviewProductPage() {
       width: "10%",
     },
     {
+      title: "Trạng thái",
+      dataIndex: "isResponse",
+      render: (isResponse: boolean, record: _ReviewType) => (
+        <div className="flex space-x-2 text-xs ">
+          {isResponse ? (
+            <Tag color="success">Đã phản hồi</Tag>
+          ) : (
+            <Tag color="warning">Chưa phản hồi</Tag>
+          )}
+        </div>
+      ),
+      // defaultSortOrder: "descend",
+      sorter: (a: _ReviewType, b: _ReviewType) => a.like.length - b.like.length,
+      width: "10%",
+    },
+    {
       title: "Thao tác",
       dataIndex: "operation",
       render: (_: any, record: _ReviewType) => {
         return (
           <div className="space-x-2 ">
-            <Button type="primary" className="bg-sky-100 text-black text-xs">
+            <Button
+              type="primary"
+              className="bg-sky-100 text-black text-xs"
+              onClick={() => showDrawer(record)}
+            >
               Phản hồi
             </Button>
           </div>
@@ -178,6 +192,30 @@ export default function ReviewProductPage() {
       width: "10%",
     },
   ];
+
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query);
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  const categoryOptions = () => {
+    const options: { value: string; label: string }[] = [
+      { value: "", label: "Tất cả" },
+    ];
+
+    allCategories.forEach((category) =>
+      options.push({ value: category._id, label: category.name })
+    );
+
+    return options;
+  };
 
   const tabItems: TabsProps["items"] = [
     {
@@ -231,115 +269,44 @@ export default function ReviewProductPage() {
     },
   ];
 
-  // const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-  //   const updatedFilterOptions = filterOptions.filter((option) => {
-  //     return (
-  //       option.key !== "Tên sản phẩm" &&
-  //       option.key !== "SKU" &&
-  //       option.key !== "Mã sản phẩm"
-  //     );
-  //   });
-
-  //   const newFilterCriteria: FilterCriteria = {
-  //     key: `${searchOption.charAt(0).toUpperCase() + searchOption.slice(1)}`,
-  //     value,
-  //   };
-
-  //   updatedFilterOptions.push(newFilterCriteria);
-  //   setFilterOptions(updatedFilterOptions);
-  // };
-
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
     if (value.length != 0) {
-      const updatedFilterOptions = filterOptions.filter((option) => {
-        return option.key !== "Tên sản phẩm";
-      });
-      const newFilterCriteria: FilterCriteria = {
-        key: `Tên sản phẩm`,
-        value,
-      };
-
       const updatedQuery = new URLSearchParams(query);
-      updatedQuery.set("keyword", value);
+      updatedQuery.set("product", value);
 
       window.history.pushState(
         {},
         "",
         `${window.location.pathname}?${updatedQuery.toString()}`
       );
-
-      updatedFilterOptions.push(newFilterCriteria);
-      setFilterOptions(updatedFilterOptions);
-      setSearchValue("");
     }
   };
 
-  const clearAllFilterCriterias = () => {
-    setFilterOptions([]);
-  };
-
-  const removeFilterCriteria = (key: string, value: any) => {
-    let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
-
-    updatedFilterCriterias = updatedFilterCriterias.filter(
-      (criteria) => criteria.key !== key
-    );
-
-    setFilterOptions(updatedFilterCriterias);
-  };
-
-  // useEffect(() => {
-  //   const filterProducts = () => {
-  //     let tempFilteredProducts = [...tabReviews];
-
-  //     filterOptions.forEach((filter) => {
-  //       if (filter.key === "Tên sản phẩm") {
-  //         tempFilteredProducts = tempFilteredProducts.filter((product) =>
-  //           product.name.toLowerCase().includes(filter.value.toLowerCase())
-  //         );
-  //       } else if (filter.key === "Danh mục") {
-  //         tempFilteredProducts = tempFilteredProducts.filter((product) =>
-  //           filter.value.some((category: { id: string; label: string }) =>
-  //             category.label
-  //               .toLowerCase()
-  //               .includes(category.label.toLowerCase())
-  //           )
-  //         );
-  //       }
-  //     });
-
-  //     //setFilteredProducts((prev) => tempFilteredProducts);
-  //   };
-
-  //   filterProducts();
-  // }, [filterOptions]);
-
-  // const filters: ProductFilterInput = {
-  //   keyword: query.get("keyword") || undefined,
-  //   category: query.get("category")
-  //     ? decodeURIComponent(query.get("category")!)!.split(",")
-  //     : undefined,
-  //   status: query.get("status") || undefined,
-  //   index: query.get("index") ? Number(query.get("index")) : undefined,
-  //   amount: query.get("amount") ? Number(query.get("amount")) : undefined,
-  // };
-
-  // useEffect(() => {
-  //   setFilter(filters);
-  // }, [query]);
-
-  // useEffect(() => {
-  //   handleFilterChange();
-  // }, []);
-
   const onStatusFilter = (value: string) => {
-    setFilterResponseStatus(value);
+    setFilteredResponseStatus(value);
     const updatedQuery = new URLSearchParams(query);
 
     if (value.length != 0) {
-      updatedQuery.set("status", value);
+      updatedQuery.set("isResponse", value == "Đã phản hồi" ? "true" : "false");
     } else {
-      updatedQuery.delete("status");
+      updatedQuery.delete("isResponse");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  const onCategoryFilter = (value: string) => {
+    const categoryName = allCategories.filter((c) => c._id === value)[0].name;
+    setFilteredCategory(categoryName);
+    const updatedQuery = new URLSearchParams(query);
+
+    if (value.length != 0) {
+      updatedQuery.set("category", value);
+    } else {
+      updatedQuery.delete("category");
     }
     window.history.pushState(
       {},
@@ -349,13 +316,77 @@ export default function ReviewProductPage() {
   };
 
   const loadFilteredReviews = async () => {
-    const response: _ReviewType[] = await ReviewService.getAllReview();
+    const filteredInput: ReviewInputType = {
+      shop: "65f1e8bbc4e39014df775166",
+      category: query.get("category") || undefined,
+      product: query.get("product") || undefined,
+      isResponse: query.get("isResponse")
+        ? query.get("isResponse") === "true"
+        : undefined,
+      rating: query.get("rating") ? Number(query.get("rating")) : undefined,
+      index: query.get("index") ? Number(query.get("index")) : 1,
+      amount: query.get("amount") ? Number(query.get("amount")) : 20,
+    };
+
+    const response: _ReviewType[] = await ReviewService.getAllReview(
+      filteredInput
+    );
     setAllReviews(response);
-    setTabReviews(response);
-    setFilteredReviews(response);
+  };
+  const clearFilter = () => {
+    setFilteredCategory("");
+    setSearchValue("");
+    setFilteredResponseStatus("");
+    setFilteredRating("0");
+
+    window.history.pushState({}, "", `${window.location.pathname}`);
+  };
+
+  const updateFilter = () => {
+    setFilteredCategory(query.get("category") ?? "");
+    setSearchValue(query.get("product") ?? "");
+
+    const isResponse = query.get("isResponse");
+    setFilteredResponseStatus(
+      isResponse === "true"
+        ? "Đã phản hồi"
+        : isResponse === "false"
+        ? "Chưa phản hồi"
+        : ""
+    );
+
+    setFilteredRating(query.get("rating") ?? "0");
+  };
+
+  const handleChangeTab = (activekey: string) => {
+    setFilteredRating(activekey);
+    const updatedQuery = new URLSearchParams(query);
+
+    if (activekey != "0") {
+      updatedQuery.set("rating", activekey);
+    } else {
+      updatedQuery.delete("rating");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
   };
 
   useEffect(() => {
+    updateFilter();
+    console.log(
+      "FILTERRR",
+      query.get("category"),
+      query.get("product"),
+      query.get("rating"),
+      query.get("isResponse"),
+      filteredCategory,
+      filteredRating,
+      filteredResponseStatus,
+      searchValue
+    );
     loadFilteredReviews();
   }, []);
 
@@ -367,6 +398,10 @@ export default function ReviewProductPage() {
 
     loadAllCategories();
   }, []);
+
+  useEffect(() => {
+    loadFilteredReviews();
+  }, [query]);
 
   return (
     <div className="pt-4 pr-4 space-y-2">
@@ -393,7 +428,12 @@ export default function ReviewProductPage() {
       />
       <p className="uppercase text-xl font-semibold">Quản lý đánh giá</p>
 
-      <Tabs type="card" items={tabItems}></Tabs>
+      <Tabs
+        activeKey={filteredRating}
+        type="card"
+        items={tabItems}
+        onChange={handleChangeTab}
+      ></Tabs>
 
       <div className="flex items-center space-x-8">
         <div className="">
@@ -412,114 +452,35 @@ export default function ReviewProductPage() {
             value={searchValue}
           />
         </div>
-
         <div className="">
-          <p className="font-semibold">Tìm kiếm người đánh giá</p>
-          <Search
-            placeholder={`Nhập tên người đánh giá`}
-            style={{
-              borderRadius: "5px",
-              width: 300,
-            }}
-            onSearch={onSearch}
-            type="primary"
-            enterButton
-            className="theme-button pt-2"
-            onChange={(e) => setSearchValue(e.target.value)}
-            value={searchValue}
+          <div className="font-semibold pb-2">Danh mục</div>
+          <Select
+            onChange={onCategoryFilter}
+            defaultValue="Tất cả"
+            style={{ width: 160 }}
+            options={categoryOptions()}
+            value={filteredCategory}
           />
         </div>
-        {/* <div className="">
-          <p className="font-semibold">Danh mục</p>
-          <FilterDropdown
-            initialSelectedOptions={
-              filterOptions.find((item) => item.key === "Danh mục")?.value || []
-            }
-            name={"Danh mục"}
-            options={allCategories.map((c) => {
-              return { id: c._id, label: c.name };
-            })}
-            onSelection={handleFilterDropdownChange}
-          />
-        </div> */}
+
         <div className="">
-          <div className="font-semibold">Kết quả import</div>
+          <div className="font-semibold pb-2">Trạng thái phản hồi</div>
           <Select
             onChange={onStatusFilter}
             defaultValue="Tất cả"
             style={{ width: 160 }}
             options={[
               { value: "", label: "Tất cả" },
-              { value: "SUCCESS", label: "Đã phản hồi" },
-              { value: "FALURE", label: "Chưa phản hồi" },
+              { value: "Đã phản hồi", label: "Đã phản hồi" },
+              { value: "Chưa phản hồi", label: "Chưa phản hồi" },
             ]}
-            value={filterResponseStatus}
+            value={filteredResponseStatus}
           />
         </div>
-        <Button type="text" className="mt-5 text-sky-400">
+        <Button type="text" className="mt-5 text-sky-400" onClick={clearFilter}>
           Xóa bộ lọc
         </Button>
       </div>
-      {filterOptions.length > 0 && (
-        <div className="flex items-center">
-          <div className="text-sm mr-4 w-1/10">Đang lọc:</div>
-          <div className="flex flex-wrap  items-center">
-            {filterOptions.map((item, index) => {
-              return (
-                <div
-                  key={index}
-                  className="flex items-center  text-xs max-w-4/5 "
-                >
-                  {Array.isArray(item.value) ? (
-                    item.value.map((value: string, idx: number) => (
-                      <div
-                        key={index}
-                        className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
-                      >
-                        <p>
-                          {item.key}: {value}
-                        </p>
-                        <div
-                          className=""
-                          onClick={() => removeFilterCriteria(item.key, value)}
-                        >
-                          <CiCircleRemove size={15} />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div
-                      key={index}
-                      className=" flex  rounded-2xl p-2 space-x-2 items-center  bg-sky-200 mx-2  my-1"
-                    >
-                      <p>
-                        {item.key}: {item.value}
-                      </p>
-                      <div
-                        className=""
-                        onClick={() =>
-                          removeFilterCriteria(item.key, item.value)
-                        }
-                      >
-                        <CiCircleRemove size={15} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <Button
-            type="link"
-            onClick={() => clearAllFilterCriterias()}
-            className="w-1/10"
-          >
-            {" "}
-            Xóa tất cả
-          </Button>
-        </div>
-      )}
       <Divider />
       <div className="flex">
         <p className="font-semibold text-lg m-4">
@@ -534,9 +495,27 @@ export default function ReviewProductPage() {
           locale={{
             emptyText: <Empty description={<span>Trống</span>} />,
           }}
+          pagination={{
+            defaultPageSize: 20,
+            pageSizeOptions: ["20", "10", "5"],
+
+            showSizeChanger: true,
+            total: totalReview,
+            onChange: (page, pageSize) => {
+              fetchRecords(page, pageSize);
+            },
+          }}
           className=""
         />
       </div>
+      {selectedReview && (
+        <ReviewInfoDrawer
+          review={selectedReview._id}
+          onClose={onClose}
+          open={openReviewModal}
+          reloadReview={loadFilteredReviews}
+        />
+      )}
     </div>
   );
 }
