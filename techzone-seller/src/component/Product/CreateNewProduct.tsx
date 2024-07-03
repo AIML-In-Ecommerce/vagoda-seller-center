@@ -10,13 +10,17 @@ import {
   Select,
   SelectProps,
   Steps,
+  Tooltip,
   message,
 } from "antd";
 
 import { Editor } from "@tinymce/tinymce-react";
 import { useEffect, useRef, useState } from "react";
 
-import { MdOutlineKeyboardBackspace } from "react-icons/md";
+import {
+  MdOutlineCollections,
+  MdOutlineKeyboardBackspace,
+} from "react-icons/md";
 import CategoryDropdown from "./CategoryDropdown";
 
 import { ProductCreatedInput } from "@/apis/ProductAPI";
@@ -25,7 +29,12 @@ import { _ProductType } from "@/model/ProductType";
 import { CategoryService } from "@/services/Category";
 import { ProductService } from "@/services/Product";
 import { useRouter } from "next/navigation";
+import { FaMagic } from "react-icons/fa";
+import { HiLightBulb } from "react-icons/hi2";
+import AIDescriptionModal from "./AIDescriptionModal";
 import ColorOption from "./ColorOption";
+import GenAIImageModal from "./GenAIImageModal";
+import ImageCollectionModal from "./ImageCollectionModal";
 import ImageUploader from "./ImageUploader";
 
 type FieldType = {
@@ -80,6 +89,11 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
   const [imageList, setImageList] = useState<string[]>([]);
   const [step, setStep] = useState(0);
   const [category, setCategory] = useState<string[]>([]);
+  const [isImageModalCollectionOpen, setIsImageModalCollectionOpen] =
+    useState(false);
+  const [genaiModalOpen, setGenAiModalOpen] = useState<boolean>(false);
+  const [genaiDescriptionModalOpen, setGenaiDescriptionModalOpen] =
+    useState<boolean>(false);
   const [isExpand, setIsExpand] = useState(true);
   const [status, setStatus] = useState<string>(
     props.updatingProduct ? props.updatingProduct.status : "AVAILABLE"
@@ -214,7 +228,9 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     setIsExpand(false);
     setCollapseActiveKeys([]);
   };
-  const [descriptionText, setDescriptionText] = useState("");
+  const [descriptionText, setDescriptionText] = useState(
+    "<p>Thêm mô tả sản phẩm ở đây</p>"
+  );
 
   const [currentProduct, setCurrentProduct] = useState<_ProductType | null>(
     props.updatingProduct ?? null
@@ -286,10 +302,8 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     { title: "Thêm hình ảnh" },
   ];
 
-  const getValueProps = (value: any) => {
-    return {
-      value: value,
-    };
+  const addImage = (link: string) => {
+    setImageList((prev) => [...prev, link]);
   };
 
   useEffect(() => {
@@ -366,11 +380,11 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
             <p className="font-semibold">Tạo sản phẩm mới</p>
           )}
         </div>
-        <div className="flex m-2 mt-6 justify-between">
+        <div className="flex my-2 mr-2 mt-6 justify-between">
           <div className="w-3/4 bg-white rounded-lg border border-slate-300 ">
             <Collapse
               activeKey={collapseActiveKeys}
-              onChange={(keys) => setCollapseActiveKeys(keys)}
+              onChange={(keys) => setCollapseActiveKeys(keys as string[])}
             >
               <Collapse.Panel
                 key="1"
@@ -534,8 +548,9 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                       setDescriptionText(content);
                     }}
                     apiKey="z34ywiojqhkcw0gkzqfv1wf2cvba4graf9pk4w88ttj0tqd4"
-                    onInit={(_evt, editor) => (editorRef.current = editor)}
-                    initialValue="<p>Thêm mô tả sản phẩm ở đây</p>"
+                    //onInit={(_evt, editor) => (editorRef.current = editor)}
+                    initialValue={"<p>Thêm mô tả sản phẩm ở đây</p>"}
+                    value={descriptionText}
                     init={{
                       height: 500,
                       menubar: true,
@@ -581,20 +596,82 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                     }}
                   />
                 </Form.Item>
+                <Tooltip
+                  placement="leftTop"
+                  color="blue"
+                  title={"Viết gợi ý về sản phẩm và AI sẽ giúp bạn ! "}
+                >
+                  <Button
+                    type="default"
+                    className="bg-white  text-black"
+                    onClick={() => setGenaiDescriptionModalOpen(true)}
+                  >
+                    <div className="flex space-x-2 items-center">
+                      <HiLightBulb size={16} color="#FFDA35" />
+                      <p>Gợi ý từ trợ lý AI</p>
+                    </div>
+                  </Button>
+                </Tooltip>
+
+                <AIDescriptionModal
+                  isOpen={genaiDescriptionModalOpen}
+                  openModal={setGenaiDescriptionModalOpen}
+                  setDescription={setDescriptionText}
+                  shortDescription={descriptionText}
+                />
               </Collapse.Panel>
               <Collapse.Panel
                 key="3"
                 header={<p className="font-bold">3. Thêm hình ảnh</p>}
               >
-                <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
-                  Tối đa 12 ảnh, cho phép loại file: .png, .jpg. <hr />
-                  Tick vào ô hình ảnh để đặt ảnh bìa (mặc định ảnh đầu tiên)
+                <div className="flex  space-x-1 font-semibold items-center justify-between">
+                  <div className="flex">
+                    <div className="text-red-500 font-bold text-sm">*</div>{" "}
+                    <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
+                      Tối đa 10 ảnh(flie .png, .jpg). Tick vào ô chọn làm ảnh
+                      bìa (mặc định ảnh đầu tiên)
+                    </div>
+                  </div>
+                  <div className="flex flex-row-reverse ">
+                    <Button
+                      size="small"
+                      onClick={() => {
+                        setIsImageModalCollectionOpen(true);
+                      }}
+                      type="primary"
+                      className="text-xs ml-2 bg-cyan-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center "
+                    >
+                      <MdOutlineCollections />
+                      Bộ sưu tập
+                    </Button>
+                    <ImageCollectionModal
+                      isOpen={isImageModalCollectionOpen}
+                      openModal={setIsImageModalCollectionOpen}
+                      addImage={addImage}
+                    />
+                    <Button
+                      size="small"
+                      onClick={() => setGenAiModalOpen(true)}
+                      type="primary"
+                      className="text-xs bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg text-white font-medium flex flex-row gap-2 items-center hover:from-cyan-700 hover:to-blue-700"
+                    >
+                      <FaMagic />
+                      Tạo ảnh bằng AI
+                    </Button>
+
+                    <GenAIImageModal
+                      openModal={genaiModalOpen}
+                      setOpenModal={setGenAiModalOpen}
+                      addImage={addImage}
+                    />
+                  </div>
                 </div>
+
                 <ImageUploader
                   fileUrls={imageList}
                   setFileString={setImageList}
                   setCoverImageIndex={setCoverImageIndex}
-                  maxNumber={12}
+                  maxNumber={10}
                   minNumber={1}
                 />
               </Collapse.Panel>

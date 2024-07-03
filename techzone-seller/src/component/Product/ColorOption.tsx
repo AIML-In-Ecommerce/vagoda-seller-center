@@ -15,7 +15,9 @@ export default function ColorOption(props: ColorOptionProps) {
   const handleImageChange = (fileString: string, key: any) => {
     const fields = form.getFieldsValue();
     const { colors } = fields;
-    Object.assign(colors[key], { image: fileString });
+    Object.assign(colors[key], {
+      image: fileString.length > 0 ? fileString : null,
+    });
     form.setFieldsValue({ colors });
   };
 
@@ -25,7 +27,6 @@ export default function ColorOption(props: ColorOptionProps) {
   };
 
   useEffect(() => {
-    console.log("Form", props.initialValue);
     form.setFieldsValue({ colors: props.initialValue });
   }, [props.initialValue, form]);
 

@@ -1,452 +1,72 @@
-// "use client";
-// import { CaretRightOutlined } from "@ant-design/icons";
-// import {
-//   Button,
-//   Collapse,
-//   CollapseProps,
-//   ConfigProvider,
-//   ConfigProviderProps,
-//   DatePicker,
-//   Empty,
-//   message,
-//   Modal,
-//   Result,
-//   Select,
-//   Steps,
-//   Table,
-//   Tabs,
-//   TabsProps,
-//   theme,
-//   Tooltip,
-//   Upload,
-//   UploadProps,
-// } from "antd";
-// import FileSaver from "file-saver";
-// import React, { CSSProperties, useState } from "react";
-// import { FiUpload } from "react-icons/fi";
-// import { GrView } from "react-icons/gr";
-// import { HiOutlineDownload } from "react-icons/hi";
-// import { read, utils } from "xlsx";
-
-// type SizeType = ConfigProviderProps["componentSize"];
-
-// export type ImportedFileType = {
-//   id: string;
-//   sendingTime: string;
-//   sender: string;
-//   fileName: string;
-//   status: string;
-//   productNumber: number;
-//   note: string;
-// };
-
-// const sampleSenders = [
-//   { value: "langthao@gmail.com", label: "langthao@gmail.com" },
-//   { value: "nguyen@gmail.com", label: "nguyen@gmail.com" },
-//   { value: "phuong@gmail.com", label: "phuong@gmail.com" },
-//   { value: "quang@gmail.com", label: "quang@gmail.com" },
-// ];
-
-// export type OptionType = { label: string; value: string };
-
-// export default function CreateBatchProduct() {
-//   const { RangePicker } = DatePicker;
-//   const { token } = theme.useToken();
-//   const [senders, setSenders] = useState<OptionType[]>(sampleSenders);
-//   const [isModalOpen, setIsModalOpen] = useState(false);
-//   const { Dragger } = Upload;
-//   const [currentStep, setCurrentStep] = useState(0);
-
-//   const importedFiles: ImportedFileType[] = [
-//     {
-//       id: "1",
-//       sendingTime: "2024-03-28 10:30:00",
-//       sender: "nguyen@gmail.com",
-//       fileName: "data1.csv",
-//       status: "Đang xử lý",
-//       productNumber: 50,
-//       note: "Dữ liệu mới",
-//     },
-//     {
-//       id: "2",
-//       sendingTime: "2024-03-27 15:45:00",
-//       sender: "phuong@gmail.com",
-//       fileName: "data2.csv",
-//       status: "Hoàn thành",
-//       productNumber: 100,
-//       note: "Dữ liệu cũ",
-//     },
-//   ];
-
-//   const columns = [
-//     { title: "ID", dataIndex: "id" },
-//     { title: "Thời gian gửi file", dataIndex: "sendingTime", width: "15%" },
-//     { title: "Kết quả import", dataIndex: "result", width: "15%" },
-//     { title: "Tên file import", dataIndex: "fileName", width: "15%" },
-//     // { title: "Trạng thái", dataIndex: "status" },
-//     { title: "Số lượng sản phẩm", dataIndex: "productNumber" },
-//     { title: "Ghi chú", dataIndex: "note", width: "25%" },
-//     {
-//       title: "Thao tác",
-//       dataIndex: "operation",
-//       render: (_: any, record: ImportedFileType) => (
-//         <div className="space-x-2 flex">
-//           <Tooltip placement="topLeft" title={"Xem sản phẩm import"}>
-//             <Button type="primary" className="bg-sky-100 text-black">
-//               <GrView />
-//             </Button>
-//           </Tooltip>
-//           <Tooltip placement="topLeft" title={"Tải xuống"}>
-//             <Button type="primary" className="bg-sky-100 text-black">
-//               <HiOutlineDownload />
-//             </Button>
-//           </Tooltip>
-//         </div>
-//       ),
-//     },
-//   ];
-
-//   const handleDownload = async () => {
-//     try {
-//       FileSaver.saveAs(`${process.env.NEXT_PUBLIC_SAMPLE_FILE}`, "sample.xlsx");
-//     } catch (error) {
-//       console.error("Error downloading file:", error);
-//     }
-//   };
-
-//   const validateFile = async (file: File) => {
-//     setCurrentStep(1);
-//     const validTypes = [
-//       "application/vnd.ms-excel",
-//       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-//     ];
-
-//     if (!validTypes.includes(file.type)) {
-//       message.error("Chỉ chấp nhận tập tin có định dạng .xls hoặc .xlsx.");
-//       return false;
-//     }
-
-//     let check = true;
-//     const reader = new FileReader();
-//     reader.onload = (event) => {
-//       const data = event.target?.result;
-//       const workbook = read(data, { type: "binary" });
-//       const sheetName = workbook.SheetNames[0];
-//       const sheet = workbook.Sheets[sheetName];
-//       var range = utils.decode_range(sheet["!ref"]!);
-//       range.s.r = 0;
-//       sheet["!ref"] = utils.encode_range(range);
-//       const jsonData = utils.sheet_to_json(sheet, { header: 1 });
-
-//       const headerRow = jsonData[0] as string[];
-
-//       const dataRows = jsonData
-//         .slice(1)
-//         .filter((row) => Array.isArray(row) && row.length > 0);
-//       console.log("EXCEL", headerRow, dataRows);
-
-//       if (dataRows.length > 1000) {
-//         message.error("Không được import quá 1000 sản phẩm");
-//         check = false;
-//         return false;
-//       } else {
-//         message.success("Tải dữ liệu thành công");
-//         return true;
-//       }
-//     };
-
-//     // reader.onerror = (event) => {
-//     //   message.error("File upload failed.");
-//     // };
-
-//     // reader.readAsArrayBuffer(file);
-//     return check;
-//   };
-
-//   const props: UploadProps = {
-//     name: "file",
-//     multiple: false,
-//     maxCount: 1,
-//     accept: ".xls,.xlsx",
-//     beforeUpload: async (file) => {
-//       const isValid = await validateFile(file);
-//       if (isValid) {
-//         setCurrentStep(2);
-//         console.log("THong", currentStep);
-//         return true;
-//       }
-//       return false;
-//     },
-//     onChange(info) {
-//       const { status } = info.file;
-//       if (status === "removed") {
-//         setCurrentStep(0);
-//       }
-//     },
-//     onDrop(e) {
-//       console.log("Dropped files", e.dataTransfer.files);
-//     },
-//   };
-
-//   const items: TabsProps["items"] = [
-//     {
-//       key: "1",
-//       label: "Đăng tải tập tin",
-//       children: (
-//         <div>
-//           <Steps
-//             className="mb-4"
-//             size="small"
-//             current={currentStep}
-//             items={[{ title: "Chọn file" }, { title: "Kiểm tra dữ liệu" }]}
-//           />
-//           {currentStep != 0 ? (
-//             <ConfigProvider
-//               theme={{
-//                 components: {
-//                   Result: {
-//                     iconFontSize: 64,
-//                     extraMargin: 0,
-//                     titleFontSize: 16,
-//                   },
-//                 },
-//               }}
-//             >
-//               <Result
-//                 status={currentStep === 2 ? "success" : "error"}
-//                 title={
-//                   currentStep === 2 ? "Tập tin hợp lệ" : "Tập tin không hợp lệ"
-//                 }
-//                 extra={[
-//                   <Button
-//                     type="primary"
-//                     key="console"
-//                     onClick={() => setCurrentStep(0)}
-//                   >
-//                     Chọn tập tin khác
-//                   </Button>,
-//                 ]}
-//               />
-//             </ConfigProvider>
-//           ) : (
-//             <Dragger {...props}>
-//               <p className="ant-upload-drag-icon flex justify-center items-center">
-//                 <FiUpload size={40} />
-//               </p>
-//               <p className="ant-upload-text">
-//                 Nhấn hoặc kéo thả tập tin vào để tải lên
-//               </p>
-//               <div className="flex">
-//                 {" "}
-//                 <span className="text-red-500 mr-1 text-xs">*</span>
-//                 <p className=" text-xs">
-//                   Chỉ chấp nhận tập tin có định dạng .xls hoặc .xlsx, tối đa
-//                   1000 dòng và kích cỡ tập tin không quá 10MB.
-//                 </p>
-//               </div>
-//             </Dragger>
-//           )}
-//         </div>
-//       ),
-//     },
-//     {
-//       key: "2",
-//       label: "Tập tin mẫu",
-//       children: (
-//         <div className=" flex flex-col space-y-2 items-center justify-center mx-auto">
-//           <div className="font-sembold">Bấm để tải tập tin mẫu</div>
-//           <Button
-//             type="primary"
-//             icon={<HiOutlineDownload />}
-//             onClick={handleDownload}
-//           >
-//             Tập tin mẫu
-//           </Button>
-//         </div>
-//       ),
-//     },
-//   ];
-
-//   const showModal = () => {
-//     setIsModalOpen(true);
-//   };
-
-//   const handleOk = () => {
-//     setIsModalOpen(false);
-//   };
-
-//   const handleCancel = () => {
-//     setIsModalOpen(false);
-//   };
-
-//   const getItems: (panelStyle: CSSProperties) => CollapseProps["items"] = (
-//     panelStyle
-//   ) => [
-//     {
-//       key: "1",
-//       label: <div className="">Tìm kiếm</div>,
-//       children: (
-//         <div className="flex space-x-2 items-center">
-//           <div className="">
-//             <p className="font-semibold">Ngày gửi file</p>
-//             <RangePicker />
-//           </div>
-//           {/* <div className="">
-//             <div className="font-semibold">Người gửi</div>
-//             <Select
-//               showSearch
-//               style={{ width: 300 }}
-//               placeholder="Nhập tên hay email để tìm kiếm"
-//               optionFilterProp="children"
-//               options={senders}
-//               filterOption={(input, option: OptionType[]) =>
-//                 (option?.label ?? "").includes(input)
-//               }
-//               filterSort={(optionA, optionB) =>
-//                 (optionA?.label ?? "")
-//                   .toLowerCase()
-//                   .localeCompare((optionB?.label ?? "").toLowerCase())
-//               }
-//             />
-//           </div> */}
-//           {/* <div className="">
-//             <div className="font-semibold">Trạng thái</div>
-//             <Select
-//               defaultValue="Tất cả"
-//               style={{ width: 200 }}
-//               options={[
-//                 { value: "Tất cả", label: "Tất cả" },
-//                 { value: "Chưa xử lý", label: "Chưa xử lý" },
-//                 { value: "Đang xử lý", label: "Đang xử lý" },
-//                 { value: "Đã xử lý", label: "Đã xử lý" },
-//                 { value: "Đã thất bại", label: "Đã thất bại" },
-//                 { value: "Nháp", label: "Nháp" },
-//               ]}
-//             />
-//           </div> */}
-//           <div className="">
-//             <div className="font-semibold">Kết quả import</div>
-//             <Select
-//               defaultValue="Tất cả"
-//               style={{ width: 200 }}
-//               options={[
-//                 { value: "Tất cả", label: "Tất cả" },
-//                 { value: "Thành công", label: "Thành công" },
-//                 { value: "Có lỗi", label: "Có lỗi" },
-//               ]}
-//             />
-//           </div>
-//         </div>
-//       ),
-//       style: panelStyle,
-//     },
-//   ];
-
-//   const panelStyle: React.CSSProperties = {
-//     marginBottom: 24,
-//     background: token.colorFillAlter,
-//     borderRadius: token.borderRadiusLG,
-//     border: "none",
-//   };
-
-//   return (
-//     <div>
-//       <Collapse
-//         className="bg-slate-100 p-1 mt-4"
-//         bordered={false}
-//         defaultActiveKey={["1"]}
-//         items={getItems(panelStyle)}
-//         expandIcon={({ isActive }) => (
-//           <CaretRightOutlined rotate={isActive ? 90 : 0} />
-//         )}
-//         style={{ background: token.colorBgContainer }}
-//       />
-//       <div className="flex justify-between mt-2">
-//         <p className="uppercase"> danh sách</p>
-//         <Button
-//           type="primary"
-//           className="bg-sky-500 rounded-lg "
-//           onClick={showModal}
-//         >
-//           + Tạo mới hàng loạt
-//         </Button>
-//         <Modal
-//           width={700}
-//           title="IMPORT TẠO MỚI SẢN PHẨM"
-//           cancelText="Hủy"
-//           open={isModalOpen}
-//           onOk={handleOk}
-//           onCancel={handleCancel}
-//           okButtonProps={{ disabled: currentStep < 2 }}
-//         >
-//           <Tabs defaultActiveKey="1" items={items} />
-//         </Modal>
-//       </div>
-//       <Table
-//         bordered
-//         columns={columns}
-//         dataSource={importedFiles}
-//         locale={{
-//           emptyText: <Empty description={<span>Trống</span>} />,
-//         }}
-//         className="mt-4"
-//       />
-//     </div>
-//   );
-// }
 "use client";
-
-import { formatPrice } from "@/component/utils/formatPrice";
-import { _ProductType } from "@/model/ProductType";
+import { FileInfoInput } from "@/apis/ProductAPI";
+import { _ProductType, ImportInfoType } from "@/model/ProductType";
 import { ProductService } from "@/services/Product";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { CaretRightOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import {
   Button,
+  Collapse,
+  CollapseProps,
   ConfigProvider,
-  ConfigProviderProps,
+  DatePicker,
   Empty,
+  Input,
+  message,
   Modal,
   Popconfirm,
   Result,
+  Select,
   Steps,
   Table,
   Tabs,
   TabsProps,
+  theme,
   Tooltip,
   Upload,
   UploadProps,
-  message,
-  theme,
 } from "antd";
+import { SearchProps } from "antd/es/input";
+import dayjs from "dayjs";
 import FileSaver from "file-saver";
+import FormData from "form-data";
+import moment from "moment";
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import React, { CSSProperties, useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { FiUpload } from "react-icons/fi";
-import { HiOutlineDownload } from "react-icons/hi";
-import { HiOutlineInformationCircle } from "react-icons/hi2";
+import { GrView } from "react-icons/gr";
+import { HiOutlineDownload, HiOutlineInformationCircle } from "react-icons/hi";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { read, utils } from "xlsx";
-
-type SizeType = ConfigProviderProps["componentSize"];
+import { formatPrice } from "../utils/formatPrice";
+const { RangePicker } = DatePicker;
+const { Search } = Input;
 
 export type OptionType = { label: string; value: string };
 
 export default function CreateBatchProduct() {
+  const query = useSearchParams();
   const { token } = theme.useToken();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateBatchModalOpen, setIsCreateBatchModalOpen] = useState(false);
+  const [isDisplayProductsModalOpen, setIsDisplayProductsModalOpen] =
+    useState(false);
   const { Dragger } = Upload;
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
-    null
-  );
-  const [openProductDetail, setOpenProductDetail] = useState(false);
-  const [allProducts, setAllProducts] = useState<_ProductType[]>([]);
-
-  const showDrawer = (product: _ProductType) => {
-    setSelectedProduct(product);
-    setOpenProductDetail(true);
+  const [allImportInfos, setAllImportInfos] = useState<ImportInfoType[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [startDate, setStartDate] = useState<string | null>(null);
+  const [endDate, setEndDate] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedRow, setSelectedRow] = useState<_ProductType[]>();
+  const convertDataTable = (data: ImportInfoType[]) => {
+    const result = data.map((record: ImportInfoType, index) => ({
+      ...record,
+      index: index + 1,
+      productNumber: record.products.length,
+    }));
+    return result;
   };
 
   const deleteProduct = async (product_id: string) => {
@@ -458,18 +78,16 @@ export default function CreateBatchProduct() {
     } else {
       message.error("Không thể xóa sản phẩm");
     }
-    const updatedProducts = { ...allProducts };
-    updatedProducts.filter((product) => product._id == product_id);
-    setAllProducts(updatedProducts);
   };
-  const columns = [
+
+  const displayProductcolumns = [
     {
       title: "Sản phẩm",
       dataIndex: "name",
       render: (text: string, record: _ProductType) => (
         <a
+          href={`list/update/${record._id}`}
           style={{ display: "flex", alignItems: "center" }}
-          onClick={() => showDrawer(record)}
         >
           <img
             src={record.images ? record.images[0] : ""}
@@ -603,12 +221,57 @@ export default function CreateBatchProduct() {
     },
   ];
 
-  const onClose = () => {
-    setOpenProductDetail(false);
-  };
-  const handleDownload = async () => {
+  const createBatchcolumns = [
+    { title: "STT", dataIndex: "index", width: "5%" },
+    {
+      title: "Thời gian gửi file",
+      dataIndex: "createdAt",
+      width: "25%",
+      render: (_: any, record: ImportInfoType) => (
+        <div>
+          {record.createdAt
+            ? moment(record.createdAt).format("DD/MM/YYYY HH:mm:ss")
+            : ""}
+        </div>
+      ),
+    },
+    { title: "Kết quả import", dataIndex: "status", width: "15%" },
+    { title: "Tên file import", dataIndex: "name", width: "25%" },
+    { title: "Số lượng sản phẩm", dataIndex: "productNumber" },
+    {
+      title: "Thao tác",
+      dataIndex: "operation",
+      render: (_: any, record: ImportInfoType) => (
+        <div className="space-x-2 flex">
+          <Tooltip placement="topLeft" title={"Xem sản phẩm import"}>
+            <Button
+              type="primary"
+              className="bg-sky-100 text-black"
+              onClick={() => {
+                setSelectedRow(record.products);
+                showDisplayProductsModal();
+              }}
+            >
+              <GrView />
+            </Button>
+          </Tooltip>
+          <Tooltip placement="topLeft" title={"Tải xuống"}>
+            <Button
+              type="primary"
+              className="bg-sky-100 text-black"
+              onClick={() => handleDownload(record.url, record.name)}
+            >
+              <HiOutlineDownload />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+  ];
+
+  const handleDownload = async (url: string, fileName: string) => {
     try {
-      FileSaver.saveAs(`${process.env.NEXT_PUBLIC_SAMPLE_FILE}`, "sample.xlsx");
+      FileSaver.saveAs(url, fileName);
     } catch (error) {
       console.error("Error downloading file:", error);
     }
@@ -643,7 +306,6 @@ export default function CreateBatchProduct() {
       const dataRows = jsonData
         .slice(1)
         .filter((row) => Array.isArray(row) && row.length > 0);
-      console.log("EXCEL", headerRow, dataRows);
 
       if (dataRows.length > 1000) {
         message.error("Không được import quá 1000 sản phẩm");
@@ -658,20 +320,6 @@ export default function CreateBatchProduct() {
     return check;
   };
 
-  const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
-    },
-    getCheckboxProps: (record: _ProductType) => ({
-      disabled: record.name === "Disabled User",
-      name: record.name,
-    }),
-  };
-
   const props: UploadProps = {
     name: "file",
     multiple: false,
@@ -680,8 +328,9 @@ export default function CreateBatchProduct() {
     beforeUpload: async (file) => {
       const isValid = await validateFile(file);
       if (isValid) {
+        setSelectedFile(file);
         setCurrentStep(2);
-        console.log("THong", currentStep);
+
         return true;
       }
       return false;
@@ -767,7 +416,12 @@ export default function CreateBatchProduct() {
           <Button
             type="primary"
             icon={<HiOutlineDownload />}
-            onClick={handleDownload}
+            onClick={() =>
+              handleDownload(
+                `${process.env.NEXT_PUBLIC_SAMPLE_FILE}`,
+                "sample.xlsx"
+              )
+            }
           >
             Tập tin mẫu
           </Button>
@@ -776,26 +430,208 @@ export default function CreateBatchProduct() {
     },
   ];
 
-  const showModal = () => {
-    setIsModalOpen(true);
+  const showCreateBatchModal = () => {
+    setIsCreateBatchModalOpen(true);
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const handleCreateBatchOk = async () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile as File);
+
+      try {
+        const { status } = await ProductService.createBatchProduct(formData);
+        if (status == 200) {
+          message.success("File imported successfully");
+        }
+
+        setIsCreateBatchModalOpen(false);
+        setCurrentStep(0);
+        setSelectedFile(null);
+      } catch (error) {
+        message.error("Error importing file");
+        console.error("Error importing file:", error);
+      }
+    }
   };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
+  const resetFilter = () => {
+    setSearchValue("");
+    setStartDate(null);
+    setEndDate(null);
+    setFilterStatus("");
+    window.history.pushState({}, "", `${window.location.pathname}`);
   };
+
+  const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
+    if (value.length != 0) {
+      const updatedQuery = new URLSearchParams(query);
+      updatedQuery.set("name", value);
+      window.history.pushState(
+        {},
+        "",
+        `${window.location.pathname}?${updatedQuery.toString()}`
+      );
+    }
+  };
+
+  const handleDisplayProductsCancel = () => {
+    setIsDisplayProductsModalOpen(false);
+  };
+
+  const showDisplayProductsModal = () => {
+    setIsDisplayProductsModalOpen(true);
+  };
+
+  //const handleDisplayProductsOk = async () => {};
+
+  const onStatusFilter = (value: string) => {
+    setFilterStatus(value);
+    const updatedQuery = new URLSearchParams(query);
+
+    if (value.length != 0) {
+      updatedQuery.set("status", value);
+    } else {
+      updatedQuery.delete("status");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  const onDateChange = (value: any, dateString: string[]) => {
+    const updatedQuery = new URLSearchParams(query);
+    if (value && value.length === 2) {
+      setStartDate(dateString[0]);
+      setEndDate(dateString[1]);
+
+      updatedQuery.set("startDate", dateString[0]);
+      updatedQuery.set("endDate", dateString[1]);
+    } else {
+      setStartDate(null);
+      setEndDate(null);
+
+      updatedQuery.delete("startDate");
+      updatedQuery.delete("endDate");
+    }
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  const handleCreateBatchCancel = () => {
+    setIsCreateBatchModalOpen(false);
+  };
+  const getItems: (panelStyle: CSSProperties) => CollapseProps["items"] = (
+    panelStyle
+  ) => [
+    {
+      key: "1",
+      label: <div className="">Tìm kiếm</div>,
+      children: (
+        <div className="flex space-x-8 items-center mx-auto">
+          <div className="">
+            <p className="font-semibold">Tìm kiếm tên file</p>
+            <Search
+              placeholder={`Nhập tên file`}
+              style={{
+                borderRadius: "5px",
+                width: 300,
+              }}
+              onSearch={onSearch}
+              type="primary"
+              enterButton
+              className="theme-button "
+              onChange={(e) => setSearchValue(e.target.value)}
+              value={searchValue}
+            />
+          </div>
+          <div className="">
+            <p className="font-semibold">Ngày gửi file</p>
+            <RangePicker
+              onChange={onDateChange}
+              placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+              value={[
+                startDate ? dayjs(startDate) : null,
+                endDate ? dayjs(endDate) : null,
+              ]}
+            />
+          </div>
+          <div className="">
+            <div className="font-semibold">Kết quả import</div>
+            <Select
+              onChange={onStatusFilter}
+              defaultValue="Tất cả"
+              style={{ width: 160 }}
+              options={[
+                { value: "", label: "Tất cả" },
+                { value: "SUCCESS", label: "Thành công" },
+                { value: "FALURE", label: "Có lỗi" },
+              ]}
+              value={filterStatus}
+            />
+          </div>
+          <Button
+            type="text"
+            className="mt-5 text-sky-400"
+            onClick={resetFilter}
+          >
+            Xóa bộ lọc
+          </Button>
+        </div>
+      ),
+      style: panelStyle,
+    },
+  ];
+
+  const panelStyle: React.CSSProperties = {
+    marginBottom: 24,
+    background: token.colorFillAlter,
+    borderRadius: token.borderRadiusLG,
+    border: "none",
+  };
+
+  const loadFilteredFileInfos = async () => {
+    const input: FileInfoInput = {
+      shop: "65f1e8bbc4e39014df775166",
+      name: query.get("name") || undefined,
+      startDate: query.get("startDate") || undefined,
+      endDate: query.get("endDate") || undefined,
+      status: query.get("status") || undefined,
+    };
+    const response: ImportInfoType[] = await ProductService.getFileInfoByFilter(
+      input
+    );
+    setAllImportInfos(response);
+  };
+
+  useEffect(() => {
+    loadFilteredFileInfos();
+  }, [query]);
 
   return (
     <div>
-      <div className="flex items-center justify-center mx-auto">
+      <Collapse
+        className="bg-slate-100 p-1 mt-4"
+        bordered={false}
+        defaultActiveKey={["1"]}
+        items={getItems(panelStyle)}
+        expandIcon={({ isActive }) => (
+          <CaretRightOutlined rotate={isActive ? 90 : 0} />
+        )}
+        style={{ background: token.colorBgContainer }}
+      />
+      <div className="flex flex-row-reverse">
         <Button
           type="primary"
           size="large"
-          className="bg-sky-500 rounded-lg uppercase  items-center justify-center mx-auto text-center"
-          onClick={showModal}
+          className="bg-sky-500 rounded-lg text-sm"
+          onClick={showCreateBatchModal}
         >
           + Tạo mới hàng loạt
         </Button>
@@ -807,37 +643,63 @@ export default function CreateBatchProduct() {
           width={700}
           title="IMPORT TẠO MỚI SẢN PHẨM"
           cancelText="Hủy"
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
+          open={isCreateBatchModalOpen}
+          onOk={handleCreateBatchOk}
+          onCancel={handleCreateBatchCancel}
           okButtonProps={{ disabled: currentStep < 2 }}
         >
-          <Tabs defaultActiveKey="1" items={items} />
+          <Tabs defaultActiveKey="1" items={items} className="mt-4" />
         </Modal>
+
+        {selectedRow && (
+          <Modal
+            centered
+            width={1100}
+            title="DANH SÁCH SẢN PHẨM ĐƯỢC IMPORT"
+            cancelText="Hủy"
+            open={isDisplayProductsModalOpen}
+            onCancel={handleDisplayProductsCancel}
+            footer={null}
+          >
+            <div className="scroll-auto " style={{ minHeight: "400px" }}>
+              <Table
+                pagination={{
+                  defaultPageSize: 20,
+                  pageSizeOptions: ["20", "10", "5"],
+                  showSizeChanger: true,
+                  total: selectedRow?.length,
+                }}
+                bordered
+                columns={displayProductcolumns}
+                dataSource={selectedRow}
+                locale={{
+                  emptyText: <Empty description={<span>Trống</span>} />,
+                }}
+                className=""
+              />
+            </div>
+          </Modal>
+        )}
       </div>
       <Table
         onRow={(record, rowIndex) => {
           return {
-            onClick: (event) => {
-              () => showDrawer(record);
-            },
+            // onClick: (event) => {
+            //   () => showDrawer(record);
+            // },
           };
         }}
         pagination={{
           pageSizeOptions: ["10", "5"],
           showSizeChanger: true,
-          total: allProducts.length,
+          total: allImportInfos.length,
           // onChange: (page, pageSize) => {
           //   fetchRecords(page, pageSize);
           // }
         }}
         bordered
-        rowSelection={{
-          type: "checkbox",
-          ...rowSelection,
-        }}
-        columns={columns}
-        dataSource={allProducts}
+        columns={createBatchcolumns}
+        dataSource={convertDataTable(allImportInfos)}
         locale={{
           emptyText: <Empty description={<span>Trống</span>} />,
         }}

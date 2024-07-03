@@ -17,12 +17,12 @@ import {
   Empty,
   Input,
   MenuProps,
+  message,
   Popconfirm,
   Table,
   Tabs,
   TabsProps,
   Tooltip,
-  message,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import Link from "next/link";
@@ -88,7 +88,7 @@ export default function ProductListPage() {
   const [openProductDetail, setOpenProductDetail] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<_ProductType | null>(
-    null,
+    null
   );
   const [tabProducts, setTabProducts] = useState<_ProductType[]>([]);
   const [totalProduct, setTotalProduct] = useState(0);
@@ -118,6 +118,7 @@ export default function ProductListPage() {
     }
     await loadFilteredProducts();
   };
+
   const tabItems: TabsProps["items"] = [
     {
       key: "",
@@ -229,10 +230,10 @@ export default function ProductListPage() {
 
   const handleFilterDropdownChange = (
     value: { id: string; label: string }[],
-    key: string,
+    key: string
   ) => {
     const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key,
+      (option) => option.key !== key
     );
 
     const newFilterCriteria: FilterCriteria = {
@@ -401,7 +402,7 @@ export default function ProductListPage() {
       window.history.pushState(
         {},
         "",
-        `${window.location.pathname}?${updatedQuery.toString()}`,
+        `${window.location.pathname}?${updatedQuery.toString()}`
       );
 
       updatedFilterOptions.push(newFilterCriteria);
@@ -413,6 +414,7 @@ export default function ProductListPage() {
   const clearAllFilterCriterias = () => {
     router.push(`/product/list`);
     setFilterOptions((prevFilterCriterias) => []);
+    setCurrentTab("");
   };
 
   const updateURL = (key: string, value: any) => {
@@ -423,12 +425,12 @@ export default function ProductListPage() {
         : undefined;
       if (categoryValues) {
         const updatedCategoryValues = categoryValues.filter(
-          (item) => item != value.id,
+          (item) => item != value.id
         );
         if (updatedCategoryValues.length > 0) {
           updatedQuery.set(
             "category",
-            encodeURIComponent(updatedCategoryValues.join(",")),
+            encodeURIComponent(updatedCategoryValues.join(","))
           );
         } else {
           updatedQuery.delete("category");
@@ -441,7 +443,7 @@ export default function ProductListPage() {
     window.history.pushState(
       {},
       "",
-      `${window.location.pathname}?${updatedQuery.toString()}`,
+      `${window.location.pathname}?${updatedQuery.toString()}`
     );
   };
 
@@ -449,7 +451,7 @@ export default function ProductListPage() {
     let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
 
     const index = updatedFilterCriterias.findIndex(
-      (criteria) => criteria.key === key,
+      (criteria) => criteria.key === key
     );
 
     if (index !== -1) {
@@ -458,7 +460,7 @@ export default function ProductListPage() {
       if (Array.isArray(valueFilterCriterias)) {
         updatedFilterCriterias[index].value = valueFilterCriterias.filter(
           (criteriaValue: { id: string; label: string }) =>
-            criteriaValue.id !== value.id,
+            criteriaValue.id !== value.id
         );
 
         if (updatedFilterCriterias[index].value.length === 0) {
@@ -530,26 +532,33 @@ export default function ProductListPage() {
   //   setFilterOptions(updatedFilterCriterias);
   // };
 
-  useEffect(() => {
-    const filterProducts = async () => {
-      const updatedQuery = new URLSearchParams(query);
-      if (currentTab == "") {
-        updatedQuery.delete("status");
-      } else {
-        updatedQuery.set("status", currentTab);
-      }
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query);
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
 
-      window.history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${updatedQuery.toString()}`,
-      );
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
 
-      loadFilteredProducts();
-    };
+  const handleTabChange = async (activeKey: string) => {
+    setCurrentTab(activeKey);
+    const updatedQuery = new URLSearchParams(query);
+    if (activeKey == "") {
+      updatedQuery.delete("status");
+    } else {
+      updatedQuery.set("status", activeKey);
+    }
 
-    filterProducts();
-  }, [currentTab]);
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
 
   const filters: ProductFilterInput = {
     keyword: query.get("keyword") || undefined,
@@ -613,10 +622,10 @@ export default function ProductListPage() {
       <Tabs
         type="card"
         activeKey={currentTab}
-        onChange={(activeKey) => setCurrentTab(activeKey)}
+        onChange={(activeKey) => handleTabChange(activeKey)}
         items={tabItems}
       ></Tabs>
-      <div className="flex items-center">
+      <div className="flex items-center space-x-6 mt-4">
         <Search
           placeholder={`Nhập tên sản phẩm`}
           style={{
@@ -671,7 +680,7 @@ export default function ProductListPage() {
                             <CiCircleRemove size={15} />
                           </div>
                         </div>
-                      ),
+                      )
                     )
                   ) : (
                     <div
@@ -708,9 +717,7 @@ export default function ProductListPage() {
       )}
       <Divider />
       <div className="flex">
-        <p className="font-semibold text-lg m-4">
-          Sản phẩm: {filteredProducts.length}
-        </p>
+        <p className="font-semibold text-lg m-4">Sản phẩm: {totalProduct}</p>
       </div>
       <div>
         <Table
@@ -722,12 +729,14 @@ export default function ProductListPage() {
             };
           }}
           pagination={{
-            pageSizeOptions: ["10", "5"],
+            defaultPageSize: 20,
+            pageSizeOptions: ["20", "10", "5"],
+
             showSizeChanger: true,
-            total: tabProducts.length,
-            // onChange: (page, pageSize) => {
-            //   fetchRecords(page, pageSize);
-            // }
+            total: totalProduct,
+            onChange: (page, pageSize) => {
+              fetchRecords(page, pageSize);
+            },
           }}
           bordered
           rowSelection={{

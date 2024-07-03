@@ -41,15 +41,21 @@ export interface ProductCreatedInput {
   };
 }
 
+export interface FileInfoInput {
+  shop: string;
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
 const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_PRODUCT_PORT}`;
 
 export const ProductAPI = {
   getProductByFilter: async (input: ProductFilterInput) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/products/filter`;
     try {
       const response = await axios.post(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_getProductByFilter: ", error);
@@ -59,7 +65,6 @@ export const ProductAPI = {
     const URL = `${BACKEND_SERVER_PREFIX}/product/${id}`;
     try {
       const response = await axios.get(URL);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_getProductById: ", error);
@@ -69,43 +74,68 @@ export const ProductAPI = {
     const URL = `${BACKEND_SERVER_PREFIX}/product/${id}`;
     try {
       const response = await axios.delete(URL);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_deleteProductById: ", error);
     }
   },
   createProduct: async (input: ProductCreatedInput) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/product`;
     try {
       const response = await axios.post(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_createProduct: ", error);
     }
   },
   createBatchProduct: async (fileData: FormData) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
-    const URL = `${BACKEND_SERVER_PREFIX}/product`;
+    const URL = `${BACKEND_SERVER_PREFIX}/import`;
+
+    fileData.append("shopId", "65f1e8bbc4e39014df775166");
     try {
-      const response = await axios.post(URL, { shopId: "" });
-      console.log("RESULT", response);
+      const response = await axios.post(URL, fileData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     } catch (error) {
-      console.log("API_ERROR_ProductAPI_createProduct: ", error);
+      console.log("API_ERROR_ProductAPI_createBatchProduct: ", error);
     }
   },
   updateProduct: async (input: ProductCreatedInput, product_id: string) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/product/${product_id}`;
     try {
       const response = await axios.put(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_updateProduct: ", error);
+    }
+  },
+  getFileInfoByFilter: async (input: FileInfoInput) => {
+    let URL = `${BACKEND_SERVER_PREFIX}/files/filter?shop=${input.shop}`;
+    const params = new URLSearchParams();
+
+    if (input.name) {
+      params.append("name", input.name);
+    }
+    if (input.status) {
+      params.append("status", input.status);
+    }
+    if (input.startDate) {
+      params.append("startDate", input.startDate);
+    }
+    if (input.endDate) {
+      params.append("endDate", input.endDate);
+    }
+
+    const fullURL = `${URL}&${params.toString()}`;
+
+    try {
+      const response = await axios.get(fullURL);
+      return response.data;
+    } catch (error) {
+      console.log("API_ERROR_ProductAPI_getFileInfoByFilter: ", error);
     }
   },
 };

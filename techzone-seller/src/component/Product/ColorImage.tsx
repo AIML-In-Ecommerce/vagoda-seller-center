@@ -1,6 +1,6 @@
 import { UploadService } from "@/services/Upload";
 import type { GetProp, UploadFile, UploadProps } from "antd";
-import { ConfigProvider, Upload } from "antd";
+import { ConfigProvider, message, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import FormData from "form-data";
 import { useEffect, useState } from "react";
@@ -17,7 +17,7 @@ interface ColorImageProps {
 export default function ColorImage(props: ColorImageProps) {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const uploadStyle = props.isDisplayLarge ? { width: 260, height: 260 } : {};
+  const uploadStyle = props.isDisplayLarge ? { width: 250, height: 250 } : {};
 
   const onChange: UploadProps["onChange"] = async (value: any) => {
     const { fileList: newFileList } = value;
@@ -84,8 +84,18 @@ export default function ColorImage(props: ColorImageProps) {
     }
   };
 
+  const handleRemoveFile = async (file: UploadFile) => {
+    console.log("Removing file", file.url);
+    const response = await UploadService.deleteFile(file.url ?? "");
+    if (response.status == 200) {
+      message.success(response.message);
+      props.setFileString("");
+    } else {
+      message.error(response.message);
+    }
+  };
+
   useEffect(() => {
-    // Initialize fileList with existing file URLs
     if (props.initialUrl) {
       const initialFile = {
         uid: props.initialUrl,
@@ -148,6 +158,7 @@ export default function ColorImage(props: ColorImageProps) {
               </div>
             )}
             style={{ padding: 0 }}
+            onRemove={handleRemoveFile}
           >
             {fileList.length < props.maxNumber &&
               (props.isDisplayLarge ? (

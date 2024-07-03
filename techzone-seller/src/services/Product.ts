@@ -1,9 +1,11 @@
 import {
+  FileInfoInput,
   ProductAPI,
   ProductCreatedInput,
   ProductFilterInput,
 } from "@/apis/ProductAPI";
-import { _ProductType } from "@/model/ProductType";
+import { _ProductType, ImportInfoType } from "@/model/ProductType";
+import FormData from "form-data";
 
 export const ProductService = {
   getProductByFilter: async (
@@ -14,7 +16,6 @@ export const ProductService = {
     products: _ProductType[];
   }> => {
     try {
-      console.log("THANH", input);
       const response: any = await ProductAPI.getProductByFilter({
         ...input,
         shopId: "65f1e8bbc4e39014df775166",
@@ -105,6 +106,31 @@ export const ProductService = {
       return { status: 500, message: "Không thể tạo sản phẩm" };
     }
   },
+  createBatchProduct: async (
+    input: FormData
+  ): Promise<{
+    status: number;
+    message: string;
+  }> => {
+    try {
+      console.log("@SERVICE_createProduct: ", input);
+      const response: any = await ProductAPI.createBatchProduct(input);
+
+      if (response.data) {
+        const formatedData: { status: number; message: string } = response;
+        return {
+          status: formatedData.status,
+          message: "Import danh sách sản phẩm thành công",
+        };
+      }
+
+      return { status: 500, message: "Không thể import danh sách sản phẩm" };
+    } catch (error) {
+      console.log("@SERVICE_createBatchProduct: ", error);
+
+      return { status: 500, message: "Không thể import danh sách sản phẩm" };
+    }
+  },
   updateProduct: async (
     input: ProductCreatedInput,
     product_id: string
@@ -113,7 +139,6 @@ export const ProductService = {
     message: string;
   }> => {
     try {
-      console.log("IDDD", product_id);
       const response: any = await ProductAPI.updateProduct(
         {
           ...input,
@@ -135,6 +160,29 @@ export const ProductService = {
       console.log("@SERVICE_updateProductById: ", error);
 
       return { status: 500, message: "Không thể cập nhật sản phẩm" };
+    }
+  },
+  getFileInfoByFilter: async (
+    input: FileInfoInput
+  ): Promise<ImportInfoType[]> => {
+    try {
+      console.log("@SERVICE_getFileInfoByFilter", input);
+      const response: any = await ProductAPI.getFileInfoByFilter({
+        ...input,
+        shop: "65f1e8bbc4e39014df775166",
+      });
+
+      if (response && Array.isArray(response)) {
+        const formatedData: ImportInfoType[] = response;
+
+        return formatedData;
+      }
+
+      return [];
+    } catch (error) {
+      console.log("@SERVICE_getFileInfoByFilter: ", error);
+
+      return [];
     }
   },
 };

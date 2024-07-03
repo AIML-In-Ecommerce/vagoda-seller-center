@@ -18,4 +18,28 @@ export const UploadService = {
       return "";
     }
   },
+  deleteFile: async (
+    url: string
+  ): Promise<{
+    status: number;
+    message: string;
+  }> => {
+    try {
+      const response: any = await UploadAPI.deleteFile(url);
+
+      if (response.data) {
+        const formatedData: { status: number; message: string } = response;
+        return {
+          status: formatedData.status,
+          message: "Xóa file thành công",
+        };
+      }
+
+      return { status: 500, message: "Không thể xóa file" };
+    } catch (error) {
+      console.log("@SERVICE_deleteFile: ", error);
+
+      return { status: 500, message: "Không thể xóa file" };
+    }
+  },
 };

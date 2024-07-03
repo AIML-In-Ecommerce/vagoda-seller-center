@@ -71,6 +71,10 @@
   font-size: 10px; /* Điều chỉnh kích thước sao đánh giá ở đây */
 }
 
+.medium-rating .ant-rate-star {
+  font-size: 12px; /* Điều chỉnh kích thước sao đánh giá ở đây */
+}
+
 .dropdown-category {
   max-height: 300px; /* Đặt chiều cao cố định cho danh sách */
   overflow-y: auto; /* Tự động tạo thanh cuộn dọc */

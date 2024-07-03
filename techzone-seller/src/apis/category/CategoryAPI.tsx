@@ -22,7 +22,6 @@ export async function GET_GetCategory(id: string) {
   ).toString();
 
   try {
-    // console.log(url);
     const response = await axios.get(url);
     const responseData: CategoryResponse = response.data;
 
@@ -67,7 +66,6 @@ export async function GET_GetAllCategories() {
   ).toString();
 
   try {
-    // console.log(url);
     const response = await axios.get(url);
     const responseData: CategoryListResponse = response.data;
 
@@ -106,7 +104,6 @@ export async function POST_GetCategoryList(ids: string[]) {
   ).toString();
 
   try {
-    // console.log(url);
     const requestBody = {
       ids: ids,
     };

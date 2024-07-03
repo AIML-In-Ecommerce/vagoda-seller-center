@@ -72,7 +72,6 @@ export default function FileDownloadButton(props: FileDownloadButtonProps) {
   //   };
   const handleDownload = async () => {
     const files = categorySwitcher(props.templateCategory);
-    console.log("FILES", files);
     const templateFileUrl = fileExtensionSwitcher(files, fileType);
 
     try {
