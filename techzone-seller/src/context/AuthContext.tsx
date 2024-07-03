@@ -16,7 +16,9 @@ interface AuthContextProviderInitProps
 const authLocalStorageID = "#auth-context-shop-info#"
 
 const matcher: string[] = 
-[]
+[
+    
+]
 
 interface AuthContextProps
 {
@@ -34,18 +36,23 @@ export interface AuthContextFunctions
     getAccessToken: () => string | null
 }
 
-const currentShopInfoStorage = localStorage.getItem(authLocalStorageID)
-
-let defaultShopInfo = null
-
-if(currentShopInfoStorage != null)
+function initLoading()
 {
-    defaultShopInfo = JSON.parse(currentShopInfoStorage)
+  const storageInfo = localStorage.getItem(authLocalStorageID)
+  if(storageInfo != null)
+  {
+    return JSON.parse(storageInfo) as ShopInfoType
+  }
+  else
+  {
+    return null
+  }
 }
+
 
 const defaultContextValue: AuthContextProps = 
 {
-    shopInfo: defaultShopInfo,
+    shopInfo: initLoading(),
     methods: null,
 }
 
