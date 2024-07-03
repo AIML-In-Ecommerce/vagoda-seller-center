@@ -55,9 +55,7 @@ export default function CSVImporter(props: ImporterProps) {
         return mappedData;
       });
 
-      // console.log("RESULT: ", result);
-
-      // Handle parsed CSV data
+      
       props.onFileUpload(result);
     };
 

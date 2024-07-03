@@ -172,7 +172,6 @@ export const ProductService = {
         shop: "65f1e8bbc4e39014df775166",
       });
 
-      console.log("THAO", response);
       if (response && Array.isArray(response)) {
         const formatedData: ImportInfoType[] = response;
 

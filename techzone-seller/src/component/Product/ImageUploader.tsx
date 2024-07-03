@@ -1,7 +1,7 @@
-// import { UploadService } from "@/services/Upload";
+"use client";
 import { UploadService } from "@/services/Upload";
 import type { GetProp, UploadFile, UploadProps } from "antd";
-import { Radio, Upload } from "antd";
+import { message, Radio, Upload } from "antd";
 import ImgCrop from "antd-img-crop";
 import FormData from "form-data";
 import { useEffect, useState } from "react";
@@ -21,20 +21,20 @@ export default function ImageUploader(props: ImageUploaderProps) {
   const [coverImageIndex, setCoverImageIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    // Initialize fileList with existing file URLs
     const initialFileList = props.fileUrls.map((url, index) => ({
-      uid: `${index}`, // Unique identifier
+      uid: `${index}`,
       name: `image-${index}`,
       status: "done",
       url: url,
     }));
+    console.log("FLAG 1", fileList);
     setFileList(initialFileList as UploadFile[]);
   }, [props.fileUrls]);
 
   const onChange: UploadProps["onChange"] = async ({
     fileList: newFileList,
   }) => {
-    let updatedURL: string[] = [...props.fileUrls]; // Copy existing URLs
+    let updatedURL: string[] = [...props.fileUrls];
     const updatedFileList: UploadFile[] = [];
 
     for (const item of newFileList) {
@@ -61,7 +61,8 @@ export default function ImageUploader(props: ImageUploaderProps) {
       }
     }
 
-    setFileList(updatedFileList);
+    console.log("FLAG 2");
+    setFileList(updatedFileList as UploadFile[]);
     props.setFileString(updatedURL);
   };
 
@@ -85,12 +86,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
     props.setCoverImageIndex(index);
   };
 
-  const itemRender = (
-    originNode: React.ReactElement,
-    file: UploadFile,
-    fileList: UploadFile[],
-    actions: any
-  ) => (
+  const itemRender = (originNode: React.ReactElement, file: UploadFile) => (
     <div
       style={{
         position: "relative",
@@ -131,7 +127,37 @@ export default function ImageUploader(props: ImageUploaderProps) {
 
     const updatedFiles = [...fileList];
     updatedFiles.push(updatedFile as UploadFile);
-    setFileList(updatedFiles);
+
+    console.log("FLAG 3");
+    setFileList(updatedFiles as UploadFile[]);
+  };
+
+  const handleRemoveFile = async (file: UploadFile) => {
+    console.log("Removing file", file.url);
+    const response = await UploadService.deleteFile(file.url ?? "");
+    console.log("THAP", response);
+    if (response.status == 200) {
+      message.success(response.message);
+
+      console.log("List file", fileList, file);
+
+      const updateImageUrls: string[] = props.fileUrls.filter(
+        (url) => url !== file.url
+      );
+
+      props.setFileString(updateImageUrls);
+      // const updatedFileList: UploadFile[] = fileList.filter(
+      //   (item) => item.uid !== file.uid
+      // );
+
+      // console.log("Updated file list", updatedFileList);
+      // console.log("FLAG 4");
+      // setFileList([]);
+
+      console.log("UPDATE", updateImageUrls, props.fileUrls, fileList);
+    } else {
+      message.error(response.message);
+    }
   };
 
   return (
@@ -150,6 +176,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         onPreview={onPreview}
         itemRender={itemRender}
         maxCount={props.maxNumber}
+        // onRemove={handleRemoveFile}
       >
         {fileList.length < props.maxNumber && "+ Tải ảnh"}
       </Upload>

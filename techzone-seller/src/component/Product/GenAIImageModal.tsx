@@ -22,7 +22,6 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
 
   const handleFormSubmit = async (values: any) => {
     setGenAiStatus("IN_PROGRESS");
-    console.log("Value: ", values);
     const promptTemplate = `hyperdetailed photography, soft light, head portrait, (white background:13, skin details, sharp and in focus,\n${values.gender} ${values.nationality} student,\n${values.bodyShape} body shape,\n${values.skinColor} skin,\n${values.hairColor} ${values.hairStyle},\nbig ${values.eyesColor} eyes,\nhigh nose,\nslim,\ncute,\nbeautiful`;
     const contextTemplate = `${values.gender} is wearing ${values.clothType} and ${values.posture} in ${values.background}`;
     const postBody = {

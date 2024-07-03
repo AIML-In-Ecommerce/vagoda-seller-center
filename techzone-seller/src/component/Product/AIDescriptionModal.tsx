@@ -38,8 +38,6 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const ref = useRef(null);
 
-  console.log("Short Description: ", props.shortDescription);
-
   useEffect(() => {
     import("@lottiefiles/lottie-player");
   });
@@ -60,11 +58,9 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       if (rawResponse.status == 200) {
-        console.log("AI Response: ", rawResponse.data);
-        // let response = JSON.parse(rawResponse.data);
         setDescription(rawResponse.data.data);
         setIsLoading(false);
       }

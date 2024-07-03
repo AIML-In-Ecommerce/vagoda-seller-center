@@ -9,8 +9,6 @@ interface GenAiProgressModalProps {
 }
 
 const GenAiProgressModal: React.FC = () => {
-  console.log("In progress");
-
   return (
     <div
       className="flex flex-col  px-8 pt-8 pb-8"

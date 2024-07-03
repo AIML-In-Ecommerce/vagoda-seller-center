@@ -628,7 +628,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   <div className="flex">
                     <div className="text-red-500 font-bold text-sm">*</div>{" "}
                     <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
-                      Tối đa 12 ảnh(flie .png, .jpg). Tick vào ô chọn làm ảnh
+                      Tối đa 10 ảnh(flie .png, .jpg). Tick vào ô chọn làm ảnh
                       bìa (mặc định ảnh đầu tiên)
                     </div>
                   </div>
@@ -671,7 +671,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   fileUrls={imageList}
                   setFileString={setImageList}
                   setCoverImageIndex={setCoverImageIndex}
-                  maxNumber={12}
+                  maxNumber={10}
                   minNumber={1}
                 />
               </Collapse.Panel>

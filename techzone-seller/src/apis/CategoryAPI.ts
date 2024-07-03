@@ -15,7 +15,6 @@ export const CategoryAPI = {
   getCategoryById: async (id: string) => {
     const URL = `${BACKEND_SERVER_PREFIX}/category/${id}`;
     try {
-      console.log("AURL: ", URL);
       const response = await axios.get(URL);
       return response.data;
     } catch (error) {

@@ -14,17 +14,15 @@ export interface ReviewInputType {
 
 export type CommentInputType = {
   review: string;
-  user: string;
+  shop: string;
   content: string;
 };
 
 export const ReviewAPI = {
   getAllReview: async (input: ReviewInputType) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/reviews/filter`;
     try {
       const response = await axios.post(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ReviewAPI_getAllReview: ", error);
@@ -35,7 +33,6 @@ export const ReviewAPI = {
 
     try {
       const response = await axios.get(URL);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ReviewAPI_getReviewById: ", error);
@@ -45,7 +42,6 @@ export const ReviewAPI = {
     const URL = `${BACKEND_SERVER_PREFIX}/comment`;
     try {
       const response = await axios.post(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ReviewAPI_createComment: ", error);

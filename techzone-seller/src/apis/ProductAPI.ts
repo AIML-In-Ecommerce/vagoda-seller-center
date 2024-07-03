@@ -53,11 +53,9 @@ const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${proce
 
 export const ProductAPI = {
   getProductByFilter: async (input: ProductFilterInput) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/products/filter`;
     try {
       const response = await axios.post(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_getProductByFilter: ", error);
@@ -67,7 +65,6 @@ export const ProductAPI = {
     const URL = `${BACKEND_SERVER_PREFIX}/product/${id}`;
     try {
       const response = await axios.get(URL);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_getProductById: ", error);
@@ -77,25 +74,21 @@ export const ProductAPI = {
     const URL = `${BACKEND_SERVER_PREFIX}/product/${id}`;
     try {
       const response = await axios.delete(URL);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_deleteProductById: ", error);
     }
   },
   createProduct: async (input: ProductCreatedInput) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/product`;
     try {
       const response = await axios.post(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_createProduct: ", error);
     }
   },
   createBatchProduct: async (fileData: FormData) => {
-    console.log("INPUT", fileData);
     const URL = `${BACKEND_SERVER_PREFIX}/import`;
 
     fileData.append("shopId", "65f1e8bbc4e39014df775166");
@@ -105,18 +98,15 @@ export const ProductAPI = {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_createBatchProduct: ", error);
     }
   },
   updateProduct: async (input: ProductCreatedInput, product_id: string) => {
-    console.log("INPUT", BACKEND_SERVER_PREFIX);
     const URL = `${BACKEND_SERVER_PREFIX}/product/${product_id}`;
     try {
       const response = await axios.put(URL, input);
-      console.log("RESULT", response);
       return response.data;
     } catch (error) {
       console.log("API_ERROR_ProductAPI_updateProduct: ", error);
@@ -140,7 +130,6 @@ export const ProductAPI = {
     }
 
     const fullURL = `${URL}&${params.toString()}`;
-    console.log("RESULT", fullURL);
 
     try {
       const response = await axios.get(fullURL);

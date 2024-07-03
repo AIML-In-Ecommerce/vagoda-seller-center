@@ -29,7 +29,7 @@ const sampleResponse = [
   "Cám ơn anh/chị đã tin dùng sản phẩm của shop, rất mong shop sẽ được tiếp tục đồng hành cùng mình trong thời gian sắp tới nhé",
   "Shop thành thật xin lỗi vì sự thiếu sót và mang lại trải nghiệm không tốt cho quý khách. Shop sẽ cải thiện chất lượng dịch vụ tốt hơn ạ",
 ];
-
+const mockShopId = "65f1e8bbc4e39014df775166";
 export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
   const [content, setContent] = useState<string>("");
   const [review, setReview] = useState<_ReviewType | null>(null);
@@ -37,7 +37,7 @@ export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
   const handleCreateComment = async () => {
     const input: CommentInputType = {
       review: review?._id ?? "",
-      user: review?.user._id ?? "",
+      shop: mockShopId ?? "",
       content,
     };
     const response = await ReviewService.createComment(input);
@@ -78,7 +78,11 @@ export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
         <Image
           height={40}
           width={40}
-          src={review ? review.user.avatar : ""}
+          src={
+            review?.user.avatar
+              ? review.user.avatar
+              : "https://cdn-icons-png.flaticon.com/128/1653/1653671.png"
+          }
           className="rounded-full"
         />
 
@@ -115,30 +119,38 @@ export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
       </div>
       <div className="ml-14 mt-4 mb-28">
         {review &&
-          review.conversation.map((comment, index) => (
-            <div key={comment._id} className="flex space-x-2 mb-4">
-              <Image
-                height={40}
-                width={40}
-                src={comment.comment.user.avatar}
-                className="rounded-full"
-              />
+          review.conversation.map((comment, index) =>
+            comment.comment.user ? (
+              <div key={comment._id} className="flex space-x-2 mb-4">
+                <Image
+                  height={40}
+                  width={40}
+                  src={
+                    comment.comment.user
+                      ? comment.comment.user.avatar
+                      : "https://cdn-icons-png.flaticon.com/128/1653/1653671.png"
+                  }
+                  className="rounded-full"
+                />
 
-              <div className="col-span-2 bg-slate-100 rounded-xl p-4 space-y-2">
-                <p className="font-semibold text-md">
-                  {comment.comment.user.fullName}
-                </p>
+                <div className="col-span-2 bg-slate-100 rounded-xl p-4 space-y-2">
+                  <p className="font-semibold text-md">
+                    {comment.comment.user.fullName}
+                  </p>
 
-                <p>{comment.comment.content}</p>
+                  <p>{comment.comment.content}</p>
 
-                <p className="text-slate-400 text-xs">
-                  {moment(comment.comment.createdAt).format(
-                    "DD/MM/YYYY HH:mm:ss"
-                  )}
-                </p>
+                  <p className="text-slate-400 text-xs">
+                    {moment(comment.comment.createdAt).format(
+                      "DD/MM/YYYY HH:mm:ss"
+                    )}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ) : (
+              <div></div>
+            )
+          )}
       </div>
       <div className="w-full absolute bottom-0 left-0 p-2 items-center fixed z-50 border-top shadow-xl bg-white">
         <div className="grid grid-cols-2 gap-2 mb-2">

@@ -55,9 +55,7 @@ export default function CategoryDropdown(props: CategoryDropdownProps) {
   ) => {
     if (selectedOptions && selectedOptions.length > 0) {
       setSelectedCategory(value);
-      console.log("Selected", value);
     } else {
-      // setCategoryLine(null);
     }
 
     props.setCategory(value);

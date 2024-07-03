@@ -306,7 +306,6 @@ export default function CreateBatchProduct() {
       const dataRows = jsonData
         .slice(1)
         .filter((row) => Array.isArray(row) && row.length > 0);
-      console.log("EXCEL", headerRow, dataRows);
 
       if (dataRows.length > 1000) {
         message.error("Không được import quá 1000 sản phẩm");
@@ -437,10 +436,8 @@ export default function CreateBatchProduct() {
 
   const handleCreateBatchOk = async () => {
     if (selectedFile) {
-      console.log("Creating", selectedFile as File);
       const formData = new FormData();
       formData.append("file", selectedFile as File);
-      console.log("File selected", formData);
 
       try {
         const { status } = await ProductService.createBatchProduct(formData);
@@ -507,7 +504,6 @@ export default function CreateBatchProduct() {
   const onDateChange = (value: any, dateString: string[]) => {
     const updatedQuery = new URLSearchParams(query);
     if (value && value.length === 2) {
-      console.log(`${dateString}`);
       setStartDate(dateString[0]);
       setEndDate(dateString[1]);
 
@@ -601,7 +597,6 @@ export default function CreateBatchProduct() {
   };
 
   const loadFilteredFileInfos = async () => {
-    console.log("Loading", query.get("name"));
     const input: FileInfoInput = {
       shop: "65f1e8bbc4e39014df775166",
       name: query.get("name") || undefined,
@@ -613,11 +608,9 @@ export default function CreateBatchProduct() {
       input
     );
     setAllImportInfos(response);
-    console.log("Result: " + response);
   };
 
   useEffect(() => {
-    console.log("QUANG", query.get("name"));
     loadFilteredFileInfos();
   }, [query]);
 

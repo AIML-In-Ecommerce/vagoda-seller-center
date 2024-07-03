@@ -23,7 +23,6 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   const [imageLink, setImageLink] = useState<string>(imageUrl);
 
   const handleSaveImage = async () => {
-    console.log("LINK", imageLink);
     const response: { status: number; message: string } =
       await PUT_AddImageCollection("65f1e8bbc4e39014df775166", imageLink);
 

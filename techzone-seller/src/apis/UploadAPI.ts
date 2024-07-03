@@ -17,4 +17,13 @@ export const UploadAPI = {
       console.log("API_ERROR_UploadAPI_getURLImage: ", error);
     }
   },
+  deleteFile: async (url: string) => {
+    const URL = `${BACKEND_SERVER_PREFIX}/deleteFile`;
+    try {
+      const response = await axios.post(URL, { url });
+      return response.data;
+    } catch (error) {
+      console.log("API_ERROR_UploadAPI_deleteFile: ", error);
+    }
+  },
 };
