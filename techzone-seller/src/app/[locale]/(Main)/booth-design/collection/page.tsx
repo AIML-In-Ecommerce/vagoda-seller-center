@@ -23,8 +23,9 @@ import {
 } from "antd";
 import Search from "antd/es/input/Search";
 import { TableRowSelection } from "antd/es/table/interface";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
+import { AuthContext } from "@/context/AuthContext";
 
 interface CollectionColumn {
   key: string;
@@ -37,9 +38,8 @@ interface CollectionColumn {
 type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function CollectionPage() {
-  // mock data
-  const mockId = "65f1e8bbc4e39014df775166";
-  //TODO
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>();
@@ -240,7 +240,7 @@ export default function CollectionPage() {
   }, []);
 
   const handleGetCollectionList = async () => {
-    const response = await GET_GetCollectionListByShop(mockId);
+    const response = await GET_GetCollectionListByShop(shopId);
 
     if (response.status === 200) {
       console.log(response.data);

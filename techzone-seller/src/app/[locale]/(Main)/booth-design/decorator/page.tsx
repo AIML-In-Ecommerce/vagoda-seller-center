@@ -12,7 +12,7 @@ import {
   Skeleton,
   Tabs,
 } from "antd";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import Banner from "@/component/booth-design/decorator/mini/Banner";
 import WidgetEditorBar from "@/component/booth-design/decorator/WidgetEditorBar";
 import WidgetList from "@/component/booth-design/decorator/WidgetList";
@@ -43,6 +43,7 @@ import {
   PUT_UpdateWidgetVisibility,
 } from "@/apis/widget/WidgetAPI";
 import { GoSearch } from "react-icons/go";
+import { AuthContext } from "@/context/AuthContext";
 
 type NotificationPlacement = NotificationArgsProps["placement"];
 
@@ -155,6 +156,10 @@ export default function BoothDecoratorPage() {
   ];
 
   // variables n methods
+
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
+
   const tabItems = [
     "Cửa Hàng",
     "Tất Cả Sản Phẩm",
@@ -293,10 +298,7 @@ export default function BoothDecoratorPage() {
   }, [shop]);
 
   const handleGetShop = async () => {
-    // mock data
-    const mockId = "65f1e8bbc4e39014df775166";
-
-    const response = await GET_GetShop(mockId);
+    const response = await GET_GetShop(shopId);
     if (response.status == 200) {
       // console.log(response.message);
       // console.log(response.data);

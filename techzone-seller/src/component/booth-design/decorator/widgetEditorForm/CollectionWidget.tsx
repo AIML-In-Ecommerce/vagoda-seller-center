@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Card, Flex, Select, Space } from "antd";
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { CollectionType } from "@/model/CollectionType";
@@ -15,6 +15,7 @@ import CollectionCard from "../mini/CollectionCard";
 import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { GET_GetCollectionListByShop } from "@/apis/collection/CollectionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
+import { AuthContext } from "@/context/AuthContext";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -25,8 +26,8 @@ interface WidgetProps {
 }
 
 export default function CollectionWidget(props: WidgetProps) {
-  // mock data
-  const mockId = "65f1e8bbc4e39014df775166";
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // data
   const [proxyCollectionId, setProxyCollectionId] = useState<Array<string>>([]);
@@ -41,7 +42,7 @@ export default function CollectionWidget(props: WidgetProps) {
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
   const handleGetCollectionList = async () => {
-    const response = await GET_GetCollectionListByShop(mockId);
+    const response = await GET_GetCollectionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setCollections(response.data);

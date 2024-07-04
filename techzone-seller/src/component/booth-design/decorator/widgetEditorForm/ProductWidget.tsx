@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Flex, Input, Select, Skeleton, Tooltip } from "antd";
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
@@ -14,6 +14,7 @@ import CustomEmpty from "../mini/CustomEmpty";
 import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { GET_GetCollectionListByShop } from "@/apis/collection/CollectionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
+import { AuthContext } from "@/context/AuthContext";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -24,8 +25,8 @@ interface WidgetProps {
 }
 
 export default function ProductWidget(props: WidgetProps) {
-  // mock data
-  const mockId = "65f1e8bbc4e39014df775166";
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>([]);
@@ -101,10 +102,10 @@ export default function ProductWidget(props: WidgetProps) {
   // call api
   useEffect(() => {
     handleGetCollectionList();
-  }, [mockId]);
+  }, [shopId]);
 
   const handleGetCollectionList = async () => {
-    const response = await GET_GetCollectionListByShop(mockId);
+    const response = await GET_GetCollectionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setCollections(response.data);

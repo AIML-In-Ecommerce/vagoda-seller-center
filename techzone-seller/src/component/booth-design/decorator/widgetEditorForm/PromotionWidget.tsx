@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Card, Flex, Input, Select, Space, Tooltip } from "antd";
-import { ReactElement, useEffect, useMemo, useState } from "react";
+import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
@@ -17,6 +17,7 @@ import PromotionCard from "../mini/PromotionCard";
 import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { GET_GetPromotionListByShop } from "@/apis/promotion/PromotionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
+import { AuthContext } from "@/context/AuthContext";
 
 interface WidgetProps {
   widget: WidgetType;
@@ -86,7 +87,9 @@ export default function PromotionWidget(props: WidgetProps) {
       code: "BIENVENUE",
     },
   ];
-  const mockId = "65f1e8bbc4e39014df775166";
+
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // data
   const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
@@ -159,7 +162,7 @@ export default function PromotionWidget(props: WidgetProps) {
 
   // call api
   const handleGetPromotionList = async () => {
-    const response = await GET_GetPromotionListByShop(mockId);
+    const response = await GET_GetPromotionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setPromotions(response.data);
