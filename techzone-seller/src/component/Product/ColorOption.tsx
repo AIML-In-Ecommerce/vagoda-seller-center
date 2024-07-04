@@ -1,30 +1,34 @@
 "use client";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, ColorPicker, Form, Input, Space, Typography } from "antd";
-import { useState } from "react";
+import { useEffect } from "react";
 import ColorImage from "./ColorImage";
 
-export default function ColorOption() {
+interface ColorOptionProps {
+  initialValue: { colorCode: string; colorName: string; image: string }[];
+  onFormChange: (values: any) => void;
+}
+
+export default function ColorOption(props: ColorOptionProps) {
   const [form] = Form.useForm();
-  const [fileStrings, setFileStrings] = useState<string[]>([]);
 
-  const setFileString = (index: number, fileString: string) => {
-    setFileStrings((prev) => {
-      const newFileStrings = [...prev];
-      newFileStrings[index] = fileString;
-      form.setFieldsValue({
-        items: newFileStrings.map((str, i) => ({
-          ...form.getFieldValue(["items", i]),
-          image: str,
-        })),
-      });
-      return newFileStrings;
+  const handleImageChange = (fileString: string, key: any) => {
+    const fields = form.getFieldsValue();
+    const { colors } = fields;
+    Object.assign(colors[key], {
+      image: fileString.length > 0 ? fileString : null,
     });
+    form.setFieldsValue({ colors });
   };
 
-  const onFinish = (values: any) => {
-    console.log("Received values of form:", values);
+  const handleFormChange = () => {
+    const { colors } = form.getFieldsValue();
+    props.onFormChange(form.getFieldsValue());
   };
+
+  useEffect(() => {
+    form.setFieldsValue({ colors: props.initialValue });
+  }, [props.initialValue, form]);
 
   return (
     <div className="m-2">
@@ -33,12 +37,13 @@ export default function ColorOption() {
         wrapperCol={{ span: 30 }}
         form={form}
         name="dynamic_form_complex"
-        onFinish={onFinish}
+        // onFinish={onFinish}
+        onFieldsChange={handleFormChange}
         style={{ maxWidth: "100%" }}
         autoComplete="off"
         initialValues={{ items: [{}] }}
       >
-        <Form.List name="items">
+        <Form.List name="colors">
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }, index) => (
@@ -47,50 +52,45 @@ export default function ColorOption() {
                   style={{ display: "flex" }}
                   className="items-start"
                 >
-                  <Form.Item
-                    {...restField}
-                    name={[name, "colorCode"]}
-                    getValueFromEvent={(color) => {
-                      return "#" + color.toHex();
-                    }}
-                    initialValue={"#1677ff"}
-                    // rules={[
-                    //   { required: true, message: "Vui lòng chọn mã màu" },
-                    // ]}
-                  >
-                    <div className="space-y-1">
-                      <p className="font-semibold">
-                        <span className="text-red-400 font-bold">*</span> Chọn
-                        mã màu
-                      </p>
+                  <div className="space-y-1">
+                    <p className="font-semibold">
+                      <span className="text-red-400 font-bold">*</span> Chọn mã
+                      màu
+                    </p>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "colorCode"]}
+                      getValueFromEvent={(color) => {
+                        return "#" + color.toHex();
+                      }}
+                      initialValue={"#1677ff"}
+                    >
                       <ColorPicker defaultValue="#1677ff" showText />
-                    </div>
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "colorName"]}
-                    rules={[
-                      { required: true, message: "Vui lòng đặt tên màu" },
-                    ]}
-                  >
-                    <div className="space-y-1">
-                      <p className="font-semibold">
-                        <span className="text-red-400 font-bold">*</span> Tên
-                        màu sắc
-                      </p>
+                    </Form.Item>{" "}
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-semibold">
+                      <span className="text-red-400 font-bold">*</span> Tên màu
+                      sắc
+                    </p>
+                    <Form.Item
+                      {...restField}
+                      name={[name, "colorName"]}
+                      rules={[
+                        { required: true, message: "Vui lòng đặt tên màu" },
+                      ]}
+                    >
                       <Input placeholder="Đen" />
-                    </div>
-                  </Form.Item>
+                    </Form.Item>
+                  </div>
                   <Form.Item
                     {...restField}
                     name={[name, "image"]}
-                    valuePropName="fileString"
-                    getValueFromEvent={() => {
-                      console.log("FILE", fileStrings[index]);
-                      return fileStrings[index];
-                    }}
                     rules={[
-                      { required: true, message: "Vui lòng chọn ảnh minh họa" },
+                      {
+                        required: true,
+                        message: "Vui lòng chọn ảnh minh họa",
+                      },
                     ]}
                   >
                     <div className="space-y-1 mr-4">
@@ -100,14 +100,20 @@ export default function ColorOption() {
                       </p>
                       <div className="ml-2">
                         <ColorImage
-                          setFileString={(fileString: string) =>
-                            setFileString(index, fileString)
-                          }
+                          isDisplayLarge={false}
+                          initialUrl={form.getFieldValue([
+                            "colors",
+                            index,
+                            "image",
+                          ])}
+                          setFileString={(fileString: string) => {
+                            handleImageChange(fileString, index);
+                          }}
                           maxNumber={1}
-                        />
+                        />{" "}
                       </div>
                     </div>
-                  </Form.Item>
+                  </Form.Item>{" "}
                   <MinusCircleOutlined
                     style={{ padding: 0, marginLeft: 8 }}
                     onClick={() => remove(name)}

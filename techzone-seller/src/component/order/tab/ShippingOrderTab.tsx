@@ -3,17 +3,22 @@
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
 import { OrderPropType } from "@/model/OrderPropType"
 import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { BiInfoCircle } from "react-icons/bi"
 import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool"
 import { TableRowSelection } from "antd/es/table/interface"
 import OrderDetailDrawer from "../util/OrderDetailDrawer"
 import { ShippingOrderPoolSetting } from "@/component_config/order/filter_pool/ShippingOrderPoolSetting"
+import { AuthContext } from "@/context/AuthContext"
+import OrderService from "@/services/order.service"
+import { NotificationContext } from "@/context/NotificationContext"
 
 
 interface ShippingOrderTabProps
 {
-    dataSource: OrderPropType[]
+    tabKey: string,
+    dataSource: OrderPropType[],
+    askToRefreshData: (tabKey: string) => void
 }
 
 enum StatusType
@@ -28,6 +33,12 @@ interface DisplayStatus
     type: StatusType
 }
 
+interface CoordinateInOrder
+{
+    lng: number,
+    lat: number
+}
+
 interface ShippingOrder
 {
     key: string,
@@ -37,11 +48,7 @@ interface ShippingOrder
         receiverName: string,
         address: string,
         phoneNumber: string,
-        coordinate:
-        {
-            lng: number,
-            lat: number
-        },
+        coordinate: CoordinateInOrder | null,
         label: string,
         isDefault: boolean
     }
@@ -79,7 +86,7 @@ const OrderTimeTooltip =
     </Typography.Text>
 </Flex>
 
-export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
+export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}: ShippingOrderTabProps)
 {
     const shippingTabFilterPoolKey = "shipping-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
@@ -91,6 +98,15 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
     const [orderDetailOpen, setOrderDetailOpen] = useState<boolean>(false) 
 
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
+
+    const authContext = useContext(AuthContext)
+
+    const notificationContext = useContext(NotificationContext)
+
+    useEffect(() =>
+    {
+        setData(dataSource)
+    }, [dataSource])
 
     const dataColumns: TableColumnType<ShippingOrder>[] = 
     [
@@ -247,64 +263,56 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
 
     useEffect(() =>
     {
-        const display = data.map((value: OrderPropType) =>
+        if(data.length == 0)
         {
-            let totalProducts = 0;
-            value.product.forEach((selection) =>
+            setDataToDisplay([])
+        }
+        else
+        {
+            const display = data.map((value: OrderPropType) =>
             {
-                totalProducts += selection.quantity
-            })
-
-            let orderStatus: DisplayStatus =
-            {
-                name: "Đang chờ",
-                type: StatusType.PENDING
-            }
-            // const today = Date.now()
-
-            // const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
-
-
-            // if(today > time)
-            // {
-            //     orderStatus =
-            //     {
-            //         name: "Đang chờ và đã quá hạn",
-            //         type: StatusType.EXPIRED
-            //     }
-            // }
-
-            const item: ShippingOrder =
-            {
-                key: value._id,
-                status: orderStatus,
-                delivery: {
-                    receiverName: value.address.receiverName,
-                    address: value.address.address,
-                    phoneNumber: value.address.phoneNumber,
-                    coordinate: {
-                        lng: value.address.coordinate.lng,
-                        lat: value.address.coordinate.lat
-                    },
-                    label: value.address.label,
-                    isDefault: value.address.isDefault
-                },
-                time: {
-                    orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
-                    deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
-                },
-                price: {
-                    totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.totalPrice.shipping),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice.total),
-                    profit: currencyFormater(MyLocaleRef.VN, value.totalPrice.profit)
+                let totalProducts = 0;
+                value.products.forEach((selection) =>
+                {
+                    totalProducts += selection.quantity
+                })
+    
+                let orderStatus: DisplayStatus =
+                {
+                    name: "Đang chờ",
+                    type: StatusType.PENDING
                 }
-            }
-
-            return item
-        })
-
-        setDataToDisplay(display)
+    
+                const item: ShippingOrder =
+                {
+                    key: value._id,
+                    status: orderStatus,
+                    delivery: {
+                        receiverName: value.shippingAddress.receiverName,
+                        address: value.shippingAddress.street,
+                        phoneNumber: value.shippingAddress.phoneNumber,
+                        coordinate: value.shippingAddress.coordinate,
+                        label: value.shippingAddress.label,
+                        isDefault: value.shippingAddress.isDefault
+                    },
+                    time: {
+                        orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
+                        deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
+                    },
+                    price: {
+                        totalProduct: totalProducts,
+                        shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                        totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                        profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                    }
+                }
+    
+                return item
+            })
+    
+            setDataToDisplay(display)
+    
+        }
     },
     [data])
 
@@ -335,16 +343,55 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
         setOrderDetailOpen(false)
     }
 
-    function handleConfirmOrderOnClick(params: any)
+    async function handleConfirmOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.shopInfo._id as string,
+        targetOrderId)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận vận chuyển thất bái",
+                description: `Không thể xác nhận vận chuyển đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+        }
+        else if(isUpdateSuccessfully == true)
+        {
+            notificationContext?.notificationAPI.success({
+                message: "Xác nhận vận chuyển thành công",
+                description: `Xác nhận vận chuyển đơn hàng${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
-    function handleCancelOrderOnClick(params: any)
+    async function handleCancelOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        // const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.shopInfo._id as string,
+        // targetOrderId)
+        // if(isUpdateSuccessfully == null)
+        // {
+
+        // }
+        // else if(isUpdateSuccessfully == true)
+        // {
+        //     askToRefreshData(tabKey)
+        // }
     }
 
     function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: ShippingOrder[])
@@ -357,11 +404,32 @@ export default function ShippingOrderTab({dataSource}: ShippingOrderTabProps)
         setSelectedOrderIds(selectedOrderIds)
     }
 
-    function handleConfirmManyOrder(soids: string[])
+    async function handleConfirmManyOrder(soids: string[])
     {
-        console.log(soids)
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
 
-        //TODO: call api to update order status here
+        const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.shopInfo._id as string, soids)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận vận chuyển thất bại",
+                description: "Không thể xác nhận vận chuyển cho các đơn hàng đã chọn",
+                placement: "top"
+            })
+        }
+        else if(isUpdateSuccessfully == true)
+        {
+            notificationContext?.notificationAPI.success({
+                message: "Xác nhận vận chuyển thành công",
+                description: "Xác nhận vận chuyển cho các đơn hàng đã chọn",
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
+
     }
 
     const rowSelection: TableRowSelection<ShippingOrder> = 

@@ -26,4 +26,5 @@ export type ShopType = {
   shopInfoDesign: ShopInfoDesignType;
   shopDetail: ShopDetailType;
   createAt: Date;
+  imageCollection: string[];
 };

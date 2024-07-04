@@ -2,19 +2,24 @@
 
 import { OrderPropType } from "@/model/OrderPropType";
 import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool";
 import { ProcessingOrderPoolSetting } from "@/component_config/order/filter_pool/ProcessingOrderPoolSetting";
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater";
 import { BiInfoCircle } from "react-icons/bi";
 import OrderDetailDrawer from "../util/OrderDetailDrawer";
 import { TableRowSelection } from "antd/es/table/interface";
+import { AuthContext } from "@/context/AuthContext";
+import OrderService from "@/services/order.service";
+import { NotificationContext } from "@/context/NotificationContext";
 
 
 
 interface ProcessingOrderTabProps
 {
-    dataSource: OrderPropType[]
+    tabKey: string,
+    dataSource: OrderPropType[],
+    askToRefreshData: (tabKey: string) => void
 }
 
 enum StatusType
@@ -29,6 +34,12 @@ interface DisplayStatus
     type: StatusType
 }
 
+interface CoordinateInOrder
+{
+    lng: number,
+    lat: number
+}
+
 interface ProcessingOrder
 {
     key: string,
@@ -38,11 +49,7 @@ interface ProcessingOrder
         receiverName: string,
         address: string,
         phoneNumber: string,
-        coordinate:
-        {
-            lng: number,
-            lat: number
-        },
+        coordinate: CoordinateInOrder | null,
         label: string,
         isDefault: boolean
     }
@@ -83,7 +90,7 @@ const OrderTimeTooltip =
 
 const filterPoolSetting = ProcessingOrderPoolSetting
 
-export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps)
+export default function ProcessingOrderTab({tabKey, dataSource, askToRefreshData}: ProcessingOrderTabProps)
 {
     const processingTabFilterPoolKey = "processing-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
@@ -96,6 +103,13 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
 
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
+    const authContext = useContext(AuthContext)
+    const notificationContext = useContext(NotificationContext)
+
+    useEffect(() =>
+    {
+        setData(dataSource)
+    }, [dataSource])
 
     const dataColumns: TableColumnType<ProcessingOrder>[] = 
     [
@@ -252,64 +266,67 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
 
     useEffect(() =>
     {
-        const display = data.map((value: OrderPropType) =>
+        if(data.length == 0)
         {
-            let totalProducts = 0;
-            value.product.forEach((selection) =>
+            setDataToDisplay([])
+        }
+        else
+        {
+            const display = data.map((value: OrderPropType) =>
             {
-                totalProducts += selection.quantity
-            })
-
-            let orderStatus: DisplayStatus =
-            {
-                name: "Đang chờ",
-                type: StatusType.PENDING
-            }
-            const today = Date.now()
-
-            const time = value.orderStatus[value.orderStatus.length - 1].deadline*1000
-
-
-            if(today > time)
-            {
-                orderStatus =
+                let totalProducts = 0;
+                value.products.forEach((selection) =>
                 {
-                    name: "Đang chờ và đã quá hạn",
-                    type: StatusType.EXPIRED
+                    totalProducts += selection.quantity
+                })
+    
+                let orderStatus: DisplayStatus =
+                {
+                    name: "Đang chờ",
+                    type: StatusType.PENDING
                 }
-            }
-
-            const item: ProcessingOrder =
-            {
-                key: value._id,
-                status: orderStatus,
-                delivery: {
-                    receiverName: value.address.receiverName,
-                    address: value.address.address,
-                    phoneNumber: value.address.phoneNumber,
-                    coordinate: {
-                        lng: value.address.coordinate.lng,
-                        lat: value.address.coordinate.lat
+                const today = new Date()
+    
+                const deadlineTime = new Date(value.orderStatus[value.orderStatus.length - 1].deadline)
+    
+                if(today > deadlineTime)
+                {
+                    orderStatus =
+                    {
+                        name: "Đang chờ và đã quá hạn",
+                        type: StatusType.EXPIRED
+                    }
+                }
+    
+                const item: ProcessingOrder =
+                {
+                    key: value._id,
+                    status: orderStatus,
+                    delivery: {
+                        receiverName: value.shippingAddress.receiverName,
+                        address: value.shippingAddress.street,
+                        phoneNumber: value.shippingAddress.phoneNumber,
+                        coordinate: value.shippingAddress.coordinate,
+                        label: value.shippingAddress.label,
+                        isDefault: value.shippingAddress.isDefault
                     },
-                    label: value.address.label,
-                    isDefault: value.address.isDefault
-                },
-                time: {
-                    orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
-                    deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
-                },
-                price: {
-                    totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.totalPrice.shipping),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice.total),
-                    profit: currencyFormater(MyLocaleRef.VN, value.totalPrice.profit)
+                    time: {
+                        orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
+                        deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
+                    },
+                    price: {
+                        totalProduct: totalProducts,
+                        shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                        totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                        profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                    }
                 }
-            }
-
-            return item
-        })
-
-        setDataToDisplay(display)
+    
+                return item
+            })
+    
+            setDataToDisplay(display)
+        }
     },
     [data])
 
@@ -340,16 +357,64 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         setOrderDetailOpen(false)
     }
 
-    function handleConfirmOrderOnClick(params: any)
+    async function handleConfirmOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.shopInfo._id as string,
+        targetOrderId)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận xử lý thất bại",
+                description: `Không thể xác nhận xử lý cho đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận xử lý thành công`,
+                description: `Xác nhận xử lý thành công cho đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
-    function handleCancelOrderOnClick(params: any)
+    async function handleCancelOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        const isUpdateSuccessfully = await OrderService.cancelOneOrderStatus(authContext.shopInfo._id as string,
+        targetOrderId)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: "Hủy đơn hàng thất bại",
+                description: `Không thể hủy đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            notificationContext?.notificationAPI.success({
+                message: `Hủy đơn hàng thành công`,
+                description: `Đã hủy thành công đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
     function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: ProcessingOrder[])
@@ -362,11 +427,31 @@ export default function ProcessingOrderTab({dataSource}: ProcessingOrderTabProps
         setSelectedOrderIds(selectedOrderIds)
     }
 
-    function handleConfirmManyOrder(soids: string[])
+    async function handleConfirmManyOrder(soids: string[])
     {
-        console.log(soids)
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
 
-        //TODO: call api to update order status here
+        const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.shopInfo._id as string, soids)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: "Xác nhận xử lý thất bại",
+                description: `Không thể xác nhận xử lý cho các đơn hàng đã chọn`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận xử lý thành công`,
+                description: `Đã xác nhận xử lý cho các đơn hàng đã chọn`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
     const rowSelection: TableRowSelection<ProcessingOrder> = 

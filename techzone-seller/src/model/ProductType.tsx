@@ -1,3 +1,5 @@
+import { CategoryType } from "./CategoryType";
+
 export type ProductType = {
   _id: string;
   name: string;
@@ -8,12 +10,6 @@ export type ProductType = {
   originalPrice: number;
   flashSale: boolean;
   category: string;
-};
-
-export type AttributeProductType = {
-  id: string;
-  label: string;
-  value: string;
 };
 
 export type _ProductType = {
@@ -27,12 +23,21 @@ export type _ProductType = {
   originalPrice: number;
   isFlashSale: boolean;
   status: string;
-  category: { id: string; name: string };
-  subCategory: { id: string; name: string };
-  subCategoryType: { id: string; name: string };
+  category: CategoryType;
+  subCategory: CategoryType;
+  subCategoryType: CategoryType;
   brand: string;
   inventoryAmount: number;
-  attribute: AttributeProductType[];
+  attribute: {
+    colors: {
+      link: string;
+      color: { label: string; value: string };
+    }[];
+    size: string[];
+    material: string;
+    warranty: string;
+    manufacturingPlace: string;
+  };
   profit: number;
   platformFee: number;
 };
@@ -59,3 +64,12 @@ export enum ProductStatus {
   SOLD_OUT = "SOLD_OUT",
   SALE = "SALE",
 }
+
+export type ImportInfoType = {
+  _id: string;
+  createdAt: string;
+  url: string;
+  products: _ProductType[];
+  name: string;
+  status: string;
+};

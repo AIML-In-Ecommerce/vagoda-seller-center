@@ -1,5 +1,6 @@
 "use client";
-import FilterDropdown from "@/component/Product/FilterDropdown";
+import { ReviewInputType } from "@/apis/ReviewAPI";
+import ReviewInfoDrawer from "@/component/review/ReviewInfoDrawer";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ReviewType } from "@/model/ReviewType";
 import { CategoryService } from "@/services/Category";
@@ -13,15 +14,15 @@ import {
   Input,
   MenuProps,
   Rate,
+  Select,
   Table,
   Tabs,
   TabsProps,
-  Tooltip,
+  Tag,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CiCircleRemove } from "react-icons/ci";
 import { GoStarFill } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
 
@@ -31,64 +32,6 @@ export interface FilterCriteria {
 }
 
 const { Search } = Input;
-
-// const reviews: ReviewType[] = [
-//   {
-//     id: "1",
-//     orderId: "ORD123",
-//     productName: "Laptop Dell XPS 15",
-//     SKU: "SKU123",
-//     imageUrl:
-//       "https://images.pexels.com/photos/1266982/pexels-photo-1266982.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 5,
-//     content: "Sản phẩm tuyệt vời, vượt xa mong đợi!",
-//     status: "Đã trả lời",
-//   },
-//   {
-//     id: "2",
-//     orderId: "ORD456",
-//     productName: "Máy lạnh Panasonic Inverter 1.5HP ",
-//     SKU: "SKU456",
-//     imageUrl:
-//       "https://images.pexels.com/photos/16592625/pexels-photo-16592625/free-photo-of-air-conditioner-in-a-house.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 4,
-//     content: "Sản phẩm tốt, nhưng có thể cải thiện.",
-//     status: "Chưa trả lời",
-//   },
-//   {
-//     id: "3",
-//     orderId: "ORD789",
-//     productName: "Tai nghe Bluetooth Sony WH-1000XM4",
-//     SKU: "SKU789",
-//     imageUrl:
-//       "https://images.pexels.com/photos/815494/pexels-photo-815494.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 3,
-//     content: "Sản phẩm trung bình, không có gì đặc biệt.",
-//     status: "Chưa trả lời",
-//   },
-//   {
-//     id: "4",
-//     orderId: "ORD101112",
-//     productName: "Máy ảnh Canon EOS R6",
-//     SKU: "SKU101112",
-//     imageUrl:
-//       "https://images.pexels.com/photos/18135362/pexels-photo-18135362/free-photo-of-nikon-camera-hanging-on-gray-background.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 2,
-//     content: "Sản phẩm thất vọng, không như mô tả.",
-//     status: "Chưa trả lời",
-//   },
-//   {
-//     id: "5",
-//     orderId: "ORD131415",
-//     productName: "Smartphone Samsung Galaxy S21 Ultra",
-//     SKU: "SKU131415",
-//     imageUrl:
-//       "https://images.pexels.com/photos/17944743/pexels-photo-17944743/free-photo-of-close-up-of-a-man-holding-a-green-samsung-galaxy-s21.jpeg?auto=compress&cs=tinysrgb&w=600",
-//     rating: 1,
-//     content: "Sản phẩm kinh khủng, không đề nghị.",
-//     status: "Đã trả lời",
-//   },
-// ];
 
 const exportOptions: MenuProps["items"] = [
   {
@@ -102,91 +45,83 @@ const exportOptions: MenuProps["items"] = [
 ];
 
 export default function ReviewProductPage() {
-  const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>([]);
-
-  const [searchValue, setSearchValue] = useState("");
   const query = useSearchParams();
   const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
-
-  const router = useRouter();
-
   const [allReviews, setAllReviews] = useState<_ReviewType[]>([]);
-  const [filteredReviews, setFilteredReviews] =
-    useState<_ReviewType[]>(allReviews);
-  const [currentTab, setCurrentTab] = useState("");
-  const [openProductDetail, setOpenProductDetail] = useState(false);
-  const [tabReviews, setTabReviews] = useState<_ReviewType[]>([]);
   const [totalReview, setTotalReview] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const handleFilterDropdownChange = (
-    value: { id: string; label: string }[],
-    key: string
-  ) => {
-    console.log("CHECKING", value, key);
-    const updatedFilterOptions = filterOptions.filter(
-      (option) => option.key !== key
-    );
+  const [selectedReview, setSelectedReview] = useState<_ReviewType | null>(
+    null
+  );
+  const [openReviewModal, setOpenReviewDetail] = useState(false);
 
-    const newFilterCriteria: FilterCriteria = {
-      key,
-      value,
-    };
+  const [searchValue, setSearchValue] = useState("");
+  const [filteredResponseStatus, setFilteredResponseStatus] =
+    useState<string>("");
+  const [filteredCategory, setFilteredCategory] = useState<string>("");
+  const [filteredRating, setFilteredRating] = useState<string>("0");
 
-    updatedFilterOptions.push(newFilterCriteria);
-    setFilterOptions(updatedFilterOptions);
+  const onClose = () => {
+    setOpenReviewDetail(false);
+  };
 
-    console.log("Filter", updatedFilterOptions);
+  const showDrawer = (review: _ReviewType) => {
+    setSelectedReview(review);
+    setOpenReviewDetail(true);
+  };
+
+  const convertDataTable = (data: _ReviewType[]) => {
+    const result = data.map((record: _ReviewType, index) => ({
+      ...record,
+      index: index + 1,
+    }));
+    return result;
   };
 
   const columns = [
     {
-      title: "Mã sản phẩm",
-      dataIndex: "product",
+      title: "STT",
+      dataIndex: "index",
+      width: "5%",
       render: (text: string, record: _ReviewType) => (
-        <div className="">
-          <Tooltip placement="topLeft" title="Xem chi tiết sản phẩm">
-            <a
-              className="text-xs text-sky-500 underline"
-              style={{ display: "flex", alignItems: "center" }}
-            >
-              {text}
-            </a>
-          </Tooltip>
-        </div>
+        <div className="text-xs">{text}</div>
       ),
-      width: "10%",
     },
+
     {
       title: "Người đánh giá",
       dataIndex: "user",
       render: (text: string, record: _ReviewType) => (
         <div className="">
           <p
-            className="text-xs text-sky-500 underline"
+            className="text-xs"
             style={{ display: "flex", alignItems: "center" }}
           >
-            {text}
+            {record.user.fullName}
           </p>
         </div>
       ),
       width: "10%",
     },
-    // {
-    //   title: "Sản phẩm",
-    //   dataIndex: "productName",
-    //   render: (text: string, record: _ReviewType) => (
-    //     <a style={{ display: "flex", alignItems: "center" }}>
-    //       <img
-    //         src={record.imageUrl}
-    //         alt={text}
-    //         style={{ marginRight: "8px", width: "32px", height: "32px" }}
-    //       />
-    //       {text}
-    //     </a>
-    //   ),
-    //   width: "30%",
-    // },
+    {
+      title: "Sản phẩm",
+      dataIndex: "product",
+      render: (text: string, record: _ReviewType) => (
+        <div
+          style={{ display: "flex", alignItems: "center" }}
+          className="text-xs"
+        >
+          <img
+            src={record.product.images ? record.product.images[0] : ""}
+            alt={text}
+            style={{ marginRight: "8px", width: "32px", height: "32px" }}
+          />
+          {record.product.name ? record.product.name : ""}
+        </div>
+      ),
+      width: "20%",
+    },
     {
       title: "Đánh giá",
       dataIndex: "rating",
@@ -194,10 +129,10 @@ export default function ReviewProductPage() {
         <div className="flex space-x-2 items-center ">
           {" "}
           <Rate disabled value={rating} className="small-rating" />
-          <p>{rating}</p>
+          <p className="text-xs">{rating}</p>
         </div>
       ),
-      defaultSortOrder: "descend",
+      // defaultSortOrder: "descend",
       sorter: (a: _ReviewType, b: _ReviewType) => a.rating - b.rating,
       width: "15%",
     },
@@ -205,34 +140,82 @@ export default function ReviewProductPage() {
       title: "Nội dung",
       dataIndex: "content",
       width: "20%",
+      render: (text: string, record: _ReviewType) => (
+        <div className="text-xs">{text}</div>
+      ),
     },
     {
       title: "Số lượt thích",
       dataIndex: "like",
       render: (likes: string[], record: _ReviewType) => (
-        <div className="flex space-x-2 ">
+        <div className="flex space-x-2 text-xs ">
           {" "}
           <p>{likes.length}</p>
         </div>
       ),
-      defaultSortOrder: "descend",
+      // defaultSortOrder: "descend",
       sorter: (a: _ReviewType, b: _ReviewType) => a.like.length - b.like.length,
-      width: "12%",
+      width: "10%",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "isResponse",
+      render: (isResponse: boolean, record: _ReviewType) => (
+        <div className="flex space-x-2 text-xs ">
+          {isResponse ? (
+            <Tag color="success">Đã phản hồi</Tag>
+          ) : (
+            <Tag color="warning">Chưa phản hồi</Tag>
+          )}
+        </div>
+      ),
+      // defaultSortOrder: "descend",
+      sorter: (a: _ReviewType, b: _ReviewType) => a.like.length - b.like.length,
+      width: "10%",
     },
     {
       title: "Thao tác",
       dataIndex: "operation",
       render: (_: any, record: _ReviewType) => {
         return (
-          <div className="space-x-2">
-            <Button type="primary" className="bg-sky-100 text-black">
-              Xem chi tiết
+          <div className="space-x-2 ">
+            <Button
+              type="primary"
+              className="bg-sky-100 text-black text-xs"
+              onClick={() => showDrawer(record)}
+            >
+              Phản hồi
             </Button>
           </div>
         );
       },
+      width: "10%",
     },
   ];
+
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query);
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  const categoryOptions = () => {
+    const options: { value: string; label: string }[] = [
+      { value: "", label: "Tất cả" },
+    ];
+
+    allCategories.forEach((category) =>
+      options.push({ value: category._id, label: category.name })
+    );
+
+    return options;
+  };
 
   const tabItems: TabsProps["items"] = [
     {
@@ -286,118 +269,124 @@ export default function ReviewProductPage() {
     },
   ];
 
-  // const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-  //   const updatedFilterOptions = filterOptions.filter((option) => {
-  //     return (
-  //       option.key !== "Tên sản phẩm" &&
-  //       option.key !== "SKU" &&
-  //       option.key !== "Mã sản phẩm"
-  //     );
-  //   });
-
-  //   const newFilterCriteria: FilterCriteria = {
-  //     key: `${searchOption.charAt(0).toUpperCase() + searchOption.slice(1)}`,
-  //     value,
-  //   };
-
-  //   updatedFilterOptions.push(newFilterCriteria);
-  //   setFilterOptions(updatedFilterOptions);
-  // };
-
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
     if (value.length != 0) {
-      const updatedFilterOptions = filterOptions.filter((option) => {
-        return option.key !== "Tên sản phẩm";
-      });
-      const newFilterCriteria: FilterCriteria = {
-        key: `Tên sản phẩm`,
-        value,
-      };
-
       const updatedQuery = new URLSearchParams(query);
-      updatedQuery.set("keyword", value);
+      updatedQuery.set("product", value);
 
       window.history.pushState(
         {},
         "",
         `${window.location.pathname}?${updatedQuery.toString()}`
       );
-
-      updatedFilterOptions.push(newFilterCriteria);
-      setFilterOptions(updatedFilterOptions);
-      setSearchValue("");
     }
   };
 
-  const clearAllFilterCriterias = () => {
-    setFilterOptions([]);
-  };
+  const onStatusFilter = (value: string) => {
+    setFilteredResponseStatus(value);
+    const updatedQuery = new URLSearchParams(query);
 
-  const removeFilterCriteria = (key: string, value: any) => {
-    let updatedFilterCriterias: FilterCriteria[] = [...filterOptions];
-
-    updatedFilterCriterias = updatedFilterCriterias.filter(
-      (criteria) => criteria.key !== key
+    if (value.length != 0) {
+      updatedQuery.set("isResponse", value == "Đã phản hồi" ? "true" : "false");
+    } else {
+      updatedQuery.delete("isResponse");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
     );
-
-    setFilterOptions(updatedFilterCriterias);
-    console.log(updatedFilterCriterias);
   };
 
-  // useEffect(() => {
-  //   console.log(" UseEffect Changed filter criteria");
-  //   const filterProducts = () => {
-  //     let tempFilteredProducts = [...tabReviews];
+  const onCategoryFilter = (value: string) => {
+    const categoryName = allCategories.filter((c) => c._id === value)[0].name;
+    setFilteredCategory(categoryName);
+    const updatedQuery = new URLSearchParams(query);
 
-  //     filterOptions.forEach((filter) => {
-  //       if (filter.key === "Tên sản phẩm") {
-  //         tempFilteredProducts = tempFilteredProducts.filter((product) =>
-  //           product.name.toLowerCase().includes(filter.value.toLowerCase())
-  //         );
-  //       } else if (filter.key === "Danh mục") {
-  //         tempFilteredProducts = tempFilteredProducts.filter((product) =>
-  //           filter.value.some((category: { id: string; label: string }) =>
-  //             category.label
-  //               .toLowerCase()
-  //               .includes(category.label.toLowerCase())
-  //           )
-  //         );
-  //       }
-  //     });
-
-  //     //setFilteredProducts((prev) => tempFilteredProducts);
-  //     console.log(currentTab);
-  //   };
-
-  //   filterProducts();
-  // }, [filterOptions]);
-
-  // const filters: ProductFilterInput = {
-  //   keyword: query.get("keyword") || undefined,
-  //   category: query.get("category")
-  //     ? decodeURIComponent(query.get("category")!)!.split(",")
-  //     : undefined,
-  //   status: query.get("status") || undefined,
-  //   index: query.get("index") ? Number(query.get("index")) : undefined,
-  //   amount: query.get("amount") ? Number(query.get("amount")) : undefined,
-  // };
-
-  // useEffect(() => {
-  //   setFilter(filters);
-  // }, [query]);
-
-  // useEffect(() => {
-  //   handleFilterChange();
-  // }, []);
+    if (value.length != 0) {
+      updatedQuery.set("category", value);
+    } else {
+      updatedQuery.delete("category");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
 
   const loadFilteredReviews = async () => {
-    const response: _ReviewType[] = await ReviewService.getAllReview();
+    const filteredInput: ReviewInputType = {
+      shop: "65f1e8bbc4e39014df775166",
+      category: query.get("category") || undefined,
+      product: query.get("product") || undefined,
+      isResponse: query.get("isResponse")
+        ? query.get("isResponse") === "true"
+        : undefined,
+      rating: query.get("rating") ? Number(query.get("rating")) : undefined,
+      index: query.get("index") ? Number(query.get("index")) : 1,
+      amount: query.get("amount") ? Number(query.get("amount")) : 20,
+    };
+
+    const response: _ReviewType[] = await ReviewService.getAllReview(
+      filteredInput
+    );
     setAllReviews(response);
-    setTabReviews(response);
-    setFilteredReviews(response);
+  };
+  const clearFilter = () => {
+    setFilteredCategory("");
+    setSearchValue("");
+    setFilteredResponseStatus("");
+    setFilteredRating("0");
+
+    window.history.pushState({}, "", `${window.location.pathname}`);
+  };
+
+  const updateFilter = () => {
+    setFilteredCategory(query.get("category") ?? "");
+    setSearchValue(query.get("product") ?? "");
+
+    const isResponse = query.get("isResponse");
+    setFilteredResponseStatus(
+      isResponse === "true"
+        ? "Đã phản hồi"
+        : isResponse === "false"
+        ? "Chưa phản hồi"
+        : ""
+    );
+
+    setFilteredRating(query.get("rating") ?? "0");
+  };
+
+  const handleChangeTab = (activekey: string) => {
+    setFilteredRating(activekey);
+    const updatedQuery = new URLSearchParams(query);
+
+    if (activekey != "0") {
+      updatedQuery.set("rating", activekey);
+    } else {
+      updatedQuery.delete("rating");
+    }
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
   };
 
   useEffect(() => {
+    updateFilter();
+    console.log(
+      "FILTERRR",
+      query.get("category"),
+      query.get("product"),
+      query.get("rating"),
+      query.get("isResponse"),
+      filteredCategory,
+      filteredRating,
+      filteredResponseStatus,
+      searchValue
+    );
     loadFilteredReviews();
   }, []);
 
@@ -409,6 +398,10 @@ export default function ReviewProductPage() {
 
     loadAllCategories();
   }, []);
+
+  useEffect(() => {
+    loadFilteredReviews();
+  }, [query]);
 
   return (
     <div className="pt-4 pr-4 space-y-2">
@@ -435,93 +428,59 @@ export default function ReviewProductPage() {
       />
       <p className="uppercase text-xl font-semibold">Quản lý đánh giá</p>
 
-      <Tabs type="card" items={tabItems}></Tabs>
-      <div className="flex items-center">
-        <Search
-          placeholder={`Nhập tên sản phẩm`}
-          style={{
-            borderRadius: "5px",
-            width: 800,
-          }}
-          onSearch={onSearch}
-          type="primary"
-          enterButton
-          className="theme-button "
-          onChange={(e) => setSearchValue(e.target.value)}
-          value={searchValue}
-        />
+      <Tabs
+        activeKey={filteredRating}
+        type="card"
+        items={tabItems}
+        onChange={handleChangeTab}
+      ></Tabs>
 
-        <FilterDropdown
-          initialSelectedOptions={
-            filterOptions.find((item) => item.key === "Danh mục")?.value || []
-          }
-          name={"Danh mục"}
-          options={allCategories.map((c) => {
-            return { id: c._id, label: c.name };
-          })}
-          onSelection={handleFilterDropdownChange}
-        />
-      </div>
-      {filterOptions.length > 0 && (
-        <div className="flex items-center">
-          <div className="text-sm mr-4 w-1/10">Đang lọc:</div>
-          <div className="flex flex-wrap  items-center">
-            {filterOptions.map((item, index) => {
-              return (
-                <div
-                  // key={index}
-                  className="flex items-center  text-xs max-w-4/5 "
-                >
-                  {Array.isArray(item.value) ? (
-                    item.value.map((value: string, idx: number) => (
-                      <div
-                        key={index}
-                        className=" flex  rounded-2xl p-2 space-x-2 items-center bg-sky-200  mx-2 my-1 "
-                      >
-                        <p>
-                          {item.key}: {value}
-                        </p>
-                        <div
-                          className=""
-                          onClick={() => removeFilterCriteria(item.key, value)}
-                        >
-                          <CiCircleRemove size={15} />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div
-                      key={index}
-                      className=" flex  rounded-2xl p-2 space-x-2 items-center  bg-sky-200 mx-2  my-1"
-                    >
-                      <p>
-                        {item.key}: {item.value}
-                      </p>
-                      <div
-                        className=""
-                        onClick={() =>
-                          removeFilterCriteria(item.key, item.value)
-                        }
-                      >
-                        <CiCircleRemove size={15} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <Button
-            type="link"
-            onClick={() => clearAllFilterCriterias()}
-            className="w-1/10"
-          >
-            {" "}
-            Xóa tất cả
-          </Button>
+      <div className="flex items-center space-x-8">
+        <div className="">
+          <p className="font-semibold">Tìm kiếm sản phẩm</p>
+          <Search
+            placeholder={`Nhập tên sản phẩm`}
+            style={{
+              borderRadius: "5px",
+              width: 300,
+            }}
+            onSearch={onSearch}
+            type="primary"
+            enterButton
+            className="theme-button pt-2"
+            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+          />
         </div>
-      )}
+        <div className="">
+          <div className="font-semibold pb-2">Danh mục</div>
+          <Select
+            onChange={onCategoryFilter}
+            defaultValue="Tất cả"
+            style={{ width: 160 }}
+            options={categoryOptions()}
+            value={filteredCategory}
+          />
+        </div>
+
+        <div className="">
+          <div className="font-semibold pb-2">Trạng thái phản hồi</div>
+          <Select
+            onChange={onStatusFilter}
+            defaultValue="Tất cả"
+            style={{ width: 160 }}
+            options={[
+              { value: "", label: "Tất cả" },
+              { value: "Đã phản hồi", label: "Đã phản hồi" },
+              { value: "Chưa phản hồi", label: "Chưa phản hồi" },
+            ]}
+            value={filteredResponseStatus}
+          />
+        </div>
+        <Button type="text" className="mt-5 text-sky-400" onClick={clearFilter}>
+          Xóa bộ lọc
+        </Button>
+      </div>
       <Divider />
       <div className="flex">
         <p className="font-semibold text-lg m-4">
@@ -532,13 +491,31 @@ export default function ReviewProductPage() {
         <Table
           bordered
           columns={columns}
-          dataSource={allReviews}
+          dataSource={convertDataTable(allReviews)}
           locale={{
-            emptyText: <Empty description={<span>Trống</span>} />, // Hiển thị Empty nếu không có dữ liệu
+            emptyText: <Empty description={<span>Trống</span>} />,
+          }}
+          pagination={{
+            defaultPageSize: 20,
+            pageSizeOptions: ["20", "10", "5"],
+
+            showSizeChanger: true,
+            total: totalReview,
+            onChange: (page, pageSize) => {
+              fetchRecords(page, pageSize);
+            },
           }}
           className=""
         />
       </div>
+      {selectedReview && (
+        <ReviewInfoDrawer
+          review={selectedReview._id}
+          onClose={onClose}
+          open={openReviewModal}
+          reloadReview={loadFilteredReviews}
+        />
+      )}
     </div>
   );
 }

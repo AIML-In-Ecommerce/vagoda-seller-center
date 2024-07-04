@@ -14,16 +14,15 @@ import {
   Breadcrumb,
   Button,
   Divider,
-  Dropdown,
   Empty,
   Input,
   MenuProps,
+  message,
   Popconfirm,
   Table,
   Tabs,
   TabsProps,
   Tooltip,
-  message,
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import Link from "next/link";
@@ -32,7 +31,7 @@ import { useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { CiCircleRemove } from "react-icons/ci";
 import { HiOutlineHome, HiOutlineInformationCircle } from "react-icons/hi2";
-import { RiArrowDropDownLine, RiDeleteBinLine } from "react-icons/ri";
+import { RiDeleteBinLine } from "react-icons/ri";
 
 export interface FilterCriteria {
   key: string;
@@ -59,13 +58,7 @@ export interface ProductType {
 }
 
 const rowSelection = {
-  onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      "selectedRows: ",
-      selectedRows
-    );
-  },
+  onChange: (selectedRowKeys: React.Key[], selectedRows: _ProductType[]) => {},
   getCheckboxProps: (record: _ProductType) => ({
     disabled: record.name === "Disabled User",
     name: record.name,
@@ -125,6 +118,7 @@ export default function ProductListPage() {
     }
     await loadFilteredProducts();
   };
+
   const tabItems: TabsProps["items"] = [
     {
       key: "",
@@ -238,7 +232,6 @@ export default function ProductListPage() {
     value: { id: string; label: string }[],
     key: string
   ) => {
-    console.log("CHECKING", value, key);
     const updatedFilterOptions = filterOptions.filter(
       (option) => option.key !== key
     );
@@ -250,8 +243,6 @@ export default function ProductListPage() {
 
     updatedFilterOptions.push(newFilterCriteria);
     setFilterOptions(updatedFilterOptions);
-
-    console.log("Filter", updatedFilterOptions);
   };
 
   const columns = [
@@ -264,11 +255,11 @@ export default function ProductListPage() {
           onClick={() => showDrawer(record)}
         >
           <img
-            src={record.images[0]}
+            src={record.images ? record.images[0] : ""}
             alt={text}
             style={{ marginRight: "8px", width: "32px", height: "32px" }}
           />
-          {text}
+          {text ? text : ""}
         </a>
       ),
       width: "30%",
@@ -423,10 +414,10 @@ export default function ProductListPage() {
   const clearAllFilterCriterias = () => {
     router.push(`/product/list`);
     setFilterOptions((prevFilterCriterias) => []);
+    setCurrentTab("");
   };
 
   const updateURL = (key: string, value: any) => {
-    console.log("UPDATE", key, value);
     const updatedQuery = new URLSearchParams(query.toString());
     if (key == "Danh mục") {
       const categoryValues = query.get("category")
@@ -471,7 +462,6 @@ export default function ProductListPage() {
           (criteriaValue: { id: string; label: string }) =>
             criteriaValue.id !== value.id
         );
-        console.log("removeFilterCriteria", updatedFilterCriterias);
 
         if (updatedFilterCriterias[index].value.length === 0) {
           updatedFilterCriterias.splice(index, 1);
@@ -488,10 +478,6 @@ export default function ProductListPage() {
   };
 
   const loadFilteredProducts = async () => {
-    console.log("INPUT", {
-      ...filter,
-      shopId: "65f1e8bbc4e39014df775166",
-    });
     const response: {
       total: number;
       totalPages: number;
@@ -504,97 +490,75 @@ export default function ProductListPage() {
     setFilteredProducts(response.products);
   };
 
-  const handleFilterChange = async () => {
-    const updatedFilterCriterias: FilterCriteria[] = [];
+  // const handleFilterChange = async () => {
+  //   const updatedFilterCriterias: FilterCriteria[] = [];
 
-    const categoryPromises: Promise<{
-      id: string;
-      name: string;
-    }>[] = [];
+  //   const categoryPromises: Promise<{
+  //     id: string;
+  //     name: string;
+  //   }>[] = [];
 
-    if (filters.category) {
-      filters.category.forEach((id) => {
-        categoryPromises.push(
-          CategoryService.getCategoryById(id).then((categoryInfo) => ({
-            id,
-            name: categoryInfo.name,
-          }))
-        );
-      });
-    }
+  //   if (filters.category) {
+  //     filters.category.forEach((id) => {
+  //       categoryPromises.push(
+  //         CategoryService.getCategoryById(id).then((categoryInfo) => ({
+  //           id,
+  //           name: categoryInfo.name,
+  //         }))
+  //       );
+  //     });
+  //   }
 
-    const categories = await Promise.all(categoryPromises);
+  //   const categories = await Promise.all(categoryPromises);
 
-    if (categories.length > 0) {
-      updatedFilterCriterias.push({
-        key: "Danh mục",
-        value: categories,
-      });
-    }
+  //   if (categories.length > 0) {
+  //     updatedFilterCriterias.push({
+  //       key: "Danh mục",
+  //       value: categories,
+  //     });
+  //   }
 
-    if (filters.status) {
-      setCurrentTab(filters.status);
-    }
+  //   if (filters.status) {
+  //     setCurrentTab(filters.status);
+  //   }
 
-    if (filters.keyword) {
-      updatedFilterCriterias.push({
-        key: "Tên sản phẩm",
-        value: filters.keyword,
-      });
-    }
+  //   if (filters.keyword) {
+  //     updatedFilterCriterias.push({
+  //       key: "Tên sản phẩm",
+  //       value: filters.keyword,
+  //     });
+  //   }
 
-    setFilterOptions(updatedFilterCriterias);
+  //   setFilterOptions(updatedFilterCriterias);
+  // };
+
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query);
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
   };
 
-  useEffect(() => {
-    console.log("Current Tab", currentTab);
-    const filterProducts = async () => {
-      const updatedQuery = new URLSearchParams(query);
-      if (currentTab == "") {
-        updatedQuery.delete("status");
-      } else {
-        updatedQuery.set("status", currentTab);
-      }
+  const handleTabChange = async (activeKey: string) => {
+    setCurrentTab(activeKey);
+    const updatedQuery = new URLSearchParams(query);
+    if (activeKey == "") {
+      updatedQuery.delete("status");
+    } else {
+      updatedQuery.set("status", activeKey);
+    }
 
-      window.history.pushState(
-        {},
-        "",
-        `${window.location.pathname}?${updatedQuery.toString()}`
-      );
-
-      loadFilteredProducts();
-    };
-
-    filterProducts();
-  }, [currentTab]);
-
-  useEffect(() => {
-    console.log(" UseEffect Changed filter criteria");
-    const filterProducts = () => {
-      let tempFilteredProducts = [...tabProducts];
-
-      filterOptions.forEach((filter) => {
-        if (filter.key === "Tên sản phẩm") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            product.name.toLowerCase().includes(filter.value.toLowerCase())
-          );
-        } else if (filter.key === "Danh mục") {
-          tempFilteredProducts = tempFilteredProducts.filter((product) =>
-            filter.value.some((category: { id: string; label: string }) =>
-              category.label
-                .toLowerCase()
-                .includes(category.label.toLowerCase())
-            )
-          );
-        }
-      });
-
-      //setFilteredProducts((prev) => tempFilteredProducts);
-      console.log(currentTab);
-    };
-
-    filterProducts();
-  }, [filterOptions]);
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
 
   const filters: ProductFilterInput = {
     keyword: query.get("keyword") || undefined,
@@ -609,10 +573,6 @@ export default function ProductListPage() {
   useEffect(() => {
     setFilter(filters);
   }, [query]);
-
-  // useEffect(() => {
-  //   handleFilterChange();
-  // }, []);
 
   useEffect(() => {
     loadFilteredProducts();
@@ -662,10 +622,10 @@ export default function ProductListPage() {
       <Tabs
         type="card"
         activeKey={currentTab}
-        onChange={(activeKey) => setCurrentTab(activeKey)}
+        onChange={(activeKey) => handleTabChange(activeKey)}
         items={tabItems}
       ></Tabs>
-      <div className="flex items-center">
+      <div className="flex items-center space-x-6 mt-4">
         <Search
           placeholder={`Nhập tên sản phẩm`}
           style={{
@@ -757,20 +717,7 @@ export default function ProductListPage() {
       )}
       <Divider />
       <div className="flex">
-        <p className="font-semibold text-lg m-4">
-          Sản phẩm: {filteredProducts.length}
-        </p>
-
-        <Dropdown
-          menu={{ items: exportOptions }}
-          placement="bottomLeft"
-          disabled={selectedProducts.length === 0}
-        >
-          <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2 theme-button">
-            <p className="ml-2 truncate text-sm">Xuất sản phẩm</p>
-            <RiArrowDropDownLine size={20} />
-          </div>
-        </Dropdown>
+        <p className="font-semibold text-lg m-4">Sản phẩm: {totalProduct}</p>
       </div>
       <div>
         <Table
@@ -782,12 +729,14 @@ export default function ProductListPage() {
             };
           }}
           pagination={{
-            pageSizeOptions: ["10", "5"],
+            defaultPageSize: 20,
+            pageSizeOptions: ["20", "10", "5"],
+
             showSizeChanger: true,
-            total: tabProducts.length,
-            // onChange: (page, pageSize) => {
-            //   fetchRecords(page, pageSize);
-            // }
+            total: totalProduct,
+            onChange: (page, pageSize) => {
+              fetchRecords(page, pageSize);
+            },
           }}
           bordered
           rowSelection={{
