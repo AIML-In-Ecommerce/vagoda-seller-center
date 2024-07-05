@@ -28,6 +28,7 @@ import { _CategoryType } from "@/model/CategoryType";
 import { _ProductType } from "@/model/ProductType";
 import { CategoryService } from "@/services/Category";
 import { ProductService } from "@/services/Product";
+import TextArea from "antd/es/input/TextArea";
 import { useRouter } from "next/navigation";
 import { FaMagic } from "react-icons/fa";
 import { HiLightBulb } from "react-icons/hi2";
@@ -596,6 +597,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                     }}
                   />
                 </Form.Item>
+                <TextArea value={descriptionText}>{descriptionText}</TextArea>
                 <Tooltip
                   placement="leftTop"
                   color="blue"
@@ -624,7 +626,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                 key="3"
                 header={<p className="font-bold">3. Thêm hình ảnh</p>}
               >
-                <div className="flex  space-x-1 font-semibold items-center justify-between">
+                <div className="flex  space-x-1 font-semibold items-center justify-between mb-2">
                   <div className="flex">
                     <div className="text-red-500 font-bold text-sm">*</div>{" "}
                     <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">

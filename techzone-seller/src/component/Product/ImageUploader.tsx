@@ -27,8 +27,9 @@ export default function ImageUploader(props: ImageUploaderProps) {
       status: "done",
       url: url,
     }));
-    console.log("FLAG 1", fileList);
+
     setFileList(initialFileList as UploadFile[]);
+    console.log("FLAG 1", fileList, "Thao", props.fileUrls);
   }, [props.fileUrls]);
 
   const onChange: UploadProps["onChange"] = async ({
@@ -139,13 +140,12 @@ export default function ImageUploader(props: ImageUploaderProps) {
     if (response.status == 200) {
       message.success(response.message);
 
-      console.log("List file", fileList, file);
-
       const updateImageUrls: string[] = props.fileUrls.filter(
         (url) => url !== file.url
       );
 
       props.setFileString(updateImageUrls);
+      console.log("List file", props.fileUrls, file);
       // const updatedFileList: UploadFile[] = fileList.filter(
       //   (item) => item.uid !== file.uid
       // );
@@ -176,7 +176,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         onPreview={onPreview}
         itemRender={itemRender}
         maxCount={props.maxNumber}
-        // onRemove={handleRemoveFile}
+        onRemove={handleRemoveFile}
       >
         {fileList.length < props.maxNumber && "+ Tải ảnh"}
       </Upload>

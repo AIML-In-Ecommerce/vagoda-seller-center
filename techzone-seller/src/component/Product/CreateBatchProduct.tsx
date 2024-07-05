@@ -443,6 +443,7 @@ export default function CreateBatchProduct() {
         const { status } = await ProductService.createBatchProduct(formData);
         if (status == 200) {
           message.success("File imported successfully");
+          loadFilteredFileInfos();
         }
 
         setIsCreateBatchModalOpen(false);
