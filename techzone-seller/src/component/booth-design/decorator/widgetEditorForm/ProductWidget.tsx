@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Flex, Input, Select, Skeleton, Tooltip } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
@@ -14,16 +14,19 @@ import CustomEmpty from "../mini/CustomEmpty";
 import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { GET_GetCollectionListByShop } from "@/apis/collection/CollectionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
+import { AuthContext } from "@/context/AuthContext";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
   setSaveStatus(saveStatus: SaveStatusEnum): void;
+
+  notify(message: string, content: ReactElement): void;
 }
 
 export default function ProductWidget(props: WidgetProps) {
-  // mock data
-  const mockId = "65f1e8bbc4e39014df775166";
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>([]);
@@ -67,9 +70,9 @@ export default function ProductWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyProductWidget(proxyProductWidget);
       props.updateWidgets();
-      alert("Cập nhật widget thành công!");
+      props.notify("Cập nhật widget thành công!", <></>);
     } else {
-      alert("Cập nhật widget thất bại...");
+      props.notify("Cập nhật widget thất bại...", <></>);
       // console.log(response.message);
     }
   };
@@ -99,10 +102,10 @@ export default function ProductWidget(props: WidgetProps) {
   // call api
   useEffect(() => {
     handleGetCollectionList();
-  }, [mockId]);
+  }, [shopId]);
 
   const handleGetCollectionList = async () => {
-    const response = await GET_GetCollectionListByShop(mockId);
+    const response = await GET_GetCollectionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setCollections(response.data);

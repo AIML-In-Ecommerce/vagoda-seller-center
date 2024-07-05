@@ -3,7 +3,8 @@ import axios from "axios"
 
 export async function GET_getShopInfo(shopId: string)
 {
-    const API_URL: string = process.env.NEXT_PUBLIC_SHOP_API_URL as string
+    // const API_URL: string = process.env.NEXT_PUBLIC_SHOP_API_URL as 
+    const API_URL: string = `${process.env.NEXT_PUBLIC_S_BACKEND_PREFIX}`
     const url = API_URL + "/shop_info"
 
     try

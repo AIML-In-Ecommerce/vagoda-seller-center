@@ -74,11 +74,11 @@ export type OrderPropType =
     user: 
     {
         _id: string,
-        name: string,
+        fullName: string,
         phoneNumber: string,
     },
     products: ProductInOrder[],
-    promotion: PromotionInOrder,
+    promotion: PromotionInOrder | null,
     paymentMethod:
     {
         kind: string,

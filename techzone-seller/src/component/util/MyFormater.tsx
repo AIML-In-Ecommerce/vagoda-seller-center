@@ -60,7 +60,7 @@ export function datetimeFormaterShort(locale: MyLocale, value: Date | number)
 
     const formater = Intl.DateTimeFormat(locale.locale, myoption)
 
-    return formater.format(date * 1000)
+    return formater.format(date)
 }
 
 export function datetimeFormaterLong(locale: MyLocale, value: Date | number)
@@ -73,7 +73,7 @@ export function datetimeFormaterLong(locale: MyLocale, value: Date | number)
     const date = new Date(value).getTime()
     const formater = Intl.DateTimeFormat(locale.locale, myoption)
     
-    return formater.format(date * 1000)
+    return formater.format(date)
 }
 
 export function datetimeFormaterFull(locale: MyLocale, value: Date | number)
@@ -87,5 +87,5 @@ export function datetimeFormaterFull(locale: MyLocale, value: Date | number)
     const date = new Date(value).getTime()
     const formater = Intl.DateTimeFormat(locale.locale, myoption)
 
-    return formater.format(date * 1000)
+    return formater.format(date)
 }

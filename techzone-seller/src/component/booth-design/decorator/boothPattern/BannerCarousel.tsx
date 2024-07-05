@@ -30,12 +30,17 @@ export default function BannerCarousel(props: BannerCarouselProps) {
 
   const CarouselDisplay: any = carouselImages.map((value, index) => {
     return (
-      <div key={index} className="flex max-w-1/2 h-52 items-center">
-        <Image
-          className="w-full h-full"
-          src={value}
-          onClick={handleCarouselOnClick}
-        />
+      <div
+        key={index}
+        className="flex justify-center align-middle items-center"
+      >
+        <div className="max-w-1/2 h-52">
+          <Image
+            className="w-full h-full"
+            src={value}
+            onClick={handleCarouselOnClick}
+          />
+        </div>
       </div>
     );
   });

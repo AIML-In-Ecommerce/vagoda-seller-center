@@ -5,7 +5,7 @@ import {
   WidgetType,
 } from "@/model/WidgetType";
 import { Button, Card, Flex, Input, Select, Space, Tooltip } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import { InfoCircleOutlined, FieldStringOutlined } from "@ant-design/icons";
@@ -17,11 +17,14 @@ import PromotionCard from "../mini/PromotionCard";
 import { PUT_UpdateWidget } from "@/apis/widget/WidgetAPI";
 import { GET_GetPromotionListByShop } from "@/apis/promotion/PromotionAPI";
 import { SaveStatusEnum } from "../WidgetEditorBar";
+import { AuthContext } from "@/context/AuthContext";
 
 interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
   setSaveStatus(saveStatus: SaveStatusEnum): void;
+
+  notify(message: string, content: ReactElement): void;
 }
 
 export default function PromotionWidget(props: WidgetProps) {
@@ -84,7 +87,9 @@ export default function PromotionWidget(props: WidgetProps) {
       code: "BIENVENUE",
     },
   ];
-  const mockId = "65f1e8bbc4e39014df775166";
+
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // data
   const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
@@ -117,9 +122,9 @@ export default function PromotionWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyPromotionWidget(proxyPromotionWidget);
       props.updateWidgets();
-      alert("Cập nhật widget thành công!");
+      props.notify("Cập nhật widget thành công!", <></>);
     } else {
-      alert("Cập nhật widget thất bại...");
+      props.notify("Cập nhật widget thất bại...", <></>);
       // console.log(response.message);
     }
   };
@@ -157,7 +162,7 @@ export default function PromotionWidget(props: WidgetProps) {
 
   // call api
   const handleGetPromotionList = async () => {
-    const response = await GET_GetPromotionListByShop(mockId);
+    const response = await GET_GetPromotionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setPromotions(response.data);

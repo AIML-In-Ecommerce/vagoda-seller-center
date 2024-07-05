@@ -2,7 +2,7 @@
 import { Badge, Dropdown, Input, MenuProps } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { AiOutlineEdit, AiOutlineLogout } from "react-icons/ai";
 import { GoSearch } from "react-icons/go";
 import { IoIosAddCircleOutline } from "react-icons/io";
@@ -15,11 +15,15 @@ import { RxPerson } from "react-icons/rx";
 import logo from "../../public/asset/logo.png";
 import mall_logo from "../../public/asset/mall_logo.png";
 import LanguageOption from "./LanguageOption";
+import Link from "next/link";
+import { AuthContext } from "@/context/AuthContext";
 
 const { Search } = Input;
 
 export default function Navbar() {
   const [countItemsCart, setCountItemsCart] = useState(0);
+
+  const authContext = useContext(AuthContext)
 
   const handleChange = (value: string) => {
     console.log(`selected ${value}`);
@@ -27,6 +31,27 @@ export default function Navbar() {
 
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
     console.log(info?.source, value);
+
+  const unauthItems: MenuProps["items"] = [
+    {
+      key: "0",
+      label: (
+        <div className="flex w-full items-center gap-2">
+          <Image
+            src={mall_logo}
+            width={30}
+            height={30}
+            alt="Logo"
+            className="rounded-full"
+          />
+          <div className="flex flex-col">
+            <p className="font-bold text-sm">Người dùng</p>
+            <p className="text-xs">........@gmail.com</p>
+          </div>
+        </div>
+      ),
+    },
+  ]
 
   const items: MenuProps["items"] = [
     {
@@ -41,8 +66,8 @@ export default function Navbar() {
             className="rounded-full"
           />
           <div className="flex flex-col">
-            <p className="font-bold text-sm"> Thảo Lăng</p>
-            <p className="text-xs"> langthao200243@gmail.com</p>
+            <p className="font-bold text-sm">{authContext.shopInfo?.name}</p>
+            <p className="text-xs"> {authContext.shopInfo?._id}</p>
           </div>
         </div>
       ),
@@ -81,10 +106,21 @@ export default function Navbar() {
     {
       key: "4",
       label: (
-        <div className="flex space-x-2">
-          <AiOutlineLogout size={20} />
-          <p> Đăng xuất</p>
-        </div>
+        <Link
+          href="#"
+          prefetch={false}
+          onClick={(e) =>
+            {
+              e.preventDefault()
+              authContext.methods?.forceSignIn()
+            }
+          }
+        >
+          <div className="flex space-x-2">
+            <AiOutlineLogout size={20} />
+            <p> Đăng xuất</p>
+          </div>
+        </Link>
       ),
     },
   ];
@@ -179,21 +215,44 @@ export default function Navbar() {
                   />
                 </Badge>
               </div>
-              <Dropdown menu={{ items }} placement="bottomLeft">
-                <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2">
-                  <Image
-                    src={mall_logo}
-                    width={25}
-                    height={25}
-                    alt="Logo"
-                    className="rounded-full"
-                  />
-                  <p className="ml-2 text-sm">
-                  Thảo Lăng
-                  </p>
-                  <RiArrowDropDownLine size={20} />
-                </div>
-              </Dropdown>
+              {
+                authContext.shopInfo ?
+                <>
+                  <Dropdown menu={{ items }} placement="bottomLeft">
+                    <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2">
+                      <Image
+                        src={mall_logo}
+                        width={25}
+                        height={25}
+                        alt="Logo"
+                        className="rounded-full"
+                      />
+                      <p className="ml-2 text-sm truncate">
+                      {authContext.shopInfo.name}
+                      </p>
+                      <RiArrowDropDownLine size={20} />
+                    </div>
+                  </Dropdown>
+                </>
+                :
+                <>
+                  <Dropdown menu={{ items }} placement="bottomLeft">
+                    <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2">
+                      <Image
+                        src={mall_logo}
+                        width={25}
+                        height={25}
+                        alt="Logo"
+                        className="rounded-full"
+                      />
+                      <p className="ml-2 text-sm">
+                      Tài khoản
+                      </p>
+                      <RiArrowDropDownLine size={20} />
+                    </div>
+                  </Dropdown>
+                </>
+              }
 
               <LanguageOption />
             </div>

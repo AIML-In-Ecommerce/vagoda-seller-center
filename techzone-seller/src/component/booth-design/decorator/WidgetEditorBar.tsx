@@ -1,6 +1,6 @@
 "use client";
 import { Button, Card, Divider } from "antd";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import ShopInfo from "./widgetEditorForm/ShopInfo";
 import { TbLayoutNavbarCollapseFilled } from "react-icons/tb";
 
@@ -29,6 +29,8 @@ interface WidgetEditorBarProps {
 
   shopInfo: ShopInfoDesignType;
   setShopInfo(shopInfo: ShopInfoDesignType): void;
+
+  notify(message: string, content: ReactElement): void;
 }
 
 export default function WidgetEditorBar(props: WidgetEditorBarProps) {
@@ -125,6 +127,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             widget={selectedWidget}
             updateWidgets={updateWidgets}
             setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+            notify={props.notify}
           />
         )}
 
@@ -134,6 +137,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             widget={selectedWidget}
             updateWidgets={updateWidgets}
             setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+            notify={props.notify}
           />
         )}
 
@@ -143,6 +147,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             widget={selectedWidget}
             updateWidgets={updateWidgets}
             setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+            notify={props.notify}
           />
         )}
 
@@ -152,6 +157,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             widget={selectedWidget}
             updateWidgets={updateWidgets}
             setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+            notify={props.notify}
           />
         )}
 
@@ -161,6 +167,7 @@ export default function WidgetEditorBar(props: WidgetEditorBarProps) {
             widget={selectedWidget}
             updateWidgets={updateWidgets}
             setSaveStatus={(status: SaveStatusEnum) => setSaveStatus(status)}
+            notify={props.notify}
           />
         )}
 

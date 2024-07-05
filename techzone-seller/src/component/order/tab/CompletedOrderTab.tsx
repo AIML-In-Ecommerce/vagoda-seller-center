@@ -3,24 +3,31 @@
 import { currencyFormater, datetimeFormaterShort, MyLocaleRef } from "@/component/util/MyFormater"
 import { OrderPropType } from "@/model/OrderPropType"
 import { Button, Divider, Flex, Table, TableColumnType, Tag, Tooltip, Typography } from "antd"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { BiInfoCircle } from "react-icons/bi"
 import OrderFilterPool, { OrderFilterPoolCallbackProps } from "../util/OrderFilterPool"
 import { TableRowSelection } from "antd/es/table/interface"
 import OrderDetailDrawer from "../util/OrderDetailDrawer"
 import { CompletedOrderPoolSetting } from "@/component_config/order/filter_pool/CompletedOrderPoolSetting"
+import OrderService from "@/services/order.service"
+import { AuthContext } from "@/context/AuthContext"
+import { NotificationContext } from "@/context/NotificationContext"
 
 
 interface CompletedOrderTabProps
 {
-    dataSource: OrderPropType[]
+    tabKey: string,
+    dataSource: OrderPropType[],
+    askToRefreshData: (tabKey: string) => void
 }
 
 
 enum StatusType
 {
-    PENDING,
-    EXPIRED
+    WAITING_CONFIRM,
+    EXPIRED_WAITING,
+    ONTIME_COMPLETED,
+    EXPIRED_COMPETED,
 }
 
 interface DisplayStatus
@@ -85,7 +92,7 @@ const OrderTimeTooltip =
 
 const filterPoolSetting = CompletedOrderPoolSetting
 
-export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
+export default function CompletedOrderTab({tabKey, dataSource, askToRefreshData}: CompletedOrderTabProps)
 {
     const completedTabFilterPoolKey = "completed-tab-filter-pool-key"
     const [data, setData] = useState<OrderPropType[]>(dataSource)
@@ -98,6 +105,13 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
 
     const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([])
 
+    const authContext = useContext(AuthContext)
+    const notificationContext = useContext(NotificationContext)
+
+    useEffect(() =>
+    {
+        setData(dataSource)
+    }, [dataSource])
 
     const dataColumns: TableColumnType<CompletedOrder>[] = 
     [
@@ -113,14 +127,25 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
                     let statusDisplay = <></>
                     switch(record.status.type)
                     {
-                        case StatusType.PENDING:
+                        case StatusType.WAITING_CONFIRM:
                             {
                                 statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"geekblue"}>{record.status.name}</Tag>
                                 break;
                             }
-                        case StatusType.EXPIRED:
+                        case StatusType.EXPIRED_WAITING:
+                            {
+                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"red"}>{record.status.name}</Tag>
+                                break;
+                            }
+                        case StatusType.EXPIRED_COMPETED:
                             {
                                 statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"orange"}>{record.status.name}</Tag>
+                                break;
+                            }
+                        case StatusType.ONTIME_COMPLETED:
+                            {
+                                statusDisplay = <Tag key={record.status.name+index.toString()+"-"+Date.now().toString()} color={"green"}>{record.status.name}</Tag>
+                                break;
                             }
                     }
                     return statusDisplay
@@ -258,60 +283,79 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
         {
             setDataToDisplay([])
         }
-        const display = data.map((value: OrderPropType) =>
+        else
         {
-            let totalProducts = 0;
-            value.products.forEach((selection) =>
+            const display = data.map((value: OrderPropType) =>
             {
-                totalProducts += selection.quantity
-            })
-
-            let orderStatus: DisplayStatus =
-            {
-                name: "Đang chờ",
-                type: StatusType.PENDING
-            }
-            const today = new Date
-
-            const deadlineTime = value.orderStatus[value.orderStatus.length - 1].deadline
-
-            if(today > deadlineTime)
-            {
-                orderStatus =
+                let totalProducts = 0;
+                value.products.forEach((selection) =>
                 {
-                    name: "Đang chờ và đã quá hạn",
-                    type: StatusType.EXPIRED
+                    totalProducts += selection.quantity
+                })
+    
+                let orderStatus: DisplayStatus =
+                {
+                    name: "Đang chờ nhận xác nhận",
+                    type: StatusType.WAITING_CONFIRM
                 }
-            }
-
-            const item: CompletedOrder =
-            {
-                key: value._id,
-                status: orderStatus,
-                delivery: {
-                    receiverName: value.shippingAddress.receiverName,
-                    address: value.shippingAddress.street,
-                    phoneNumber: value.shippingAddress.phoneNumber,
-                    coordinate: value.shippingAddress.coordinate,
-                    label: value.shippingAddress.label,
-                    isDefault: value.shippingAddress.isDefault
-                },
-                time: {
-                    orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
-                    deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
-                },
-                price: {
-                    totalProduct: totalProducts,
-                    shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
-                    totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
-                    profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                const today = new Date
+                const completeTime = value.orderStatus[value.orderStatus.length - 1].complete != null ? new Date(value.orderStatus[value.orderStatus.length - 1].complete!) : null
+                const deadlineTime = new Date(value.orderStatus[value.orderStatus.length - 1].deadline)
+    
+                if(today > deadlineTime)
+                {
+                    orderStatus =
+                    {
+                        name: "Đang chờ và đã quá hạn",
+                        type: StatusType.EXPIRED_WAITING
+                    }
                 }
-            }
-
-            return item
-        })
-
-        setDataToDisplay(display)
+                else if(completeTime != null && completeTime < deadlineTime)
+                {
+                    orderStatus = 
+                    {
+                        name: "Đã xác nhận",
+                        type: StatusType.ONTIME_COMPLETED
+                    }
+                }
+                else if(completeTime != null && completeTime > deadlineTime)
+                {
+                    orderStatus = 
+                    {
+                        name: "Đã nhận được xác nhận và quá hạn",
+                        type: StatusType.EXPIRED_COMPETED
+                    }
+                }
+    
+                const item: CompletedOrder =
+                {
+                    key: value._id,
+                    status: orderStatus,
+                    delivery: {
+                        receiverName: value.shippingAddress.receiverName,
+                        address: value.shippingAddress.street,
+                        phoneNumber: value.shippingAddress.phoneNumber,
+                        coordinate: value.shippingAddress.coordinate,
+                        label: value.shippingAddress.label,
+                        isDefault: value.shippingAddress.isDefault
+                    },
+                    time: {
+                        orderTime: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].time),
+                        deadline: datetimeFormaterShort(MyLocaleRef.VN, value.orderStatus[value.orderStatus.length - 1].deadline)
+                    },
+                    price: {
+                        totalProduct: totalProducts,
+                        shippingFee: currencyFormater(MyLocaleRef.VN, value.shippingFee),
+                        totalPrice: currencyFormater(MyLocaleRef.VN, value.totalPrice),
+                        profit: currencyFormater(MyLocaleRef.VN, value.profit)
+                    }
+                }
+    
+                return item
+            })
+    
+            setDataToDisplay(display)
+        }
     },
     [data])
 
@@ -342,16 +386,43 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
         setOrderDetailOpen(false)
     }
 
-    function handleConfirmOrderOnClick(params: any)
+    async function handleConfirmOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
+
+        const isUpdateSuccessfully = await OrderService.updateOneOrderStatus(authContext.shopInfo._id, targetOrderId)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: `Xác nhận hoàn thành thất bại`,
+                description: `Không thể xác nhận hoàn thành đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận hoàn thành thành công`,
+                description: `Xác nhận hoàn thành thành công đơn hàng ${targetOrderId}`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
-    function handleCancelOrderOnClick(params: any)
+    async function handleCancelOrderOnClick(params: any)
     {
         const targetOrderId = params as string
         //TODO: call api to update order status here
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
     }
 
     function handleSelectedRowKeysOnChange(newSelectedRowKeys: React.Key[], selectedRows: CompletedOrder[])
@@ -364,11 +435,31 @@ export default function CompletedOrderTab({dataSource}: CompletedOrderTabProps)
         setSelectedOrderIds(selectedOrderIds)
     }
 
-    function handleConfirmManyOrder(soids: string[])
+    async function handleConfirmManyOrder(soids: string[])
     {
-        console.log(soids)
+        if(authContext.shopInfo == null)
+        {
+            return
+        }
 
-        //TODO: call api to update order status here
+        const isUpdateSuccessfully = await OrderService.updateManyOrdersStatus(authContext.shopInfo._id, soids)
+        if(isUpdateSuccessfully == null)
+        {
+            notificationContext?.notificationAPI.error({
+                message: ``,
+                description: `Cannot confirm sellected orders`,
+                placement: "top"
+            })
+        }
+        else
+        {
+            notificationContext?.notificationAPI.success({
+                message: `Xác nhận hoàn thành thành công`,
+                description: `Xác nhận hoàn thành thành công nhiều đơn hàng`,
+                placement: "top"
+            })
+            askToRefreshData(tabKey)
+        }
     }
 
     const rowSelection: TableRowSelection<CompletedOrder> = 
