@@ -51,16 +51,12 @@ export async function GET_GetProductDetail(id: string) {
   ).toString();
 
   try {
-    // console.log(url);
     const response = await axios.get(url);
     const responseData: ProductDetailResponse = response.data;
 
     const processedData: ProductDetailType = {
       _id: id,
       name: responseData.data.name,
-      // attribute: {
-      //   ....
-      // }
       description: responseData.data.description,
       originalPrice: responseData.data.originalPrice,
       finalPrice: responseData.data.finalPrice,
@@ -113,16 +109,7 @@ export async function POST_GetProductList(idList: string[]) {
   ).toString();
 
   try {
-    // console.log(url);
-    const response = await axios.post(
-      url,
-      { ids: idList }
-      // {
-      //   headers: {
-      //     Authorization: `Bearer ${auth.user?.access_token}`,
-      //   },
-      // }
-    );
+    const response = await axios.post(url, { ids: idList });
     const responseData: ProductListResponse = response.data;
 
     console.log(responseData.data);
@@ -178,19 +165,8 @@ export async function POST_GetProductListByShop(shopId: string) {
   ).toString();
 
   try {
-    // console.log(url);
-    const response = await axios.post(
-      url,
-      { shop: shopId }
-      // {
-      //   headers: {
-      //     Authorization: `Bearer ${auth.user?.access_token}`,
-      //   },
-      // }
-    );
+    const response = await axios.post(url, { shop: shopId });
     const responseData: ProductListResponse = response.data;
-
-    // console.log(responseData.data);
 
     const processedData: ProductType[] = [];
 

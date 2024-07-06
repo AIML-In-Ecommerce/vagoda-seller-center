@@ -1,10 +1,10 @@
-import "./globals.css"
+import "./globals.css";
 import type { Metadata } from "next";
-
 
 import SocketProvider from "@/socket/SocketProvider";
 import { ReactNode } from "react";
 import AuthContextProvider from "@/context/AuthContext";
+import NotificationContextProvider from "@/context/NotificationContext";
 
 // import UserLayout from "@/component/UserLayout";
 
@@ -13,18 +13,17 @@ interface RootLayoutProps {
 }
 
 export const metadata: Metadata = {
-  title: "Techzone seller",
-  description: "Seller center",
+  title: "Vagoda  - Seller Center ",
+  description: "Seller Center",
 };
 
-export default function RootLayout({children}: RootLayoutProps) {
-
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang={"en"}>
       <body className="w-full">
         <AuthContextProvider>
           {/* <SocketProvider> */}
-            {children}
+          <NotificationContextProvider>{children}</NotificationContextProvider>
           {/* </SocketProvider> */}
         </AuthContextProvider>
       </body>

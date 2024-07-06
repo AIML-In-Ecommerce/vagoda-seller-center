@@ -1,28 +1,31 @@
 "use client";
+import {
+  DELETE_DeleteCollection,
+  GET_GetCollectionListByShop,
+} from "@/apis/collection/CollectionAPI";
 import DeleteCollectionModal from "@/component/booth-design/collection/modal/DeleteCollectionModal";
 import CustomEmpty from "@/component/booth-design/decorator/mini/CustomEmpty";
 import { CollectionType } from "@/model/CollectionType";
 import { formatDate } from "@/utils/DateFormatter";
 import {
-  TableColumnType,
-  Flex,
-  Button,
-  Table,
   Badge,
+  Breadcrumb,
+  Button,
+  Flex,
+  Layout,
+  Skeleton,
+  Table,
+  TableColumnType,
   // Select,
   Typography,
-  Layout,
-  Breadcrumb,
-  Skeleton,
+  notification,
+  NotificationArgsProps,
 } from "antd";
 import Search from "antd/es/input/Search";
 import { TableRowSelection } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
-import {
-  DELETE_DeleteCollection,
-  GET_GetCollectionListByShop,
-} from "@/apis/collection/CollectionAPI";
+import { AuthContext } from "@/context/AuthContext";
 
 interface CollectionColumn {
   key: string;
@@ -32,10 +35,11 @@ interface CollectionColumn {
   status: string; // active/inactive
 }
 
+type NotificationPlacement = NotificationArgsProps["placement"];
+
 export default function CollectionPage() {
-  // mock data
-  const mockId = "65f1e8bbc4e39014df775166";
-  //TODO
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>();
@@ -47,6 +51,18 @@ export default function CollectionPage() {
   const [rawData, setRawData] = useState<CollectionColumn[]>([]);
   const [dataToDisplay, setDataToDisplay] = useState<CollectionColumn[]>([]);
   const [searchText, setSearchText] = useState("");
+
+  // notification
+  const [api, contextHolder] = notification.useNotification();
+
+  const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
+  const openNotification = (title: string, content: ReactElement) => {
+    api.info({
+      message: `${title}`,
+      description: content,
+      placement,
+    });
+  };
 
   // functions
 
@@ -83,9 +99,9 @@ export default function CollectionPage() {
     selectedOrderIds.forEach(async (selectedId) => {
       const response = await DELETE_DeleteCollection(selectedId);
       if (response.status === 200) {
-        alert("Xoá bộ sưu tập thành công!");
+        openNotification("Xoá bộ sưu tập thành công!", <></>);
       } else {
-        alert("Xoá bộ sưu tập thất bại...");
+        openNotification("Xoá bộ sưu tập thất bại...", <></>);
         // console.log(response.message);
         return;
       }
@@ -97,7 +113,6 @@ export default function CollectionPage() {
     setOpenDeleteModal(false);
     setSelectedRowKeys([]);
     setSelectedOrderIds([]);
-    // TODO: toast update successfully
   };
 
   const dataColumns: TableColumnType<CollectionColumn>[] = [
@@ -225,7 +240,7 @@ export default function CollectionPage() {
   }, []);
 
   const handleGetCollectionList = async () => {
-    const response = await GET_GetCollectionListByShop(mockId);
+    const response = await GET_GetCollectionListByShop(shopId);
 
     if (response.status === 200) {
       console.log(response.data);
@@ -237,7 +252,7 @@ export default function CollectionPage() {
   return (
     <Layout>
       {(collections && (
-        <div className="m-5">
+        <div className="m-5 min-h-screen">
           <Breadcrumb
             className="text-xs"
             items={[

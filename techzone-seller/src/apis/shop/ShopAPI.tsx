@@ -174,3 +174,42 @@ export async function PUT_UpdateShopInfoDesign(
     };
   }
 }
+
+export async function PUT_AddImageCollection(id: string, image_link: string) {
+  const URL = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    SHOP_PORT?.toString() +
+    "/shop/addImgCollection/" +
+    id
+  ).toString();
+
+  try {
+    const response = await axios.put(URL, { imageUrls: [image_link] });
+    console.log("RESULT", response);
+    return response.data;
+  } catch (error) {
+    console.log("API_ERROR_ShopAPI_addImageCollection: ", error);
+  }
+}
+
+export async function PUT_RemoveImageCollection(
+  id: string,
+  image_link: string
+) {
+  const URL = (
+    BACKEND_PREFIX?.toString() +
+    ":" +
+    SHOP_PORT?.toString() +
+    "/shop/removeImgCollection/" +
+    id
+  ).toString();
+
+  try {
+    const response = await axios.put(URL, { imageUrls: [image_link] });
+    console.log("RESULT", response);
+    return response.data;
+  } catch (error) {
+    console.log("API_ERROR_ShopAPI_removeImageCollection: ", error);
+  }
+}

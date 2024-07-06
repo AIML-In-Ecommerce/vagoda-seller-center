@@ -13,7 +13,7 @@ import {
   Select,
   Tooltip,
 } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import CustomSwitch from "../mini/CustomSwitch";
 import WidgetTypeIcon, { WidgetTypeName } from "../mini/WidgetTypeIcon";
 import BannersForm from "../uploadImage/BannersForm";
@@ -25,6 +25,8 @@ interface WidgetProps {
   widget: WidgetType;
   updateWidgets(): void;
   setSaveStatus(saveStatus: SaveStatusEnum): void;
+
+  notify(message: string, content: ReactElement): void;
 }
 
 export default function BannerWidget(props: WidgetProps) {
@@ -72,9 +74,9 @@ export default function BannerWidget(props: WidgetProps) {
     if (response.status === 200) {
       setProxyBannerWidget(proxyBannerWidget);
       props.updateWidgets();
-      alert("Cập nhật widget thành công!");
+      props.notify("Cập nhật widget thành công!", <></>);
     } else {
-      alert("Cập nhật widget thất bại...");
+      props.notify("Cập nhật widget thất bại...", <></>);
       // console.log(response.message);
     }
   };

@@ -2,7 +2,7 @@
 import CreateBatchProduct from "@/component/Product/CreateBatchProduct";
 import CreateNewProduct from "@/component/Product/CreateNewProduct";
 import { Breadcrumb, Button, Divider } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineTable } from "react-icons/ai";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineHome } from "react-icons/hi2";
@@ -24,6 +24,10 @@ export default function CreateProductPage() {
     setShowCreateProduct(true);
     setShowBatchCreateProduct(true);
   };
+
+  useEffect(() => {
+    window.history.pushState({}, "", `${window.location.pathname}`);
+  }, []);
 
   return (
     <div className="mt-4 mx-4 space-y-2">

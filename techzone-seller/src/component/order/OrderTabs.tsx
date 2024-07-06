@@ -17,389 +17,6 @@ import { AuthContext } from "@/context/AuthContext";
 
 interface OrderTabsProps {}
 
-// const WaitingMockData: OrderPropType[] = [
-//   {
-//     _id: "o-01",
-//     shopId: "sh-01",
-//     user: {
-//       _id: "u-01",
-//       name: "Lê Hồng Kông",
-//       phoneNumber: "0122446972",
-//     },
-//     product: [
-//       {
-//         _id: "p-01",
-//         image:
-//           "https://img.freepik.com/free-photo/fashion-boy-with-yellow-jacket-blue-pants_71767-96.jpg?w=740&t=st=1710939264~exp=1710939864~hmac=8571b9303891f2dbcd82da68a0a4d4a002d7ee77764e3c7a726ba042348ca9d4",
-//         name: "Macbook Air 2023",
-//         originPrice: 22000000,
-//         purchasedPrice: 22000000,
-//         quantity: 1,
-//       },
-//     ],
-//     promotion: [
-//       {
-//         _id: "pro-01",
-//         name: "Brand opening promotion",
-//         discountType: "DIRECT_PRICE",
-//         discountValue: 2000000,
-//         expiredDate: 1711360457,
-//       },
-//     ],
-//     paymentMethod: {
-//       _id: "pm-01",
-//       name: "COD",
-//     },
-//     shipping: {
-//       _id: "shp-01",
-//       name: "TechZone Deli",
-//       fee: 0.0,
-//     },
-//     totalPrice: {
-//       product: 22000000,
-//       discount: 2000000,
-//       shipping: 0.0,
-//       total: 20000000.0,
-//       profit: 19980000.0,
-//     },
-//     address: {
-//       receiverName: "Lê Hồng Phong",
-//       address: "227 Đ.Nguyễn Văn Cừ, Phường 4, quận 5, tp.Hồ Chí Minh",
-//       phoneNumber: "0122446972",
-//       coordinate: {
-//         lng: 100.0,
-//         lat: 13.0,
-//       },
-//       label: "HOME",
-//       isDefault: false,
-//     },
-//     orderStatus: [
-//       {
-//         status: "PENDING",
-//         time: 1711785407,
-//         deadline: 1711958876,
-//         complete: null,
-//       },
-//     ],
-//   },
-// ];
-
-// const ProcessingMockData: OrderPropType[] = [
-//   {
-//     _id: "o-01",
-//     shopId: "sh-01",
-//     user: {
-//       _id: "u-01",
-//       name: "Lê Hồng Kông",
-//       phoneNumber: "0122446972",
-//     },
-//     product: [
-//       {
-//         _id: "p-01",
-//         image:
-//           "https://img.freepik.com/free-photo/fashion-boy-with-yellow-jacket-blue-pants_71767-96.jpg?w=740&t=st=1710939264~exp=1710939864~hmac=8571b9303891f2dbcd82da68a0a4d4a002d7ee77764e3c7a726ba042348ca9d4",
-//         name: "Macbook Air 2023",
-//         originPrice: 22000000,
-//         purchasedPrice: 22000000,
-//         quantity: 1,
-//       },
-//     ],
-//     promotion: [
-//       {
-//         _id: "pro-01",
-//         name: "Brand opening promotion",
-//         discountType: "DIRECT_PRICE",
-//         discountValue: 2000000,
-//         expiredDate: 1711360457,
-//       },
-//     ],
-//     paymentMethod: {
-//       _id: "pm-01",
-//       name: "COD",
-//     },
-//     shipping: {
-//       _id: "shp-01",
-//       name: "TechZone Deli",
-//       fee: 0.0,
-//     },
-//     totalPrice: {
-//       product: 22000000,
-//       discount: 2000000,
-//       shipping: 0.0,
-//       total: 20000000.0,
-//       profit: 19980000.0,
-//     },
-//     address: {
-//       receiverName: "Lê Hồng Phong",
-//       address: "227 Đ.Nguyễn Văn Cừ, Phường 4, quận 5, tp.Hồ Chí Minh",
-//       phoneNumber: "0122446972",
-//       coordinate: {
-//         lng: 100.0,
-//         lat: 13.0,
-//       },
-//       label: "HOME",
-//       isDefault: false,
-//     },
-//     orderStatus: [
-//       {
-//         status: "PENDING",
-//         time: 1711785407,
-//         deadline: 1712217407,
-//         complete: 1712217407,
-//       },
-//       {
-//         status: "PROCESSING",
-//         time: 1712217407,
-//         deadline: 1712218076,
-//         complete: null,
-//       },
-//     ],
-//   },
-// ];
-
-// const ShippingMockData: OrderPropType[] = [
-//   {
-//     _id: "o-01",
-//     shopId: "sh-01",
-//     user: {
-//       _id: "u-01",
-//       name: "Lê Hồng Kông",
-//       phoneNumber: "0122446972",
-//     },
-//     product: [
-//       {
-//         _id: "p-01",
-//         image:
-//           "https://img.freepik.com/free-photo/fashion-boy-with-yellow-jacket-blue-pants_71767-96.jpg?w=740&t=st=1710939264~exp=1710939864~hmac=8571b9303891f2dbcd82da68a0a4d4a002d7ee77764e3c7a726ba042348ca9d4",
-//         name: "Macbook Air 2023",
-//         originPrice: 22000000,
-//         purchasedPrice: 22000000,
-//         quantity: 1,
-//       },
-//     ],
-//     promotion: [
-//       {
-//         _id: "pro-01",
-//         name: "Brand opening promotion",
-//         discountType: "DIRECT_PRICE",
-//         discountValue: 2000000,
-//         expiredDate: 1711360457,
-//       },
-//     ],
-//     paymentMethod: {
-//       _id: "pm-01",
-//       name: "COD",
-//     },
-//     shipping: {
-//       _id: "shp-01",
-//       name: "TechZone Deli",
-//       fee: 0.0,
-//     },
-//     totalPrice: {
-//       product: 22000000,
-//       discount: 2000000,
-//       shipping: 0.0,
-//       total: 20000000.0,
-//       profit: 19980000.0,
-//     },
-//     address: {
-//       receiverName: "Lê Hồng Phong",
-//       address: "227 Đ.Nguyễn Văn Cừ, Phường 4, quận 5, tp.Hồ Chí Minh",
-//       phoneNumber: "0122446972",
-//       coordinate: {
-//         lng: 100.0,
-//         lat: 13.0,
-//       },
-//       label: "HOME",
-//       isDefault: false,
-//     },
-//     orderStatus: [
-//       {
-//         status: "PENDING",
-//         time: 1711785407,
-//         deadline: 1712217407,
-//         complete: 1712217407,
-//       },
-//       {
-//         status: "PROCESSING",
-//         time: 1712217407,
-//         deadline: 1712218076,
-//         complete: 1712390876,
-//       },
-//       {
-//         status: "SHIPPING",
-//         time: 1712736476,
-//         deadline: 1713082076,
-//         complete: null,
-//       },
-//     ],
-//   },
-// ];
-
-// const CompletedMockData: OrderPropType[] = [
-//   {
-//     _id: "o-01",
-//     shopId: "sh-01",
-//     user: {
-//       _id: "u-01",
-//       name: "Lê Hồng Kông",
-//       phoneNumber: "0122446972",
-//     },
-//     product: [
-//       {
-//         _id: "p-01",
-//         image:
-//           "https://img.freepik.com/free-photo/fashion-boy-with-yellow-jacket-blue-pants_71767-96.jpg?w=740&t=st=1710939264~exp=1710939864~hmac=8571b9303891f2dbcd82da68a0a4d4a002d7ee77764e3c7a726ba042348ca9d4",
-//         name: "Macbook Air 2023",
-//         originPrice: 22000000,
-//         purchasedPrice: 22000000,
-//         quantity: 1,
-//       },
-//     ],
-//     promotion: [
-//       {
-//         _id: "pro-01",
-//         name: "Brand opening promotion",
-//         discountType: "DIRECT_PRICE",
-//         discountValue: 2000000,
-//         expiredDate: 1711360457,
-//       },
-//     ],
-//     paymentMethod: {
-//       _id: "pm-01",
-//       name: "COD",
-//     },
-//     shipping: {
-//       _id: "shp-01",
-//       name: "TechZone Deli",
-//       fee: 0.0,
-//     },
-//     totalPrice: {
-//       product: 22000000,
-//       discount: 2000000,
-//       shipping: 0.0,
-//       total: 20000000.0,
-//       profit: 19980000.0,
-//     },
-//     address: {
-//       receiverName: "Lê Hồng Phong",
-//       address: "227 Đ.Nguyễn Văn Cừ, Phường 4, quận 5, tp.Hồ Chí Minh",
-//       phoneNumber: "0122446972",
-//       coordinate: {
-//         lng: 100.0,
-//         lat: 13.0,
-//       },
-//       label: "HOME",
-//       isDefault: false,
-//     },
-//     orderStatus: [
-//       {
-//         status: "PENDING",
-//         time: 1711785407,
-//         deadline: 1712217407,
-//         complete: 1712217407,
-//       },
-//       {
-//         status: "PROCESSING",
-//         time: 1712217407,
-//         deadline: 1712218076,
-//         complete: 1712390876,
-//       },
-//       {
-//         status: "SHIPPING",
-//         time: 1712736476,
-//         deadline: 1713082076,
-//         complete: 1712847855,
-//       },
-//       {
-//         status: "COMPLETED",
-//         time: 1713082076,
-//         deadline: 1713082076,
-//         complete: null,
-//       },
-//     ],
-//   },
-// ];
-
-// const CancelledMockData: OrderPropType[] = [
-//   {
-//     _id: "o-01",
-//     shopId: "sh-01",
-//     user: {
-//       _id: "u-01",
-//       name: "Lê Hồng Kông",
-//       phoneNumber: "0122446972",
-//     },
-//     product: [
-//       {
-//         _id: "p-01",
-//         image:
-//           "https://img.freepik.com/free-photo/fashion-boy-with-yellow-jacket-blue-pants_71767-96.jpg?w=740&t=st=1710939264~exp=1710939864~hmac=8571b9303891f2dbcd82da68a0a4d4a002d7ee77764e3c7a726ba042348ca9d4",
-//         name: "Macbook Air 2023",
-//         originPrice: 22000000,
-//         purchasedPrice: 22000000,
-//         quantity: 1,
-//       },
-//     ],
-//     promotion: [
-//       {
-//         _id: "pro-01",
-//         name: "Brand opening promotion",
-//         discountType: "DIRECT_PRICE",
-//         discountValue: 2000000,
-//         expiredDate: 1711360457,
-//       },
-//     ],
-//     paymentMethod: {
-//       _id: "pm-01",
-//       name: "COD",
-//     },
-//     shipping: {
-//       _id: "shp-01",
-//       name: "TechZone Deli",
-//       fee: 0.0,
-//     },
-//     totalPrice: {
-//       product: 22000000,
-//       discount: 2000000,
-//       shipping: 0.0,
-//       total: 20000000.0,
-//       profit: 19980000.0,
-//     },
-//     address: {
-//       receiverName: "Lê Hồng Phong",
-//       address: "227 Đ.Nguyễn Văn Cừ, Phường 4, quận 5, tp.Hồ Chí Minh",
-//       phoneNumber: "0122446972",
-//       coordinate: {
-//         lng: 100.0,
-//         lat: 13.0,
-//       },
-//       label: "HOME",
-//       isDefault: false,
-//     },
-//     orderStatus: [
-//       {
-//         status: "PENDING",
-//         time: 1711785407,
-//         deadline: 1712217407,
-//         complete: 1712217407,
-//       },
-//       {
-//         status: "PROCESSING",
-//         time: 1712217407,
-//         deadline: 1712218076,
-//         complete: null,
-//       },
-//       {
-//         status: "CANCELLED",
-//         time: 1712218907,
-//         deadline: 1712291136,
-//         complete: null,
-//       },
-//     ],
-//   },
-// ];
-
 const defaultBreadcrumbItems: ItemType[] = 
 [
   {
@@ -438,6 +55,7 @@ export default function OrderTabs({}: OrderTabsProps) {
     new Array(totalTabs).fill(defaultTabLabelProp)
   );
 
+
   const authContext = useContext(AuthContext)
 
   const [waitingData, setWaitingData] = useState<OrderPropType[]>([]);
@@ -448,6 +66,7 @@ export default function OrderTabs({}: OrderTabsProps) {
 
   const [breadcrumbItems, setBreadcrumbItems] = useState<ItemType[]>(defaultBreadcrumbItems)
 
+
   const tabs = [
     {
       index: 0,
@@ -457,8 +76,10 @@ export default function OrderTabs({}: OrderTabsProps) {
         title: "Đang chờ xác nhận",
         href: `/order?tab=${defaultTabKey}`
       },
+      dataSource: waitingData,
       refreshDataFunction: fetchWaitingOrders,
-      children: <WaitingOrderTab tabKey={"awaiting_confirmation"} dataSource={waitingData} askToRefreshData={handleAskToRequestData}/>,
+      // children: <WaitingOrderTab tabKey={"awaiting_confirmation"} dataSource={waitingData} askToRefreshData={handleAskToRequestData}/>,
+      children: WaitingOrderTab
     },
     {
       index: 1,
@@ -468,8 +89,10 @@ export default function OrderTabs({}: OrderTabsProps) {
         title: "Đang xử lý",
         href: `/order?tab=processing`
       },
-      refreshDataFunction: () => Promise<void>,
-      children: <ProcessingOrderTab dataSource={processingData} />,
+      dataSource: processingData,
+      refreshDataFunction: fetchProcessingOrders,
+      // children: <ProcessingOrderTab dataSource={processingData} />,
+      children: ProcessingOrderTab
     },
     {
       index: 2,
@@ -479,8 +102,10 @@ export default function OrderTabs({}: OrderTabsProps) {
         title: "Đang vận chuyển",
         href: `/order?tab=shipping`
       },
-      refreshDataFunction: () => Promise<void>,
-      children: <ShippingOrderTab dataSource={shippingData} />,
+      dataSource: shippingData,
+      refreshDataFunction: fetchShippingOrders,
+      // children: <ShippingOrderTab dataSource={shippingData} />,
+      children: ShippingOrderTab
     },
     {
       index: 3,
@@ -490,8 +115,10 @@ export default function OrderTabs({}: OrderTabsProps) {
         title: "Đã giao hàng",
         href: `/order?tab=delivered`
       },
-      refreshDataFunction: () => Promise<void>,
-      children: <CompletedOrderTab dataSource={completeData} />,
+      dataSource: completeData,
+      refreshDataFunction: fetchCompletedOrders,
+      // children: <CompletedOrderTab dataSource={completeData} />,
+      children: CompletedOrderTab
     },
     {
       index: 4,
@@ -501,10 +128,14 @@ export default function OrderTabs({}: OrderTabsProps) {
         title: "Đã hủy",
         href: `/order?tab=canceled`
       },
-      refreshDataFunction: () => Promise<void>,
-      children: <CancelledOrderTab dataSource={cancelledData} />,
+      dataSource: cancelledData,
+      refreshDataFunction: () => fetchCancelledOrders,
+      // children: <CancelledOrderTab dataSource={cancelledData} />,
+      children: CancelledOrderTab
     },
   ];
+
+  // const [tabDisplays, setTabDisplays] = useState<any[]>(tabs)
 
   // const { socket, isConnected } = useContext(SocketIOContext);
 
@@ -515,23 +146,83 @@ export default function OrderTabs({}: OrderTabsProps) {
 
   async function fetchWaitingOrders()
   {
-    if(authContext.methods != null)
+    if(authContext.shopInfo != null)
     {
-      const isRefreshedSuccessfully = await authContext.methods.refreshToken()
-      if(isRefreshedSuccessfully == false)
-      {
-        authContext.methods.forceSignIn()
-      }
-      else
-      {
         // const accessToken = authContext.methods.getAccessToken() as string
-        const orders = await OrderService.getOrders(authContext.methods.getAccessToken() as string, OrderStatusValues.PENDING)
+        const orders = await OrderService.getOrders(authContext.shopInfo._id as string, OrderStatusValues.PENDING)
+        if(orders != null)
         {
           setWaitingData(orders)
+          // const newTabs = [...tabDisplays]
+          // newTabs[0].dataSource = orders
+          // setTabDisplays(newTabs)
         }
-      }
     }
-  } 
+  }
+
+  async function fetchProcessingOrders()
+  {
+    if(authContext.shopInfo != null)
+      {
+          // const accessToken = authContext.methods.getAccessToken() as string
+          const orders = await OrderService.getOrders(authContext.shopInfo._id, OrderStatusValues.PROCESSING)
+          if(orders != null)
+          {
+            setProcessingData(orders)
+            // const newTabs = [...tabDisplays]
+            // newTabs[0].dataSource = orders
+            // setTabDisplays(newTabs)
+          }
+      }
+  }
+
+  async function fetchShippingOrders()
+  {
+    if(authContext.shopInfo != null)
+      {
+          // const accessToken = authContext.methods.getAccessToken() as string
+          const orders = await OrderService.getOrders(authContext.shopInfo._id, OrderStatusValues.SHIPPING)
+          if(orders != null)
+          {
+            setShippingData(orders)
+            // const newTabs = [...tabDisplays]
+            // newTabs[0].dataSource = orders
+            // setTabDisplays(newTabs)
+          }
+      }
+  }
+
+  async function fetchCompletedOrders()
+  {
+    if(authContext.shopInfo != null)
+      {
+          // const accessToken = authContext.methods.getAccessToken() as string
+          const orders = await OrderService.getOrders(authContext.shopInfo._id, OrderStatusValues.COMPLETED)
+          if(orders != null)
+          {
+            setCompleteData(orders)
+            // const newTabs = [...tabDisplays]
+            // newTabs[0].dataSource = orders
+            // setTabDisplays(newTabs)
+          }
+      }
+  }
+
+  async function fetchCancelledOrders()
+  {
+    if(authContext.shopInfo != null)
+      {
+          // const accessToken = authContext.methods.getAccessToken() as string
+          const orders = await OrderService.getOrders(authContext.shopInfo._id, OrderStatusValues.CANCELLED)
+          if(orders != null)
+          {
+            setCancelledData(orders)
+            // const newTabs = [...tabDisplays]
+            // newTabs[0].dataSource = orders
+            // setTabDisplays(newTabs)
+          }
+      }
+  }
 
   useEffect(() => {
     //fetch data here 
@@ -539,11 +230,30 @@ export default function OrderTabs({}: OrderTabsProps) {
   }, []);
 
   useEffect(() => {
+    fetchProcessingOrders()
+  }, [])
+
+  useEffect(() =>
+  {
+    fetchShippingOrders()
+  }, [])
+
+  useEffect(() =>
+  {
+    fetchCompletedOrders()
+  }, [])
+
+  useEffect(() =>
+  {
+    fetchCancelledOrders()
+  }, [])
+
+  useEffect(() => {
     const clonedData = [...orderCount];
     clonedData[0] = waitingData.length;
 
     setOrderCount(clonedData);
-  }, [waitingData]);
+  }, [waitingData.length]);
 
   useEffect(() => {
     const clonedData = [...orderCount];
@@ -620,6 +330,7 @@ export default function OrderTabs({}: OrderTabsProps) {
 
   async function handleAskToRequestData(targetTabKey: string)
   {
+    console.log(targetTabKey)
     let targetTab =  null
     for(let i = 0; i < tabs.length; i++)
     {
@@ -630,6 +341,7 @@ export default function OrderTabs({}: OrderTabsProps) {
       }
     }
 
+    console.log(targetTab)
     if(targetTab == null)
     {
       return
@@ -666,7 +378,7 @@ export default function OrderTabs({}: OrderTabsProps) {
               const item = {
                 key: value.key,
                 label: tabLabels[value.index],
-                children: value.children,
+                children: <value.children tabKey={value.key} dataSource={value.dataSource} askToRefreshData={handleAskToRequestData}/>
               };
               return item;
             })}

@@ -8,10 +8,12 @@ import {
   FloatButton,
   Input,
   Layout,
+  notification,
+  NotificationArgsProps,
   Skeleton,
   Tooltip,
 } from "antd";
-import { useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useState } from "react";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import CustomSwitch from "@/component/booth-design/decorator/mini/CustomSwitch";
 import ProductSelect from "@/component/booth-design/collection/custom/ProductSelect";
@@ -23,10 +25,13 @@ import { ProductType } from "@/model/ProductType";
 import { POST_CreateCollection } from "@/apis/collection/CollectionAPI";
 import { POST_GetProductListByShop } from "@/apis/product/ProductAPI";
 import { useRouter } from "next/navigation";
+import { AuthContext } from "@/context/AuthContext";
+
+type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function NewCollectionPage() {
-  // mock data
-  const mockId = "65f1e8bbc4e39014df775166";
+  const authContext = useContext(AuthContext);
+  const shopId = authContext.shopInfo?._id ?? "";
 
   //var
   const router = useRouter();
@@ -37,8 +42,25 @@ export default function NewCollectionPage() {
   const [isSwitched, setIsSwitched] = useState(true);
   const [products, setProducts] = useState<ProductType[]>([]);
 
+  // notification
+  const [api, contextHolder] = notification.useNotification();
+
+  const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
+  const openNotification = (title: string, content: ReactElement) => {
+    api.info({
+      message: `${title}`,
+      description: content,
+      placement,
+    });
+  };
+
   // function
   const handleSave = async () => {
+    if (imageUrl === "") {
+      openNotification("Hãy thêm hình ảnh cho bộ sưu tập của bạn!", <></>);
+      return;
+    }
+
     const newCollection: CollectionType = {
       _id: "",
       name: name,
@@ -46,7 +68,7 @@ export default function NewCollectionPage() {
       productIdList: productIdList,
       createDate: new Date(),
       isActive: isSwitched,
-      shop: mockId, //TODO
+      shop: shopId,
     };
 
     // use api to create
@@ -54,8 +76,7 @@ export default function NewCollectionPage() {
     const response = await POST_CreateCollection(newCollection);
 
     if (response.status === 200) {
-      //TODO: push router to collection OR toast success message
-      alert("Tạo bộ sưu tập thành công!");
+      openNotification("Tạo bộ sưu tập thành công!", <></>);
 
       // console.log(response.message);
       // console.log(response.data);
@@ -68,19 +89,17 @@ export default function NewCollectionPage() {
         );
       }, 2000);
     } else {
-      alert("Tạo bộ sưu tập thất bại...");
-
-      // console.log(response.message);
+      openNotification("Tạo bộ sưu tập thất bại...", <></>);
     }
   };
 
   // call api
   useEffect(() => {
     handleGetProductList();
-  }, [mockId]);
+  }, [shopId]);
 
   const handleGetProductList = async () => {
-    const response = await POST_GetProductListByShop(mockId);
+    const response = await POST_GetProductListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setProducts(response.data);
@@ -91,6 +110,7 @@ export default function NewCollectionPage() {
 
   return (
     <Layout>
+      {contextHolder}
       {(products && (
         <div className="m-5 grid grid-cols-6 lg:grid-cols-8 h-fit">
           <div className="col-span-1">
