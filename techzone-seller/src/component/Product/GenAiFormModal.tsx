@@ -12,8 +12,14 @@ import TextArea from "antd/es/input/TextArea";
 import React, { useState } from "react";
 
 const clothTypeList = [
-  { value: "shirt", label: "Áo" },
-  { value: "pants", label: "Quần" },
+  { value: "T-shirt", label: "Áo Thun" },
+  { value: "shirt", label: "Áo Sơ Mi" },
+  { value: "polo shirt", label: "Áo Polo" },
+  { value: "jacket", label: "Áo Khoác" },
+  { value: "trousers", label: "Quần âu" },
+  { value: "shorts", label: "Quần short" },
+  { value: "jeans", label: "Quần Jean" },
+  { value: "sports pants", label: "Quần thể thao" },
 ];
 
 const nationalityList = [
@@ -227,7 +233,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
     onClose();
   };
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo
+    errorInfo,
   ) => {};
 
   return (
@@ -270,7 +276,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   <div className="text-xs">Loại sản phẩm</div>
                 </div>
                 <Form.Item<FieldType>
-                  initialValue={"shirt"}
+                  initialValue={"T-shirt"}
                   name="clothType"
                   rules={[
                     {
@@ -281,7 +287,7 @@ const GenAiFormModal: React.FC<GenAiFormModalProps> = ({
                   style={{ margin: 4 }}
                 >
                   <Select
-                    defaultValue="shirt"
+                    defaultValue="T-shirt"
                     style={{ width: "100%" }}
                     options={clothTypeList}
                   />
