@@ -17,7 +17,7 @@ export const ProductService = {
       console.log("THANH", input);
       const response: any = await ProductAPI.getProductByFilter({
         ...input,
-        shopId: "65f1e8bbc4e39014df775166",
+        shopId: "6675adaadece55d2d6371652",
       });
 
       if (response.data && Array.isArray(response.data)) {

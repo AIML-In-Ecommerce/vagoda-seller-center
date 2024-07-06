@@ -1,5 +1,5 @@
 "use client";
-import { Affix, Breadcrumb, Divider, FormProps, RadioChangeEvent, Tooltip } from 'antd'
+import { Affix, Breadcrumb, Divider, FormProps, Modal, RadioChangeEvent, Tooltip } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineHome } from 'react-icons/hi2'
 import runes from 'runes2';
@@ -31,6 +31,7 @@ import PromotionCard from '../booth-design/decorator/mini/PromotionCard';
 import { formatCurrencyFromValue } from '../util/CurrencyDisplay';
 import { useRouter } from 'next/navigation';
 import { TbDiscount, TbShoppingCartDiscount } from 'react-icons/tb';
+import ProductListModal from './ProductListModal';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -93,8 +94,6 @@ const generatePromotionCode = () => {
     return result.toUpperCase();
 }
 
-
-
 const DIRECT_PRICE_RECOMMEND = 10000;
 const PERCENTAGE_RECOMMEND = 8;
 const LIMIT_AMOUNT_RECOMMEND = 80000;
@@ -113,7 +112,8 @@ export default function CreatePromotionPage() {
     const isLimitAmountToReduce = Form.useWatch('isLimitAmountToReduce', form);
     const limitAmountToReduce = Form.useWatch('limitAmountToReduce', form);
     const quantity = Form.useWatch('quantity', form);
-    const [targetProducts, setTargetProducts] = useState<any[]>();
+    const [targetProducts, setTargetProducts] = useState<any[]>([]);
+
     const router = useRouter();
     const [discount, setDiscount] = useState<PromotionType>({
         _id: "",
@@ -131,6 +131,8 @@ export default function CreatePromotionPage() {
     } as PromotionType);
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const [applyOption, setApplyOption] = useState<string>("all");
+
+    const [isProductListModalOpen, setIsProductListModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         setDiscount({
@@ -168,7 +170,6 @@ export default function CreatePromotionPage() {
         form.validateFields([fieldName]);
     }
 
-
     const handleSwitchRecommendStats = () => {
         form.setFieldsValue({ isRecommendStats: !recommendStats });
     }
@@ -176,9 +177,8 @@ export default function CreatePromotionPage() {
     const onProductListChange = ({ target: { value } }: RadioChangeEvent) => {
         setApplyOption(value);
         if (value === "all") {
-            setTargetProducts(undefined);
+            setTargetProducts([]);
         }
-        else setTargetProducts([]);
 
         console.log("Product list change...", value);
     }
@@ -252,7 +252,7 @@ export default function CreatePromotionPage() {
                                             <MdInfoOutline />
                                         </Tooltip>
                                     </div>
-                                } name="code" rules={[{ required: true, max: 10}]}>
+                                } name="code" rules={[{ required: true, max: 10 }]}>
                                     <div className="flex flex-col">
                                         <div className="flex flex-col lg:flex-row lg:items-center gap-2 justify-between mt-1">
                                             <div className="mb-2">Chỉ bao gồm từ 5 - 10 ký tự thường và chữ số.</div>
@@ -273,8 +273,8 @@ export default function CreatePromotionPage() {
                                             }}
                                             placeholder={"Điền ký tự mã giảm giá"}
                                             value={discountCode}
-                                            
-                                            onChange={handlePromotionInputChange}  />
+
+                                            onChange={handlePromotionInputChange} />
                                     </div>
                                 </Form.Item>
                                 <Form.Item label={
@@ -493,10 +493,11 @@ export default function CreatePromotionPage() {
                                                 preview={false} />
                                             <div className="flex flex-col">
                                                 <div className="font-semibold">Sản phẩm cụ thể</div>
-                                                <div>({0} sản phẩm)</div>
+                                                <div>({targetProducts.length} sản phẩm)</div>
                                             </div>
                                         </div>
-                                        <Button size="large" className="bg-blue-500 hover:bg-blue-700 absolute right-2 inset-auto">
+                                        <Button size="large" className="bg-blue-500 hover:bg-blue-700 absolute right-2 inset-auto"
+                                            onClick={() => setIsProductListModalOpen(true)}>
                                             <div className="flex flex-row items-center gap-2 text-white">
                                                 <FaPlus />
                                                 <div>Chọn</div>
@@ -554,8 +555,13 @@ export default function CreatePromotionPage() {
                         </Button>
                     </div>
                 </div>
-
-            </div >
+            </div>
+            <ProductListModal 
+                targetProducts={targetProducts}
+                setTargetProducts={setTargetProducts}
+                open={isProductListModalOpen}
+                onCancel={() => setIsProductListModalOpen(false)}
+            />
         </React.Fragment >
     )
 }
