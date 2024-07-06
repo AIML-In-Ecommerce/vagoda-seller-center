@@ -76,7 +76,7 @@ const ImageCollection = () => {
     try {
       console.log("Post body:  ", postBody);
       const response = await axios.post(
-        "http://localhost:8000/genai/generate-product-image",
+        "http://54.255.29.11/genai/generate-product-image",
         postBody,
         {
           headers: {

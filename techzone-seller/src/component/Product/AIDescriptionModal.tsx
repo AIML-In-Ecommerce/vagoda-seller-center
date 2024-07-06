@@ -52,13 +52,13 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
 
     try {
       const rawResponse = await axios.post(
-        "http://localhost:8000/genai/generate-product-description",
+        "http://54.255.29.11/genai/generate-product-description",
         postBody,
         {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (rawResponse.status == 200) {
         setDescription(rawResponse.data.data);
