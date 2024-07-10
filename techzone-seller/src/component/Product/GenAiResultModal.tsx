@@ -2,7 +2,8 @@
 import { Button, Image, message } from "antd";
 // import fs from "fs-extra";
 import { PUT_AddImageCollection } from "@/apis/shop/ShopAPI";
-import React, { useState } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import React, { useContext, useState } from "react";
 import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
 interface GenAiResultModalProps {
@@ -21,10 +22,14 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   closeModal,
 }) => {
   const [imageLink, setImageLink] = useState<string>(imageUrl);
+  const authContext = useContext(AuthContext);
 
   const handleSaveImage = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
     const response: { status: number; message: string } =
-      await PUT_AddImageCollection("65f1e8bbc4e39014df775166", imageLink);
+      await PUT_AddImageCollection(authContext.shopInfo._id, imageLink);
 
     if (response.status == 200) {
       message.success("Thêm hình ảnh sản phẩm thành công");

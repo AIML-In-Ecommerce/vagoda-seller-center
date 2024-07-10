@@ -1,5 +1,6 @@
 "use client";
 import { CommentInputType } from "@/apis/ReviewAPI";
+import { AuthContext } from "@/context/AuthContext";
 import { _ReviewType } from "@/model/ReviewType";
 import { ReviewService } from "@/services/Review";
 import {
@@ -13,7 +14,7 @@ import {
   Tooltip,
 } from "antd";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RiSendPlaneFill } from "react-icons/ri";
 
 interface ReviewInfoDrawerProps {
@@ -29,15 +30,20 @@ const sampleResponse = [
   "Cám ơn anh/chị đã tin dùng sản phẩm của shop, rất mong shop sẽ được tiếp tục đồng hành cùng mình trong thời gian sắp tới nhé",
   "Shop thành thật xin lỗi vì sự thiếu sót và mang lại trải nghiệm không tốt cho quý khách. Shop sẽ cải thiện chất lượng dịch vụ tốt hơn ạ",
 ];
-const mockShopId = "65f1e8bbc4e39014df775166";
+
 export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
+  const authContext = useContext(AuthContext);
+
   const [content, setContent] = useState<string>("");
   const [review, setReview] = useState<_ReviewType | null>(null);
 
   const handleCreateComment = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
     const input: CommentInputType = {
       review: review?._id ?? "",
-      shop: mockShopId ?? "",
+      shop: authContext.shopInfo._id,
       content,
     };
     const response = await ReviewService.createComment(input);

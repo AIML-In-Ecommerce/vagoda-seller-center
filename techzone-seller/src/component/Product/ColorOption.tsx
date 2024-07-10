@@ -1,6 +1,6 @@
 "use client";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, ColorPicker, Form, Input, Space, Typography } from "antd";
+import { Button, ColorPicker, Form, Input, Space } from "antd";
 import { useEffect } from "react";
 import ColorImage from "./ColorImage";
 
@@ -135,13 +135,13 @@ export default function ColorOption(props: ColorOptionProps) {
             </>
           )}
         </Form.List>
-        <Form.Item noStyle shouldUpdate>
+        {/* <Form.Item noStyle shouldUpdate>
           {() => (
             <Typography>
               <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
             </Typography>
           )}
-        </Form.Item>
+        </Form.Item> */}
       </Form>
     </div>
   );

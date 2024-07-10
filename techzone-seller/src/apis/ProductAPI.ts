@@ -91,7 +91,6 @@ export const ProductAPI = {
   createBatchProduct: async (fileData: FormData) => {
     const URL = `${BACKEND_SERVER_PREFIX}/import`;
 
-    fileData.append("shopId", "65f1e8bbc4e39014df775166");
     try {
       const response = await axios.post(URL, fileData, {
         headers: {

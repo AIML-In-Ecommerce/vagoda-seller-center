@@ -10,6 +10,20 @@ interface AIDescriptionModalProp {
   shortDescription: string;
 }
 
+const mockdata = `<p class="QN2lPu"><strong>Áo thun thương hiệu YODY mùa hè mát mẻ</strong></p>
+<p class="QN2lPu">⏩ Thông tin sản phẩm:</p>
+<p class="QN2lPu">👉 Chất liệu: Áo thun co giãn tốt, thấm hút mồ hôi hiệu quả</p>
+<p class="QN2lPu">👉 Kiểu dáng: Thiết kế thời thượng, phù hợp với mọi lứa tuổi</p>
+<p class="QN2lPu">👉 Màu sắc: Đa dạng, phong phú đáp ứng nhu cầu của mọi người</p>
+<p class="QN2lPu">👉 Bảo hành: 1 tháng</p>
+<p class="QN2lPu">&nbsp;</p>
+<p class="QN2lPu"><strong>THÔNG TIN THƯƠNG HIỆU</strong></p>
+<p class="QN2lPu"><strong>YODY </strong>được biết đến như một thương hiệu uy tín trong lĩnh vực thời trang. Các sản phẩm của YODY luôn đảm bảo chất lượng, kiểu dáng đa dạng và giá cả phải chăng. Chúng tôi luôn cố gắng mang đến cho quý khách hàng những sản phẩm tốt nhất với giá cả cạnh tranh nhất.</p>
+<p class="QN2lPu">📣 CHÍNH SÁCH MUA HÀNG</p>
+<p class="QN2lPu">👉 Cam kết chất lượng và mẫu mã sản phẩm giống với hình ảnh.</p>
+<p class="QN2lPu">👉 Hoàn tiền nếu sản phẩm không giống với mô tả.</p>
+<p class="QN2lPu">👉 ĐỔI TRẢ TRONG THỜI GIAN BẢO HÀNH NẾU SẢN PHẨM GẶP LỖI</p>
+<p class="QN2lPu">&nbsp;</p>`;
 export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   const [description, setDescription] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -35,7 +49,7 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       if (rawResponse.status == 200) {
         setDescription(rawResponse.data.data);
@@ -47,7 +61,9 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   };
 
   useEffect(() => {
-    getDescriptionFromAI(props.shortDescription);
+    //getDescriptionFromAI(props.shortDescription);
+    setDescription(mockdata);
+    setIsLoading(false);
   }, [props.isOpen]);
 
   const displayLoading = (
@@ -65,7 +81,6 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   );
 
   const handleApplyClick = () => {
-    console.log("handleApplyClick", description);
     props.setDescription(description);
     props.openModal(false);
   };

@@ -1,6 +1,7 @@
 import { GET_GetShop } from "@/apis/shop/ShopAPI";
+import { AuthContext } from "@/context/AuthContext";
 import { Button, Checkbox, Modal } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 interface ImageCollectionModalProp {
   isOpen: boolean;
@@ -9,6 +10,8 @@ interface ImageCollectionModalProp {
 }
 
 export default function ImageCollectionModal(props: ImageCollectionModalProp) {
+  const authContext = useContext(AuthContext);
+
   const [imageCollection, setImageCollection] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
@@ -27,7 +30,10 @@ export default function ImageCollectionModal(props: ImageCollectionModalProp) {
 
   useEffect(() => {
     const loadImageCollection = async () => {
-      const { data } = await GET_GetShop("65f1e8bbc4e39014df775166");
+      if (!authContext.shopInfo) {
+        return;
+      }
+      const { data } = await GET_GetShop(authContext.shopInfo._id);
       if (data) {
         setImageCollection(data.imageCollection);
       }
