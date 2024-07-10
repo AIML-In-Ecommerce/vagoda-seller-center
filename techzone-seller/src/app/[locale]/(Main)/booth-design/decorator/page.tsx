@@ -158,7 +158,7 @@ export default function BoothDecoratorPage() {
   // variables n methods
 
   const authContext = useContext(AuthContext);
-  const shopId = authContext.shopInfo?._id ?? "";
+  const shopId = authContext.shopInfo?._id;
 
   const tabItems = [
     "Cửa Hàng",
@@ -272,7 +272,7 @@ export default function BoothDecoratorPage() {
   // call api
   useEffect(() => {
     handleGetShop();
-  }, []);
+  }, [shopId]);
 
   useEffect(() => {
     if (!shop) return;
@@ -298,6 +298,7 @@ export default function BoothDecoratorPage() {
   }, [shop]);
 
   const handleGetShop = async () => {
+    if (!shopId) return;
     const response = await GET_GetShop(shopId);
     if (response.status == 200) {
       // console.log(response.message);
@@ -334,7 +335,7 @@ export default function BoothDecoratorPage() {
   return (
     <div>
       {contextHolder}
-      {(widgets && (
+      {(widgets && shopId && (
         <div className="m-5 grid grid-cols-3 h-fit min-h-screen">
           <div className="col-span-2">
             <div className="bg-white p-2 mb-1">

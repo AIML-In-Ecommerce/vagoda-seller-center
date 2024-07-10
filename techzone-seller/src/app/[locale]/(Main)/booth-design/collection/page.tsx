@@ -39,7 +39,7 @@ type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function CollectionPage() {
   const authContext = useContext(AuthContext);
-  const shopId = authContext.shopInfo?._id ?? "";
+  const shopId = authContext.shopInfo?._id;
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>();
@@ -237,9 +237,10 @@ export default function CollectionPage() {
   // call api
   useEffect(() => {
     handleGetCollectionList();
-  }, []);
+  }, [shopId]);
 
   const handleGetCollectionList = async () => {
+    if (!shopId) return;
     const response = await GET_GetCollectionListByShop(shopId);
 
     if (response.status === 200) {
@@ -251,7 +252,8 @@ export default function CollectionPage() {
 
   return (
     <Layout>
-      {(collections && (
+      {contextHolder}
+      {(collections && shopId && (
         <div className="m-5 min-h-screen">
           <Breadcrumb
             className="text-xs"

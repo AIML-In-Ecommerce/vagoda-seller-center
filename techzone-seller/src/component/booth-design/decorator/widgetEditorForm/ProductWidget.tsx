@@ -26,7 +26,7 @@ interface WidgetProps {
 
 export default function ProductWidget(props: WidgetProps) {
   const authContext = useContext(AuthContext);
-  const shopId = authContext.shopInfo?._id ?? "";
+  const shopId = authContext.shopInfo?._id;
 
   // variables
   const [collections, setCollections] = useState<CollectionType[]>([]);
@@ -105,6 +105,7 @@ export default function ProductWidget(props: WidgetProps) {
   }, [shopId]);
 
   const handleGetCollectionList = async () => {
+    if (!shopId) return;
     const response = await GET_GetCollectionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {

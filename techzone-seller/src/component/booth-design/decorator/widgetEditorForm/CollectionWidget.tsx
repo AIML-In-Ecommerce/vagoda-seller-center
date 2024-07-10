@@ -27,7 +27,7 @@ interface WidgetProps {
 
 export default function CollectionWidget(props: WidgetProps) {
   const authContext = useContext(AuthContext);
-  const shopId = authContext.shopInfo?._id ?? "";
+  const shopId = authContext.shopInfo?._id;
 
   // data
   const [proxyCollectionId, setProxyCollectionId] = useState<Array<string>>([]);
@@ -42,6 +42,7 @@ export default function CollectionWidget(props: WidgetProps) {
   const [isSwitched, setIsSwitched] = useState(props.widget.visibility);
 
   const handleGetCollectionList = async () => {
+    if (!shopId) return;
     const response = await GET_GetCollectionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
@@ -60,7 +61,7 @@ export default function CollectionWidget(props: WidgetProps) {
     handleGetCollectionList();
 
     return temp;
-  }, [props.widget.element]);
+  }, [props.widget.element, shopId]);
 
   const [pattern, setPattern] = useState(element.pattern);
   const [searchText, setSearchText] = useState("");

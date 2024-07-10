@@ -51,13 +51,19 @@ export default function BannersForm(formProps: FormProps) {
     </button>
   );
 
+  const dummyRequest = async (options: any) => {
+    setTimeout(() => {
+      options.onSuccess("ok");
+    }, 0);
+  };
+
   return (
     <>
       <Flex gap="small">
         {imageUrl ? (
           <div className="mt-20">
             <Upload
-              name="avatar"
+              customRequest={dummyRequest}
               listType="picture"
               className="background-uploader"
               showUploadList={false}
@@ -69,7 +75,7 @@ export default function BannersForm(formProps: FormProps) {
           </div>
         ) : null}
         <Upload
-          name="avatar"
+          customRequest={dummyRequest}
           listType="picture"
           className="background-uploader"
           showUploadList={false}

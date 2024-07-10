@@ -89,7 +89,7 @@ export default function PromotionWidget(props: WidgetProps) {
   ];
 
   const authContext = useContext(AuthContext);
-  const shopId = authContext.shopInfo?._id ?? "";
+  const shopId = authContext.shopInfo?._id;
 
   // data
   const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
@@ -162,6 +162,7 @@ export default function PromotionWidget(props: WidgetProps) {
 
   // call api
   const handleGetPromotionList = async () => {
+    if (!shopId) return;
     const response = await GET_GetPromotionListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
@@ -180,7 +181,7 @@ export default function PromotionWidget(props: WidgetProps) {
     handleGetPromotionList();
 
     return temp;
-  }, [props.widget.element]);
+  }, [props.widget.element, shopId]);
 
   const [title, setTitle] = useState(element.title);
 

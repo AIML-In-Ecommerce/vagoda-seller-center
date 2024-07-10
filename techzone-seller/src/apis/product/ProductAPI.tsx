@@ -165,7 +165,7 @@ export async function POST_GetProductListByShop(shopId: string) {
   ).toString();
 
   try {
-    const response = await axios.post(url, { shop: shopId });
+    const response = await axios.post(url, { shopId: shopId });
     const responseData: ProductListResponse = response.data;
 
     const processedData: ProductType[] = [];
