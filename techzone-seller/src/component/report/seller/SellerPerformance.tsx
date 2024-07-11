@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import RatingChart from "../RatingChart";
 import { Breadcrumb, Button, Card, DatePicker, List, Slider, Tooltip } from "antd";
 import { HiOutlineHome } from "react-icons/hi";
@@ -8,8 +8,36 @@ import { TbInfoCircle } from "react-icons/tb";
 import { GoDownload } from "react-icons/go";
 import GaugeChart from "../GaugeChart";
 import RatingStatistics from "../RatingStatistics";
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { AuthContext } from "@/context/AuthContext";
+import { POST_getTotalRecievedOrders, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalProcessOrders, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, ReviewRange } from "@/apis/statistic/StatisticAPI";
+
+dayjs.extend(LocalizedFormat)
 
 const { RangePicker } = DatePicker;
+
+interface RatingItem {
+    stars: number,
+    count: number,
+}
+
+const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
+    return dates.map(item => {
+        if (item === null) {
+            return null;
+        } else {
+            return item.toDate();
+        }
+    });
+}
+
+const dateRangeToString = (selectedDates: [Dayjs | null, Dayjs | null]) => {
+    return `${selectedDates[0]?.format('DD/MM/YYYY')} - ${selectedDates[1]?.format('DD/MM/YYYY')}`
+}
+
 
 const qosComment = [
     {
@@ -70,34 +98,6 @@ const qosComment = [
     //   }
 ]
 
-const orderStatistics = [
-    {
-        title: 'Số đơn xử lý trễ hạn:',
-        value: 0,
-        tooltip: 'Tổng số đơn quá hạn xác nhận và/hoặc quá hạn bàn giao.'
-    },
-    {
-        title: 'Số đơn xử lý đúng hạn:',
-        value: 0,
-        tooltip: 'Tổng số đơn đúng cả hạn xác nhận và hạn bàn giao.'
-    },
-    {
-        title: 'Số đơn bị hủy:',
-        value: 0,
-        tooltip: 'Tổng số đơn bị hủy với lỗi vi phạm từ phía Nhà Bán.'
-    },
-    {
-        title: 'Số đơn chờ kết quả xử lý:',
-        value: 0,
-        tooltip: 'Tổng số đơn đang chờ Xác nhận đóng gói hoặc chờ Bàn giao đối tác vận chuyển và chưa thể kết luận trạng thái xử lý của đơn hàng là đúng hạn hay trễ hạn.'
-    },
-    {
-        title: <div className="font-semibold">Tổng đơn đã nhận:</div>,
-        value: 0,
-        tooltip: 'Tổng số đơn ở mọi trạng thái.'
-    },
-];
-
 const handleRatingColor = (rating: number, intensity: number, prefix: string) => {
     let actualRating = Math.floor(rating);
     let color: string;
@@ -121,48 +121,171 @@ const handleRatingColor = (rating: number, intensity: number, prefix: string) =>
     return `${prefix}-${color}-${intensity}`;
 }
 
+
+
 export default function SellerPerformancePage() {
+    const context = useContext(AuthContext);
     const [opScore, setOpScore] = useState<number>(3.4);
-    const operationalEfficiency = {
-        'CancellationRate': [23, 1641],
-        'OntimeProcessingRate': [1632, 32],
-        'ReturnRate': [12, 1630],
-        'ChatResponseRate': [],
-        'AverageResponseTime': [],
+    const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(2, 'week'), dayjs()]);
+    const [totalReceivedOrders, setTotalReceivedOrders] = useState<number>(0);
+    const [totalOnTimeOrders, setTotalOnTimeOrders] = useState<number>(0);
+    const [totalLateTimeOrders, setTotalLateTimeOrders] = useState<number>(0);
+    const [totalCancelledOrders, setTotalCancelledOrders] = useState<number>(0);
+    const [totalProcessTimeOrders, setTotalProcessTimeOrders] = useState<number>(0);
+    const [ratingItems, setRatingItems] = useState<RatingItem[]>([] as RatingItem[]);
+    // const [totalChatResponses, setTotalChatResponses] = useState<number>(0);
+    const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
+        if (dates) {
+            // console.log('From: ', dates[0], ', to: ', dates[1]);
+            // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+            let [_start, _end] = [new Date(dates[0]!.format('YYYY-MM-DD')), new Date(dates[1]!.format('YYYY-MM-DD'))];
+            _start.setHours(0, 0, 0, 0);
+            _end.setHours(23, 59, 59, 59);
+            setSelectedDates([dayjs(_start), dayjs(_end)]);
+        } else {
+            console.log('Clear');
+        }
+    };
+
+    const operationalEfficiency = useMemo(() => {
+
+        const stats = {
+            'CancellationRate': [totalCancelledOrders, totalReceivedOrders - totalCancelledOrders],
+            'OntimeProcessingRate': [totalOnTimeOrders, totalReceivedOrders - totalOnTimeOrders],
+            // 'ReturnRate': [12, 1630],
+            // 'ChatResponseRate': [],
+            'AverageResponseTime': [],
+        }
+        return stats;
+    }, []);
+
+    const orderStatistics = useMemo(() => {
+        const statistics = [
+            {
+                title: 'Số đơn xử lý trễ hạn:',
+                value: totalLateTimeOrders,
+                tooltip: 'Tổng số đơn quá hạn xác nhận và/hoặc quá hạn bàn giao.'
+            },
+            {
+                title: 'Số đơn xử lý đúng hạn:',
+                value: totalOnTimeOrders,
+                tooltip: 'Tổng số đơn đúng cả hạn xác nhận và hạn bàn giao.'
+            },
+            {
+                title: 'Số đơn bị hủy:',
+                value: totalCancelledOrders,
+                tooltip: 'Tổng số đơn bị hủy với lỗi vi phạm từ phía Nhà Bán.'
+            },
+            {
+                title: 'Số đơn chờ kết quả xử lý:',
+                value: totalProcessTimeOrders,
+                tooltip: 'Tổng số đơn đang chờ Xác nhận đóng gói hoặc chờ Bàn giao đối tác vận chuyển và chưa thể kết luận trạng thái xử lý của đơn hàng là đúng hạn hay trễ hạn.'
+            },
+            {
+                title: <div className="font-semibold">Tổng đơn đã nhận:</div>,
+                value: totalReceivedOrders,
+                tooltip: 'Tổng số đơn ở mọi trạng thái.'
+            },
+        ];
+        return statistics;
+    }, [selectedDates]);
+
+    const fetchOrderStatistics = async () => {
+        const [startDate, endDate] = DayjsToDate(selectedDates);
+        await POST_getTotalRecievedOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalReceivedOrders(response.data.totalOrders))
+
+        await POST_getTotalLateTimeOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalLateTimeOrders(response.data.totalOrders))
+
+        await POST_getTotalOnTimeOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalOnTimeOrders(response.data.totalOrders))
+
+        await POST_getTotalProcessOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalProcessTimeOrders(response.data.totalOrders))
+
+        await POST_getOrderStatistics(context.shopInfo?._id as string,
+            OrderStatusType.CANCELLED,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalCancelledOrders(response.data.totalOrders))
     }
+
+    const fetchReviewStatistics = async () => {
+        const [startDate, endDate] = DayjsToDate(selectedDates);
+        const responseAllReviews = await POST_getReviewStatistics(
+            context.shopInfo?._id as string,
+            [], undefined, startDate || new Date(), endDate || new Date()
+        )
+
+        if (responseAllReviews) {
+            let ratings: RatingItem[] = [] as RatingItem[];
+            let starRate = 1;
+            const rangeReviews = responseAllReviews.data as ReviewRange[]
+            // calculate totalScore and totalRatings
+            for (let range of rangeReviews) {
+                ratings.push({
+                    stars: starRate,
+                    count: range.totalReviews
+                } as RatingItem)
+                starRate += 1;
+            }
+            setRatingItems(ratings);
+        }
+    }
+
+    useEffect(() => {
+        if (context.shopInfo) {
+            fetchOrderStatistics();
+            fetchReviewStatistics();
+        }
+    }, [context.shopInfo, selectedDates])
+
     return (
         <React.Fragment>
             <div className="flex flex-col container">
-                <div className="bg-white pr-4 px-4 mb-5 gap-5">
-                    <div className="mt-5">
-                        <Breadcrumb
-                            className="text-xs"
-                            items={[
-                                {
-                                    href: "/",
-                                    title: (
-                                        <div className="flex items-center">
-                                            <HiOutlineHome size={15} />
-                                        </div>
-                                    ),
-                                },
-                                {
-                                    href: "/report/business-performance",
-                                    title: "Trung tâm phát triển",
-                                },
-                                {
-                                    title: "Hiệu quả vận hành",
-                                },
-                            ]}
-                        />
-                    </div>
+                <div className="bg-white pr-4 px-4 mb-5">
+                    <Breadcrumb
+                        className="text-xs"
+                        items={[
+                            {
+                                href: "/",
+                                title: (
+                                    <div className="flex items-center">
+                                        <HiOutlineHome size={15} />
+                                    </div>
+                                ),
+                            },
+                            {
+                                href: "/report/business-performance",
+                                title: "Trung tâm phát triển",
+                            },
+                            {
+                                title: "Hiệu quả vận hành",
+                            },
+                        ]}
+                    />
                     <div className="font-semibold text-lg uppercase">Hiệu quả vận hành</div>
                 </div>
-                <div className="mt-10 bg-white mx-5">
+                <div className="mt-10 bg-white">
                     <Card title={
                         <div className="font-semibold">Điểm chất lượng vận hành</div>
                     } extra={
-                        <div><RangePicker picker="date" /></div>
+                        <div>
+                            <RangePicker picker="date"
+                                defaultValue={[dayjs().subtract(14, 'day'), dayjs()]}
+                                value={selectedDates}
+                                onChange={onRangeChange}
+                                maxDate={dayjs(new Date())}
+                                format="DD/MM/YYYY" /></div>
                     }>
                         <div className="flex flex-col lg:grid lg:grid-cols-8 gap-10">
                             <div className="flex flex-col lg:col-start-1 lg:col-span-4">
@@ -209,7 +332,7 @@ export default function SellerPerformancePage() {
                         </div>
                     </Card>
                 </div>
-                <div className="mt-10 bg-white mx-5">
+                <div className="mt-10 bg-white">
                     <Card title={<div>Chỉ số vận hành</div>}>
                         <div className="lg:grid lg:grid-cols-2 flex flex-col gap-5">
                             <div className="lg:col-start-1 lg:col-span-1 flex flex-col border border-gray-200 p-5">
@@ -277,9 +400,9 @@ export default function SellerPerformancePage() {
                         </div>
                     </Card>
                 </div>
-                <div className="mt-10 bg-white mx-5">
+                <div className="mt-10 bg-white">
                     <div className="lg:grid lg:grid-cols-2 flex flex-col gap-5">
-                        <div className="lg:col-start-1 lg:col-span-1 flex flex-col border border-gray-200 p-5">
+                        {/* <div className="lg:col-start-1 lg:col-span-1 flex flex-col border border-gray-200 p-5">
                             <div className="flex flex-row justify-between items-center">
                                 <div className="flex flex-row gap-1 items-center">
                                     <div className="font-semibold">Tỉ lệ đổi trả</div>
@@ -296,7 +419,7 @@ export default function SellerPerformancePage() {
                             </div>
                             <div className="my-5">
                                 {/* On-time application processing rate gauge */}
-                                <GaugeChart label={"Đơn hàng"}
+                                {/* <GaugeChart label={"Đơn hàng"}
                                     labels={["Sản phẩm đổi trả", "Sản phẩm không đổi trả"]}
                                     datasets={operationalEfficiency['ReturnRate']}
                                     isBelow={true} thresholdValue={2} />
@@ -309,8 +432,9 @@ export default function SellerPerformancePage() {
                                 <div>Số sản phẩm đã bán</div>
                                 <div>{operationalEfficiency['ReturnRate'].reduce((acc, curr) => acc + curr, 0)}</div>
                             </div>
-                        </div>
-                        <div className="lg:col-start-2 lg:col-span-1 flex flex-col border border-gray-200 p-5">
+                        </div> */}
+                        {/* <div className="lg:col-start-2 lg:col-span-1 flex flex-col border border-gray-200 p-5"> */}
+                        <div className="lg:col-span-2 flex flex-col border border-gray-200 p-5">
                             <div className="flex flex-row justify-between items-center">
                                 <div className="flex flex-row gap-1 items-center">
                                     <div className="font-semibold">Đánh giá sản phẩm</div>
@@ -327,12 +451,13 @@ export default function SellerPerformancePage() {
                                 </Button>
                             </div>
                             <div className="mt-10">
-                                <RatingStatistics />
+                                <RatingStatistics ratings={ratingItems}/>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="mt-10 bg-white mx-5">
+                {/* {
+                    <div className="mt-10 bg-white">
                     <Card title=
                         {<div className="flex flex-col mt-5">
                             <div>Chỉ số tương tác với khách hàng</div>
@@ -385,6 +510,7 @@ export default function SellerPerformancePage() {
                         </div>
                     </Card>
                 </div>
+} */}
             </div >
 
         </React.Fragment >

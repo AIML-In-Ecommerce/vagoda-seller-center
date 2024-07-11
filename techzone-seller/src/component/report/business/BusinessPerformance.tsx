@@ -1,6 +1,6 @@
 "use client";
 import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Space, Tooltip } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi";
 import CustomCarousel from "../../Carousel";
 import { TbInfoCircle } from "react-icons/tb";
@@ -11,7 +11,8 @@ import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import BPChart from "./BPChart";
 import HorizontalBarChart from "./HorizontalBarChart";
-import { POST_getTopProductsInSales } from "@/apis/statistic/StatisticAPI";
+import { BusinessPerformanceStats, POST_getBEStats, POST_getTopProductsInSales } from "@/apis/statistic/StatisticAPI";
+import { AuthContext } from "@/context/AuthContext";
 
 dayjs.extend(LocalizedFormat)
 
@@ -20,62 +21,12 @@ const { RangePicker } = DatePicker
 interface BPCategory {
     id: string;
     title: string,
-    value: string | number;
-    percentChange?: string | number;
+    value: number;
+    isPercentageValue?: boolean;
+    percentChange?: number;
     tooltip: string;
     color: string;
 }
-
-const categories: BPCategory[] = [
-    {
-        title: "Doanh số",
-        value: "--",
-        percentChange: "Không có dữ liệu",
-        tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
-        color: '#0ea5e9',
-        id: "DS"
-    },
-    {
-        title: "Đơn hàng",
-        value: "--",
-        percentChange: "Không có dữ liệu",
-        tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
-        color: '#f97316',
-        id: "DH"
-    },
-    {
-        title: "Doanh thu thuần",
-        value: "--",
-        percentChange: "Không có dữ liệu",
-        tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Tiki).",
-        color: '#10b981',
-        id: "DTT"
-    },
-    {
-        title: "Tỉ lệ chuyển đổi",
-        value: "--",
-        percentChange: "Không có dữ liệu",
-        tooltip: "Tổng số khách truy cập và có đơn đã xác nhận chia tổng số khách truy cập trong khoảng thời gian đã chọn. ",
-        color: '#ec4899',
-        id: "TLCD"
-    },
-    {
-        title: "Giá trị đơn hàng trung bình",
-        value: "--",
-        percentChange: "Không có dữ liệu",
-        tooltip: "Doanh số trung bình mỗi đơn hàng trong khoảng thời gian đã chọn.",
-        color: '#3b82f6',
-        id: "GTDHTB"
-    },
-    {
-        title: "Đơn hàng hủy",
-        value: "--",
-        percentChange: "Không có dữ liệu",
-        tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
-        color: '#78716c',
-        id: "DHH"
-    },
-]
 
 const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
     return dates.map(item => {
@@ -97,13 +48,25 @@ const dateRangeToString = (selectedDates: [Dayjs | null, Dayjs | null]) => {
     return `${selectedDates[0]?.format('DD/MM/YYYY')} - ${selectedDates[1]?.format('DD/MM/YYYY')}`
 }
 
+const roundTo2DecimalPlaces = (value: number) => {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+const calcPercentChanges = (value1: number, value2: number, isPercentageValue?: boolean) => {
+    return !isPercentageValue ? roundTo2DecimalPlaces((value1 ?? 0 - value2 ?? 0) / value2 ?? 0 * 100) : roundTo2DecimalPlaces(value1 ?? 0 - value2 ?? 0);
+}
+
 export default function BusinessPerformancePage() {
+    const context = useContext(AuthContext);
     const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
     const [selectedCategories, setSelectedCategories] = useState<BPCategory[]>([]);
     const [productSales, setProductSales] = useState([])
+    const [BEStats, setBEStats] = useState<BusinessPerformanceStats>()
+    const [compareBEStats, setCompareBEStats] = useState<BusinessPerformanceStats>()
+
 
     const handlePreviousPeriod = (currentPeriod: [Dayjs, Dayjs], periodUnit: string) => {
         let previous: [Dayjs, Dayjs] = [...currentPeriod];
@@ -141,7 +104,6 @@ export default function BusinessPerformancePage() {
         }
         setSelectedDates(period);
         handlePreviousPeriod(period, periodUnit);
-
     }
 
     const onPeriodChange = (e: RadioChangeEvent) => {
@@ -149,17 +111,106 @@ export default function BusinessPerformancePage() {
         switchPeriod(e.target.value);
     };
 
+    const categories = useMemo<BPCategory[]>(() => {
+        const totalRevenuePecentChanges = calcPercentChanges(BEStats?.totalRevenue!, compareBEStats?.totalRevenue!);
+        const totalOrdersPecentChanges = calcPercentChanges(BEStats?.totalOrders!, compareBEStats?.totalOrders!);
+        const totalProfitPecentChanges = calcPercentChanges(BEStats?.totalProfit!, compareBEStats?.totalProfit!);
+        const conversionRatePecentChanges = calcPercentChanges(BEStats?.conversionRate!, compareBEStats?.conversionRate!, true);
+        const avgRevenuePecentChanges = calcPercentChanges(BEStats?.avgRevenue!, compareBEStats?.avgRevenue!);
+
+        const result: BPCategory[] = [
+            {
+                title: "Doanh số",
+                value: BEStats?.totalRevenue || 0,
+                percentChange: totalRevenuePecentChanges,
+                tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
+                color: '#0ea5e9',
+                id: "DS"
+            },
+            {
+                title: "Đơn hàng",
+                value: BEStats?.totalOrders || 0,
+                percentChange: totalOrdersPecentChanges,
+                tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
+                color: '#f97316',
+                id: "DH"
+            },
+            {
+                title: "Doanh thu thuần",
+                value: BEStats?.totalProfit || 0,
+                percentChange: totalProfitPecentChanges,
+                tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Tiki).",
+                color: '#10b981',
+                id: "DTT"
+            },
+            {
+                title: "Tỉ lệ chuyển đổi",
+                value: BEStats?.conversionRate || 0,
+                isPercentageValue: true,
+                percentChange: conversionRatePecentChanges,
+                tooltip: "Tổng số khách truy cập và có đơn đã xác nhận chia tổng số khách truy cập trong khoảng thời gian đã chọn. ",
+                color: '#ec4899',
+                id: "TLCD"
+            },
+            {
+                title: "Giá trị đơn hàng trung bình",
+                value: BEStats?.avgRevenue || 0,
+                percentChange: avgRevenuePecentChanges,
+                tooltip: "Doanh số trung bình mỗi đơn hàng trong khoảng thời gian đã chọn.",
+                color: '#3b82f6',
+                id: "GTDHTB"
+            },
+            {
+                title: "Đơn hàng hủy",
+                value: 0,
+                percentChange: 0,
+                tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
+                color: '#78716c',
+                id: "DHH"
+            },
+            {
+                title: "Khách hàng quay lại",
+                value: 0,
+                percentChange: 0,
+                tooltip: "Tổng số lượng khách quay lại trong khoảng thời gian đã chọn",
+                color: '#78716c',
+                id: "KHQL"
+            },
+        ]
+        return result;
+    }, [BEStats, compareBEStats])
+
     useEffect(() => {
-        const fetchProductsSales = async () => {
+        if (!context.shopInfo) return;
+        const fetchTopProductsSales = async () => {
             const [startTime, endTime] = DayjsToDate(selectedDates);
-            const response = await POST_getTopProductsInSales(
-                process.env.NEXT_PUBLIC_SHOP_ID as string,
-                startTime!, endTime!)
-            setProductSales(response.data)
+            await POST_getTopProductsInSales(
+                context.shopInfo?._id as string,
+                startTime!, endTime!).then((response) => setProductSales(response.data))
         }
-        fetchProductsSales();
+
+        const fetchBEStats = async () => {
+            const [BECurrentStartTime, BECurrentEndTime] = DayjsToDate(selectedDates);
+            await POST_getBEStats(
+                context.shopInfo?._id as string,
+                BECurrentStartTime || new Date(),
+                BECurrentEndTime || new Date()
+            ).then((response) => setBEStats(response.data as BusinessPerformanceStats))
+
+            const [BECompareStartTime, BECompareEndTime] = DayjsToDate(compareDates);
+            await POST_getBEStats(
+                context.shopInfo?._id as string,
+                BECompareStartTime || new Date(),
+                BECompareEndTime || new Date()
+            ).then((response) => setCompareBEStats(response.data as BusinessPerformanceStats))
+        }
+
+
+        fetchTopProductsSales();
+        fetchBEStats();
         setLastUpdateTime(dayjs());
-    }, [selectedDates])
+
+    }, [context.shopInfo, selectedDates])
 
     return (
         <React.Fragment>
@@ -215,6 +266,7 @@ export default function BusinessPerformancePage() {
                                         return (
                                             <div key={key}>
                                                 <CheckableCard item={item} checkboxVisibility={true}
+                                                    isPercentageValue={item.isPercentageValue}
                                                     selectedCategories={selectedCategories}
                                                     setSelectedCategories={setSelectedCategories} />
                                             </div>

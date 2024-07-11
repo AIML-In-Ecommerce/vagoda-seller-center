@@ -5,6 +5,7 @@ import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";
 
 interface CheckableCardProps {
     item: any;
+    isPercentageValue?: boolean;
     checkboxVisibility?: boolean;
     borderVisibility?: boolean;
     selectedCategories?: any[];
@@ -26,13 +27,14 @@ const DecreasingValueStyle: React.CSSProperties = {
 
 export default function CheckableCard(props: CheckableCardProps) {
     const [isVisible, setIsVisible] = useState<boolean>(props.borderVisibility || false);
-    const value = Math.round(Math.random() * 100 * Math.random() * 100);
-    const mockDiffPercents = Math.round(Math.random() * 100) / 100 + Math.random();
-    const isIncreasing = Math.random() < 0.5;
+    // const value = Math.round(Math.random() * 100 * Math.random() * 100);
+    // const mockDiffPercents = Math.round(Math.random() * 100) / 100 + Math.random();
+    const isIncreasing = props.item?.percentChange > 0 ? true : false;
+    const absPercentChange = isIncreasing ? props.item?.percentChange : (-1) * props.item?.percentChange;
 
     const handleSelectedCard = (category: any) => {
         const isSelected = props.selectedCategories?.includes(category);
-        console.log('SelectedCategories: ',props.selectedCategories);
+        console.log('SelectedCategories: ', props.selectedCategories);
 
         if (isSelected) {
             props.setSelectedCategories!(props.selectedCategories!.filter(item => item.id !== category.id))
@@ -44,7 +46,7 @@ export default function CheckableCard(props: CheckableCardProps) {
             else return;
         }
         setIsVisible(!isVisible);
-        
+
     }
 
     return (
@@ -68,16 +70,32 @@ export default function CheckableCard(props: CheckableCardProps) {
                                 </ConfigProvider>
                             ) : <div className="truncate">{props.item.title}</div>
                         }
-                        <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={value} />
                         {
-                            isIncreasing ? (
-                                <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={mockDiffPercents} precision={2}
-                                    prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
-                            ) : (
-                                <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={mockDiffPercents} precision={2}
-                                    prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
-                            )
+                            props.isPercentageValue ? <>{<>
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={"%"}/>
+                                {
+                                    isIncreasing ? (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
+                                    ) : (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
+                                    )
+                                }
+                            </>}</> : <>{<>
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} />
+                                {
+                                    isIncreasing ? (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
+                                    ) : (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
+                                    )
+                                }
+                            </>}</>
                         }
+
                         <div className="absolute wrap top-3 right-2 text-lg">
                             <Tooltip title={props.item.tooltip}>
                                 <TbInfoCircle />

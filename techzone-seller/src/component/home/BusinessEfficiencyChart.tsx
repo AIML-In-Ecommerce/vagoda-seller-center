@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
     Chart as ChartJS,
     LinearScale,
@@ -18,6 +17,8 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
+import { AuthContext } from '@/context/AuthContext';
+import { Order, OrderStatusType } from '@/apis/statistic/StatisticAPI';
 
 ChartJS.register(
     LinearScale,
@@ -34,16 +35,9 @@ ChartJS.register(
 interface BEChartProps {
     filterBy: string,
     dateRange: (Date | null)[],
+    orders: Order[],
     setTotalOrderQuantity: (total: number) => void,
     setTotalRevenue: (total: number) => void,
-}
-
-interface Product {
-    _id: string;
-    name: string;
-    price: number;
-    purchaseDate: Date;
-    quantity: number;
 }
 
 // Function to generate labels based on the filter type
@@ -85,171 +79,73 @@ const generateChartLabels = (filterBy: string, startDate: Date, endDate: Date): 
     return labels;
 };
 
-// Function to generate a random date within a specified range
-const randomDate = (start: Date, end: Date): Date => {
-    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-};
+//Legacy
+{
+    // // Function to generate a random date within a specified range
+    // const randomDate = (start: Date, end: Date): Date => {
+    //     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+    // };
 
-const generateUniqueId = (): string => {
-    // Generate a random alphanumeric string
-    const alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let id = '';
-    for (let i = 0; i < 24; i++) {
-        id += alphanumeric.charAt(Math.floor(Math.random() * alphanumeric.length));
-    }
-    return id;
-};
+    // const generateUniqueId = (): string => {
+    //     // Generate a random alphanumeric string
+    //     const alphanumeric = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    //     let id = '';
+    //     for (let i = 0; i < 24; i++) {
+    //         id += alphanumeric.charAt(Math.floor(Math.random() * alphanumeric.length));
+    //     }
+    //     return id;
+    // };
 
-// Function to generate a random product
-const generateRandomProduct = (): Product => {
-    const productName = `Product ${Math.floor(Math.random() * 1000)}`;
-    const price = Math.round(Math.random() * 30000000) + 100000;
+    // // Function to generate a random product
+    // const generateRandomProduct = (): Product => {
+    //     const productName = `Product ${Math.floor(Math.random() * 1000)}`;
+    //     const price = Math.round(Math.random() * 30000000) + 100000;
 
-    const quantity = Math.round(Math.random() * 15) + 10;
-    const startDate = new Date('2020-01-01');
-    const endDate = new Date(); // Current date
-    endDate.setUTCHours(0, 0, 0, 0);
-    const purchaseDate = randomDate(startDate, endDate);
-    const _id = generateUniqueId();
+    //     const quantity = Math.round(Math.random() * 15) + 10;
+    //     const startDate = new Date('2020-01-01');
+    //     const endDate = new Date(); // Current date
+    //     endDate.setUTCHours(0, 0, 0, 0);
+    //     const purchaseDate = randomDate(startDate, endDate);
+    //     const _id = generateUniqueId();
 
-    return {
-        _id,
-        name: productName,
-        price,
-        purchaseDate,
-        quantity
-    };
-};
+    //     return {
+    //         _id,
+    //         name: productName,
+    //         price,
+    //         purchaseDate,
+    //         quantity
+    //     };
+    // };
 
-// Function to generate an array of random products
-const generateProductData = async (numProducts: number) => {
-    const products: Product[] = [];
+    // Function to generate an array of random products
+    // const generateProductData = async (numProducts: number) => {
+    //     const products: Product[] = [];
 
-    // const products: Product[] = [
-    //     {
-    //         _id: '1',
-    //         name: 'Laptop',
-    //         price: 999*24950,
-    //         purchaseDate: new Date('2023-03-15'),
-    //         quantity: 10
-    //     },
-    //     {
-    //         _id: '2',
-    //         name: 'Điện thoại thông minh',
-    //         price: 699*24950,
-    //         purchaseDate: new Date('2023-04-20'),
-    //         quantity: 20
-    //     },
-    //     {
-    //         _id: '3',
-    //         name: 'Máy tính bảng',
-    //         price: 399*24950,
-    //         purchaseDate: new Date('2023-05-10'),
-    //         quantity: 15
-    //     },
-    //     {
-    //         _id: '4',
-    //         name: 'Tai nghe',
-    //         price: 149*24950,
-    //         purchaseDate: new Date('2023-06-05'),
-    //         quantity: 30
-    //     },
-    //     {
-    //         _id: '5',
-    //         name: 'Đồng hồ thông minh',
-    //         price: 249*24950,
-    //         purchaseDate: new Date('2023-07-12'),
-    //         quantity: 25
-    //     },
-    //     {
-    //         _id: '6',
-    //         name: 'Loa Bluetooth',
-    //         price: 129*24950,
-    //         purchaseDate: new Date('2023-08-18'),
-    //         quantity: 40
-    //     },
-    //     {
-    //         _id: '7',
-    //         name: 'Gaming Console',
-    //         price: 499*24950,
-    //         purchaseDate: new Date('2023-09-25'),
-    //         quantity: 12
-    //     },
-    //     {
-    //         _id: '8',
-    //         name: 'Chuột không dây',
-    //         price: 39*24950,
-    //         purchaseDate: new Date('2023-10-30'),
-    //         quantity: 50
-    //     },
-    //     {
-    //         _id: '9',
-    //         name: 'Đĩa cứng',
-    //         price: 89*24950,
-    //         purchaseDate: new Date('2023-11-08'),
-    //         quantity: 18
-    //     },
-    //     {
-    //         _id: '10',
-    //         name: 'Card độ họa',
-    //         price: 699*24950,
-    //         purchaseDate: new Date('2023-12-14'),
-    //         quantity: 8
-    //     },
-    //     {
-    //         _id: '11',
-    //         name: 'TV thông minh',
-    //         price: 799*24950,
-    //         purchaseDate: new Date('2024-01-20'),
-    //         quantity: 15
-    //     },
-    //     {
-    //         _id: '12',
-    //         name: 'VR Headset',
-    //         price: 299*24950,
-    //         purchaseDate: new Date('2024-02-05'),
-    //         quantity: 10
-    //     },
-    //     {
-    //         _id: '13',
-    //         name: 'Bàn phím không dây',
-    //         price: 59*24950,
-    //         purchaseDate: new Date('2024-03-08'),
-    //         quantity: 20
-    //     },
-    //     {
-    //         _id: '14',
-    //         name: 'Drone',
-    //         price: 399*24950,
-    //         purchaseDate: new Date('2024-04-12'),
-    //         quantity: 8
-    //     },
-    // ];
+    //     for (let i = 0; i < numProducts; i++) {
+    //         products.push(generateRandomProduct());
+    //     }
+    //     return products;
+    // };
 
-    for (let i = 0; i < numProducts; i++) {
-        products.push(generateRandomProduct());
-    }
-    return products;
-};
+}
 
 // Function to calculate total quantity of products purchased from a specific date until present
-const getTotalQuantityFromSpecificDate = (products: Product[], specificDate: Date): number => {
-    let totalQuantity = 0;
-
+const getTotalQuantityFromSpecificDate = (orders: Order[], specificDate: Date): number => {
+    if (!orders) return 0;
     //Set dateAfter
     let dateAfter = new Date(specificDate);
     specificDate.setHours(0, 0, 0, 0);
-    dateAfter.setDate(dateAfter.getDate() + 1);
-    dateAfter.setHours(0, 0, 0, 0);
+    dateAfter.setDate(dateAfter.getDate());
+    dateAfter.setHours(23, 59, 59, 59);
 
-    for (const product of products) {
-        if (product.purchaseDate >= specificDate && product.purchaseDate < dateAfter) {
-            totalQuantity += product.quantity;
-        }
-    }
+    const filterSpecificDateOrders = orders.filter((order) => {
+        const orderStatusInfo = order.confirmStatus;
+        const purchasedTime = new Date(orderStatusInfo.time);
+        return (purchasedTime >= specificDate) && (purchasedTime < dateAfter);
+    })
+    let totalQuantity = filterSpecificDateOrders.length;
     return totalQuantity;
 };
-
 
 const getDateAfterStep = (currentDate: Date, step: number, unitStep: string) => {
     let dateAfterStep = new Date(currentDate);
@@ -259,13 +155,13 @@ const getDateAfterStep = (currentDate: Date, step: number, unitStep: string) => 
             dateAfterStep.setMonth(dateAfterStep.getMonth() + Math.ceil(step / 29)) : unitStep === 'quarter' ?
                 dateAfterStep.setMonth(dateAfterStep.getMonth() + Math.ceil(step / 29) * 3) :
                 dateAfterStep.setFullYear(dateAfterStep.getFullYear() + Math.ceil(Math.ceil(step / 29) / 12));
-    dateAfterStep.setHours(23, 59, 59, 59);
+    // dateAfterStep.setHours(23, 59, 59, 59);
 
     return dateAfterStep;
 }
 
 // Function to generate an array of total quantities for each date within a range
-const getTotalQuantitiesInRange = (products: Product[], startDate: Date, endDate: Date, filterBy: string): number[] => {
+const getTotalQuantitiesInRange = (orders: Order[], startDate: Date, endDate: Date, filterBy: string): number[] => {
     const totalQuantities: number[] = [];
     startDate.setHours(0, 0, 0, 0);
     const totalDates = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)); // Calculate total number of days
@@ -284,7 +180,7 @@ const getTotalQuantitiesInRange = (products: Product[], startDate: Date, endDate
         let totalQuantityPerStep = 0;
         //Interval between steps
         while (currentDate < dateAfterStep) {
-            totalQuantityPerStep += getTotalQuantityFromSpecificDate(products, currentDate);
+            totalQuantityPerStep += getTotalQuantityFromSpecificDate(orders, currentDate);
             currentDate.setDate(currentDate.getDate() + 1) // Move to the next date
         }
         totalQuantities.push(totalQuantityPerStep);
@@ -296,24 +192,32 @@ const getTotalQuantitiesInRange = (products: Product[], startDate: Date, endDate
 };
 
 // Function to calculate total price of products purchased from a specific date until present
-const getTotalPriceFromSpecificDate = (products: Product[], specificDate: Date): number => {
-    let totalPrices = 0;
-    specificDate.setHours(0, 0, 0, 0);
+const getTotalPriceFromSpecificDate = (orders: Order[], specificDate: Date): number => {
+    if (!orders) return 0;
+
+    let initialPrice = 0;
     let dateAfter = new Date(specificDate);
-    dateAfter.setDate(dateAfter.getDate() + 1);
-    dateAfter.setHours(0, 0, 0, 0);
-    for (const product of products) {
-        if (product.purchaseDate >= specificDate && product.purchaseDate < dateAfter) {
-            totalPrices += product.price;
-        }
-    }
+    specificDate.setHours(0, 0, 0, 0);
+    dateAfter.setDate(dateAfter.getDate());
+    dateAfter.setHours(23, 59, 59, 59);
+
+    const filterSpecificDateOrders = orders.filter((order) => {
+        const orderStatusInfo = order.confirmStatus;
+        const purchasedTime = new Date(orderStatusInfo.time);
+        return (purchasedTime >= specificDate) && (purchasedTime < dateAfter);
+    })
+
+    const totalPrices = filterSpecificDateOrders.reduce(
+        (accumulator, currentOrder) => accumulator + currentOrder.totalPrice
+    , initialPrice);
+
     return totalPrices;
 };
 
 // Function to generate an array of total prices for each date within a range
-const getTotalPricesInRange = (products: Product[], startDate: Date, endDate: Date, filterBy: string): number[] => {
+const getTotalPricesInRange = (orders: Order[], startDate: Date, endDate: Date, filterBy: string): number[] => {
     const totalPrices: number[] = [];
-
+    startDate.setHours(0, 0, 0, 0);
     const totalDates = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)); // Calculate total number of days
     const maxItems = 12; // Maximum number of labels to display
     let step = Math.ceil(totalDates / maxItems); // Calculate step size (date)
@@ -325,20 +229,23 @@ const getTotalPricesInRange = (products: Product[], startDate: Date, endDate: Da
     let currentDate = new Date(startDate);
     let logicEndDate = getDateAfterStep(endDate, step, filterBy);
     logicEndDate.setHours(0, 0, 0, 0);
-
+    // console.log(`logicEndDate: ${logicEndDate}`);
+    let dateAfterStep = getDateAfterStep(currentDate, step, filterBy);
     while (currentDate <= logicEndDate) {
         let totalPricePerStep = 0;
-        let dateAfterStep = getDateAfterStep(currentDate, step, filterBy);
+        // console.log(`Current date: ${currentDate}`);
+        // console.log(`dateAfterStep: ${dateAfterStep}`);
 
         //Interval between steps
-        while (currentDate <= dateAfterStep) {
-            totalPricePerStep += getTotalPriceFromSpecificDate(products, currentDate);
+        while (currentDate < dateAfterStep) {
+            totalPricePerStep += getTotalPriceFromSpecificDate(orders, currentDate);
             currentDate.setDate(currentDate.getDate() + 1); // Move to the next date
         }
         totalPrices.push(totalPricePerStep);
         currentDate = new Date(dateAfterStep);
+        dateAfterStep = getDateAfterStep(dateAfterStep, step, filterBy); // Get the date after step
     }
-    // console.log("Total Prices:", totalPrices);
+    
     return totalPrices;
 };
 
@@ -348,8 +255,10 @@ function calculateTotals(array: number[]) {
 
 
 export function BEChart(props: BEChartProps) {
+    // const context = useContext(AuthContext);
     // Generate 1000 random products
-    const [products, setProducts] = useState<Product[]>([]);
+    // const [products, setProducts] = useState<Product[]>([]);
+    const [orders, setOrders] = useState<Order[]>(props.orders);
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
 
     const dateFrom = useMemo(() => {
@@ -368,24 +277,17 @@ export function BEChart(props: BEChartProps) {
         return generateChartLabels(filterBy, dateFrom, dateTo);
     }, [props.filterBy, props.dateRange])
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            const productData = await generateProductData(1000);
-            setProducts(productData);
-        }
-        fetchProducts();
-    }, [])
-
     const quantityData = useMemo(() => {
-        const result = getTotalQuantitiesInRange(products, dateFrom, dateTo, filterBy);
+        const result = getTotalQuantitiesInRange(orders, dateFrom, dateTo, filterBy);
         props.setTotalOrderQuantity(calculateTotals(result));
         return result;
-    }, [products, dateFrom, dateTo, filterBy]);
+    }, [orders, dateFrom, dateTo, filterBy]);
+
     const revenueData = useMemo(() => {
-        const result = getTotalPricesInRange(products, dateFrom, dateTo, filterBy);
+        const result = getTotalPricesInRange(orders, dateFrom, dateTo, filterBy);
         props.setTotalRevenue(calculateTotals(result));
         return result;
-    }, [products, dateFrom, dateTo, filterBy]);
+    }, [orders, dateFrom, dateTo, filterBy]);
 
     const data = useMemo(() => {
         const props = {
@@ -414,7 +316,6 @@ export function BEChart(props: BEChartProps) {
         };
         return props;
     }, [labels, quantityData, revenueData]);
-
 
     const options = {
         interaction: {
@@ -472,6 +373,11 @@ export function BEChart(props: BEChartProps) {
         responsive: true,
     };
 
+    useEffect(() => {
+        if (props.orders) {
+            setOrders(props.orders);
+        }
+    }, [props.orders])
 
     return (
         <div id="chart-container" className="w-[100%] h-[100%]">
