@@ -1,10 +1,9 @@
-import "./globals.css";
 import type { Metadata } from "next";
 
-import SocketProvider from "@/socket/SocketProvider";
-import { ReactNode } from "react";
 import AuthContextProvider from "@/context/AuthContext";
 import NotificationContextProvider from "@/context/NotificationContext";
+import { ReactNode } from "react";
+import "./globals.css";
 
 // import UserLayout from "@/component/UserLayout";
 

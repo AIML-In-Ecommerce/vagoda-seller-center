@@ -9,7 +9,8 @@ import FormData from "form-data";
 
 export const ProductService = {
   getProductByFilter: async (
-    input: ProductFilterInput
+    input: ProductFilterInput,
+    shopId: string
   ): Promise<{
     total: number;
     totalPages: number;
@@ -18,7 +19,7 @@ export const ProductService = {
     try {
       const response: any = await ProductAPI.getProductByFilter({
         ...input,
-        shopId: "6675adaadece55d2d6371652",
+        shopId,
       });
 
       if (response.data && Array.isArray(response.data)) {
@@ -80,7 +81,8 @@ export const ProductService = {
     }
   },
   createProduct: async (
-    input: ProductCreatedInput
+    input: ProductCreatedInput,
+    shopId: string
   ): Promise<{
     status: number;
     message: string;
@@ -88,7 +90,7 @@ export const ProductService = {
     try {
       const response: any = await ProductAPI.createProduct({
         ...input,
-        shop: "65f1e8bbc4e39014df775166",
+        shop: shopId,
       });
 
       if (response.data) {
@@ -142,7 +144,6 @@ export const ProductService = {
       const response: any = await ProductAPI.updateProduct(
         {
           ...input,
-          shop: "65f1e8bbc4e39014df775166",
         },
         product_id
       );
@@ -167,10 +168,7 @@ export const ProductService = {
   ): Promise<ImportInfoType[]> => {
     try {
       console.log("@SERVICE_getFileInfoByFilter", input);
-      const response: any = await ProductAPI.getFileInfoByFilter({
-        ...input,
-        shop: "65f1e8bbc4e39014df775166",
-      });
+      const response: any = await ProductAPI.getFileInfoByFilter(input);
 
       if (response && Array.isArray(response)) {
         const formatedData: ImportInfoType[] = response;
