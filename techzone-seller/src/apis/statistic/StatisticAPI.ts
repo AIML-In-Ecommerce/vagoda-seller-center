@@ -10,11 +10,21 @@ interface StatisticResponse {
   message: string;
 }
 
+export interface SalesInterval {
+    count: number; // number of orders
+    interval: Date[],
+    profit: number;
+    revenue: number;
+    statisticsData: Order[]
+}
+
 export interface SalesStatistic {
+  avgProfit: number;
+  avgRevenue: number;
   totalOrders: number;
   totalRevenue: number;
   totalProfit: number;
-  statisticsData: Order[];
+  statisticsData: SalesInterval[];
 }
 
 export interface Order {
@@ -28,7 +38,7 @@ export interface Order {
   totalPrice: number;
   profit: number;
   shippingAddress: ShippingAddress;
-  confirmStatus: OrderStatus;
+  confirmedStatus: OrderStatus;
   __v: number;
 }
 

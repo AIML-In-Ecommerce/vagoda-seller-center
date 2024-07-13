@@ -1,6 +1,6 @@
 "use client";
 import { Affix, Breadcrumb, Divider, FormProps, Modal, RadioChangeEvent, Tooltip } from 'antd'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { HiOutlineHome } from 'react-icons/hi2'
 import runes from 'runes2';
 import {
@@ -25,13 +25,15 @@ import { MdInfoOutline } from 'react-icons/md';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { RiCoupon3Line } from 'react-icons/ri';
-import { DiscountType, PromotionType } from '@/model/PromotionType';
+import { DiscountType, DiscountTypeInfo, PromotionStatus, PromotionType } from '@/model/PromotionType';
 import { FaPlus } from 'react-icons/fa6';
 import PromotionCard from '../booth-design/decorator/mini/PromotionCard';
 import { formatCurrencyFromValue } from '../util/CurrencyDisplay';
 import { useRouter } from 'next/navigation';
 import { TbDiscount, TbShoppingCartDiscount } from 'react-icons/tb';
 import ProductListModal from './ProductListModal';
+import { AuthContext } from '@/context/AuthContext';
+import { POST_CreatePromotion } from '@/apis/promotion/PromotionAPI';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -69,7 +71,7 @@ type DiscountInfoField = {
 const initialDiscount: DiscountInfoField = {
     name: '',
     code: '',
-    date: [dayjs(), undefined],
+    date: [dayjs(), dayjs().add(7,'day')],
     isRecommendStats: true,
     discountType: DiscountType.DIRECT_PRICE,
     discountValue: 0,
@@ -100,6 +102,7 @@ const LIMIT_AMOUNT_RECOMMEND = 80000;
 const LOWER_BOUND_RECOMMEND = 100000;
 
 export default function CreatePromotionPage() {
+    const context = useContext(AuthContext);
     const [form] = Form.useForm<DiscountInfoField>();
     const discountName = Form.useWatch('name', form);
     const discountCode = Form.useWatch('code', form);
@@ -116,38 +119,71 @@ export default function CreatePromotionPage() {
 
     const router = useRouter();
     const [discount, setDiscount] = useState<PromotionType>({
-        _id: "",
         name: "",
         description: "",
-        discountType: DiscountType.DIRECT_PRICE,
-        discountValue: 0,
-        upperBound: 0,
-        lowerBound: 0,
-        quantity: 0,
-        activeDate: date ? date[0]?.format('DD/MM/YYYY HH:mm') : "",
-        expiredDate: date ? date[1]?.format('DD/MM/YYYY HH:mm') : "",
-        createdAt: dayjs().format('DD/MM/YYYY HH:mm'),
-        code: discountCode,
+        discountTypeInfo: {
+            type: DiscountType.DIRECT_PRICE,
+            value: 0,
+            lowerBoundaryForOrder: 0,
+            limitAmountToReduce: 0,
+        } as DiscountTypeInfo,
+        activeDate: new Date(),
+        expiredDate:  new Date(),
+        targetProducts: [] as string[],
+        quantity: 100,
+        status: PromotionStatus.UPCOMMING,
+        code: "",
+        createAt: new Date(),
     } as PromotionType);
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const [applyOption, setApplyOption] = useState<string>("all");
 
     const [isProductListModalOpen, setIsProductListModalOpen] = useState<boolean>(false);
+    const [isCreatePromotionModalOpen, setIsCreatePromotionModalOpen] = useState<boolean>(false);
+
+    const handleOpenCreatePromotionModal = () => {
+        setIsCreatePromotionModalOpen(true);
+    }
+    const handleCancelCreatePromotionModal = () => {
+        setIsCreatePromotionModalOpen(false);
+    }
 
     useEffect(() => {
+        console.log('Promotion changed', discount);
+        let currentDiscountStatus: PromotionStatus;
+        let currentDate = new Date();
+        if (date && date[0] && date[1]) {
+            if (currentDate < date[0]!.toDate()) {
+                currentDiscountStatus = PromotionStatus.UPCOMMING;
+            }
+            else if (date[1]!.toDate() > currentDate ) {
+                currentDiscountStatus = PromotionStatus.IN_PROGRESS;
+            }
+            else {
+                currentDiscountStatus = PromotionStatus.EXPIRED;
+            }
+        }
+        else {
+            currentDiscountStatus = PromotionStatus.UPCOMMING;
+        }
+        
         setDiscount({
-            _id: "",
+            ...discount,
             name: discountName,
             description: "",
-            discountType: discountType,
-            discountValue: discountValue,
-            upperBound: limitAmountToReduce,
-            lowerBound: lowerBoundaryForOrder,
+            discountTypeInfo: {
+                type: discountType,
+                value: discountValue ?? 0,
+                lowerBoundaryForOrder: lowerBoundaryForOrder ?? 0,
+                limitAmountToReduce: limitAmountToReduce ?? 0,
+            } as DiscountTypeInfo,
+            activeDate: date ? date[0]?.toDate() : new Date(),
+            expiredDate:  date ? date[1]?.toDate() : new Date(),
+            targetProducts: [],
             quantity: quantity,
-            activeDate: date ? date[0]?.format('DD/MM/YYYY HH:mm') : "",
-            expiredDate: date ? date[1]?.format('DD/MM/YYYY HH:mm') : "",
-            createdAt: dayjs().format('DD/MM/YYYY HH:mm'),
+            status: currentDiscountStatus,
             code: discountCode,
+            createAt: new Date(),
         } as PromotionType)
     }, [discountName, discountCode, date,
         discountType, discountValue, limitAmountToReduce,
@@ -193,6 +229,24 @@ export default function CreatePromotionPage() {
 
     const onHasLimitAmountToReduce = ({ target: { value } }: RadioChangeEvent) => {
         form.setFieldsValue({ isLimitAmountToReduce: value });
+    }
+
+    const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
+        if (dates) {
+            // console.log('From: ', dates[0], ', to: ', dates[1]);
+            // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+            form.setFieldsValue({date: [dayjs(dates[0]!), dayjs(dates[1]!)]});
+        } else {
+            console.log('Clear');
+        }
+    };
+
+    const handleCreatePromotion = async () => {
+        const response = await POST_CreatePromotion(context.shopInfo?._id as string, discount);
+        if (response.status === 200) {
+            console.log("Success, navigating...", response);
+            router.push('/marketing-center/promotion-tool/coupons');
+        }
     }
 
     return (
@@ -284,7 +338,8 @@ export default function CreatePromotionPage() {
                                 } name="date">
                                     <RangePicker size="large" showTime format="DD-MM-YYYY HH:mm"
                                         placeholder={["Ngày bắt đâu", "Ngày kết thúc"]}
-                                        value={date} />
+                                        value={date}
+                                        onChange={onRangeChange} />
                                 </Form.Item>
                             </div>
                         </Form>
@@ -485,7 +540,7 @@ export default function CreatePromotionPage() {
                                         <div className="font-semibold">Tất cả sản phẩm</div>
                                     </div>
                                 </Radio>
-                                <Radio value="list" className={`border-2 hover:border-blue-500 rounded-sm px-2 py-4 relative ${applyOption === "list" ? "border-blue-500" : "border-slate-300"}`}>
+                                {/* <Radio value="list" className={`border-2 hover:border-blue-500 rounded-sm px-2 py-4 relative ${applyOption === "list" ? "border-blue-500" : "border-slate-300"}`}>
                                     <div className="flex flex-row items-center justify-between">
                                         <div className="flex flex-row items-center gap-3">
                                             <Image src={"https://cdn-icons-png.flaticon.com/256/8574/8574201.png"}
@@ -504,7 +559,7 @@ export default function CreatePromotionPage() {
                                             </div>
                                         </Button>
                                     </div>
-                                </Radio>
+                                </Radio> */}
                             </Radio.Group>
                         </div>
                     </div>
@@ -538,7 +593,7 @@ export default function CreatePromotionPage() {
                             </div>
                             <div className="font-semibold">Hiển thị mẫu trên ứng dụng</div>
                             <div className="w-full p-5 bg-slate-200">
-                                <PromotionCard item={discount!} isSelected={isSelected}
+                                <PromotionCard item={discount} isSelected={isSelected}
                                     applyDiscount={() => { setIsSelected(true) }}
                                     removeDiscount={() => { setIsSelected(false) }} />
                             </div>
@@ -550,7 +605,7 @@ export default function CreatePromotionPage() {
                             Quay lại
                         </Button>
                         <div className="px-2">&nbsp;</div>
-                        <Button type="primary" size="large" onClick={() => form.submit()}>
+                        <Button size="large" onClick={() => handleOpenCreatePromotionModal()}>
                             Tạo mới
                         </Button>
                     </div>
@@ -562,6 +617,21 @@ export default function CreatePromotionPage() {
                 open={isProductListModalOpen}
                 onCancel={() => setIsProductListModalOpen(false)}
             />
+             <Modal
+                width={400}
+                open={isCreatePromotionModalOpen}
+                onCancel={handleCancelCreatePromotionModal}
+                title={<span className="text-xl">Thêm mã giảm giá</span>}
+                footer={() => (
+                    <>
+                        <Button key="cancel" onClick={handleCancelCreatePromotionModal}>Hủy</Button>,
+                        <Button className="bg-blue-500 cursor-pointer hover:bg-blue-800 text-white" key="ok" onClick={handleCreatePromotion}>Xác nhận</Button>
+                    </>
+                )}
+                centered
+            >
+                Vui lòng xác thực đúng thông tin trước khi thêm mã giảm giá. Bạn có muốn thêm mã giảm giá này không? 
+            </Modal>
         </React.Fragment >
     )
 }

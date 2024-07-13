@@ -139,7 +139,7 @@ const getTotalQuantityFromSpecificDate = (orders: Order[], specificDate: Date): 
     dateAfter.setHours(23, 59, 59, 59);
 
     const filterSpecificDateOrders = orders.filter((order) => {
-        const orderStatusInfo = order.confirmStatus;
+        const orderStatusInfo = order.confirmedStatus;
         const purchasedTime = new Date(orderStatusInfo.time);
         return (purchasedTime >= specificDate) && (purchasedTime < dateAfter);
     })
@@ -202,7 +202,7 @@ const getTotalPriceFromSpecificDate = (orders: Order[], specificDate: Date): num
     dateAfter.setHours(23, 59, 59, 59);
 
     const filterSpecificDateOrders = orders.filter((order) => {
-        const orderStatusInfo = order.confirmStatus;
+        const orderStatusInfo = order.confirmedStatus;
         const purchasedTime = new Date(orderStatusInfo.time);
         return (purchasedTime >= specificDate) && (purchasedTime < dateAfter);
     })

@@ -1,10 +1,9 @@
 "use client";
 import { DiscountType, PromotionType } from "@/model/PromotionType"
-import { Button, Popover } from "antd"
+import { Button, Popover, Image } from "antd"
 import { FaRegCircleQuestion } from "react-icons/fa6"
 import TICKET_UNSELECTED from "@/component/booth-design/decorator/mini/(asset)/coupon-bg.svg"
 import TICKET_SELECTED from "@/component/booth-design/decorator/mini/(asset)/coupon-bg-selected.svg"
-import LOGO from "../../../../../public/asset/logo.png"
 import PromotionCardDetail from "./PromotionCardDetail";
 import { useState, useEffect } from "react";
 import { formatCurrencyFromValue } from "@/component/util/CurrencyDisplay";
@@ -15,6 +14,18 @@ interface PromotionCardProps {
     applyDiscount: (item: PromotionType) => void
     removeDiscount: (item: PromotionType) => void
 }
+
+const SHOP_ICON_PLACEHOLDER = "https://cdn-icons-png.flaticon.com/512/6011/6011673.png"
+
+const formatDate = (date: Date) => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+};
 
 export default function PromotionCard(props: PromotionCardProps) {
     const [isSelected, setIsSelected] = useState(props.isSelected);
@@ -43,11 +54,11 @@ export default function PromotionCard(props: PromotionCardProps) {
             <div className="grid grid-cols-3 relative gap-2">
                 <div className="col-span-1 place-self-center">
                     <div className="flex flex-col justify-center items-center w-16 md:w-20 aspect-square">
-                        <img alt="logo" src={LOGO.src}></img>
-                        <div className="font-semibold">FashionStyle</div>
+                        <Image preview={false} width={50} alt="logo" src={props.item.shop?.avatarUrl ?? SHOP_ICON_PLACEHOLDER}></Image>
+                        <div className="font-semibold">{props.item.shop?.name ?? "SHOP"}</div>
                     </div>
                 </div>
-                <div className="absolute right-2 top-2 text-lg z-10">
+                <div className="absolute right-2 top-2 text-lg">
                     <Popover content={
                         <div className="text-black">
                             <PromotionCardDetail item={props.item} />
@@ -66,23 +77,25 @@ export default function PromotionCard(props: PromotionCardProps) {
                 <div className="col-span-2 grid grid-rows-4">
                     <div></div>
                     {
-                        props.item.discountType === DiscountType.PERCENTAGE ?
-                            <div className="z-10 text-lg font-semibold">Giảm {props.item.discountValue}%</div> :
-                            <div className="z-10 text-lg font-semibold">Giảm {formatCurrencyFromValue({value: props.item.discountValue ?? 0})}</div>
+                        props.item.discountTypeInfo.type === DiscountType.PERCENTAGE ?
+                            <div className="z-10 text-lg font-semibold">Giảm {props.item.discountTypeInfo.value}%</div> :
+                            <div className="z-10 text-lg font-semibold">Giảm {formatCurrencyFromValue({value: props.item.discountTypeInfo.value ?? 0})}</div>
                     }
                     <div className="z-10 text-xs">
                         <span>
                             {
-                                props.item.upperBound ? `Tối đa ${formatCurrencyFromValue({value: props.item.upperBound ?? 0})}, ` : ""
+                                props.item.discountTypeInfo.limitAmountToReduce ? 
+                                    `Tối đa ${formatCurrencyFromValue({value: props.item.discountTypeInfo.limitAmountToReduce ?? 0})}, ` : ""
                             }
                         </span>
                         <span>
                             {
-                                props.item.lowerBound ? `Đơn từ ${formatCurrencyFromValue({value: props.item.lowerBound ?? 0})}` : `Đơn từ ${formatCurrencyFromValue({value: 0})}`
+                                props.item.discountTypeInfo.lowerBoundaryForOrder ? 
+                                    `Đơn từ ${formatCurrencyFromValue({value: props.item.discountTypeInfo.lowerBoundaryForOrder ?? 0})}` : `Đơn từ ${formatCurrencyFromValue({value: 0})}`
                             }
                         </span>
                     </div>
-                    <div className="z-10 text-xs lg:text-[8px]">HSD: {props.item.expiredDate ?? '--/--/---- --:--'}</div>
+                    <div className="z-10 text-xs lg:text-[8px]">HSD: {formatDate(new Date(props.item.expiredDate))}</div>
                 </div>
                 <div className="absolute right-1 bottom-2 z-10 text-xs">
                     {

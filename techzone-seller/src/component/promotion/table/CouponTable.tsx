@@ -1,54 +1,44 @@
 "use client";
-import { Input, Select, Table, TableColumnsType, Tooltip } from 'antd';
-import React from 'react'
-import { FaRegEdit } from 'react-icons/fa';
+import { PromotionStatus, PromotionType } from '@/model/PromotionType';
+import { Button, Input, Select, Table, TableColumnsType, Tag, Timeline, Tooltip } from 'antd';
+import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { FaRegClipboard, FaRegEdit } from 'react-icons/fa';
 import { FaEye, FaMagnifyingGlass } from 'react-icons/fa6';
 import { LuView } from 'react-icons/lu';
 import { TbInfoCircle } from 'react-icons/tb';
 import styled from 'styled-components';
+import moment from 'moment';
+import { AuthContext } from '@/context/AuthContext';
 
 interface CouponTableProps {
-
+    loading: boolean;
+    promotionData: PromotionType[];
 }
 
-enum DiscountType {
-    PERCENTAGE,
-    DIRECT_PRICE,
-}
+const formatDate = (date: Date) => {
+    return moment(date).format('DD/MM/YYYY HH:mm:ss');
+};
 
-enum DiscountStatus {
-    UPCOMMING = "UPCOMMING",
-    IN_PROGRESS = "IN_PROGRESS",
-    EXPIRED = "EXPIRED"
-}
-
-type DiscountTypeInfo = {
-    type: DiscountType,
-    value: number,
-    lowerBoundaryForOrder: number,
-    highestAmountToReduce?: number
-}
-
-type Promotion = {
-    name: string,
-    shop: string,
-    discountTypeInfo: DiscountTypeInfo,
-    createdAt: Date,
-    activedDate: Date,
-    expiredDate: Date,
-    targetProducts: string[] // Nếu []/null/undefined thì apply cho toàn đơn hàng của shop đấy
-    description: string,
-    quantity: number,
-    redeemedTotal: number,
-    status: DiscountStatus
-    code: string
-}
-
-const columns: TableColumnsType<Promotion> = [
+const columns: TableColumnsType<PromotionType> = [
     {
         title: 'Mã giảm giá',
         dataIndex: 'name',
         fixed: 'left',
+        render: (text: any, record: PromotionType) => (
+            <div className="flex flex-col gap-1">
+                <div>{record.name}</div>
+                <Tag color="default"
+                    onClick={async () => { await navigator.clipboard.writeText(record.code) }}>
+                    <div className="items-center flex flex-row gap-2">
+                        <div><FaRegClipboard /></div>
+                        <div className="font-semibold">
+                            {record.code}
+                        </div>
+
+                    </div>
+                </Tag>
+            </div>
+        ),
         width: '20%',
     },
     {
@@ -71,6 +61,30 @@ const columns: TableColumnsType<Promotion> = [
         title: <div className="flex flex-row gap-1 items-center">
             <div>Thời gian</div>
         </div>,
+        dataIndex: 'activeDate',
+        render: (value: any, record: PromotionType) => {
+            return (
+                <div className="flex">
+                    <Timeline mode="left" className="w-full"
+                        items={[
+                            {
+                                label: 'Bắt đầu',
+                                children: `${formatDate(record.activeDate)}`
+                            },
+                            {
+                                label: 'Kết thúc',
+                                children: `${formatDate(record.expiredDate)}`
+                            }
+                        ]}>
+                    </Timeline>
+                </div>
+                // <div className="flex flex-col gap-4">
+                //     <div>Bắt đầu: {formatDate(record.activeDate)}</div>
+                //     <div>Kết thúc: {formatDate(record.expiredDate)}</div>
+                // </div>
+            )
+        }
+
     },
     {
         title: <div className="flex flex-row gap-1 items-center">
@@ -80,6 +94,17 @@ const columns: TableColumnsType<Promotion> = [
             </Tooltip>
         </div>,
         dataIndex: 'status',
+        render: (value: any, record: PromotionType) => {
+            return (
+                <div className="flex flex-row gap-4 items-center">
+                    {
+                        record.status === PromotionStatus.UPCOMMING
+                            ? "Sắp diễn ra" : record.status === PromotionStatus.IN_PROGRESS
+                                ? "Đang diễn ra" : "Kết thúc"
+                    }
+                </div>
+            )
+        }
     },
     {
         title: <div className="flex flex-row gap-1 items-center">
@@ -88,9 +113,12 @@ const columns: TableColumnsType<Promotion> = [
         render: () => {
             return (
                 <div className="flex flex-row gap-4 items-center">
-                    <Tooltip title="Chỉnh sửa"><FaRegEdit /></Tooltip>
-                    <Tooltip title="Xem chi tiết"><LuView /></Tooltip>
-                    
+                    <Button>
+                        <Tooltip title="Chỉnh sửa"><FaRegEdit /></Tooltip>
+                    </Button>
+                    <Button>
+                        <Tooltip title="Xem chi tiết"><LuView /></Tooltip>
+                    </Button>
                 </div>
             )
         }
@@ -104,25 +132,57 @@ const TableWrapper = styled.div`
 `
 
 export default function CouponTable(props: CouponTableProps) {
+    // const context = useContext(AuthContext);
+    const [filteredData, setFilteredData] = useState<PromotionType[]>(props.promotionData);
+    const [keyword, setKeyword] = useState<string>("");
+    const [currentStatusValue, setCurrentStatusValue] = useState<string>("");
+
+    const filterData = () => {
+        let data = props.promotionData;
+
+        if (keyword) {
+            data = data.filter(item =>
+                Object.values(item).some(value =>
+                    value.toString().toLowerCase().includes(keyword.toLowerCase())
+                )
+            );
+        }
+
+        if (currentStatusValue) {
+            data = data.filter(item => item.status === currentStatusValue);
+        }
+        setFilteredData(data);
+    };
+
+    useEffect(() => {
+
+        filterData();
+        // console.log('Keyword', keyword);
+        // console.log('currentStatusValue', currentStatusValue);
+    }, [keyword, currentStatusValue, props.promotionData, props.loading]);
+
     return (
         <React.Fragment>
             <div className="flex flex-col">
                 <div className="flex flex-row gap-5">
                     <div className="flex flex-col gap-1">
                         <div>Mã giảm giá</div>
-                        <Input prefix={<FaMagnifyingGlass />} placeholder={"Nhập mã giảm giá"} />
+                        <Input prefix={<FaMagnifyingGlass />} placeholder={"Nhập mã giảm giá"}
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)} />
                     </div>
                     <div className="flex flex-col gap-1">
                         <div>Trạng thái</div>
                         <Select
                             style={{ width: '140px' }}
                             placement='bottomLeft'
-                            defaultValue="ALL"
+                            value={currentStatusValue}
+                            onChange={(value) => setCurrentStatusValue(value)}
                             options={[
-                                { value: "ALL", label: 'Tất cả' },
-                                { value: DiscountStatus.UPCOMMING, label: 'Sắp diễn ra' },
-                                { value: DiscountStatus.IN_PROGRESS, label: 'Đang diễn ra' },
-                                { value: DiscountStatus.EXPIRED, label: 'Kết thúc' },
+                                { value: "", label: 'Tất cả' },
+                                { value: PromotionStatus.UPCOMMING, label: 'Sắp diễn ra' },
+                                { value: PromotionStatus.IN_PROGRESS, label: 'Đang diễn ra' },
+                                { value: PromotionStatus.EXPIRED, label: 'Kết thúc' },
                             ]}
                         />
                     </div>
@@ -130,7 +190,8 @@ export default function CouponTable(props: CouponTableProps) {
                 <div className="my-5">
                     <TableWrapper>
                         <Table columns={columns} scroll={{ x: "max-content" }}
-                            // dataSource={data}
+                            loading={props.loading}
+                            dataSource={filteredData}
                             bordered />
                     </TableWrapper>
                 </div>

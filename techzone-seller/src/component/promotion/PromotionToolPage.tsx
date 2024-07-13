@@ -13,11 +13,11 @@ const data = [
         image: 'https://cdn-icons-png.flaticon.com/512/8633/8633417.png'
         
     },
-    {
-        title: 'Combo khuyến mãi',
-        value: 'combo-discounts',
-        image: 'https://cdn-icons-png.flaticon.com/128/6037/6037325.png'
-    },
+    // {
+    //     title: 'Combo khuyến mãi',
+    //     value: 'combo-discounts',
+    //     image: 'https://cdn-icons-png.flaticon.com/128/6037/6037325.png'
+    // },
 ];
 
 

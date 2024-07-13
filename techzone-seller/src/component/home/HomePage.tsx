@@ -186,7 +186,8 @@ export default function HomePage() {
             endDate || new Date()).then((response) => {
                 currentSalesStatistics = response.data;
                 setSalesStatistics(currentSalesStatistics);
-                setOrders(currentSalesStatistics?.statisticsData!);
+                let salesInterval = currentSalesStatistics?.statisticsData[0]!;
+                setOrders(salesInterval?.statisticsData);
             })
     }
 
