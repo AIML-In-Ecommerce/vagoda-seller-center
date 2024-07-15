@@ -10,18 +10,20 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import BPChart from "./BPChart";
-import HorizontalBarChart from "./HorizontalBarChart";
-import { BusinessPerformanceStats, POST_getBEStats, POST_getTopProductsInSales } from "@/apis/statistic/StatisticAPI";
+import { BusinessPerformanceStats, POST_getBEStats, POST_getTopCitiesInSales, POST_getTopProductsInSales } from "@/apis/statistic/StatisticAPI";
 import { AuthContext } from "@/context/AuthContext";
+import TopProductsBarChart from "./TopProductsBarChart";
+import TopCitiesBarChart from "./TopCitiesBarChart";
 
 dayjs.extend(LocalizedFormat)
 
 const { RangePicker } = DatePicker
 
 interface BPCategory {
-    id: string;
+    _id: string;
     title: string,
     value: number;
+    suffix?: string;
     isPercentageValue?: boolean;
     percentChange?: number;
     tooltip: string;
@@ -63,9 +65,23 @@ export default function BusinessPerformancePage() {
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
     const [selectedCategories, setSelectedCategories] = useState<BPCategory[]>([]);
-    const [productSales, setProductSales] = useState([])
-    const [BEStats, setBEStats] = useState<BusinessPerformanceStats>()
-    const [compareBEStats, setCompareBEStats] = useState<BusinessPerformanceStats>()
+    const [productSales, setProductSales] = useState([]);
+    const [citiesSales, setCitiesSales] = useState([]);
+    const [BEStats, setBEStats] = useState<BusinessPerformanceStats>();
+    const [compareBEStats, setCompareBEStats] = useState<BusinessPerformanceStats>();
+
+    const maxLabels = 31; // Maximum number of labels to display on Chart
+
+    const totalLabels = useMemo(() => {
+        const [startDate, endDate] = selectedDates;
+        // return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)); // Calculate total number of days
+        return endDate!.diff(startDate, 'day');
+
+    }, [selectedDates])
+    
+    const step = useMemo(() => { 
+        return Math.floor(totalLabels / maxLabels) === 0 ? 1 : Math.floor(totalLabels / maxLabels); // Calculate step size (date)
+    }, [totalLabels]);
 
 
     const handlePreviousPeriod = (currentPeriod: [Dayjs, Dayjs], periodUnit: string) => {
@@ -115,7 +131,7 @@ export default function BusinessPerformancePage() {
         const totalRevenuePecentChanges = calcPercentChanges(BEStats?.totalRevenue!, compareBEStats?.totalRevenue!);
         const totalOrdersPecentChanges = calcPercentChanges(BEStats?.totalOrders!, compareBEStats?.totalOrders!);
         const totalProfitPecentChanges = calcPercentChanges(BEStats?.totalProfit!, compareBEStats?.totalProfit!);
-        const conversionRatePecentChanges = calcPercentChanges(BEStats?.conversionRate!, compareBEStats?.conversionRate!, true);
+        const conversionRatePecentChanges = calcPercentChanges(BEStats?.conversionRate! * 100, compareBEStats?.conversionRate! * 100, true);
         const avgRevenuePecentChanges = calcPercentChanges(BEStats?.avgRevenue!, compareBEStats?.avgRevenue!);
 
         const result: BPCategory[] = [
@@ -123,9 +139,10 @@ export default function BusinessPerformancePage() {
                 title: "Doanh số",
                 value: BEStats?.totalRevenue || 0,
                 percentChange: totalRevenuePecentChanges,
+                suffix: "đ",
                 tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
                 color: '#0ea5e9',
-                id: "DS"
+                _id: "revenue"
             },
             {
                 title: "Đơn hàng",
@@ -133,32 +150,35 @@ export default function BusinessPerformancePage() {
                 percentChange: totalOrdersPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
                 color: '#f97316',
-                id: "DH"
+                _id: "orders"
             },
             {
                 title: "Doanh thu thuần",
                 value: BEStats?.totalProfit || 0,
                 percentChange: totalProfitPecentChanges,
+                suffix: "đ",
                 tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Tiki).",
                 color: '#10b981',
-                id: "DTT"
+                _id: "profit"
             },
             {
                 title: "Tỉ lệ chuyển đổi",
-                value: BEStats?.conversionRate || 0,
+                value: roundTo2DecimalPlaces(BEStats?.conversionRate || 0) * 100,
                 isPercentageValue: true,
                 percentChange: conversionRatePecentChanges,
+                suffix: "%",
                 tooltip: "Tổng số khách truy cập và có đơn đã xác nhận chia tổng số khách truy cập trong khoảng thời gian đã chọn. ",
                 color: '#ec4899',
-                id: "TLCD"
+                _id: "conversionRate"
             },
             {
                 title: "Giá trị đơn hàng trung bình",
-                value: BEStats?.avgRevenue || 0,
+                value: roundTo2DecimalPlaces(BEStats?.avgRevenue || 0),
                 percentChange: avgRevenuePecentChanges,
+                suffix: "đ",
                 tooltip: "Doanh số trung bình mỗi đơn hàng trong khoảng thời gian đã chọn.",
                 color: '#3b82f6',
-                id: "GTDHTB"
+                _id: "avgRevenuePerOrder"
             },
             {
                 title: "Đơn hàng hủy",
@@ -166,15 +186,16 @@ export default function BusinessPerformancePage() {
                 percentChange: 0,
                 tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
                 color: '#78716c',
-                id: "DHH"
+                _id: "cancelledOrders"
             },
             {
                 title: "Khách hàng quay lại",
                 value: 0,
                 percentChange: 0,
+                suffix: "khách",
                 tooltip: "Tổng số lượng khách quay lại trong khoảng thời gian đã chọn",
                 color: '#78716c',
-                id: "KHQL"
+                _id: "returningCustomers"
             },
         ]
         return result;
@@ -188,25 +209,34 @@ export default function BusinessPerformancePage() {
                 context.shopInfo?._id as string,
                 startTime!, endTime!).then((response) => setProductSales(response.data))
         }
+        const fetchTopCitiesSales = async () => {
+            const [startTime, endTime] = DayjsToDate(selectedDates);
+            await POST_getTopCitiesInSales(
+                context.shopInfo?._id as string,
+                startTime!, endTime!).then((response) => setCitiesSales(response.data.statisticData))
+        }
 
         const fetchBEStats = async () => {
             const [BECurrentStartTime, BECurrentEndTime] = DayjsToDate(selectedDates);
             await POST_getBEStats(
                 context.shopInfo?._id as string,
                 BECurrentStartTime || new Date(),
-                BECurrentEndTime || new Date()
+                BECurrentEndTime || new Date(),
+                `${step}-d`
             ).then((response) => setBEStats(response.data as BusinessPerformanceStats))
 
             const [BECompareStartTime, BECompareEndTime] = DayjsToDate(compareDates);
             await POST_getBEStats(
                 context.shopInfo?._id as string,
                 BECompareStartTime || new Date(),
-                BECompareEndTime || new Date()
+                BECompareEndTime || new Date(),
+                `${step}-d`
             ).then((response) => setCompareBEStats(response.data as BusinessPerformanceStats))
         }
 
 
         fetchTopProductsSales();
+        fetchTopCitiesSales();
         fetchBEStats();
         setLastUpdateTime(dayjs());
 
@@ -283,6 +313,7 @@ export default function BusinessPerformancePage() {
                                         return (
                                             <div key={key}>
                                                 <CheckableCard item={item} checkboxVisibility={true}
+                                                    suffix={item.suffix ?? ""}
                                                     selectedCategories={selectedCategories}
                                                     setSelectedCategories={setSelectedCategories} />
                                             </div>
@@ -290,7 +321,10 @@ export default function BusinessPerformancePage() {
                                     })
                                 } />
                         </div>
-                        <BPChart timeUnit={selectedReportPeriod}
+                        <BPChart 
+                            BECurrent={BEStats}
+                            BEPrevious={compareBEStats}
+                            timeUnit={selectedReportPeriod}
                             dateRange={Array.from(DayjsToDate(selectedDates))}
                             categories={selectedCategories} />
                         {/* <Empty percentChange={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty> */}
@@ -309,8 +343,8 @@ export default function BusinessPerformancePage() {
                         }>
                         <div className="w-[100%] mb-10 flex flex-col gap-5">
                             {
-                                productSales.length !== 0 ?
-                                    <HorizontalBarChart items={productSales} />
+                                productSales && productSales.length !== 0 ?
+                                    <TopProductsBarChart items={productSales} />
                                     : <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
                             }
                         </div>
@@ -327,8 +361,8 @@ export default function BusinessPerformancePage() {
                         }>
                         <div className="w-[100%] mb-10 flex flex-col gap-5">
                             {
-                                productSales.length !== 0 ?
-                                    <HorizontalBarChart items={productSales} />
+                                citiesSales && citiesSales.length !== 0 ?
+                                    <TopCitiesBarChart items={citiesSales} />
                                     : <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
                             }
                         </div>

@@ -18,6 +18,7 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
+import { BusinessPerformanceStats, Order, StatisticInterval } from '@/apis/statistic/StatisticAPI';
 
 ChartJS.register(
     LinearScale,
@@ -31,20 +32,33 @@ ChartJS.register(
     BarController
 );
 
+interface BPCategory {
+    _id: string;
+    title: string,
+    value: number;
+    suffix?: string;
+    isPercentageValue?: boolean;
+    percentChange?: number;
+    tooltip: string;
+    color: string;
+}
+
 interface BPChartProps {
+    BECurrent: BusinessPerformanceStats | undefined,
+    BEPrevious: BusinessPerformanceStats | undefined,
     timeUnit: string,
     dateRange: (Date | null)[],
-    categories: any[]
+    categories: BPCategory[]
 }
+
+const maxLabels = 31; // Maximum number of labels to display
 
 // Function to generate labels based on the filter type
 const generateChartLabels = (timeUnit: string, startDate: Date, endDate: Date): string[] => {
     const labels: string[] = [];
     const totalLabels = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)); // Calculate total number of days
-    const maxLabels = 7; // Maximum number of labels to display
     const step = Math.ceil(totalLabels / maxLabels) === 0 ? 1 : Math.ceil(totalLabels / maxLabels); // Calculate step size (date)
-
-
+    
     let currentDate = new Date(startDate);
     let labelCount = 0;
 
@@ -61,13 +75,13 @@ const generateChartLabels = (timeUnit: string, startDate: Date, endDate: Date): 
         labelCount++;
         if (labelCount > maxLabels) break; // Break the loop if maximum number of labels reached
     }
+    // console.log('generateChartLabels', totalLabels, step, labels);
     return labels;
 };
 
 
 export default function BPChart(props: BPChartProps) {
 
-    const [products, setProducts] = useState([]);
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
 
     const dateFrom = useMemo(() => {
@@ -91,33 +105,69 @@ export default function BPChart(props: BPChartProps) {
     }, [props.categories])
 
     useEffect(() => {
-        const fetchProducts = async () => {
-
-        }
-        fetchProducts();
-    }, [])
+        // const fetchProducts = async () => {
+        // }
+        // fetchProducts();
+        // console.log("BEStats", props.BECurrent)
+        // console.log("BEStatsCompare", props.BEPrevious)
+        // console.log("categories", categories)
+    }, [categories])
 
     const categoryOneData = useMemo(() => {
-        // const result = getTotalQuantitiesInRange(products, dateFrom, dateTo, timeUnit);
-        // props.setTotalOrderQuantity(calculateTotals(result));
-        // return result;
-        return [123, 434, 232, 424, 252];
-    }, [products, dateFrom, dateTo, timeUnit]);
+        if (categories.length < 1 || !props.BECurrent) return [];
+
+        const result: number[] = [];
+        const categoryOne = categories[0]._id;
+        const statisticData = props.BECurrent?.statisticData;
+        statisticData?.forEach((interval: StatisticInterval) => {
+            let intervalDataValue = interval[categoryOne as keyof StatisticInterval] as number ?? 0;
+            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
+            result.push(intervalDataValue);
+        })
+        return result;
+    }, [categories, props.BECurrent]);
 
     const categoryTwoData = useMemo(() => {
-        // const result = getTotalPricesInRange(products, dateFrom, dateTo, timeUnit);
-        // props.setTotalRevenue(calculateTotals(result));
-        // return result;
-        return [344, 53, 22, 351, 211];
-    }, [products, dateFrom, dateTo, timeUnit]);
+        if (categories.length < 2 || !props.BECurrent) return [];
+
+        const result: number[] = [];
+        const categoryTwo = categories[1]._id;
+        const statisticData = props.BECurrent?.statisticData;
+        statisticData?.forEach((interval: StatisticInterval) => {
+            let intervalDataValue = interval[categoryTwo as keyof StatisticInterval] as number ?? 0;
+            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
+            result.push(intervalDataValue);
+        })
+        return result;
+    }, [categories, props.BECurrent]);
 
     const categoryOneCompareData = useMemo(() => {
-        return [52, 663, 535, 342, 292];
-    },[products, dateFrom, dateTo, timeUnit]);
+        if (categories.length < 1|| !props.BEPrevious) return [];
+
+        const result: number[] = [];
+        const categoryOne = categories[0]._id;
+        const statisticData = props.BEPrevious?.statisticData;
+        statisticData?.forEach((interval: StatisticInterval) => {
+            let intervalDataValue = interval[categoryOne as keyof StatisticInterval] as number ?? 0;
+            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
+            result.push(intervalDataValue);
+        })
+        return result;
+    },[categories, props.BEPrevious]);
 
     const categoryTwoCompareData = useMemo(() => {
-        return [234, 153, 32, 251, 432];
-    },[products, dateFrom, dateTo, timeUnit]);
+        if (categories.length < 2 || !props.BEPrevious) return [];
+
+        const result: number[] = [];
+        const categoryTwo = categories[1]._id;
+        const statisticData = props.BEPrevious?.statisticData;
+        statisticData?.forEach((interval: StatisticInterval) => {
+            let intervalDataValue = interval[categoryTwo as keyof StatisticInterval] as number ?? 0;
+            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
+            result.push(intervalDataValue);
+        })
+        return result;
+    },[categories, props.BEPrevious]);
 
     const datasetsGenerator = (categories: any) => {
         if (categories.length === 0) return [];
@@ -130,6 +180,7 @@ export default function BPChart(props: BPChartProps) {
                 fill: false,
                 data: categoryOneData,
                 yAxisID: 'y',
+                tension: 0.25
             },
             {
                 type: 'line' as const,
@@ -139,6 +190,7 @@ export default function BPChart(props: BPChartProps) {
                 borderDash: [6,6],
                 fill: false,
                 data: categoryOneCompareData,
+                tension: 0.25
             },
         ];
         else if (categories.length === 2) {
@@ -151,6 +203,7 @@ export default function BPChart(props: BPChartProps) {
                     fill: false,
                     data: categoryOneData,
                     yAxisID: 'y',
+                    tension: 0.25
                 },
                 {
                     type: 'line' as const,
@@ -160,6 +213,7 @@ export default function BPChart(props: BPChartProps) {
                     borderDash: [6,6],
                     fill: false,
                     data: categoryOneCompareData,
+                    tension: 0.25
                 },
                 {
                     type: 'line' as const,
@@ -169,6 +223,7 @@ export default function BPChart(props: BPChartProps) {
                     fill: false,
                     data: categoryTwoData,
                     yAxisID: 'y1',
+                    tension: 0.25
                 },
                 {
                     type: 'line' as const,
@@ -178,6 +233,7 @@ export default function BPChart(props: BPChartProps) {
                     borderDash: [6,6],
                     fill: false,
                     data: categoryTwoCompareData,
+                    tension: 0.25
                 },
                 
             ]
@@ -236,7 +292,7 @@ export default function BPChart(props: BPChartProps) {
                     drawOnChartArea: false,
                 },
                 ticks: {
-                    // callback: function (val: any, index: any) {
+                    // callback: function (val: any, index: any) { 
                     //     return val.toLocaleString("vi-VN", {
                     //         style: "currency",
                     //         currency: "VND",
@@ -249,7 +305,7 @@ export default function BPChart(props: BPChartProps) {
             x: {
                 grid: {
                     offset: true
-                }
+                }   
             },
             
 

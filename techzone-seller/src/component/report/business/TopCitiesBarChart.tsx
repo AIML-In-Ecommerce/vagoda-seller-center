@@ -17,6 +17,7 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { getProvince } from '@/apis/statistic/AddressAPI';
 
 ChartJS.register(
   LinearScale,
@@ -31,18 +32,21 @@ ChartJS.register(
 );
 
 interface ItemData {
-  _id: string,
-  title: string,
-  value: number,
-  count: number
+  idProvince: string,
+  revenue: string,
+  profit: number,
+  count: number,
+  statisticData: any,
 }
 
-interface HorizontalBarChartProps {
+interface TopCitiesBarChartProps {
   items: any[]
 }
 
 
-export default function HorizontalBarChart(props: HorizontalBarChartProps) {
+export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
+  const provincesData = getProvince();
+
   const items = useMemo<ItemData[]>(() => {
       const items = props.items;
       return items;
@@ -89,10 +93,13 @@ export default function HorizontalBarChart(props: HorizontalBarChartProps) {
   };
 
   const data = {
-    labels: items.map(item => item.title),
+    labels: items.map(current => {
+        const provinceItem = provincesData.find(province => province.idProvince === current.idProvince);
+        return provinceItem?.name;
+  }),
     datasets: [
       {
-        data: items.map(item => item.value),
+        data: items.map(item => item.revenue),
         backgroundColor: '#75c799',
         borderColor: '#75c799',
       }

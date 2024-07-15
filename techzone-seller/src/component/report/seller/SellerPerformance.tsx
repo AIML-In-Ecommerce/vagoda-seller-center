@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { AuthContext } from "@/context/AuthContext";
-import { POST_getTotalRecievedOrders, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalProcessOrders, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, ReviewRange } from "@/apis/statistic/StatisticAPI";
+import { POST_getTotalRecievedOrders, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalProcessOrders, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, ReviewRange, ShopPerformanceDetail, GET_getShopPerformanceStatistics } from "@/apis/statistic/StatisticAPI";
 
 dayjs.extend(LocalizedFormat)
 
@@ -125,7 +125,7 @@ const handleRatingColor = (rating: number, intensity: number, prefix: string) =>
 
 export default function SellerPerformancePage() {
     const context = useContext(AuthContext);
-    const [opScore, setOpScore] = useState<number>(3.4);
+    const [opScore, setOpScore] = useState<number>(0);
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(2, 'week'), dayjs()]);
     const [totalReceivedOrders, setTotalReceivedOrders] = useState<number>(0);
     const [totalOnTimeOrders, setTotalOnTimeOrders] = useState<number>(0);
@@ -133,7 +133,9 @@ export default function SellerPerformancePage() {
     const [totalCancelledOrders, setTotalCancelledOrders] = useState<number>(0);
     const [totalProcessTimeOrders, setTotalProcessTimeOrders] = useState<number>(0);
     const [ratingItems, setRatingItems] = useState<RatingItem[]>([] as RatingItem[]);
+    const [shopPerformance, setShopPerformance] = useState<ShopPerformanceDetail>()
     // const [totalChatResponses, setTotalChatResponses] = useState<number>(0);
+
     const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
         if (dates) {
             // console.log('From: ', dates[0], ', to: ', dates[1]);
@@ -157,7 +159,7 @@ export default function SellerPerformancePage() {
             'AverageResponseTime': [],
         }
         return stats;
-    }, []);
+    }, [totalCancelledOrders, totalReceivedOrders, totalOnTimeOrders]);
 
     const orderStatistics = useMemo(() => {
         const statistics = [
@@ -188,7 +190,9 @@ export default function SellerPerformancePage() {
             },
         ];
         return statistics;
-    }, [selectedDates]);
+    }, [selectedDates, 
+        totalLateTimeOrders, totalOnTimeOrders,
+        totalCancelledOrders, totalProcessTimeOrders, totalReceivedOrders]);
 
     const fetchOrderStatistics = async () => {
         const [startDate, endDate] = DayjsToDate(selectedDates);
@@ -242,12 +246,28 @@ export default function SellerPerformancePage() {
         }
     }
 
+    const fetchShopPerformance = async () => {
+        const shopPerformanceResponse = 
+            await GET_getShopPerformanceStatistics(context.shopInfo?._id as string)
+        if (shopPerformanceResponse) {
+            const data = shopPerformanceResponse.data as ShopPerformanceDetail
+            setShopPerformance(data);
+        }
+    }
+
     useEffect(() => {
         if (context.shopInfo) {
             fetchOrderStatistics();
             fetchReviewStatistics();
+            fetchShopPerformance();
         }
     }, [context.shopInfo, selectedDates])
+
+    useEffect(() => {
+        if (shopPerformance) {
+            setOpScore(shopPerformance.operationalQuality);
+        }
+    }, [shopPerformance])
 
     return (
         <React.Fragment>

@@ -132,6 +132,20 @@ export interface ReviewRange {
   statisticData: any;
 }
 
+export interface ShopPerformanceDetail {
+  cancelPercentage:    number;
+  refundPercentage:    number;
+  sinceYear:           number;
+  totalProductNumber:  number;
+  description:         string;
+  rating:              number;
+  replyPercentage:     number;
+  address:             string;
+  _id:                 string;
+  operationalQuality: number;
+}
+
+
 export async function POST_getTopProductsInSales(
   shopId: string,
   startTime: Date,
@@ -143,6 +157,48 @@ export async function POST_getTopProductsInSales(
     const response = await axios.post(url, {
       startTime: startTime,
       endTime: endTime,
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (responseData.status === 200) {
+      return {
+        isDenied: false,
+        message: "Get top sales of products successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function POST_getTopCitiesInSales(
+  shopId: string,
+  startTime: Date,
+  endTime: Date,
+  amount?: number
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/shop/top_city_in_sales?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+      startTime: startTime,
+      endTime: endTime,
+      amount: amount
     });
     const responseData: StatisticResponse = response.data;
 
@@ -494,6 +550,83 @@ export async function POST_getReviewStatistics(
       return {
         isDenied: false,
         message: `Get review statistics successfully`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+//Shop performance
+export async function GET_getShopPerformanceStatistics(
+  shopId: string
+) {
+  const url = `${GATEWAY_PREFIX}/shop_info/shopDetail?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.get(url);
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get shop performance details successfully`,
+        status: responseData.status,
+        data: responseData.data as ShopPerformanceDetail,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+//Đánh giá
+export async function POST_getReturnRateOfCustomers(
+  shopId: string,
+  startTime?: Date,
+  endTime?: Date,
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/shop/returning_rate?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+        startTime: startTime,
+        endTime: endTime
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get the returning statistics successfully`,
         status: responseData.status,
         data: responseData.data,
       };

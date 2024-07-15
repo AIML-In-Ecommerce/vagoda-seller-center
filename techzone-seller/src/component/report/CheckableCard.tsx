@@ -6,6 +6,7 @@ import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";
 interface CheckableCardProps {
     item: any;
     isPercentageValue?: boolean;
+    suffix?: string
     checkboxVisibility?: boolean;
     borderVisibility?: boolean;
     selectedCategories?: any[];
@@ -33,17 +34,24 @@ export default function CheckableCard(props: CheckableCardProps) {
     const absPercentChange = isIncreasing ? props.item?.percentChange : (-1) * props.item?.percentChange;
 
     const handleSelectedCard = (category: any) => {
-        const isSelected = props.selectedCategories?.includes(category);
-        console.log('SelectedCategories: ', props.selectedCategories);
+        // console.log('handleSelectedCard', category);
 
-        if (isSelected) {
-            props.setSelectedCategories!(props.selectedCategories!.filter(item => item.id !== category.id))
+        const isAlreadySelected = props.selectedCategories?.find(item => item._id === category._id);
+        // console.log('isAlreadySelected: ', isAlreadySelected);
+
+        if (isAlreadySelected) {
+            props.setSelectedCategories!(props.selectedCategories!.filter(item => item._id !== category._id))
         } else {
             // Limit to 2 selections
             if (props.selectedCategories!.length < 2) {
-                props.setSelectedCategories!([...props.selectedCategories!, category]);
+                let categories = [...props.selectedCategories!];
+                categories.push(category);
+                props.setSelectedCategories!(categories);
             }
-            else return;
+            else {
+                console.log("Limit selected categories");
+                return;
+            };
         }
         setIsVisible(!isVisible);
 
@@ -83,7 +91,7 @@ export default function CheckableCard(props: CheckableCardProps) {
                                     )
                                 }
                             </>}</> : <>{<>
-                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} />
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={props.suffix ?? ""}/>
                                 {
                                     isIncreasing ? (
                                         <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}

@@ -1,6 +1,6 @@
 "use client";
 import { Breadcrumb, Card, DatePicker, Divider, List, Tooltip, Radio, RadioChangeEvent, Table, TableColumnsType, TableProps, Tag, ConfigProvider, Empty } from "antd";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
 import { TbInfoCircle } from "react-icons/tb";
 import RatingChart from "./RatingChart";
@@ -8,10 +8,22 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { AuthContext } from "@/context/AuthContext";
+import { POST_getTotalRecievedOrders, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalProcessOrders, POST_getOrderStatistics, OrderStatusType, ShopPerformanceDetail, GET_getShopPerformanceStatistics } from "@/apis/statistic/StatisticAPI";
 
 const { RangePicker } = DatePicker;
 
 dayjs.extend(LocalizedFormat)
+
+const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
+    return dates.map(item => {
+        if (item === null) {
+            return null;
+        } else {
+            return item.toDate();
+        }
+    });
+}
 
 const qosComment = [
     {
@@ -72,35 +84,6 @@ const qosComment = [
     //   }
 ]
 
-const orderStatistics = [
-    {
-        title: 'Số đơn xử lý trễ hạn:',
-        value: 0,
-        tooltip: 'Tổng số đơn quá hạn xác nhận và/hoặc quá hạn bàn giao.'
-    },
-    {
-        title: 'Số đơn xử lý đúng hạn:',
-        value: 0,
-        tooltip: 'Tổng số đơn đúng cả hạn xác nhận và hạn bàn giao.'
-    },
-    {
-        title: 'Số đơn bị hủy:',
-        value: 0,
-        tooltip: 'Tổng số đơn bị hủy với lỗi vi phạm từ phía Nhà Bán.'
-    },
-    {
-        title: 'Số đơn chờ kết quả xử lý:',
-        value: 0,
-        tooltip: 'Tổng số đơn đang chờ Xác nhận đóng gói hoặc chờ Bàn giao đối tác vận chuyển và chưa thể kết luận trạng thái xử lý của đơn hàng là đúng hạn hay trễ hạn.'
-    },
-    {
-        title: <div className="font-semibold">Tổng đơn đã nhận:</div>,
-        value: 0,
-        tooltip: 'Tổng số đơn ở mọi trạng thái.'
-    },
-];
-
-
 const handleRatingColor = (rating: number, intensity: number, prefix: string) => {
     let actualRating = Math.floor(rating);
     let color: string;
@@ -139,12 +122,106 @@ interface BadStatusOrderType {
 
 
 export function DetailedOpScorePage() {
+    const context = useContext(AuthContext);
     const [opScore, setOpScore] = useState<number>(3.4);
     const [totalLateOrCancelledOrders, setTotalLateOrCancelledOrders] = useState<number>(0);
-    const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
+    const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(2, 'week'), dayjs()]);
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
     const [currentInfractionType, setCurrentInfractionType] = useState<InfractionType | null>(null);
+    const [totalReceivedOrders, setTotalReceivedOrders] = useState<number>(0);
+    const [totalOnTimeOrders, setTotalOnTimeOrders] = useState<number>(0);
+    const [totalLateTimeOrders, setTotalLateTimeOrders] = useState<number>(0);
+    const [totalCancelledOrders, setTotalCancelledOrders] = useState<number>(0);
+    const [totalProcessTimeOrders, setTotalProcessTimeOrders] = useState<number>(0);
+    const [shopPerformance, setShopPerformance] = useState<ShopPerformanceDetail>()
 
+    const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
+        if (dates) {
+            // console.log('From: ', dates[0], ', to: ', dates[1]);
+            // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+            let [_start, _end] = [new Date(dates[0]!.format('YYYY-MM-DD')), new Date(dates[1]!.format('YYYY-MM-DD'))];
+            _start.setHours(0, 0, 0, 0);
+            _end.setHours(23, 59, 59, 59);
+            setSelectedDates([dayjs(_start), dayjs(_end)]);
+        } else {
+            console.log('Clear');
+        }
+    };
+
+    const orderStatistics = useMemo(() => {
+        const statistics = [
+            {
+                title: 'Số đơn xử lý trễ hạn:',
+                value: totalLateTimeOrders,
+                tooltip: 'Tổng số đơn quá hạn xác nhận và/hoặc quá hạn bàn giao.'
+            },
+            {
+                title: 'Số đơn xử lý đúng hạn:',
+                value: totalOnTimeOrders,
+                tooltip: 'Tổng số đơn đúng cả hạn xác nhận và hạn bàn giao.'
+            },
+            {
+                title: 'Số đơn bị hủy:',
+                value: totalCancelledOrders,
+                tooltip: 'Tổng số đơn bị hủy với lỗi vi phạm từ phía Nhà Bán.'
+            },
+            {
+                title: 'Số đơn chờ kết quả xử lý:',
+                value: totalProcessTimeOrders,
+                tooltip: 'Tổng số đơn đang chờ Xác nhận đóng gói hoặc chờ Bàn giao đối tác vận chuyển và chưa thể kết luận trạng thái xử lý của đơn hàng là đúng hạn hay trễ hạn.'
+            },
+            {
+                title: <div className="font-semibold">Tổng đơn đã nhận:</div>,
+                value: totalReceivedOrders,
+                tooltip: 'Tổng số đơn ở mọi trạng thái.'
+            },
+        ];
+        return statistics;
+    }, [selectedDates, 
+        totalLateTimeOrders, totalOnTimeOrders,
+        totalCancelledOrders, totalProcessTimeOrders, totalReceivedOrders]);
+
+    const fetchOrderStatistics = async () => {
+        const [startDate, endDate] = DayjsToDate(selectedDates);
+        await POST_getTotalRecievedOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalReceivedOrders(response.data.totalOrders))
+
+        await POST_getTotalLateTimeOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalLateTimeOrders(response.data.totalOrders))
+
+        await POST_getTotalOnTimeOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalOnTimeOrders(response.data.totalOrders))
+
+        await POST_getTotalProcessOrders(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalProcessTimeOrders(response.data.totalOrders))
+
+        await POST_getOrderStatistics(context.shopInfo?._id as string,
+            OrderStatusType.CANCELLED,
+            startDate || new Date(),
+            endDate || new Date()
+        ).then((response) => setTotalCancelledOrders(response.data.totalOrders))
+
+        setTotalLateOrCancelledOrders(totalLateTimeOrders + totalCancelledOrders);
+    }
+
+    const fetchShopPerformance = async () => {
+        const shopPerformanceResponse = 
+            await GET_getShopPerformanceStatistics(context.shopInfo?._id as string)
+        if (shopPerformanceResponse) {
+            const data = shopPerformanceResponse.data as ShopPerformanceDetail
+            setShopPerformance(data);
+        }
+    }
+
+    
     const columns: TableColumnsType<BadStatusOrderType> = [
         {
             title: <div className="font-semibold">Mã đơn hàng</div>,
@@ -218,6 +295,19 @@ export function DetailedOpScorePage() {
         setCurrentInfractionType(e.target.value);
     };
 
+    useEffect(() => {
+        if (context.shopInfo) {
+            fetchOrderStatistics();
+            fetchShopPerformance();
+        }
+    }, [context.shopInfo, selectedDates])
+
+    useEffect(() => {
+        if (shopPerformance) {
+            setOpScore(shopPerformance.operationalQuality);
+        }
+    }, [shopPerformance])
+
     return (
         <React.Fragment>
             <div className="flex flex-col container">
@@ -250,7 +340,12 @@ export function DetailedOpScorePage() {
                     <div className="flex lg:flex-row flex-col gap-5 lg:items-center mb-5">
                         <div className="flex flex-row items-center gap-5">
                             <div className="font-semibold">Thời gian</div>
-                            <RangePicker picker="date" />
+                            <RangePicker picker="date"
+                                defaultValue={[dayjs().subtract(14, 'day'), dayjs()]}
+                                value={selectedDates}
+                                onChange={onRangeChange}
+                                maxDate={dayjs(new Date())}
+                                format="DD/MM/YYYY" />
                         </div>
                         <div>(Lần cập nhật cuối: {lastUpdateTime.locale('vi').format('LLLL')})</div>
                     </div>
