@@ -1,6 +1,6 @@
 "use client";
 import { PromotionStatus, PromotionType } from '@/model/PromotionType';
-import { Button, Input, Select, Table, TableColumnsType, Tag, Timeline, Tooltip } from 'antd';
+import { Button, Input, Popover, Select, Table, TableColumnsType, Tag, Timeline, Tooltip } from 'antd';
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { FaRegClipboard, FaRegEdit } from 'react-icons/fa';
 import { FaEye, FaMagnifyingGlass } from 'react-icons/fa6';
@@ -9,6 +9,7 @@ import { TbInfoCircle } from 'react-icons/tb';
 import styled from 'styled-components';
 import moment from 'moment';
 import { AuthContext } from '@/context/AuthContext';
+import PromotionCard from '@/component/booth-design/decorator/mini/PromotionCard';
 
 interface CouponTableProps {
     loading: boolean;
@@ -24,21 +25,35 @@ const columns: TableColumnsType<PromotionType> = [
         title: 'Mã giảm giá',
         dataIndex: 'name',
         fixed: 'left',
-        render: (text: any, record: PromotionType) => (
-            <div className="flex flex-col gap-1">
-                <div>{record.name}</div>
-                <Tag color="default"
-                    onClick={async () => { await navigator.clipboard.writeText(record.code) }}>
-                    <div className="items-center flex flex-row gap-2">
-                        <div><FaRegClipboard /></div>
-                        <div className="font-semibold">
-                            {record.code}
+        render: (text: any, record: PromotionType) => {
+            let triggerSelected = false;
+            const innerContent = (
+                <div className="flex flex-col gap-1">
+                    <div>{record.name}</div>
+                    <Tag color="default"
+                        onClick={async () => { await navigator.clipboard.writeText(record.code) }}>
+                        <div className="items-center flex flex-row gap-2">
+                            <div><FaRegClipboard /></div>
+                            <div className="font-semibold">
+                                {record.code}
+                            </div>
                         </div>
-
-                    </div>
-                </Tag>
-            </div>
-        ),
+                    </Tag>
+                </div>
+            )
+            const popupContent = (<PromotionCard item={record}
+                isSelected={triggerSelected}
+                applyDiscount={() => { triggerSelected = true }}
+                removeDiscount={() => { triggerSelected = false }} />)
+            return (
+                <Popover placement="top" title="Preview" content={popupContent}
+                    autoAdjustOverflow
+                    arrow={{ pointAtCenter: true }}
+                    overlayInnerStyle={{ width: '400px' }}>
+                    {innerContent}
+                </Popover>
+            )
+        },
         width: '20%',
     },
     {

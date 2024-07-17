@@ -147,12 +147,12 @@ export default function HomePage() {
                 startDate || new Date(),
                 endDate || new Date()
             ).then((response) => {
+                console.log(`ORDER STATUS ${status}:`, response);
                 currentOrderStatistics.push({
                     orderStatus: status,
                     totalOrders: response.data.totalOrders
                 } as OrderStatusTotalValue)
             })
-            // console.log(`ORDER STATUS ${status}:`, currentOrderStatistics);
 
         })
         setTimeout(() => {

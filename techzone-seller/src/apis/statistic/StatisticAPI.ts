@@ -356,7 +356,8 @@ export async function POST_getTotalLateTimeOrders(
   shopId: string,
   startTime: Date,
   endTime: Date,
-  isAscending?: boolean
+  isAscending?: boolean,
+  step?: string
 ) {
   const url = `${GATEWAY_PREFIX}/statistics/order/late_in_process?shopId=${shopId}`;
   try {
@@ -365,6 +366,7 @@ export async function POST_getTotalLateTimeOrders(
       startTime: startTime,
       endTime: endTime,
       isAscending: isAscending,
+      step: step,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -648,3 +650,185 @@ export async function POST_getReturnRateOfCustomers(
     };
   }
 }
+
+//Người truy cập
+export async function POST_getProductViewers(
+  shopId: string,
+  productIds: string[],
+  startTime: Date | number,
+  endTime: Date | number,
+  accessType?: string,
+  step?: string,
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/product/views_viewers?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+        productIds: productIds,
+        accessType: accessType,
+        startTime: startTime,
+        endTime: endTime,
+        step: step,
+
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get the statistics successfully`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+//Tỉ lệ thêm vào giỏ hàng
+export async function POST_getAddToCartRatio(
+  shopId: string,
+  productIds: string[],
+  startTime: Date | number,
+  endTime: Date | number,
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+        productIds: productIds,
+        startTime: startTime,
+        endTime: endTime,
+
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get add to cart statistics successfully`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+//Số lượng người thêm vào giỏ hàng
+export async function POST_getAddToCartAmount(
+  shopId: string,
+  productIds: string[],
+  startTime: Date | number,
+  endTime: Date | number,
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+        productIds: productIds,
+        startTime: startTime,
+        endTime: endTime,
+
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get add to cart statistics successfully`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+//Số lượng đơn hàng đã xác nhận của sản phẩm
+export async function POST_getSoldAmountOfProducts(
+  shopId: string,
+  productIds: string[],
+  startTime: Date | number,
+  endTime: Date | number,
+  step?: string
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/product/sold_amount/detail?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+        productIds: productIds,
+        startTime: startTime,
+        endTime: endTime,
+
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get sold amount of products successfully`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+

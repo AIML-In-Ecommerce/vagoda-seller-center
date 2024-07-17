@@ -47,7 +47,7 @@ const qosComment = [
             firstPart: "Tuyệt vời! Bạn đang xử lý đơn hàng",
             highlightWord: "xuất sắc",
             secondPart: "trong tuần vừa qua!",
-            content: "Hãy giữ vững phong độ để có thêm thật nhiều đánh giá 5 sao và nhận thêm nhiều đặc quyền từ Techzone nhé!"
+            content: "Hãy giữ vững phong độ để có thêm thật nhiều đánh giá 5 sao và nhận thêm nhiều đặc quyền từ Vagoda nhé!"
         }
     },
     {
@@ -74,7 +74,7 @@ const qosComment = [
         score: [0],
         rating: "Tạm tắt gian hàng",
         message: {
-            firstPart: "Rất tiếc! Techzone phải",
+            firstPart: "Rất tiếc! Vagoda phải",
             highlightWord: "tạm tắt gian hàng",
             secondPart: "trong 7 ngày.",
             content: "Hãy tham khảo các giải pháp cải thiện điểm số và chất lượng vận hành tại đây để sẵn sàng khi gian hàng mở cửa trở lại nhé!"
@@ -84,16 +84,16 @@ const qosComment = [
     //     score: "Tạm tắt gian hàng (lần 2)",
     //     rating: "Đây đã là lần thứ 2 bạn đạt điểm vận hành bằng 0!",
     //     message: {
-    //       firstPart: "Techzone phải tạm tắt gian hàng trong 14 ngày.",
+    //       firstPart: "Vagoda phải tạm tắt gian hàng trong 14 ngày.",
     //       content: "Lưu ý: Sau 2 lần bị khóa gian do điểm vận hành, lần thứ 3 gian hàng của bạn sẽ bị khóa vĩnh viễn."
     //     }
     //   },
     //   {
     //     score: "Tạm tắt gian hàng (vĩnh viễn)",
-    //     rating: "Rất tiếc! Techzone phải tắt gian hàng hàng vĩnh viễn.",
+    //     rating: "Rất tiếc! Vagoda phải tắt gian hàng hàng vĩnh viễn.",
     //     message: {
     //       firstPart: "Đây đã là lần thứ 3 bạn đạt điểm vận hành bằng 0!",
-    //       content: "Vì vậy, Techzone rất tiếc phải tắt gian hàng vĩnh viễn."
+    //       content: "Vì vậy, Vagoda rất tiếc phải tắt gian hàng vĩnh viễn."
     //     }
     //   }
 ]
