@@ -1,5 +1,6 @@
 "use client";
 import { FileInfoInput } from "@/apis/ProductAPI";
+import { AuthContext } from "@/context/AuthContext";
 import { _ProductType, ImportInfoType } from "@/model/ProductType";
 import { ProductService } from "@/services/Product";
 import { CaretRightOutlined, QuestionCircleOutlined } from "@ant-design/icons";
@@ -32,7 +33,7 @@ import FormData from "form-data";
 import moment from "moment";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { CSSProperties, useEffect, useState } from "react";
+import React, { CSSProperties, useContext, useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { FiUpload } from "react-icons/fi";
 import { GrView } from "react-icons/gr";
@@ -46,6 +47,8 @@ const { Search } = Input;
 export type OptionType = { label: string; value: string };
 
 export default function CreateBatchProduct() {
+  const authContext = useContext(AuthContext);
+
   const query = useSearchParams();
   const { token } = theme.useToken();
   const [isCreateBatchModalOpen, setIsCreateBatchModalOpen] = useState(false);
@@ -435,14 +438,19 @@ export default function CreateBatchProduct() {
   };
 
   const handleCreateBatchOk = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
     if (selectedFile) {
       const formData = new FormData();
       formData.append("file", selectedFile as File);
+      formData.append("shopId", authContext.shopInfo._id);
 
       try {
         const { status } = await ProductService.createBatchProduct(formData);
         if (status == 200) {
           message.success("File imported successfully");
+          loadFilteredFileInfos();
         }
 
         setIsCreateBatchModalOpen(false);
@@ -597,8 +605,11 @@ export default function CreateBatchProduct() {
   };
 
   const loadFilteredFileInfos = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
     const input: FileInfoInput = {
-      shop: "65f1e8bbc4e39014df775166",
+      shop: authContext.shopInfo._id,
       name: query.get("name") || undefined,
       startDate: query.get("startDate") || undefined,
       endDate: query.get("endDate") || undefined,

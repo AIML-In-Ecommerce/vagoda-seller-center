@@ -5,6 +5,7 @@ import axios from "axios";
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const PROMOTION_PORT = process.env.NEXT_PUBLIC_PROMOTION_PORT;
+const GATEWAY_PREFIX = process.env.NEXT_PUBLIC_GATEWAY_PREFIX;
 
 interface PromotionListResponse {
   status: number;
@@ -95,11 +96,16 @@ export async function GET_GetAllPromotions() {
 }
 
 export async function GET_GetPromotionListByShop(shopId: string) {
+  // const url = (
+  //   BACKEND_PREFIX?.toString() +
+  //   ":" +
+  //   PROMOTION_PORT?.toString() +
+  //   "/promotions/shop/" +
+  //   shopId
+  // ).toString();
   const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    PROMOTION_PORT?.toString() +
-    "/promotions/shop/" +
+    GATEWAY_PREFIX?.toString() +
+    "/promotion/shop/all?shopId=" +
     shopId
   ).toString();
 
@@ -133,3 +139,130 @@ export async function GET_GetPromotionListByShop(shopId: string) {
     };
   }
 }
+
+export async function POST_CreatePromotion(shopId: string, promotion: PromotionType) {
+  const url = `${GATEWAY_PREFIX}/promotion/seller/create?shopId=${shopId}`
+
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+      name: promotion.name || "",
+      description: promotion.description || "",
+      discountTypeInfo: promotion.discountTypeInfo,
+      activeDate: promotion.activeDate,
+      expiredDate: promotion.expiredDate,
+      targetProducts: [], //all products for now
+      quantity: promotion.quantity || 2,
+      redeemedTotal: 0,
+      status: promotion.status,
+      code: promotion.code
+    });
+    const responseData: PromotionListResponse = response.data;
+
+    if (responseData.status === 200) {
+      return {
+        isDenied: false,
+        message: "Create promotion successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to get promotion",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to get promotion",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function PUT_UpdatePromotion(shopId: string, promotionId: string, promotion: PromotionType) {
+  const url = `${GATEWAY_PREFIX}/promotion/seller/update?shopId=${shopId}&promotionId=${promotionId}`
+
+  try {
+    // console.log(url);  
+    const response = await axios.put(url, {
+      name: promotion.name || "",
+      shopId: shopId,
+      description: promotion.description || "",
+      discountTypeInfo: promotion.discountTypeInfo,
+      activeDate: promotion.activeDate,
+      expiredDate: promotion.expiredDate,
+      targetProducts: [], //all products for now
+      quantity: promotion.quantity || 2,
+      redeemedTotal: 0,
+      status: promotion.status,
+      code: promotion.code
+    });
+    const responseData: PromotionListResponse = response.data;
+
+    if (responseData.status === 200) {
+      return {
+        isDenied: false,
+        message: "Update promotion successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to update promotion",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to update promotion",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function DELETE_DeletePromotion(shopId: string, promotionId: string) {
+  const url = `${GATEWAY_PREFIX}/promotion/seller/delete?shopId=${shopId}&promotionId=${promotionId}`
+
+  try {
+    // console.log(url);  
+    const response = await axios.delete(url);
+    const responseData: PromotionListResponse = response.data;
+
+    if (responseData.status === 200) {
+      return {
+        isDenied: false,
+        message: "Delete promotion successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to delete promotion",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to delete promotion",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+

@@ -8,82 +8,83 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import CouponInsightTable from "./table/CouponInsightTable";
+import { PromotionType } from "@/model/PromotionType";
 
 dayjs.extend(LocalizedFormat)
 
 
 const { RangePicker } = DatePicker
 
-const mainValues = [
-    {
-        title: "Doanh thu",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng giá trị của các đơn hàng có áp dụng Mã Giảm Giá của Nhà bán đã được xác nhận trong khoảng thời gian đã chọn.",
-        backgroundColor: '#0ea5e9',
-        borderVisibility: true,
-    },
-    {
-        title: "Mã đã dùng",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng Mã Giảm Giá của Nhà bán đã được sử dụng tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
-        backgroundColor: '#f97316',
-        borderVisibility: true,
-    },
-    {
-        title: "Chi phí",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng chi phí Mã Giảm Giá mà Nhà bán phải chi, tính trên các đơn hàng xác nhận trong khoảng thời gian đã chọn.",
-        backgroundColor: '#10b981',
-        borderVisibility: false,
+// const mainValues = [
+//     {
+//         title: "Doanh thu",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng giá trị của các đơn hàng có áp dụng Mã Giảm Giá của Nhà bán đã được xác nhận trong khoảng thời gian đã chọn.",
+//         backgroundColor: '#0ea5e9',
+//         borderVisibility: true,
+//     },
+//     {
+//         title: "Mã đã dùng",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng số lượng Mã Giảm Giá của Nhà bán đã được sử dụng tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
+//         backgroundColor: '#f97316',
+//         borderVisibility: true,
+//     },
+//     {
+//         title: "Chi phí",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng chi phí Mã Giảm Giá mà Nhà bán phải chi, tính trên các đơn hàng xác nhận trong khoảng thời gian đã chọn.",
+//         backgroundColor: '#10b981',
+//         borderVisibility: false,
 
-    },
-    {
-        title: "Tỉ lệ lợi nhuận trên chi phí",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Doanh thu/chi phí Mã Giảm Giá",
-        backgroundColor: '#ec4899',
-        borderVisibility: false
-    },
-    {
-        title: "Sản phẩm đã bán",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng sản phẩm có áp dụng Mã Giảm Giá của Nhà bán đã bán, tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
-        backgroundColor: '#3b82f6',
-        borderVisibility: false
-    },
-    {
-        title: "Người mua",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng người mua đã sử dụng ít nhất một Mã Giảm Giá của Nhà bán, tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
-        backgroundColor: '#78716c',
-        borderVisibility: false
-    },
-    {
-        title: "Đơn hàng",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số đơn hàng được xác nhận và có áp dụng Mã giảm giá của Nhà bán trong khoảng thời gian đã chọn.",
-        backgroundColor: '#78716c',
-        borderVisibility: false
-    },
+//     },
+//     {
+//         title: "Tỉ lệ lợi nhuận trên chi phí",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Doanh thu/chi phí Mã Giảm Giá",
+//         backgroundColor: '#ec4899',
+//         borderVisibility: false
+//     },
+//     {
+//         title: "Sản phẩm đã bán",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng số lượng sản phẩm có áp dụng Mã Giảm Giá của Nhà bán đã bán, tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
+//         backgroundColor: '#3b82f6',
+//         borderVisibility: false
+//     },
+//     {
+//         title: "Người mua",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng số lượng người mua đã sử dụng ít nhất một Mã Giảm Giá của Nhà bán, tính trên toàn bộ các đơn hàng được xác nhận trong khoảng thời gian đã chọn.",
+//         backgroundColor: '#78716c',
+//         borderVisibility: false
+//     },
+//     {
+//         title: "Đơn hàng",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng số đơn hàng được xác nhận và có áp dụng Mã giảm giá của Nhà bán trong khoảng thời gian đã chọn.",
+//         backgroundColor: '#78716c',
+//         borderVisibility: false
+//     },
 
-]
+// ]
 
 const discounts = [
     {
         label: 'Các mã giảm giá được tạo bởi nhà bán',
         value: 'SellerDiscount',
     },
-    {
-        label: 'Các mã giảm giá được tạo bởi Techzone',
-        value: 'TechzoneDiscount',
-    },
+    // {
+    //     label: 'Các mã giảm giá được tạo bởi Vagoda',
+    //     value: 'VagodaDiscount',
+    // },
 ]
 
 const discountTypeOptions: SelectProps['options'] = [
@@ -91,10 +92,10 @@ const discountTypeOptions: SelectProps['options'] = [
         label: 'Các mã giảm giá được tạo bởi nhà bán',
         value: 'SellerDiscount',
     },
-    {
-        label: 'Các mã giảm giá được tạo bởi Techzone',
-        value: 'TechzoneDiscount',
-    },
+    // {
+    //     label: 'Các mã giảm giá được tạo bởi Vagoda',
+    //     value: 'VagodaDiscount',
+    // },
 ]
 
 export default function CouponInsight() {
@@ -191,7 +192,7 @@ export default function CouponInsight() {
                     </div>
                 </div>
 
-                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                {/* <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
                     <div className="flex flex-col lg:flex-row">
                         <div className="font-semibold">{selectedDiscountLabel}</div>
                         <div className="lg:ml-4 text-slate-500">
@@ -231,7 +232,7 @@ export default function CouponInsight() {
                         </div>
                         <Empty description={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty>
                     </div>
-                </div>
+                </div> */}
                 <div className="mt-5 mx-5">
                     <CouponInsightTable />
                 </div>

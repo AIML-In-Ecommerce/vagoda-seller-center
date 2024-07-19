@@ -1,6 +1,7 @@
 "use client";
 import { ReviewInputType } from "@/apis/ReviewAPI";
 import ReviewInfoDrawer from "@/component/review/ReviewInfoDrawer";
+import { AuthContext } from "@/context/AuthContext";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ReviewType } from "@/model/ReviewType";
 import { CategoryService } from "@/services/Category";
@@ -22,7 +23,7 @@ import {
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GoStarFill } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
 
@@ -46,6 +47,8 @@ const exportOptions: MenuProps["items"] = [
 
 export default function ReviewProductPage() {
   const query = useSearchParams();
+  const authContext = useContext(AuthContext);
+
   const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
   const [allReviews, setAllReviews] = useState<_ReviewType[]>([]);
   const [totalReview, setTotalReview] = useState(0);
@@ -316,8 +319,11 @@ export default function ReviewProductPage() {
   };
 
   const loadFilteredReviews = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
     const filteredInput: ReviewInputType = {
-      shop: "65f1e8bbc4e39014df775166",
+      shop: authContext.shopInfo._id,
       category: query.get("category") || undefined,
       product: query.get("product") || undefined,
       isResponse: query.get("isResponse")

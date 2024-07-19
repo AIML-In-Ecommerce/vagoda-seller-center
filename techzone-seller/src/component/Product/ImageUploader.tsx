@@ -27,44 +27,8 @@ export default function ImageUploader(props: ImageUploaderProps) {
       status: "done",
       url: url,
     }));
-    console.log("FLAG 1", fileList);
     setFileList(initialFileList as UploadFile[]);
   }, [props.fileUrls]);
-
-  const onChange: UploadProps["onChange"] = async ({
-    fileList: newFileList,
-  }) => {
-    let updatedURL: string[] = [...props.fileUrls];
-    const updatedFileList: UploadFile[] = [];
-
-    for (const item of newFileList) {
-      if (item.originFileObj) {
-        const file = item.originFileObj as File;
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const imageUrl = await UploadService.getURLImage(formData);
-
-        const updatedFile = {
-          ...item,
-          status: "done",
-          url: imageUrl,
-        };
-
-        updatedFileList.push(updatedFile as UploadFile);
-
-        if (imageUrl) {
-          updatedURL.push(imageUrl);
-        }
-      } else {
-        updatedFileList.push(item);
-      }
-    }
-
-    console.log("FLAG 2");
-    setFileList(updatedFileList as UploadFile[]);
-    props.setFileString(updatedURL);
-  };
 
   const onPreview = async (file: UploadFile) => {
     let src = file.url as string;
@@ -114,47 +78,23 @@ export default function ImageUploader(props: ImageUploaderProps) {
 
     const imageUrl = await UploadService.getURLImage(formData);
 
-    const updatedFile = {
-      ...value,
-      status: "done",
-      url: imageUrl,
-    };
-
     const updatedUrls: string[] = [...props.fileUrls];
     updatedUrls.push(imageUrl);
 
     props.setFileString(updatedUrls);
-
-    const updatedFiles = [...fileList];
-    updatedFiles.push(updatedFile as UploadFile);
-
-    console.log("FLAG 3");
-    setFileList(updatedFiles as UploadFile[]);
   };
 
   const handleRemoveFile = async (file: UploadFile) => {
-    console.log("Removing file", file.url);
     const response = await UploadService.deleteFile(file.url ?? "");
-    console.log("THAP", response);
     if (response.status == 200) {
-      message.success(response.message);
-
-      console.log("List file", fileList, file);
-
+      console.log("Response: " + response);
       const updateImageUrls: string[] = props.fileUrls.filter(
         (url) => url !== file.url
       );
 
+      console.log("Update image list: " + updateImageUrls[1]);
       props.setFileString(updateImageUrls);
-      // const updatedFileList: UploadFile[] = fileList.filter(
-      //   (item) => item.uid !== file.uid
-      // );
-
-      // console.log("Updated file list", updatedFileList);
-      // console.log("FLAG 4");
-      // setFileList([]);
-
-      console.log("UPDATE", updateImageUrls, props.fileUrls, fileList);
+      message.success(response.message);
     } else {
       message.error(response.message);
     }
@@ -168,15 +108,16 @@ export default function ImageUploader(props: ImageUploaderProps) {
       showReset
       modalTitle={"Chỉnh sửa ảnh"}
       onModalOk={handleModalOk}
+      modalCancel={"Hủy"}
+      modalOk={"Chọn"}
     >
       <Upload
         listType="picture-card"
         fileList={fileList}
-        onChange={onChange}
         onPreview={onPreview}
         itemRender={itemRender}
         maxCount={props.maxNumber}
-        // onRemove={handleRemoveFile}
+        onRemove={handleRemoveFile}
       >
         {fileList.length < props.maxNumber && "+ Tải ảnh"}
       </Upload>

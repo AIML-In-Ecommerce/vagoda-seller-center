@@ -1,7 +1,8 @@
+"use client";
 import { Card, Statistic, Tooltip } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TbInfoCircle } from "react-icons/tb";
 
 
@@ -42,7 +43,7 @@ export function TaskCard(props: TaskCardProps) {
                 <Link href={props.item.urlRedirect}>
                     <div className={`absolute z-10 top-0 h-2 w-full border rounded-xl ${handleCardColor(props.item.type)}`}></div>
                     <Statistic className="relative z-0 h-32 shadow-md p-2"
-                        title={<div className="text-base w-2/3">{props.item.title}</div>}
+                        title={<div className="text-base w-2/3 text-ellipsis overflow-hidden">{props.item.title}</div>}
                         value={props.item.value}
                         valueStyle={{fontSize: "30px"}}>
                     </Statistic>
@@ -58,11 +59,17 @@ export function TaskCard(props: TaskCardProps) {
 }
 
 export default function TodoTasks(props: TodoTasksProps) {
+    const [data, setData] = useState<Task[]>(props.data);
+    
+    useEffect(() => {
+        setData(props.data);
+    }, [props.data])
+
     return (
         <React.Fragment>
             <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5">
                 {
-                    props.data.map((item, index) => {
+                    data?.map((item, index) => {
                         return (
                             <div key={index} className="col-span-1">
                                 <TaskCard item={item} />

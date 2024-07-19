@@ -41,18 +41,18 @@ const tabs: TabsProps['items'] = [
         children: <RevenueAndVisits />
 
     },
-    {
-        key: '2',
-        label: 'Doanh số thấp',
-        children: <LowSales />
+    // {
+    //     key: '2',
+    //     label: 'Doanh số thấp',
+    //     children: <LowSales />
 
-    },
-    {
-        key: '3',
-        label: 'Tồn kho thấp',
-        children: <LowInventory />
+    // },
+    // {
+    //     key: '3',
+    //     label: 'Tồn kho thấp',
+    //     children: <LowInventory />
 
-    },
+    // },
 ]
 
 

@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/cssinjs": "^1.19.1",
+    "@ant-design/cssinjs": "^1.21.0",
     "@ant-design/nextjs-registry": "^1.0.0",
     "@lottiefiles/lottie-player": "^2.0.4",
     "@tinymce/tinymce-react": "^5.0.1",
@@ -44,6 +44,7 @@
     "react-quill-antd": "^1.0.1-beta",
     "react-scroll": "^1.9.0",
     "react-sortable-hoc": "^2.0.0",
+    "runes2": "^1.1.4",
     "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.8",
     "xlsx": "^0.18.5"

@@ -22,16 +22,16 @@ const tabsRouting = [
         label: 'Mã giảm giá',
         url: '/report/coupon-insight',
     },
-    {
-        key: '2',
-        label: 'Giảm giá vận chuyển',
-        url: '/report/shipping-insight'
-    },
-    {
-        key: '3',
-        label: 'Chiến dịch khuyến mãi',
-        url: '/report/campaign-insight'
-    },
+    // {
+    //     key: '2',
+    //     label: 'Giảm giá vận chuyển',
+    //     url: '/report/shipping-insight'
+    // },
+    // {
+    //     key: '3',
+    //     label: 'Chiến dịch khuyến mãi',
+    //     url: '/report/campaign-insight'
+    // },
 ]
 
 const tabs: TabsProps['items'] = [
@@ -41,18 +41,18 @@ const tabs: TabsProps['items'] = [
         children: <CouponInsight />
 
     },
-    {
-        key: '2',
-        label: 'Giảm giá vận chuyển',
-        children: <ShippingInsight />
+    // {
+    //     key: '2',
+    //     label: 'Giảm giá vận chuyển',
+    //     children: <ShippingInsight />
 
-    },
-    {
-        key: '3',
-        label: 'Chiến dịch khuyến mãi',
-        children: <CampaignInsight />
+    // },
+    // {
+    //     key: '3',
+    //     label: 'Chiến dịch khuyến mãi',
+    //     children: <CampaignInsight />
 
-    },
+    // },
 ]
 
 

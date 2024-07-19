@@ -5,6 +5,8 @@ import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";
 
 interface CheckableCardProps {
     item: any;
+    isPercentageValue?: boolean;
+    suffix?: string
     checkboxVisibility?: boolean;
     borderVisibility?: boolean;
     selectedCategories?: any[];
@@ -26,25 +28,33 @@ const DecreasingValueStyle: React.CSSProperties = {
 
 export default function CheckableCard(props: CheckableCardProps) {
     const [isVisible, setIsVisible] = useState<boolean>(props.borderVisibility || false);
-    const value = Math.round(Math.random() * 100 * Math.random() * 100);
-    const mockDiffPercents = Math.round(Math.random() * 100) / 100 + Math.random();
-    const isIncreasing = Math.random() < 0.5;
+    // const value = Math.round(Math.random() * 100 * Math.random() * 100);
+    // const mockDiffPercents = Math.round(Math.random() * 100) / 100 + Math.random();
+    const isIncreasing = props.item?.percentChange > 0 ? true : false;
+    const absPercentChange = isIncreasing ? props.item?.percentChange : (-1) * props.item?.percentChange;
 
     const handleSelectedCard = (category: any) => {
-        const isSelected = props.selectedCategories?.includes(category);
-        console.log('SelectedCategories: ',props.selectedCategories);
+        // console.log('handleSelectedCard', category);
 
-        if (isSelected) {
-            props.setSelectedCategories!(props.selectedCategories!.filter(item => item.id !== category.id))
+        const isAlreadySelected = props.selectedCategories?.find(item => item._id === category._id);
+        // console.log('isAlreadySelected: ', isAlreadySelected);
+
+        if (isAlreadySelected) {
+            props.setSelectedCategories!(props.selectedCategories!.filter(item => item._id !== category._id))
         } else {
             // Limit to 2 selections
             if (props.selectedCategories!.length < 2) {
-                props.setSelectedCategories!([...props.selectedCategories!, category]);
+                let categories = [...props.selectedCategories!];
+                categories.push(category);
+                props.setSelectedCategories!(categories);
             }
-            else return;
+            else {
+                console.log("Limit selected categories");
+                return;
+            };
         }
         setIsVisible(!isVisible);
-        
+
     }
 
     return (
@@ -68,16 +78,32 @@ export default function CheckableCard(props: CheckableCardProps) {
                                 </ConfigProvider>
                             ) : <div className="truncate">{props.item.title}</div>
                         }
-                        <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={value} />
                         {
-                            isIncreasing ? (
-                                <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={mockDiffPercents} precision={2}
-                                    prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
-                            ) : (
-                                <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={mockDiffPercents} precision={2}
-                                    prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
-                            )
+                            props.isPercentageValue ? <>{<>
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={"%"}/>
+                                {
+                                    isIncreasing ? (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
+                                    ) : (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
+                                    )
+                                }
+                            </>}</> : <>{<>
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={props.suffix ?? ""}/>
+                                {
+                                    isIncreasing ? (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
+                                    ) : (
+                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
+                                            prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
+                                    )
+                                }
+                            </>}</>
                         }
+
                         <div className="absolute wrap top-3 right-2 text-lg">
                             <Tooltip title={props.item.tooltip}>
                                 <TbInfoCircle />

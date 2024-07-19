@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Chart as ChartJS,
@@ -16,6 +17,7 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { getProvince } from '@/apis/statistic/AddressAPI';
 
 ChartJS.register(
   LinearScale,
@@ -30,32 +32,25 @@ ChartJS.register(
 );
 
 interface ItemData {
-  title: string;
-  value: number;
+  idProvince: string,
+  revenue: string,
+  profit: number,
+  count: number,
+  statisticData: any,
 }
 
-interface HorizontalBarChartProps {
-  items?: any[]
+interface TopCitiesBarChartProps {
+  items: any[]
 }
 
-export default function HorizontalBarChart(props: HorizontalBarChartProps) {
 
-  const items: ItemData[] = [
-    { title: "Điện thoại di động", value: Math.floor(Math.random() * 10000000) },
-    { title: "Máy tính xách tay", value: Math.floor(Math.random() * 10000000) },
-    { title: "Máy tính bảng", value: Math.floor(Math.random() * 10000000) },
-    { title: "Đồng hồ thông minh", value: Math.floor(Math.random() * 10000000) },
-    { title: "Máy ảnh kỹ thuật số", value: Math.floor(Math.random() * 10000000) },
-    { title: "Tai nghe không dây", value: Math.floor(Math.random() * 10000000) },
-    { title: "Router Wi-Fi", value: Math.floor(Math.random() * 10000000) },
-    { title: "Máy chơi game", value: Math.floor(Math.random() * 10000000) },
-    { title: "Máy in laser", value: Math.floor(Math.random() * 10000000) },
-    { title: "Ổ cứng di động", value: Math.floor(Math.random() * 10000000) }
-  ].sort((a, b) => b.value - a.value);
+export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
+  const provincesData = getProvince();
 
-  // const items = useMemo(() => {
-
-  // },[props.items]);
+  const items = useMemo<ItemData[]>(() => {
+      const items = props.items;
+      return items;
+  },[props.items])
 
   const options = {
     indexAxis: 'y' as const,
@@ -98,10 +93,13 @@ export default function HorizontalBarChart(props: HorizontalBarChartProps) {
   };
 
   const data = {
-    labels: items.map(item => item.title),
+    labels: items.map(current => {
+        const provinceItem = provincesData.find(province => province.idProvince === current.idProvince);
+        return provinceItem?.name;
+  }),
     datasets: [
       {
-        data: items.map(item => item.value),
+        data: items.map(item => item.revenue),
         backgroundColor: '#75c799',
         borderColor: '#75c799',
       }

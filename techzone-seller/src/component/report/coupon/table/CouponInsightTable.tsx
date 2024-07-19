@@ -1,19 +1,29 @@
-import { Select, Table, TableColumnsType, Tooltip } from 'antd'
-import React from 'react'
+"use client";
+import { GET_GetAllPromotions, GET_GetPromotionListByShop } from '@/apis/promotion/PromotionAPI';
+import PromotionCard from '@/component/booth-design/decorator/mini/PromotionCard';
+import { AuthContext } from '@/context/AuthContext';
+import { PromotionStatus, PromotionType } from '@/model/PromotionType';
+import { Popover, Select, Table, TableColumnsType, Tag, Timeline, Tooltip } from 'antd'
+import React, { useContext, useEffect, useState } from 'react'
+import { FaRegClipboard } from 'react-icons/fa6';
 import { TbInfoCircle } from 'react-icons/tb';
 import styled from 'styled-components';
+import moment from 'moment';
 
+// Function to format dates
+const formatDate = (date: Date) => {
+  return moment(date).format("DD/MM/YYYY HH:mm");
+};
 
 interface CouponInsightStatistics {
   key: string,
-  name: string,
-  activeDate: Date,
+  promotion: PromotionType,
   usedCodeCount: number,
   totalCodeCount: number
   productRevenue: number,
   soldProductCount: number,
   totalCost: number,
-  // profitMargin: number // 
+  returnOnAsset: number,
   buyerCount: number,
   orderCount: number,
 }
@@ -22,13 +32,56 @@ const columns: TableColumnsType<CouponInsightStatistics> = [
   {
     title: 'Mã giảm giá',
     dataIndex: 'name',
+    render: (value: any, record: CouponInsightStatistics) => {
+      let triggerSelected = false;
+      const innerContent = (
+        <div className="flex flex-col gap-1">
+          <div>{record.promotion.name}</div>
+          <Tag color="default"
+            onClick={async () => { await navigator.clipboard.writeText(record.promotion.code) }}>
+            <div className="items-center flex flex-row gap-2">
+              <div><FaRegClipboard /></div>
+              <div className="font-semibold">
+                {record.promotion.code}
+              </div>
+            </div>
+          </Tag>
+        </div>
+      )
+      const popupContent = (<PromotionCard item={record.promotion}
+        isSelected={triggerSelected}
+        applyDiscount={() => { triggerSelected = true }}
+        removeDiscount={() => { triggerSelected = false }} />)
+      return (
+        <Popover placement="top" title="Preview" content={popupContent}
+          autoAdjustOverflow
+          arrow={{ pointAtCenter: true }}
+          overlayInnerStyle={{ width: '400px' }}>
+          {innerContent}
+        </Popover>
+      )
+    },
+    width: '15%',
     fixed: 'left',
-    width: '10%',
   },
   {
     title: 'Thời gian áp dụng',
     dataIndex: 'activeDate',
     width: '20%',
+    render: (value: any, record: CouponInsightStatistics) => {
+      return (<Timeline mode="right" className="w-full"
+        items={[
+          {
+            children: 'Bắt đầu',
+            label: `${formatDate(record.promotion.activeDate)}`
+          },
+          {
+            children: 'Kết thúc',
+            label: `${formatDate(record.promotion.expiredDate)}`
+          }
+        ]}>
+      </Timeline>)
+    },
   },
   {
     title: <div className="flex flex-row gap-1 items-center">
@@ -80,6 +133,7 @@ const columns: TableColumnsType<CouponInsightStatistics> = [
         <TbInfoCircle />
       </Tooltip>
     </div>,
+    dataIndex: 'returnOnAsset'
   },
   {
     title: <div className="flex flex-row gap-1 items-center">
@@ -107,22 +161,85 @@ const TableWrapper = styled.div`
   // }
 `
 
+
 export default function CouponInsightTable() {
+  const context = useContext(AuthContext);
+  const [promotions, setPromotions] = useState<PromotionType[]>([]);
+  const [promotionStatistics, setPromotionStatistics] = useState<CouponInsightStatistics[]>([]);
+  const [currentStatusValue, setCurrentStatusValue] = useState<string>("");
+  const [fileredData, setFilteredData] = useState<CouponInsightStatistics[]>([]);
+
+  const filterData = () => {
+    let data = promotionStatistics;
+
+    // if (keyword) {
+    //     data = data.filter(item =>
+    //         Object.values(item).some(value =>
+    //             value.toString().toLowerCase().includes(keyword.toLowerCase())
+    //         )
+    //     );
+    // }
+
+    if (currentStatusValue) {
+        data = data.filter(item => item.promotion.status === currentStatusValue);
+    }
+    setFilteredData(data);
+};
+
+  useEffect(() => {
+    const fetchPromotionStatistics = async () => {
+      if (!context.shopInfo) return;
+      const response = await GET_GetPromotionListByShop(context.shopInfo?._id);
+      if (response) {
+        const promotionListData = response.data as PromotionType[];
+        setPromotions(promotionListData);
+        console.log('fetchPromotionList', promotionListData);
+
+        let couponListStatisics = promotionListData.map(promotion => {
+          let productRevenue = 0, totalCost = 0;
+          let returnOnAsset = totalCost === 0 ? 0 : productRevenue / totalCost;
+          return {
+            key: promotion._id,
+            promotion: promotion,
+            usedCodeCount: promotion.redeemedTotal,
+            totalCodeCount: promotion.quantity,
+            productRevenue: productRevenue,
+            soldProductCount: 0,
+            totalCost: totalCost,
+            returnOnAsset: returnOnAsset,
+            buyerCount: 0,
+            orderCount: 0,
+          } as CouponInsightStatistics
+        })
+
+        setPromotionStatistics(couponListStatisics);
+      }
+    }
+    fetchPromotionStatistics();
+  }, [context.shopInfo])
+
+  useEffect(() => {
+
+    filterData();
+    // console.log('Keyword', keyword);
+    // console.log('currentStatusValue', currentStatusValue);
+}, [currentStatusValue]);
+
   return (
     <div className="flex flex-col bg-white my-5 px-5">
       <div className="flex lg:flex-row flex-col lg:justify-between my-5">
-        <div className="font-semibold">Số lượng mã giảm giá: {0}</div>
+        <div className="font-semibold">Số lượng mã giảm giá: {promotions.length}</div>
         <div className="flex flex-row gap-2 items-center">
           <div>Trạng thái</div>
           <Select
             style={{ width: '140px' }}
             placement='bottomLeft'
-            defaultValue="all"
+            value={currentStatusValue}
             options={[
-              { value: 'all', label: 'Tất cả' },
-              { value: 'upcomming', label: 'Sắp diễn ra' },
-              { value: 'inprogress', label: 'Đang diễn ra' },
-              { value: 'expired', label: 'Kết thúc' },
+              { value: '', label: 'Tất cả' },
+              { value: PromotionStatus.UPCOMMING, label: 'Sắp diễn ra' },
+              { value: PromotionStatus.IN_PROGRESS, label: 'Đang diễn ra' },
+              { value: PromotionStatus.EXPIRED, label: 'Kết thúc' },
             ]}
           />
         </div>
@@ -130,7 +247,7 @@ export default function CouponInsightTable() {
       <div className="mb-5">
         <TableWrapper>
           <Table columns={columns} scroll={{ x: "max-content" }}
-            // dataSource={data}
+            dataSource={promotionStatistics}
             bordered />
         </TableWrapper>
       </div>

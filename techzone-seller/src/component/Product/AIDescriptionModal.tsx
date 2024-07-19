@@ -10,29 +10,20 @@ interface AIDescriptionModalProp {
   shortDescription: string;
 }
 
-const mockDescription = `<p class="QN2lPu">&Aacute;o sơ mi nam ngắn tay cổ vest form đẹp LADOS 8085 vải đũi thấm h&uacute;t, sang trọng dễ phối đồ</p>
-<p class="QN2lPu">⏩ Th&ocirc;ng tin sản phẩm:</p>
-<p class="QN2lPu">👉 Chất liệu: chất đũi thấm h&uacute;t tốt, tho&aacute;ng m&aacute;t</p>
-<p class="QN2lPu">👉 &Aacute;o thấm h&uacute;t mồ h&ocirc;i tốt</p>
-<p class="QN2lPu">👉 Form rộng vừa, đứng form &aacute;o cực kỳ trẻ trung năng động</p>
-<p class="QN2lPu">👉 Chất vải d&agrave;y đẹp, kh&ocirc;ng x&ugrave; l&ocirc;ng, kh&ocirc;ng phai m&agrave;u</p>
-<p class="QN2lPu">👉 Đường may cực tỉ mỉ cực đẹp</p>
-<p class="QN2lPu">👉 C&oacute; thể mặc đi l&agrave;m, đi chơi, đặc biệt đi tiệc sự kiện , cực sang trọng</p>
+const mockdata = `<p class="QN2lPu"><strong>Áo thun thương hiệu YODY mùa hè mát mẻ</strong></p>
+<p class="QN2lPu">⏩ Thông tin sản phẩm:</p>
+<p class="QN2lPu">👉 Chất liệu: Áo thun co giãn tốt, thấm hút mồ hôi hiệu quả</p>
+<p class="QN2lPu">👉 Kiểu dáng: Thiết kế thời thượng, phù hợp với mọi lứa tuổi</p>
+<p class="QN2lPu">👉 Màu sắc: Đa dạng, phong phú đáp ứng nhu cầu của mọi người</p>
+<p class="QN2lPu">👉 Bảo hành: 1 tháng</p>
 <p class="QN2lPu">&nbsp;</p>
-<p class="QN2lPu">⏩Được sản xuất v&agrave; bảo h&agrave;nh bởi C&ocirc;ng ty TNHH MTV LADOS VIỆT NAM</p>
-<p class="QN2lPu"><img style="display: block; margin-left: auto; margin-right: auto;" src="https://down-vn.img.susercontent.com/file/vn-11134207-7qukw-ley33b4kzpmyac" alt="" width="573" height="573"></p>
-<p class="QN2lPu"><video style="width: 612px; height: 306px; display: table; margin-left: auto; margin-right: auto;" controls="controls" width="612" height="306"> <source src="https://cvf.shopee.vn/file/api/v4/11110105/mms/vn-11110105-6ke15-lu7a25d0b1n547.16000081713323497.mp4" type="video/mp4"></video></p>
-<p class="QN2lPu"><strong>TH&Ocirc;NG TIN THƯƠNG HIỆU</strong></p>
-<p class="QN2lPu"><strong>LADOS </strong>l&agrave; Nh&agrave; ph&acirc;n phối chuy&ecirc;n sỉ &amp; lẻ c&aacute;c mặt h&agrave;ng thời trang chất lượng v&agrave; gi&aacute; cả phải chăng với thương hiệu LADOS. Ch&uacute;ng t&ocirc;i h&acirc;n hạnh v&agrave; lu&ocirc;n cố gắng để mang đến cho qu&yacute; kh&aacute;ch những sản phẩm chất lượng với gi&aacute; cả tốt nhất v&agrave; dịch vụ uy t&iacute;n. Tất cả c&aacute;c sản phẩm của shop đều được ch&uacute;ng t&ocirc;i tuyển chọn một c&aacute;ch kỹ lưỡng sao cho ph&ugrave; hợp với phong c&aacute;ch Ch&acirc;u &Aacute; v&agrave; bắt nhịp c&ugrave;ng xu hướng trẻ. Đến với ch&uacute;ng t&ocirc;i kh&aacute;ch h&agrave;ng c&oacute; thể y&ecirc;n t&acirc;m mua h&agrave;ng với nhiều mẫu m&atilde; được cập nhật thường xuy&ecirc;n v&agrave; nhiều khuyến mại hấp dẫn.</p>
-<p class="QN2lPu">📣 CH&Iacute;NH S&Aacute;CH MUA H&Agrave;NG</p>
-<p class="QN2lPu">👉 Cam kết chất lượng v&agrave; mẫu m&atilde; sản phẩm giống với h&igrave;nh ảnh.</p>
-<p class="QN2lPu">👉 Ho&agrave;n tiền nếu sản phẩm kh&ocirc;ng giống với m&ocirc; tả.</p>
-<p class="QN2lPu">👉 ĐỔI TRẢ TRONG 7 NG&Agrave;Y NẾU KH&Ocirc;NG Đ&Uacute;NG MI&Ecirc;U TẢ</p>
-<p class="QN2lPu">👉 CAM KẾT H&Agrave;NG CH&Iacute;NH H&Atilde;NG 100%</p>
-<p class="QN2lPu">👉 CAM KẾT ẢNH SHOP TỰ CHỤP</p>
-<p class="QN2lPu">👉 freeship cho đơn h&agrave;ng tr&ecirc;n 150k</p>
+<p class="QN2lPu"><strong>THÔNG TIN THƯƠNG HIỆU</strong></p>
+<p class="QN2lPu"><strong>YODY </strong>được biết đến như một thương hiệu uy tín trong lĩnh vực thời trang. Các sản phẩm của YODY luôn đảm bảo chất lượng, kiểu dáng đa dạng và giá cả phải chăng. Chúng tôi luôn cố gắng mang đến cho quý khách hàng những sản phẩm tốt nhất với giá cả cạnh tranh nhất.</p>
+<p class="QN2lPu">📣 CHÍNH SÁCH MUA HÀNG</p>
+<p class="QN2lPu">👉 Cam kết chất lượng và mẫu mã sản phẩm giống với hình ảnh.</p>
+<p class="QN2lPu">👉 Hoàn tiền nếu sản phẩm không giống với mô tả.</p>
+<p class="QN2lPu">👉 ĐỔI TRẢ TRONG THỜI GIAN BẢO HÀNH NẾU SẢN PHẨM GẶP LỖI</p>
 <p class="QN2lPu">&nbsp;</p>`;
-
 export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   const [description, setDescription] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -58,7 +49,7 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
       if (rawResponse.status == 200) {
         setDescription(rawResponse.data.data);
@@ -70,7 +61,9 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   };
 
   useEffect(() => {
-    getDescriptionFromAI(props.shortDescription);
+    //getDescriptionFromAI(props.shortDescription);
+    setDescription(mockdata);
+    setIsLoading(false);
   }, [props.isOpen]);
 
   const displayLoading = (
@@ -91,14 +84,6 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
     props.setDescription(description);
     props.openModal(false);
   };
-
-  // useEffect(() => {
-  //   setIsLoading(true);
-  //   setTimeout(() => {
-  //     setDescription(mockDescription);
-  //     setIsLoading(false);
-  //   }, 3000);
-  // }, [props.isOpen]);
 
   return (
     <Modal
@@ -130,7 +115,7 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
                 style={{ width: "15%" }}
                 type="primary"
                 onClick={() => handleApplyClick()}
-                className=" text-center ml-4"
+                className=" text-center ml-4 bg-sky-400"
               >
                 Chọn mô tả
               </Button>
