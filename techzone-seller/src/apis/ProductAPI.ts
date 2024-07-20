@@ -112,7 +112,7 @@ export const ProductAPI = {
     }
   },
   getFileInfoByFilter: async (input: FileInfoInput) => {
-    let URL = `${BACKEND_SERVER_PREFIX}/files/filter?shop=${input.shop}`;
+    let URL = `${BACKEND_SERVER_PREFIX}/files/filter?shopId=${input.shop}`;
     const params = new URLSearchParams();
 
     if (input.name) {
