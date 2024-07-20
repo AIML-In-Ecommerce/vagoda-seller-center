@@ -151,9 +151,9 @@ const getDateAfterStep = (currentDate: Date, step: number, unitStep: string) => 
     let dateAfterStep = new Date(currentDate);
 
     unitStep === 'date' ?
-        dateAfterStep.setDate(dateAfterStep.getDate() + 1) : unitStep === 'month' ?
+        dateAfterStep.setDate(dateAfterStep.getDate() + step) : unitStep === 'month' ?
             dateAfterStep.setMonth(dateAfterStep.getMonth() + Math.ceil(step / 29)) : unitStep === 'quarter' ?
-                dateAfterStep.setMonth(dateAfterStep.getMonth() + Math.ceil(step / 29) * 3) :
+                dateAfterStep.setMonth(dateAfterStep.getMonth() + step) :
                 dateAfterStep.setFullYear(dateAfterStep.getFullYear() + Math.ceil(Math.ceil(step / 29) / 12));
     // dateAfterStep.setHours(23, 59, 59, 59);
 
@@ -167,18 +167,19 @@ const getTotalQuantitiesInRange = (orders: Order[], startDate: Date, endDate: Da
     const totalDates = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)); // Calculate total number of days
     const maxItems = 12; // Maximum number of labels to display
     let step = Math.ceil(totalDates / maxItems); // Calculate step size (date)
+    // console.log('step size', step);
     step = filterBy === 'date' ?
         step : filterBy === 'month' ?
             Math.ceil(step / 29) : filterBy === 'quarter' ?
                 Math.ceil(step / 29) * 3 : Math.ceil(Math.ceil(step / 29) / 12);
-
-    let currentDate = new Date(startDate);
-    let logicEndDate = getDateAfterStep(endDate, step, filterBy);
-    logicEndDate.setHours(0, 0, 0, 0);
+    // console.log(`step ${filterBy}`, step);
+    let currentDate = new Date(startDate);  
     let dateAfterStep = getDateAfterStep(currentDate, step, filterBy);
-    while (currentDate <= logicEndDate) {
+    // console.log('current vs after', currentDate, dateAfterStep);
+    while (currentDate <= endDate) {
         let totalQuantityPerStep = 0;
         //Interval between steps
+        console.log()
         while (currentDate < dateAfterStep) {
             totalQuantityPerStep += getTotalQuantityFromSpecificDate(orders, currentDate);
             currentDate.setDate(currentDate.getDate() + 1) // Move to the next date
@@ -227,15 +228,11 @@ const getTotalPricesInRange = (orders: Order[], startDate: Date, endDate: Date, 
                 Math.ceil(step / 29) * 3 : Math.ceil(Math.ceil(step / 29) / 12);
 
     let currentDate = new Date(startDate);
-    let logicEndDate = getDateAfterStep(endDate, step, filterBy);
-    logicEndDate.setHours(0, 0, 0, 0);
-    // console.log(`logicEndDate: ${logicEndDate}`);
     let dateAfterStep = getDateAfterStep(currentDate, step, filterBy);
-    while (currentDate <= logicEndDate) {
+    while (currentDate <= endDate) {
         let totalPricePerStep = 0;
         // console.log(`Current date: ${currentDate}`);
         // console.log(`dateAfterStep: ${dateAfterStep}`);
-
         //Interval between steps
         while (currentDate < dateAfterStep) {
             totalPricePerStep += getTotalPriceFromSpecificDate(orders, currentDate);
@@ -260,11 +257,12 @@ export function BEChart(props: BEChartProps) {
     // const [products, setProducts] = useState<Product[]>([]);
     const [orders, setOrders] = useState<Order[]>(props.orders);
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
+    
 
     const dateFrom = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[0] ?? defaultStartDate : defaultStartDate;
     }, [props.dateRange]);
-
+    
     const dateTo = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[1] ?? defaultEndDate : defaultEndDate;
     }, [props.dateRange]);
@@ -290,6 +288,7 @@ export function BEChart(props: BEChartProps) {
     }, [orders, dateFrom, dateTo, filterBy]);
 
     const data = useMemo(() => {
+        // console.log('data', labels, quantityData, revenueData);
         const props = {
             labels: labels,
             datasets: [
