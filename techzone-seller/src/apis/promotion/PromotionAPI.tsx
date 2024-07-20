@@ -13,6 +13,12 @@ interface PromotionListResponse {
   message: string;
 }
 
+interface PromotionSingleResponse {
+  status: number;
+  data: PromotionType;
+  message: string;
+}
+
 export async function POST_GetPromotionList(ids: string[]) {
   const url = (
     BACKEND_PREFIX?.toString() +
@@ -264,5 +270,77 @@ export async function DELETE_DeletePromotion(shopId: string, promotionId: string
     };
   }
 }
+
+export async function POST_GetPromotionByCode(shopId: string, code: string) {
+  const url = `${GATEWAY_PREFIX}/promotion/codes?shopId=${shopId}`
+
+  try {
+    // console.log(url);  
+    const response = await axios.post(url, {
+       codes: [code]
+    });
+    const responseData: PromotionListResponse = response.data;
+
+    if (responseData.status === 200) {
+      return {
+        isDenied: false,
+        message: "Get promotion by code successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to Get promotion by code",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to Get promotion by code",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+export async function GET_GetPromotionById(shopId: string, promotionId: string) {
+  const url = `${GATEWAY_PREFIX}/promotion/info?promotionId=${promotionId}`
+
+  try {
+    // console.log(url);  
+    const response = await axios.get(url);
+    const responseData: PromotionSingleResponse = response.data;
+
+    if (responseData.status === 200) {
+      return {
+        isDenied: false,
+        message: "Get promotion by code successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to Get promotion by code",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to Get promotion by code",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+
 
 

@@ -186,8 +186,11 @@ export default function HomePage() {
             endDate || new Date()).then((response) => {
                 currentSalesStatistics = response.data;
                 setSalesStatistics(currentSalesStatistics);
-                let salesInterval = currentSalesStatistics?.statisticsData[0]!;
-                setOrders(salesInterval?.statisticsData);
+                let salesInterval = currentSalesStatistics?.statisticsData[0];
+                // console.log("orders", salesInterval);
+                if (salesInterval) setOrders(salesInterval.statisticsData);
+                else setOrders([]);
+                
             })
     }
 
@@ -201,7 +204,8 @@ export default function HomePage() {
         if (responseAllReviews) {
             let totalScore = 0, totalRatings = 0, starRate = 1;
             let totalBadRatings = 0;
-            const rangeReviews = responseAllReviews.data as ReviewRange[]
+            const rangeReviews = responseAllReviews.data as ReviewRange[];
+            console.log("rangeReviews", rangeReviews);
             // calculate totalScore and totalRatings
             for (let range of rangeReviews) {
                 totalScore += range.totalReviews * starRate;
@@ -210,10 +214,17 @@ export default function HomePage() {
                 starRate += 1;
             }
             // Update rating scores
-            const ratingScore = roundTo2DecimalPlaces(totalScore / totalRatings);
+            if (totalRatings === 0) {
+                setProductRatingScore(0);
+            }
+            else {
+                let ratingScore = roundTo2DecimalPlaces(totalScore / totalRatings);
+                setProductRatingScore(ratingScore);
+            }
             setTotalRatings(totalRatings);
-            setProductRatingScore(ratingScore);
             setTotalBadRatingProduct(totalBadRatings);
+            console.log('Review statistics', totalScore, totalRatings, starRate);
+            console.log('Bad rating', totalBadRatings);
         }
     }
 
@@ -548,7 +559,10 @@ export default function HomePage() {
                 <div className="grid grid-cols-4 gap-x-5 gap-y-2">
                     {/* Thông tin đơn hàng */}
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 flex flex-col gap-5 my-10">
-                        <div className="font-semibold text-xl">Thống kê nhanh</div>
+                        <div className="flex flex-col lg:flex-row gap-3 items-end">
+                            <div className="font-semibold text-xl">Thống kê nhanh</div>
+                            <div>(Tuần trước {getPreviousWeekDateRange()})</div>
+                        </div>
                         {/* <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div> */}
                         <TodoTasks data={statisticData} />
                     </div>

@@ -11,11 +11,11 @@ interface StatisticResponse {
 }
 
 export interface SalesInterval {
-    count: number; // number of orders
-    interval: Date[],
-    profit: number;
-    revenue: number;
-    statisticsData: Order[]
+  count: number; // number of orders
+  interval: Date[];
+  profit: number;
+  revenue: number;
+  statisticsData: Order[];
 }
 
 export interface SalesStatistic {
@@ -105,7 +105,7 @@ export enum OrderStatusType {
   CANCELLED = "CANCELLED",
 }
 
-export interface BusinessPerformanceStats {
+export interface ConversionRateStatistic {
   totalRevenue: number;
   totalProfit: number;
   avgRevenue: number;
@@ -113,38 +113,76 @@ export interface BusinessPerformanceStats {
   totalOrders: number;
   totalAccess: number;
   conversionRate: number;
-  statisticData: StatisticInterval[];
+  statisticsData: ConversionRateInterval[];
 }
 
-export interface StatisticInterval {
+export interface ConversionRateInterval {
   interval: Date[];
   access: number;
   orders: number;
   revenue: number;
   profit: number;
   conversionRate: number | null;
-  statisticData: any[];
+  statisticsData: any[];
+}
+
+export interface OrderStatusStatistic {
+  totalRevenue: number;
+  totalProfit: number;
+  avgRevenue: number;
+  avgProfit: number;
+  totalOrders: number;
+  statisticsData: OrderStatusInterval[];
+}
+
+export interface OrderStatusInterval {
+  interval: Date[];
+  profit: number;
+  avgRevenue: number;
+  avgProfit: number;
+  totalOrders: number;
+  statisticsData: any[];
+}
+
+export interface ReturningRateStatistic {
+  totalOrders: number;
+  totalRevenue: number;
+  totalProfit: number;
+  totalReturningRevenue: number;
+  totalReturningProfit: number;
+  totalUsers: number;
+  totalReturingUsers: number;
+  returningRate: number;
+  statisticsData: ReturningRateInterval[];
+}
+
+export interface ReturningRateInterval {
+  interval: Date[];
+  totalOrders: number;
+  totalUsers: number;
+  totalReturningUsers: number;
+  returningRate: number;
+  statisticsData: any[];
 }
 
 export interface ReviewRange {
   range: [number, number];
   totalReviews: number;
-  statisticData: any;
+  statisticsData: any;
 }
 
 export interface ShopPerformanceDetail {
-  cancelPercentage:    number;
-  refundPercentage:    number;
-  sinceYear:           number;
-  totalProductNumber:  number;
-  description:         string;
-  rating:              number;
-  replyPercentage:     number;
-  address:             string;
-  _id:                 string;
+  cancelPercentage: number;
+  refundPercentage: number;
+  sinceYear: number;
+  totalProductNumber: number;
+  description: string;
+  rating: number;
+  replyPercentage: number;
+  address: string;
+  _id: string;
   operationalQuality: number;
 }
-
 
 export async function POST_getTopProductsInSales(
   shopId: string,
@@ -198,7 +236,7 @@ export async function POST_getTopCitiesInSales(
     const response = await axios.post(url, {
       startTime: startTime,
       endTime: endTime,
-      amount: amount
+      amount: amount,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -273,7 +311,8 @@ export async function POST_getOrderStatistics(
 export async function POST_getTotalSales(
   shopId: string,
   startTime: Date,
-  endTime: Date
+  endTime: Date,
+  step?: string
 ) {
   const url = `${GATEWAY_PREFIX}/statistics/shop/sales/total?shopId=${shopId}`;
   try {
@@ -281,6 +320,7 @@ export async function POST_getTotalSales(
     const response = await axios.post(url, {
       startTime: startTime,
       endTime: endTime,
+      step: step,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -483,7 +523,7 @@ export async function POST_getTotalProcessOrders(
 }
 
 //Hiệu quả kinh doanh
-export async function POST_getBEStats(
+export async function POST_getConversionRateStats(
   shopId: string,
   startTime: Date,
   endTime: Date,
@@ -575,9 +615,7 @@ export async function POST_getReviewStatistics(
 }
 
 //Shop performance
-export async function GET_getShopPerformanceStatistics(
-  shopId: string
-) {
+export async function GET_getShopPerformanceStatistics(shopId: string) {
   const url = `${GATEWAY_PREFIX}/shop_info/shopDetail?shopId=${shopId}`;
   try {
     // console.log(url);
@@ -610,18 +648,20 @@ export async function GET_getShopPerformanceStatistics(
   }
 }
 
-//Đánh giá
+//Khách hàng quay lại
 export async function POST_getReturnRateOfCustomers(
   shopId: string,
   startTime?: Date,
   endTime?: Date,
+  step?: string
 ) {
   const url = `${GATEWAY_PREFIX}/statistics/shop/returning_rate?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
-        startTime: startTime,
-        endTime: endTime
+      startTime: startTime,
+      endTime: endTime,
+      step: step,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -658,18 +698,17 @@ export async function POST_getProductViewers(
   startTime: Date | number,
   endTime: Date | number,
   accessType?: string,
-  step?: string,
+  step?: string
 ) {
   const url = `${GATEWAY_PREFIX}/statistics/product/views_viewers?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
-        productIds: productIds,
-        accessType: accessType,
-        startTime: startTime,
-        endTime: endTime,
-        step: step,
-
+      productIds: productIds,
+      accessType: accessType,
+      startTime: startTime,
+      endTime: endTime,
+      step: step,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -704,16 +743,15 @@ export async function POST_getAddToCartRatio(
   shopId: string,
   productIds: string[],
   startTime: Date | number,
-  endTime: Date | number,
+  endTime: Date | number
 ) {
   const url = `${GATEWAY_PREFIX}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
-        productIds: productIds,
-        startTime: startTime,
-        endTime: endTime,
-
+      productIds: productIds,
+      startTime: startTime,
+      endTime: endTime,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -748,16 +786,15 @@ export async function POST_getAddToCartAmount(
   shopId: string,
   productIds: string[],
   startTime: Date | number,
-  endTime: Date | number,
+  endTime: Date | number
 ) {
   const url = `${GATEWAY_PREFIX}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
-        productIds: productIds,
-        startTime: startTime,
-        endTime: endTime,
-
+      productIds: productIds,
+      startTime: startTime,
+      endTime: endTime,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -799,10 +836,9 @@ export async function POST_getSoldAmountOfProducts(
   try {
     // console.log(url);
     const response = await axios.post(url, {
-        productIds: productIds,
-        startTime: startTime,
-        endTime: endTime,
-
+      productIds: productIds,
+      startTime: startTime,
+      endTime: endTime,
     });
     const responseData: StatisticResponse = response.data;
 
@@ -832,3 +868,94 @@ export async function POST_getSoldAmountOfProducts(
   }
 }
 
+//Số lượng đơn hàng đã xác nhận của sản phẩm
+export async function POST_getOrderStatisticsWithStatus(
+  shopId: string,
+  orderStatus: OrderStatusType,
+  startTime: Date | number,
+  endTime: Date | number,
+  step?: string,
+  isAscending?: boolean
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/order/status?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+      orderStatus: orderStatus,
+      startTime: startTime,
+      endTime: endTime,
+      step: step,
+      isAscending: isAscending,
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get sold amount of products successfully`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+//Hiệu quả sản phẩm
+export async function POST_getAmountBuyerOfProducts(
+  shopId: string,
+  productIds: string[],
+  startTime: Date | number,
+  endTime: Date | number,
+  step?: string
+) {
+  const url = `${GATEWAY_PREFIX}/statistics/product/amount_of_buyers?shopId=${shopId}`;
+  try {
+    // console.log(url);
+    const response = await axios.post(url, {
+      productIds: productIds,
+      startTime: startTime,
+      endTime: endTime,
+      step: step,
+    });
+    const responseData: StatisticResponse = response.data;
+
+    if (response.status === 200) {
+      return {
+        isDenied: false,
+        message: `Get amount of buyers statistics successfull`,
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Cannot get the statistics",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Cannot get the statistics",
+      status: 500,
+      data: undefined,
+    };
+  }
+}

@@ -150,13 +150,14 @@ export default function SellerPerformancePage() {
     };
 
     const operationalEfficiency = useMemo(() => {
-
+        let CancellationRate = (totalCancelledOrders && totalReceivedOrders) ? [totalCancelledOrders, totalReceivedOrders - totalCancelledOrders] : undefined;
+        let OntimeProcessingRate = (totalOnTimeOrders && totalReceivedOrders) ? [totalOnTimeOrders, totalReceivedOrders - totalOnTimeOrders] : undefined;
         const stats = {
-            'CancellationRate': [totalCancelledOrders, totalReceivedOrders - totalCancelledOrders],
-            'OntimeProcessingRate': [totalOnTimeOrders, totalReceivedOrders - totalOnTimeOrders],
+            'CancellationRate': CancellationRate,
+            'OntimeProcessingRate': OntimeProcessingRate,
             // 'ReturnRate': [12, 1630],
             // 'ChatResponseRate': [],
-            'AverageResponseTime': [],
+            // 'AverageResponseTime': [],
         }
         return stats;
     }, [totalCancelledOrders, totalReceivedOrders, totalOnTimeOrders]);
@@ -379,11 +380,11 @@ export default function SellerPerformancePage() {
                                 </div>
                                 <div className="flex flex-row justify-between p-4">
                                     <div>Số đơn bị hủy</div>
-                                    <div>{operationalEfficiency['CancellationRate'][0]}</div>
+                                    <div>{operationalEfficiency['CancellationRate']?.at(0) ?? 0}</div>
                                 </div>
                                 <div className="flex flex-row justify-between font-semibold bg-gray-100 p-4 border-t-2">
                                     <div>Tổng số đơn đã nhận</div>
-                                    <div>{operationalEfficiency['CancellationRate'].reduce((acc, curr) => acc + curr, 0)}</div>
+                                    <div>{operationalEfficiency['CancellationRate']?.reduce((acc, curr) => acc + curr, 0) ?? 0}</div>
                                 </div>
                             </div>
                             <div className="lg:col-start-2 lg:col-span-1 flex flex-col border border-gray-200 p-5">
@@ -410,11 +411,11 @@ export default function SellerPerformancePage() {
                                 </div>
                                 <div className="flex flex-row justify-between p-4">
                                     <div>Số đơn xử lý đúng hạn</div>
-                                    <div>{operationalEfficiency['OntimeProcessingRate'][0]}</div>
+                                    <div>{operationalEfficiency['OntimeProcessingRate']?.at(0) ?? 0}</div>
                                 </div>
                                 <div className="flex flex-row justify-between font-semibold bg-gray-100 p-4 border-t-2">
                                     <div>Tổng số đơn đã nhận</div>
-                                    <div>{operationalEfficiency['OntimeProcessingRate'].reduce((acc, curr) => acc + curr, 0)}</div>
+                                    <div>{operationalEfficiency['OntimeProcessingRate']?.reduce((acc, curr) => acc + curr, 0) ?? 0}</div>
                                 </div>
                             </div>
                         </div>

@@ -9,14 +9,14 @@ import {
 
 
 import { Chart, Doughnut } from "react-chartjs-2";
-import { Tag } from "antd";
+import { Empty, Tag } from "antd";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface GaugeChartProps {
     label: string;
     labels: string[];
-    datasets: number[];
+    datasets: number[] | undefined;
     isBelow: boolean; //is below the threshold value
     thresholdValue: number; //threshold value (in percentage)
     pointerColor?: string;
@@ -154,29 +154,33 @@ export default function GaugeChart(props: GaugeChartProps) {
 
     }
 
-    const score1 = data.datasets[0].data[0];
-    const score2 = data.datasets[0].data[1];
-    const scoreRatio = (score1 / (score1 + score2) * 100).toFixed(2);
+    const score1 = data.datasets[0].data?.at(0);
+    const score2 = data.datasets[0].data?.at(1);
+    const scoreRatio = (score1 && score2) ? (score1 / (score1 + score2) * 100).toFixed(2) : 0;
     const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
         return isAboveThreshold ? value >= threshold : value <= threshold;
     }
     return (
         <React.Fragment>
-            <div className="chart-container w-full relative" style={{ height: '260px', objectFit: 'cover' }}>
-                <Chart type="doughnut" {...config} />
-                <div className="absolute bottom-5 lg:bottom-0 inset-x-0 flex flex-col justify-center items-center">
-                    <div className="font-bold text-3xl">{score1 === 0 && score2 === 0 ? '--' : `${scoreRatio}`}%</div>
-                    <div>
-                        {
-                            checkThreshold(Number(scoreRatio), props.thresholdValue, !props.isBelow) ? (
-                                <Tag color="#87d068" className="font-semibold">Tốt</Tag>
-                            ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
-                        }
+            {
+                (props.datasets) ? (
+                    <div className="chart-container w-full relative" style={{ height: '260px', objectFit: 'cover' }}>
+                        <Chart type="doughnut" {...config} />
+                        <div className="absolute bottom-5 lg:bottom-0 inset-x-0 flex flex-col justify-center items-center">
+                            <div className="font-bold text-3xl">{score1 === 0 && score2 === 0 ? '--' : `${scoreRatio}`}%</div>
+                            <div>
+                                {
+                                    checkThreshold(Number(scoreRatio), props.thresholdValue, !props.isBelow) ? (
+                                        <Tag color="#87d068" className="font-semibold">Tốt</Tag>
+                                    ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
+                                }
+                            </div>
+                            {/* <div className="text-slate-500 italic">Không có dữ liệu</div> */}
+                            <div>Chỉ tiêu {props.isBelow ? '<=' : '>='} {props.thresholdValue}%</div>
+                        </div>
                     </div>
-                    <div className="text-slate-500 italic">Không có dữ liệu</div>
-                    <div>Chỉ tiêu {props.isBelow ? '<=' : '>='} {props.thresholdValue}%</div>
-                </div>
-            </div>
+                ) : <Empty description="Không có dữ liệu, vui lòng chọn khoảng thời gian khác"/>
+            }
         </React.Fragment>
     )
 }

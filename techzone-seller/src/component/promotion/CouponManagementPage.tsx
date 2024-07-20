@@ -1,5 +1,5 @@
 "use client";
-import { Breadcrumb, Button, Divider } from 'antd';
+import { Breadcrumb, Button, Divider, message } from 'antd';
 import React, { useContext, useEffect, useState } from 'react'
 import { FaPlus } from 'react-icons/fa6';
 import { HiOutlineHome } from 'react-icons/hi2';
@@ -7,7 +7,7 @@ import CouponTable from './table/CouponTable';
 import { useRouter } from 'next/navigation';
 import { PromotionType } from '@/model/PromotionType';
 import { AuthContext } from '@/context/AuthContext';
-import { GET_GetPromotionListByShop } from '@/apis/promotion/PromotionAPI';
+import { DELETE_DeletePromotion, GET_GetPromotionListByShop } from '@/apis/promotion/PromotionAPI';
 
 export default function CouponManagementPage() {
     const context = useContext(AuthContext);
@@ -15,8 +15,21 @@ export default function CouponManagementPage() {
     const router = useRouter();
     const [promotions, setPromotions] = useState<PromotionType[]>([]);
     
-    const navigateToAddPromotionPage = () => {
+    const handleAddPromotion = () => {
         router.push('/marketing-center/promotion-tool/coupons/new');
+    }
+
+    const handleEditPromotion = (promotionId: string) => {
+        router.push(`/marketing-center/promotion-tool/coupons/edit/${promotionId}`);
+    }
+
+    const handleDeletePromotion = async (promotionId: string) => {
+        const response = await DELETE_DeletePromotion(context.shopInfo?._id as string, promotionId);
+        if (response.status === 200) {
+            setTimeout(() => {
+                message.success("Xóa mã giảm giá thành công!");
+            }, 1000);
+        }
     }
 
     useEffect(() => {
@@ -66,7 +79,7 @@ export default function CouponManagementPage() {
                     <div className="mt-5 flex flex-row items-center justify-between">
                         <div className="font-semibold text-lg">Danh sách mã giảm giá</div>
                         <Button className="text-white bg-blue-500 cursor-pointer hover:bg-blue-800"
-                            onClick={() => navigateToAddPromotionPage()}>
+                            onClick={() => handleAddPromotion()}>
                             <div className="flex flex-row gap-2 items-center">
                                 <FaPlus />
                                 <div>Tạo mới</div>
@@ -75,7 +88,9 @@ export default function CouponManagementPage() {
                     </div>
                     <Divider />
                     <CouponTable loading={loading}
-                        promotionData={promotions}/>
+                        promotionData={promotions}
+                        handleEditPromotion={handleEditPromotion}
+                        handleDeletePromotion={handleDeletePromotion}/>
                 </div>
             </div>
         </React.Fragment>

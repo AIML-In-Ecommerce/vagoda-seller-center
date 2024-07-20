@@ -18,7 +18,7 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
-import { BusinessPerformanceStats, Order, StatisticInterval } from '@/apis/statistic/StatisticAPI';
+import { ConversionRateInterval, ConversionRateStatistic, Order, OrderStatusInterval, OrderStatusStatistic, ReturningRateInterval, ReturningRateStatistic, SalesInterval, SalesStatistic } from '@/apis/statistic/StatisticAPI';
 
 ChartJS.register(
     LinearScale,
@@ -43,9 +43,89 @@ interface BPCategory {
     color: string;
 }
 
+export interface BPChartStats {
+    sales: SalesStatistic,
+    cancelledOrders: OrderStatusStatistic,
+    conversionRate: ConversionRateStatistic,
+    returningRate: ReturningRateStatistic
+}
+
+const roundTo2DecimalPlaces = (value: number) => {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory) => {
+    let categoryId = category._id;
+    let result: number[] = [];
+    switch (categoryId) {
+        case "revenue": case "orders": case "profit":
+            {
+                const statisticsData = data.sales.statisticsData;
+                statisticsData?.forEach((interval: SalesInterval) => {
+                    if (categoryId === "orders") {
+                        let intervalDataValue = interval["count" as keyof SalesInterval] as number ?? 0;
+                        result.push(intervalDataValue);
+                    }
+                    else {
+                        let intervalDataValue = interval[categoryId as keyof SalesInterval] as number ?? 0;
+                        result.push(intervalDataValue);
+                    }
+                })
+                break;
+            }
+        case "avgRevenuePerOrder":
+            {
+                const statisticsData = data.sales.statisticsData;
+                statisticsData?.forEach((interval: SalesInterval) => {
+                    let intervalRevenueValue = interval["revenue" as keyof SalesInterval] as number ?? 0;
+                    let intervalOrdersValue = interval["count" as keyof SalesInterval] as number ?? 0;
+                    if (intervalOrdersValue === 0) {
+                        result.push(intervalOrdersValue);
+                    }
+                    else {
+                        let intervalDataValue = roundTo2DecimalPlaces(intervalRevenueValue / intervalOrdersValue)
+                        result.push(intervalDataValue);
+                    }
+                })
+                break;
+            }
+        case "conversionRate":
+            {
+                const statisticsData = data.conversionRate.statisticsData;
+                statisticsData?.forEach((interval: ConversionRateInterval) => {
+                    let intervalDataValue = interval[categoryId as keyof ConversionRateInterval] as number ?? 0;
+                    result.push(intervalDataValue);
+                })
+                break;
+            }
+        case "cancelledOrders":
+            {
+                const statisticsData = data.cancelledOrders.statisticsData;
+                statisticsData?.forEach((interval: OrderStatusInterval) => {
+                    let intervalDataValue = interval["totalOrders" as keyof OrderStatusInterval] as number ?? 0;
+                    result.push(intervalDataValue);
+                })
+                break;
+            }
+        case "returningCustomers":
+            {
+                const statisticsData = data.returningRate.statisticsData;
+                console.log("returningCustomers", statisticsData);
+                statisticsData?.forEach((interval: ReturningRateInterval) => {
+                    let intervalDataValue = interval["totalReturningUsers" as keyof ReturningRateInterval] as number ?? 0;
+                    result.push(intervalDataValue);
+                })
+                break;
+            }
+
+        
+    }
+    return result;
+}
+
 interface BPChartProps {
-    BECurrent: BusinessPerformanceStats | undefined,
-    BEPrevious: BusinessPerformanceStats | undefined,
+    currentPeriod: BPChartStats | undefined,
+    previousPeriod: BPChartStats | undefined,
     timeUnit: string,
     dateRange: (Date | null)[],
     categories: BPCategory[]
@@ -58,7 +138,7 @@ const generateChartLabels = (timeUnit: string, startDate: Date, endDate: Date): 
     const labels: string[] = [];
     const totalLabels = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)); // Calculate total number of days
     const step = Math.ceil(totalLabels / maxLabels) === 0 ? 1 : Math.ceil(totalLabels / maxLabels); // Calculate step size (date)
-    
+
     let currentDate = new Date(startDate);
     let labelCount = 0;
 
@@ -105,69 +185,37 @@ export default function BPChart(props: BPChartProps) {
     }, [props.categories])
 
     useEffect(() => {
-        // const fetchProducts = async () => {
-        // }
-        // fetchProducts();
-        // console.log("BEStats", props.BECurrent)
-        // console.log("BEStatsCompare", props.BEPrevious)
-        // console.log("categories", categories)
+
     }, [categories])
 
     const categoryOneData = useMemo(() => {
-        if (categories.length < 1 || !props.BECurrent) return [];
-
-        const result: number[] = [];
-        const categoryOne = categories[0]._id;
-        const statisticData = props.BECurrent?.statisticData;
-        statisticData?.forEach((interval: StatisticInterval) => {
-            let intervalDataValue = interval[categoryOne as keyof StatisticInterval] as number ?? 0;
-            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
-            result.push(intervalDataValue);
-        })
+        if (categories.length < 1 || !props.currentPeriod) return [];
+        const result = getSpecifiedCategoryListData(props.currentPeriod, categories[0])
+        console.log('category 1 result', categories[0], result);
         return result;
-    }, [categories, props.BECurrent]);
+    }, [categories, props.currentPeriod]);
 
     const categoryTwoData = useMemo(() => {
-        if (categories.length < 2 || !props.BECurrent) return [];
+        if (categories.length < 2 || !props.currentPeriod) return [];
 
-        const result: number[] = [];
-        const categoryTwo = categories[1]._id;
-        const statisticData = props.BECurrent?.statisticData;
-        statisticData?.forEach((interval: StatisticInterval) => {
-            let intervalDataValue = interval[categoryTwo as keyof StatisticInterval] as number ?? 0;
-            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
-            result.push(intervalDataValue);
-        })
+        const result = getSpecifiedCategoryListData(props.currentPeriod, categories[1])
         return result;
-    }, [categories, props.BECurrent]);
+    }, [categories, props.currentPeriod]);
 
     const categoryOneCompareData = useMemo(() => {
-        if (categories.length < 1|| !props.BEPrevious) return [];
+        if (categories.length < 1 || !props.previousPeriod) return [];
 
-        const result: number[] = [];
-        const categoryOne = categories[0]._id;
-        const statisticData = props.BEPrevious?.statisticData;
-        statisticData?.forEach((interval: StatisticInterval) => {
-            let intervalDataValue = interval[categoryOne as keyof StatisticInterval] as number ?? 0;
-            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
-            result.push(intervalDataValue);
-        })
+        const result = getSpecifiedCategoryListData(props.previousPeriod, categories[0])
+        console.log('category 2 result', categories[1], result);
         return result;
-    },[categories, props.BEPrevious]);
+    }, [categories, props.previousPeriod]);
 
     const categoryTwoCompareData = useMemo(() => {
-        if (categories.length < 2 || !props.BEPrevious) return [];
+        if (categories.length < 2 || !props.previousPeriod) return [];
 
-        const result: number[] = [];
-        const categoryTwo = categories[1]._id;
-        const statisticData = props.BEPrevious?.statisticData;
-        statisticData?.forEach((interval: StatisticInterval) => {
-            let intervalDataValue = interval[categoryTwo as keyof StatisticInterval] as number ?? 0;
-            intervalDataValue = categories[0].isPercentageValue ? intervalDataValue * 100 : intervalDataValue;
-            result.push(intervalDataValue);
-        })
+        const result = getSpecifiedCategoryListData(props.previousPeriod, categories[1])
         return result;
-    },[categories, props.BEPrevious]);
+    }, [categories, props.previousPeriod]);
 
     const datasetsGenerator = (categories: any) => {
         if (categories.length === 0) return [];
@@ -187,7 +235,7 @@ export default function BPChart(props: BPChartProps) {
                 label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
                 borderColor: categories[0]?.color ?? 'black',
                 borderWidth: 2,
-                borderDash: [6,6],
+                borderDash: [6, 6],
                 fill: false,
                 data: categoryOneCompareData,
                 tension: 0.25
@@ -210,7 +258,7 @@ export default function BPChart(props: BPChartProps) {
                     label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
                     borderColor: categories[0]?.color ?? 'black',
                     borderWidth: 2,
-                    borderDash: [6,6],
+                    borderDash: [6, 6],
                     fill: false,
                     data: categoryOneCompareData,
                     tension: 0.25
@@ -230,12 +278,12 @@ export default function BPChart(props: BPChartProps) {
                     label: categories[1]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 2',
                     borderColor: categories[1]?.color ?? 'black',
                     borderWidth: 2,
-                    borderDash: [6,6],
+                    borderDash: [6, 6],
                     fill: false,
                     data: categoryTwoCompareData,
                     tension: 0.25
                 },
-                
+
             ]
         }
     }
@@ -243,7 +291,7 @@ export default function BPChart(props: BPChartProps) {
     const datasets = useMemo(() => {
         const resultDatasets = datasetsGenerator(categories);
         return resultDatasets;
-    },[categories]);
+    }, [categories]);
 
     const data = useMemo(() => {
         const settings = {
@@ -305,9 +353,9 @@ export default function BPChart(props: BPChartProps) {
             x: {
                 grid: {
                     offset: true
-                }   
+                }
             },
-            
+
 
         },
         // Make the chart responsive
