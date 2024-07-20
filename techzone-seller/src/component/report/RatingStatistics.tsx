@@ -2,39 +2,36 @@ import { ConfigProvider, Progress, Rate } from "antd";
 import React, { useMemo } from "react";
 import { FaStar } from "react-icons/fa";
 
-interface RatingStatisticsProps {
+interface RatingItem {
+    stars: number,
+    count: number,
+}
 
+interface RatingStatisticsProps {
+    ratings: RatingItem[];
 }
 
 export default function RatingStatistics(props: RatingStatisticsProps) {
-    const ratings = [
-        { stars: 1, count: 135 },
-        { stars: 2, count: 544 },
-        { stars: 3, count: 632 },
-        { stars: 4, count: 2242 },
-        { stars: 5, count: 3523 }
-    ]
-
     const avgScore = useMemo(() => {
         let totalScores = 0, totalRatings = 0;
-        ratings.forEach((rating: any) => {
+        props.ratings.forEach((rating: any) => {
             totalScores += rating.stars * rating.count;
             totalRatings += rating.count;
         })
         const finalScore = totalScores / totalRatings;
         return Number(finalScore.toFixed(2));
-    }, [ratings]);
+    }, [props.ratings]);
 
     const totalReviews = useMemo(() => {
         let totalRatings = 0;
-        ratings.forEach((rating: any) => {
+        props.ratings.forEach((rating: any) => {
             totalRatings += rating.count;
         })
         return totalRatings;
-    }, [ratings]);
+    }, [props.ratings]);
 
     const renderProgressRating = () => {
-        const reverseRatings = ratings.reverse();
+        const reverseRatings = props.ratings.reverse();
         return (
             reverseRatings.map((item: any, index: number) => {
                 const reviewCount = reverseRatings[index].count;

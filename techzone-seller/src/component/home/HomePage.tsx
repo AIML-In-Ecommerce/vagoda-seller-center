@@ -1,141 +1,30 @@
 "use client";
 import { getPreviousWeekDateRange } from "@/utils/DateFormatter"
 import { Rate, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Card, Tag } from "antd"
-import React, { useState } from "react"
+import React, { useContext, useEffect, useState, useMemo } from "react"
 import { FaRegCalendarAlt, FaStar, FaBookmark } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
 import CustomCarousel from "../Carousel"
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import quarterOfYear from 'dayjs/plugin/quarterOfYear';
 import { TbFilter } from "react-icons/tb";
 import { SlArrowRight } from "react-icons/sl";
 import NotificationList, { NotificationType } from "../notification/NotificationList";
 import { TbInfoCircle } from "react-icons/tb";
 import TodoTasks, { Task, TaskType } from "./TodoTasks";
 import Link from "next/link";
+import { AuthContext } from "@/context/AuthContext";
+import { Order, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalRecievedOrders, POST_getTotalSales, ReviewRange, SalesStatistic } from "@/apis/statistic/StatisticAPI";
 
-const bannerContent = [
-    { title: 'Quản lý đơn hàng', description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi." },
-    { title: 'Tạo sản phẩm', description: "Cửa hàng của bạn đã sẵn sàng để nhận các đơn hàng. Hãy bắt đầu tạo sản phẩm nào!" },
-    { title: 'Xem hiệu quả kinh doanh', description: "Theo dõi và đánh giá hiệu quả kinh doanh của bạn với báo cáo chi tiết." },
-    { title: 'Trung tâm phát triển', description: "Khám phá các công cụ và tài nguyên mới để phát triển cửa hàng của bạn." },
-    { title: 'Xem công cụ khuyến mãi', description: "Tăng doanh số bằng cách sử dụng các công cụ khuyến mãi và quảng cáo." },
-    { title: 'Thiết kế gian hàng', description: "Tạo ra một gian hàng độc đáo và chuyên nghiệp để thu hút khách hàng." },
-];
+dayjs.extend(quarterOfYear);
 
-const qosComment = [
-    {
-        score: [5],
-        rating: "Xuất sắc",
-        message: {
-            firstPart: "Tuyệt vời! Bạn đang xử lý đơn hàng",
-            highlightWord: "xuất sắc",
-            secondPart: "trong tuần vừa qua!",
-            content: "Hãy giữ vững phong độ để có thêm thật nhiều đánh giá 5 sao và nhận thêm nhiều đặc quyền từ Techzone nhé!"
-        }
-    },
-    {
-        score: [3, 4],
-        rating: "Tốt",
-        message: {
-            firstPart: "Bạn đang xử lý đơn hàng",
-            highlightWord: "khá tốt",
-            secondPart: ".",
-            content: "Tăng tốc độ thêm 1 chút xíu nữa để trở thành Nhà Bán xử lý đơn hàng xuất sắc và tối ưu tỷ lệ chuyển đổi nhé!"
-        }
-    },
-    {
-        score: [1, 2],
-        rating: "Chưa tốt",
-        message: {
-            firstPart: "Ôi không… Hiệu suất vận hành của bạn đang",
-            highlightWord: "không ổn",
-            secondPart: ".",
-            content: "Hãy tập trung cải thiện tốc độ xử lý đơn hàng nhé!"
-        }
-    },
-    {
-        score: [0],
-        rating: "Tạm tắt gian hàng",
-        message: {
-            firstPart: "Rất tiếc! Techzone phải",
-            highlightWord: "tạm tắt gian hàng",
-            secondPart: "trong 7 ngày.",
-            content: "Hãy tham khảo các giải pháp cải thiện điểm số và chất lượng vận hành tại đây để sẵn sàng khi gian hàng mở cửa trở lại nhé!"
-        }
-    },
-    //   {
-    //     score: "Tạm tắt gian hàng (lần 2)",
-    //     rating: "Đây đã là lần thứ 2 bạn đạt điểm vận hành bằng 0!",
-    //     message: {
-    //       firstPart: "Techzone phải tạm tắt gian hàng trong 14 ngày.",
-    //       content: "Lưu ý: Sau 2 lần bị khóa gian do điểm vận hành, lần thứ 3 gian hàng của bạn sẽ bị khóa vĩnh viễn."
-    //     }
-    //   },
-    //   {
-    //     score: "Tạm tắt gian hàng (vĩnh viễn)",
-    //     rating: "Rất tiếc! Techzone phải tắt gian hàng hàng vĩnh viễn.",
-    //     message: {
-    //       firstPart: "Đây đã là lần thứ 3 bạn đạt điểm vận hành bằng 0!",
-    //       content: "Vì vậy, Techzone rất tiếc phải tắt gian hàng vĩnh viễn."
-    //     }
-    //   }
-]
+const { RangePicker } = DatePicker;
 
-const notificationData: NotificationType[] = [
-    {
-        _id: '1',
-        title: 'Báo cáo doanh thu tuần',
-        image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
-        description: "Xin chào Thảo Lăng, Doanh thu của bạn tuần vừa qua đạt 13.360.783đ",
-        timestamp: new Date(2024, 2, 31, 12, 24, 52)
-    },
-    {
-        _id: '2',
-        title: 'Thông báo từ hệ thống',
-        image: 'https://cdn-icons-png.flaticon.com/512/1169/1169118.png',
-        description: "Xin chào Thảo Lăng, Điều khoản & Điều kiện của bạn đã được chấp nhận & thành công. Cảm ơn bạn đã hợp tác cùng chúng tôi",
-        timestamp: new Date(2024, 2, 31, 12, 24, 52)
-    }
-]
-
-const statisticData: Task[] = [
-    {
-        title: "Đơn hàng chờ xác nhận",
-        tooltip: "",
-        value: 7,
-        type: TaskType.INFO,
-        urlRedirect: "/order?tab=awaiting_confirmation"
-    },
-    {
-        title: "Đơn hàng đang xử lý",
-        tooltip: "",
-        value: 12,
-        type: TaskType.WARNING,
-        urlRedirect: "/order?tab=processing"
-    },
-    {
-        title: "Đơn hàng đang vận chuyển",
-        tooltip: "",
-        value: 42,
-        type: TaskType.INFO,
-        urlRedirect: "/order?tab=shipping"
-    },
-    {
-        title: "Sản phẩm hết hàng",
-        tooltip: "",
-        value: 23,
-        type: TaskType.WARNING,
-        urlRedirect: "/product/list?tab=out_of_stock"
-    },
-    {
-        title: "Sản phẩm bị đánh giá thấp",
-        tooltip: "",
-        value: 2,
-        type: TaskType.DANGER,
-        urlRedirect: "/product/review"
-    },
-]
+interface OrderStatusTotalValue {
+    orderStatus: OrderStatusType,
+    totalOrders: number
+}
 
 //Operational Efficiency
 interface OEProps {
@@ -149,138 +38,35 @@ interface OEProps {
     status?: string;
 }
 
-const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
-    return isAboveThreshold ? value >= threshold : value <= threshold;
-}
-
-const OEColumns: TableColumnsType<OEProps> = [
-    {
-        title: <div className="font-semibold ml-4">Chỉ số</div>,
-        dataIndex: 'index',
-        render: (index: string, item: OEProps) =>
-            <div className="flex flex-col px-4">
-                <div className="flex-row flex gap-1 items-center">
-                    <div className="font-semibold">{item.index}</div>
-                    <div className="text-sm">
-                        <Tooltip title={item.index_tooltip}>
-                            <div><TbInfoCircle /></div></Tooltip>
-                    </div>
-                </div>
-                <div>{item.index_description}</div>
-            </div>,
-        width: '46%'
-    },
-    {
-        title: <div className="font-semibold">Điểm hiện tại</div>,
-        dataIndex: 'score',
-        render: (score: number) => {
-            return <div className="font-semibold text-xl">{score * 100}%</div>
-        },
-        width: '27%'
-    },
-    {
-        title: <div className="font-semibold">Trạng thái</div>,
-        dataIndex: 'status',
-        render: (status: number, item: OEProps) => {
-            return <div className="items-center">
-                {
-                    checkThreshold(item.score, item.threshold, item.isAboveThreshold) ? (
-                        <Tag color="#87d068" className="font-semibold">Tốt</Tag>
-                    ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
-                }
-            </div>
-        },
-        width: '27%'
-    },
-];
-
-const OEDataSources: OEProps[] = [
-    {
-        key: '1',
-        index: "Tỉ lệ hủy đơn",
-        index_description: "Chỉ tiêu <= 2%",
-        index_tooltip: "Số đơn bị hủy (lỗi nhà bán) / Tổng số đơn đã nhận trong 4 tuần qua.",
-        threshold: 0.02,
-        isAboveThreshold: false,
-        score: 0.03,
-        status: '----',
-    },
-    {
-        key: '2',
-        index: "Tỉ lệ xử lý đúng hạn",
-        index_description: "Chỉ tiêu >= 97%",
-        index_tooltip: "Số đơn hàng xử lý đúng hạn / Tổng số đơn đã nhận trong 4 tuần qua.",
-        threshold: 0.97,
-        isAboveThreshold: true,
-        score: 0.95,
-        status: '----',
-    },
-    {
-        key: '3',
-        index: "Tỉ lệ đổi trả",
-        index_description: "Chỉ tiêu <= 2%",
-        index_tooltip: "Số sản phẩm đổi trả (lỗi nhà bán) / Số sản phẩm đã bán trong 4 tuần qua.",
-        threshold: 0.02,
-        isAboveThreshold: false,
-        score: 0.03,
-        status: '----',
-    },
-    {
-        key: '4',
-        index: "Tỉ lệ phản hồi chat",
-        index_description: "Chỉ tiêu >= 80%",
-        index_tooltip: "Tỷ lệ phản hồi = Lượt phản hồi chat / Lượt chat nhận được. Tỷ lệ phản hồi chỉ được tính khi Nhà bán nhận được ít nhất 2 tin nhắn trong vòng 4 tuần qua.",
-        threshold: 0.8,
-        isAboveThreshold: true,
-        score: 0.81,
-        status: '----',
-    },
-
-]
-
-const productRatingData = {
-    rating: 4.6,
-    totalRatings: 540,
-}
-
-const { RangePicker } = DatePicker;
-
 const quarterFormat: DatePickerProps['format'] = (value) =>
     `${value.format(`[Quý] Q - YYYY`)}`;
 
-const getCorrectInterval = (startDate: Date, endDate: Date, filterBy: string) => {
-    let _start = new Date(startDate);
-    let _end = new Date(endDate);
+const roundTo2DecimalPlaces = (value: number) => {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+}
 
-    _start.setUTCHours(0, 0, 0, 0);
-
+const getCorrectInterval = (startDate: Dayjs, endDate: Dayjs, filterBy: string): [Dayjs, Dayjs] => {
     switch (filterBy) {
         case 'date':
-            return [_start, _end];
+            return [startDate, endDate];
         case 'month':
-            _start.setDate(1);
-            _end = new Date(_end.getFullYear(), _end.getMonth() + 1, 1);
-            _end.setDate(_end.getDate() - 1);
-            return [_start, _end];
-        case 'year':
-            _start = new Date(_start.getFullYear(), 0, 1); // January 1st of the start year
-            _end = new Date(_end.getFullYear(), 11, 31); // December 31st of the end year
-            return [_start, _end];
-        case 'quarter':
-            const quarterStartMonth = Math.floor(_start.getMonth() / 3) * 3; // Get the starting month of the quarter
-            const quarterEndMonth = quarterStartMonth + 3; // Get the ending month of the quarter
-            _start = new Date(_start.getFullYear(), quarterStartMonth, 1); // First day of the quarter
-            _end = new Date(_end.getFullYear(), quarterEndMonth + 1, 0); // Last day of the quarter
-            return [_start, _end];
+            startDate = startDate.startOf('month');
+            return [startDate, endDate]
+        case 'quarter': case 'year':
+            startDate = startDate.startOf('year');
+            return [startDate, endDate];
         default:
-            return [_start, _end];
+            return [startDate, endDate];
     }
 }
 
 const rangeDefaultsForFilter = (filterBy: string): [Dayjs, Dayjs] => {
-    return filterBy === 'date' ? [dayjs().subtract(6, 'day'), dayjs()] :
-        filterBy === 'month' ? [dayjs().startOf('year'), dayjs()] :
-            filterBy === 'quarter' ? [dayjs().startOf('year'), dayjs()] : [dayjs().subtract(5, 'year'), dayjs()]
+    // console.log('rangeDefaultsForFilter', dayjs().endOf('quarter'));
+    // console.log('rangeFilter', [dayjs().startOf('year'), dayjs().startOf('quarter').add(1, 'quarter')]);
+    return filterBy === 'date' ? [dayjs().startOf('date').subtract(7, 'day'), dayjs()] :
+        filterBy === 'month' ? [dayjs().startOf('year').startOf('date'), dayjs()] :
+            filterBy === 'quarter' ? [dayjs().startOf('year').startOf('date'), dayjs().endOf('quarter')] 
+    : [dayjs().subtract(5, 'year').startOf('year'), dayjs()]
 }
 
 const handleRatingColor = (rating: number, intensity: number, prefix: string) => {
@@ -306,14 +92,344 @@ const handleRatingColor = (rating: number, intensity: number, prefix: string) =>
     return `${prefix}-${color}-${intensity}`;
 }
 
+const ORDER_STATUSES: OrderStatusType[] = [
+    OrderStatusType.WAITING_ONLINE_PAYMENT,
+    OrderStatusType.PENDING,
+    OrderStatusType.PROCESSING,
+    OrderStatusType.SHIPPING,
+    OrderStatusType.COMPLETED,
+    OrderStatusType.CANCELLED
+]
+
 //HomePage 
 export default function HomePage() {
+    const context = useContext(AuthContext);
     const [filterValue, setFilterValue] = useState<string>('date');
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
     const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
     const [totalRevenue, setTotalRevenue] = useState<number>(0);
     const [qosScore, setQosScore] = useState<number>(5);
     const [loading, setLoading] = useState<boolean>(false);
+    const [orderStatistics, setOrderStatistics] = useState<OrderStatusTotalValue[]>([] as OrderStatusTotalValue[]);
+    const [salesStatistics, setSalesStatistics] = useState<SalesStatistic>();
+    const [totalBadRatingProduct, setTotalBadRatingProduct] = useState<number>(0);
+
+    const [orders, setOrders] = useState<Order[]>([] as Order[]);
+    const [totalReceivedOrders, setTotalReceivedOrders] = useState<number>(0);
+    const [totalOnTimeOrders, setTotalOnTimeOrders] = useState<number>(0);
+    const [totalLateTimeOrders, setTotalLateTimeOrders] = useState<number>(0);
+    // const [totalChatResponses, setTotalChatResponses] = useState<number>(0);
+    const [productRatingScore, setProductRatingScore] = useState<number>(0);
+    const [totalRatings, setTotalRatings] = useState<number>(0);
+
+
+    const fetchOrderStatistics = async () => {
+        setLoading(true);
+        let currentOrderStatistics: OrderStatusTotalValue[] = [];
+        //Fast-access statistics section
+        ORDER_STATUSES.forEach(async (status) => {
+            const [startDate, endDate] = DayjsToDate(selectedDates);
+            await POST_getOrderStatistics(
+                context.shopInfo?._id as string,
+                status,
+                startDate || new Date(),
+                endDate || new Date()
+            ).then((response) => {
+                console.log(`ORDER STATUS ${status}:`, response);
+                currentOrderStatistics.push({
+                    orderStatus: status,
+                    totalOrders: response.data.totalOrders
+                } as OrderStatusTotalValue)
+            })
+
+        })
+        setTimeout(() => {
+            setOrderStatistics(currentOrderStatistics);
+            setLoading(false);
+        }, 1000);
+
+        //Operational Efficiency section
+        const [OEStartDate, OEEndDate] = DayjsToDate([dayjs().subtract(4, 'week'), dayjs()]);
+        await POST_getTotalRecievedOrders(context.shopInfo?._id as string,
+            OEStartDate || new Date(),
+            OEEndDate || new Date()
+        ).then((response) => setTotalReceivedOrders(response.data.totalOrders))
+
+        await POST_getTotalLateTimeOrders(context.shopInfo?._id as string,
+            OEStartDate || new Date(),
+            OEEndDate || new Date()
+        ).then((response) => setTotalLateTimeOrders(response.data.totalOrders))
+
+        await POST_getTotalOnTimeOrders(context.shopInfo?._id as string,
+            OEStartDate || new Date(),
+            OEEndDate || new Date()
+        ).then((response) => setTotalOnTimeOrders(response.data.totalOrders))
+    }
+
+    const fetchSalesStatistics = async () => {
+        let currentSalesStatistics;
+        const [startDate, endDate] = DayjsToDate(selectedDates);
+        await POST_getTotalSales(context.shopInfo?._id as string,
+            startDate || new Date(),
+            endDate || new Date()).then((response) => {
+                currentSalesStatistics = response.data;
+                setSalesStatistics(currentSalesStatistics);
+                let salesInterval = currentSalesStatistics?.statisticsData[0];
+                // console.log("orders", salesInterval);
+                if (salesInterval) setOrders(salesInterval.statisticsData);
+                else setOrders([]);
+                
+            })
+    }
+
+    const fetchReviewStatistics = async () => {
+        const [startDate, endDate] = DayjsToDate(selectedDates);
+        const responseAllReviews = await POST_getReviewStatistics(
+            context.shopInfo?._id as string,
+            [], undefined, startDate || new Date(), endDate || new Date()
+        )
+
+        if (responseAllReviews) {
+            let totalScore = 0, totalRatings = 0, starRate = 1;
+            let totalBadRatings = 0;
+            const rangeReviews = responseAllReviews.data as ReviewRange[];
+            console.log("rangeReviews", rangeReviews);
+            // calculate totalScore and totalRatings
+            for (let range of rangeReviews) {
+                totalScore += range.totalReviews * starRate;
+                if (starRate <= 3) totalBadRatings += range.totalReviews;
+                totalRatings += range.totalReviews;
+                starRate += 1;
+            }
+            // Update rating scores
+            if (totalRatings === 0) {
+                setProductRatingScore(0);
+            }
+            else {
+                let ratingScore = roundTo2DecimalPlaces(totalScore / totalRatings);
+                setProductRatingScore(ratingScore);
+            }
+            setTotalRatings(totalRatings);
+            setTotalBadRatingProduct(totalBadRatings);
+            console.log('Review statistics', totalScore, totalRatings, starRate);
+            console.log('Bad rating', totalBadRatings);
+        }
+    }
+
+
+    const bannerContent = [
+        { 
+            title: 'Quản lý đơn hàng', 
+            description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi.",
+            urlRedirect: '/order' 
+        },
+        { 
+            title: 'Tạo sản phẩm', 
+            description: "Cửa hàng của bạn đã sẵn sàng để nhận các đơn hàng. Hãy bắt đầu tạo sản phẩm nào!", 
+            urlRedirect: '/product/create'  
+        },
+        { 
+            title: 'Xem hiệu quả kinh doanh', 
+            description: "Theo dõi và đánh giá hiệu quả kinh doanh của bạn với báo cáo chi tiết.", 
+            urlRedirect: '/report/business-performance'  
+        },
+        { 
+            title: 'Trung tâm phát triển', 
+            description: "Khám phá các công cụ và tài nguyên mới để phát triển cửa hàng của bạn.", 
+            urlRedirect: '/report/business-performance'  
+        },
+        { 
+            title: 'Xem công cụ khuyến mãi', 
+            description: "Tăng doanh số bằng cách sử dụng các công cụ khuyến mãi và quảng cáo.",
+            urlRedirect: '/marketing-center/promotion-tool'  
+        },
+        { 
+            title: 'Thiết kế gian hàng', 
+            description: "Tạo ra một gian hàng độc đáo và chuyên nghiệp để thu hút khách hàng.", 
+            urlRedirect: '/booth-design/decorator'  
+        },
+    ];
+
+    const qosComment = [
+        {
+            score: [5],
+            rating: "Xuất sắc",
+            message: {
+                firstPart: "Tuyệt vời! Bạn đang xử lý đơn hàng",
+                highlightWord: "xuất sắc",
+                secondPart: "trong tuần vừa qua!",
+                content: "Hãy giữ vững phong độ để có thêm thật nhiều đánh giá 5 sao và nhận thêm nhiều đặc quyền từ Techzone nhé!"
+            }
+        },
+        {
+            score: [3, 4],
+            rating: "Tốt",
+            message: {
+                firstPart: "Bạn đang xử lý đơn hàng",
+                highlightWord: "khá tốt",
+                secondPart: ".",
+                content: "Tăng tốc độ thêm 1 chút xíu nữa để trở thành Nhà Bán xử lý đơn hàng xuất sắc và tối ưu tỷ lệ chuyển đổi nhé!"
+            }
+        },
+        {
+            score: [1, 2],
+            rating: "Chưa tốt",
+            message: {
+                firstPart: "Ôi không… Hiệu suất vận hành của bạn đang",
+                highlightWord: "không ổn",
+                secondPart: ".",
+                content: "Hãy tập trung cải thiện tốc độ xử lý đơn hàng nhé!"
+            }
+        },
+        {
+            score: [0],
+            rating: "Tạm tắt gian hàng",
+            message: {
+                firstPart: "Rất tiếc! Techzone phải",
+                highlightWord: "tạm tắt gian hàng",
+                secondPart: "trong 7 ngày.",
+                content: "Hãy tham khảo các giải pháp cải thiện điểm số và chất lượng vận hành tại đây để sẵn sàng khi gian hàng mở cửa trở lại nhé!"
+            }
+        },
+        //   {
+        //     score: "Tạm tắt gian hàng (lần 2)",
+        //     rating: "Đây đã là lần thứ 2 bạn đạt điểm vận hành bằng 0!",
+        //     message: {
+        //       firstPart: "Techzone phải tạm tắt gian hàng trong 14 ngày.",
+        //       content: "Lưu ý: Sau 2 lần bị khóa gian do điểm vận hành, lần thứ 3 gian hàng của bạn sẽ bị khóa vĩnh viễn."
+        //     }
+        //   },
+        //   {
+        //     score: "Tạm tắt gian hàng (vĩnh viễn)",
+        //     rating: "Rất tiếc! Techzone phải tắt gian hàng hàng vĩnh viễn.",
+        //     message: {
+        //       firstPart: "Đây đã là lần thứ 3 bạn đạt điểm vận hành bằng 0!",
+        //       content: "Vì vậy, Techzone rất tiếc phải tắt gian hàng vĩnh viễn."
+        //     }
+        //   }
+    ]
+
+    const notificationData: NotificationType[] = [
+        {
+            _id: '1',
+            title: 'Báo cáo doanh thu tuần',
+            image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
+            description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt 13.360.783đ`,
+            timestamp: new Date(2024, 2, 31, 12, 24, 52)
+        },
+        {
+            _id: '2',
+            title: 'Thông báo từ hệ thống',
+            image: 'https://cdn-icons-png.flaticon.com/512/1169/1169118.png',
+            description: `Xin chào ${context.shopInfo?.name}, Điều khoản & Điều kiện của bạn đã được chấp nhận & thành công. Cảm ơn bạn đã hợp tác cùng chúng tôi`,
+            timestamp: new Date(2024, 2, 31, 12, 24, 52)
+        }
+    ]
+
+    const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
+        return isAboveThreshold ? value >= threshold : value <= threshold;
+    }
+
+    const OEColumns: TableColumnsType<OEProps> = [
+        {
+            title: <div className="font-semibold ml-4">Chỉ số</div>,
+            dataIndex: 'index',
+            render: (index: string, item: OEProps) =>
+                <div className="flex flex-col px-4">
+                    <div className="flex-row flex gap-1 items-center">
+                        <div className="font-semibold">{item.index}</div>
+                        <div className="text-sm">
+                            <Tooltip title={item.index_tooltip}>
+                                <div><TbInfoCircle /></div></Tooltip>
+                        </div>
+                    </div>
+                    <div>{item.index_description}</div>
+                </div>,
+            width: '46%'
+        },
+        {
+            title: <div className="font-semibold">Điểm hiện tại</div>,
+            dataIndex: 'score',
+            render: (score: number) => {
+                return <div className="font-semibold text-xl">{score * 100}%</div>
+            },
+            width: '27%'
+        },
+        {
+            title: <div className="font-semibold">Trạng thái</div>,
+            dataIndex: 'status',
+            render: (status: number, item: OEProps) => {
+                return <div className="items-center">
+                    {
+                        checkThreshold(item.score, item.threshold, item.isAboveThreshold) ? (
+                            <Tag color="#87d068" className="font-semibold">Tốt</Tag>
+                        ) : <Tag color="#f50" className="font-semibold">Xấu</Tag>
+                    }
+                </div>
+            },
+            width: '27%'
+        },
+    ];
+
+    const OEDataSources = useMemo<OEProps[]>(() => {
+        const lateOrdersRatio = roundTo2DecimalPlaces(totalLateTimeOrders / totalReceivedOrders);
+        const onTimeOrdersRatio = roundTo2DecimalPlaces(totalOnTimeOrders / totalReceivedOrders);
+        console.log('OEStats', totalLateTimeOrders, totalOnTimeOrders, totalReceivedOrders);
+
+        const data: OEProps[] = [
+            {
+                key: '1',
+                index: "Tỉ lệ hủy đơn",
+                index_description: "Chỉ tiêu <= 2%",
+                index_tooltip: "Số đơn bị hủy (lỗi nhà bán) / Tổng số đơn đã nhận trong 4 tuần qua.",
+                threshold: 0.02,
+                isAboveThreshold: false,
+                score: lateOrdersRatio,
+                status: '----',
+            },
+            {
+                key: '2',
+                index: "Tỉ lệ xử lý đúng hạn",
+                index_description: "Chỉ tiêu >= 97%",
+                index_tooltip: "Số đơn hàng xử lý đúng hạn / Tổng số đơn đã nhận trong 4 tuần qua.",
+                threshold: 0.97,
+                isAboveThreshold: true,
+                score: onTimeOrdersRatio,
+                status: '----',
+            },
+            // {
+            //     key: '3',
+            //     index: "Tỉ lệ đổi trả",
+            //     index_description: "Chỉ tiêu <= 2%",
+            //     index_tooltip: "Số sản phẩm đổi trả (lỗi nhà bán) / Số sản phẩm đã bán trong 4 tuần qua.",
+            //     threshold: 0.02,
+            //     isAboveThreshold: false,
+            //     score: 0.03,
+            //     status: '----',
+            // },
+            // {
+            //     key: '4',
+            //     index: "Tỉ lệ phản hồi chat",
+            //     index_description: "Chỉ tiêu >= 80%",
+            //     index_tooltip: "Tỷ lệ phản hồi = Lượt phản hồi chat / Lượt chat nhận được. Tỷ lệ phản hồi chỉ được tính khi Nhà bán nhận được ít nhất 2 tin nhắn trong vòng 4 tuần qua.",
+            //     threshold: 0.8,
+            //     isAboveThreshold: true,
+            //     score: 0.81,
+            //     status: '----',
+            // },
+
+        ]
+        return data;
+    }, [totalReceivedOrders, totalLateTimeOrders, totalOnTimeOrders]);
+
+
+    const productRatingData = useMemo(() => {
+        const ratingData = {
+            rating: productRatingScore,
+            totalRatings: totalRatings
+        }
+        return ratingData;
+    }, [productRatingScore, totalRatings])
 
     const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
         return dates.map(item => {
@@ -328,25 +444,85 @@ export default function HomePage() {
     const handleFilterChange = (value: string) => {
         setFilterValue(value);
         let range = rangeDefaultsForFilter(value);
-        console.log('Range: ', range, value);
-        let [_start, _end] = [new Date(range[0]!.format('YYYY-MM-DD')), new Date(range[1]!.format('YYYY-MM-DD'))];
-        let actualRange = getCorrectInterval(_start, _end, value);
-        console.log('Actual Range: ', actualRange);
-        setSelectedDates([dayjs(actualRange[0]), dayjs(actualRange[1])]); // Reset selected date when filter changes
+        // console.log('Range: ', range, value);
+        // let [_start, _end] = [new Date(range[0]!.format('YYYY-MM-DD')), new Date(range[1]!.format('YYYY-MM-DD'))];
+        // let actualRange = getCorrectInterval(_start, _end, value);
+        // console.log('Actual Range: ', actualRange);
+        // setSelectedDates([dayjs(actualRange[0]), dayjs(actualRange[1])]); // Reset selected date when filter changes
+        setSelectedDates(range); // Reset selected date when filter changes
     };
 
     const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
         if (dates) {
-            console.log('From: ', dates[0], ', to: ', dates[1]);
-            console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-            let [_start, _end] = [new Date(dates[0]!.format('YYYY-MM-DD')), new Date(dates[1]!.format('YYYY-MM-DD'))];
-            let range = getCorrectInterval(_start, _end, filterValue);
-
-            setSelectedDates([dayjs(range[0]), dayjs(range[1])]);
+            // console.log('From: ', dates[0], ', to: ', dates[1]);
+            // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+            // let [_start, _end] = [new Date(dates[0]!.format('YYYY-MM-DD')), new Date(dates[1]!.format('YYYY-MM-DD'))];
+            let range = getCorrectInterval(dates[0]!, dates[1]!, filterValue);
+            // setSelectedDates([dayjs(range[0]), dayjs(range[1])]);
+            setSelectedDates([range[0], range[1]]);
         } else {
             console.log('Clear');
         }
     };
+
+    useEffect(() => {
+        if (context.shopInfo) {
+            fetchOrderStatistics();
+            fetchReviewStatistics();
+        }
+    }, [context.shopInfo]);
+
+    useEffect(() => {
+        if (context.shopInfo) {
+            fetchSalesStatistics();
+        }
+    }, [context.shopInfo, selectedDates]);
+
+    const statisticData = useMemo<Task[]>(() => {
+        const orderPendingValue = (orderStatistics.find(value => (value.orderStatus as OrderStatusType) === OrderStatusType.PENDING)?.totalOrders) ?? 0;
+        const orderProcessingValue = (orderStatistics.find(value => (value.orderStatus as OrderStatusType) === OrderStatusType.PROCESSING)?.totalOrders) ?? 0;
+        const orderShippingValue = (orderStatistics.find(value => (value.orderStatus as OrderStatusType) === OrderStatusType.SHIPPING)?.totalOrders) ?? 0;
+
+        let rawData: Task[] = [
+            {
+                title: "Đơn hàng chờ xác nhận",
+                tooltip: "Số đơn chờ xác nhận trong 7 ngày gần đây",
+                value: orderPendingValue,
+                type: TaskType.INFO,
+                urlRedirect: "/order?tab=awaiting_confirmation"
+            },
+            {
+                title: "Đơn hàng đang được xử lý",
+                tooltip: "Số đơn chờ kết quả xử lý trong 7 ngày gần đây",
+                value: orderProcessingValue,
+                type: TaskType.WARNING,
+                urlRedirect: "/order?tab=processing"
+            },
+            {
+                title: "Đơn hàng đang vận chuyển",
+                tooltip: "Số đơn đang được vận chuyển trong 7 ngày gần đây",
+                value: orderShippingValue,
+                type: TaskType.INFO,
+                urlRedirect: "/order?tab=shipping"
+            },
+            // {
+            //     title: "Sản phẩm hết hàng",
+            //     tooltip: "",
+            //     value: 23,
+            //     type: TaskType.WARNING,
+            //     urlRedirect: "/product/list?tab=out_of_stock"
+            // },
+            {
+                title: "Sản phẩm bị đánh giá thấp",
+                tooltip: "Số đánh giá thấp từ người dùng cho sản phẩm trong 7 ngày gần đây",
+                value: totalBadRatingProduct,
+                type: TaskType.DANGER,
+                urlRedirect: "/product/review"
+            },
+        ]
+        return rawData;
+
+    }, [orderStatistics, totalBadRatingProduct]);
 
     return (
         <React.Fragment>
@@ -360,12 +536,14 @@ export default function HomePage() {
                         contents={
                             bannerContent.map((item, key) => {
                                 return (
-                                    <div key={key} className="bg-sky-600 h-[240px] rounded-lg">
-                                        <div className="lg:grid lg:grid-cols-2 p-10 m-5">
-                                            <div className="text-2xl font-semibold text-white text-center">{item.title}</div>
-                                            <div className="mt-5 lg:mt-0 lg:text-lg text-white text-center">{item.description}</div>
+                                    <Link href={item.urlRedirect}>
+                                        <div key={key} className="bg-sky-600 h-[240px] rounded-lg">
+                                            <div className="lg:grid lg:grid-cols-2 p-10 m-5">
+                                                <div className="text-2xl font-semibold text-white text-center">{item.title}</div>
+                                                <div className="mt-5 lg:mt-0 lg:text-lg text-white text-center">{item.description}</div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 )
                             })
 
@@ -375,7 +553,10 @@ export default function HomePage() {
                 <div className="grid grid-cols-4 gap-x-5 gap-y-2">
                     {/* Thông tin đơn hàng */}
                     <div className="col-start-1 lg:col-span-3 col-span-4 mt-10 flex flex-col gap-5 my-10">
-                        <div className="font-semibold text-xl">Thống kê nhanh</div>
+                        <div className="flex flex-col lg:flex-row gap-3 items-end">
+                            <div className="font-semibold text-xl">Thống kê nhanh</div>
+                            <div>(Tuần trước {getPreviousWeekDateRange()})</div>
+                        </div>
                         {/* <div>Nhà bán chưa có việc gì cần làm với đơn hàng</div> */}
                         <TodoTasks data={statisticData} />
                     </div>
@@ -530,6 +711,7 @@ export default function HomePage() {
                                 <div className="lg:w-3/5">
                                     <BEChart filterBy={filterValue}
                                         dateRange={Array.from(DayjsToDate(selectedDates))}
+                                        orders={orders}
                                         setTotalOrderQuantity={setTotalOrderQuantity}
                                         setTotalRevenue={setTotalRevenue} />
                                 </div>
