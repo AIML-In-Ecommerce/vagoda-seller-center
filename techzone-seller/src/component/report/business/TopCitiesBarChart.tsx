@@ -36,11 +36,11 @@ interface ItemData {
   revenue: string,
   profit: number,
   count: number,
-  statisticData: any,
+  statisticsData: any,
 }
 
 interface TopCitiesBarChartProps {
-  items: any[]
+  items: ItemData[]
 }
 
 

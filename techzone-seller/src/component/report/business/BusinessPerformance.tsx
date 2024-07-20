@@ -9,8 +9,8 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import BPChart from "./BPChart";
-import { BusinessPerformanceStats, POST_getBEStats, POST_getTopCitiesInSales, POST_getTopProductsInSales } from "@/apis/statistic/StatisticAPI";
+import BPChart, { BPChartStats } from "./BPChart";
+import { OrderStatusType, POST_getConversionRateStats, POST_getOrderStatisticsWithStatus, POST_getReturnRateOfCustomers, POST_getTopCitiesInSales, POST_getTopProductsInSales, POST_getTotalSales } from "@/apis/statistic/StatisticAPI";
 import { AuthContext } from "@/context/AuthContext";
 import TopProductsBarChart from "./TopProductsBarChart";
 import TopCitiesBarChart from "./TopCitiesBarChart";
@@ -67,8 +67,8 @@ export default function BusinessPerformancePage() {
     const [selectedCategories, setSelectedCategories] = useState<BPCategory[]>([]);
     const [productSales, setProductSales] = useState([]);
     const [citiesSales, setCitiesSales] = useState([]);
-    const [BEStats, setBEStats] = useState<BusinessPerformanceStats>();
-    const [compareBEStats, setCompareBEStats] = useState<BusinessPerformanceStats>();
+    const [currentPeriod, setCurrentPeriod] = useState<BPChartStats>();
+    const [previousPeriod, setPreviousPeriod] = useState<BPChartStats>();
 
     const maxLabels = 31; // Maximum number of labels to display on Chart
 
@@ -128,16 +128,18 @@ export default function BusinessPerformancePage() {
     };
 
     const categories = useMemo<BPCategory[]>(() => {
-        const totalRevenuePecentChanges = calcPercentChanges(BEStats?.totalRevenue!, compareBEStats?.totalRevenue!);
-        const totalOrdersPecentChanges = calcPercentChanges(BEStats?.totalOrders!, compareBEStats?.totalOrders!);
-        const totalProfitPecentChanges = calcPercentChanges(BEStats?.totalProfit!, compareBEStats?.totalProfit!);
-        const conversionRatePecentChanges = calcPercentChanges(BEStats?.conversionRate! * 100, compareBEStats?.conversionRate! * 100, true);
-        const avgRevenuePecentChanges = calcPercentChanges(BEStats?.avgRevenue!, compareBEStats?.avgRevenue!);
+        const totalRevenuePecentChanges = calcPercentChanges(currentPeriod?.sales.totalRevenue!, previousPeriod?.sales.totalRevenue!);
+        const totalOrdersPecentChanges = calcPercentChanges(currentPeriod?.sales.totalOrders!, previousPeriod?.sales.totalOrders!);
+        const totalProfitPecentChanges = calcPercentChanges(currentPeriod?.sales.totalProfit!, previousPeriod?.sales.totalProfit!);
+        const conversionRatePecentChanges = calcPercentChanges(currentPeriod?.conversionRate.conversionRate! * 100, previousPeriod?.conversionRate.conversionRate! * 100, true);
+        const avgRevenuePecentChanges = calcPercentChanges(currentPeriod?.sales.avgRevenue!, previousPeriod?.sales.avgRevenue!);
+        const returningRatePecentChanges = calcPercentChanges(currentPeriod?.returningRate.totalReturingUsers!, previousPeriod?.returningRate.totalReturingUsers!);
+        const cancelledPecentChanges = calcPercentChanges(currentPeriod?.cancelledOrders.totalOrders!, previousPeriod?.cancelledOrders.totalOrders!);
 
         const result: BPCategory[] = [
             {
                 title: "Doanh số",
-                value: BEStats?.totalRevenue || 0,
+                value: currentPeriod?.sales.totalRevenue || 0,
                 percentChange: totalRevenuePecentChanges,
                 suffix: "đ",
                 tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
@@ -146,7 +148,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Đơn hàng",
-                value: BEStats?.totalOrders || 0,
+                value: currentPeriod?.sales.totalOrders || 0,
                 percentChange: totalOrdersPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
                 color: '#f97316',
@@ -154,16 +156,16 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Doanh thu thuần",
-                value: BEStats?.totalProfit || 0,
+                value: currentPeriod?.sales.totalProfit || 0,
                 percentChange: totalProfitPecentChanges,
                 suffix: "đ",
-                tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Tiki).",
+                tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Vagoda).",
                 color: '#10b981',
                 _id: "profit"
             },
             {
                 title: "Tỉ lệ chuyển đổi",
-                value: roundTo2DecimalPlaces(BEStats?.conversionRate || 0) * 100,
+                value: roundTo2DecimalPlaces(currentPeriod?.conversionRate.conversionRate || 0) * 100,
                 isPercentageValue: true,
                 percentChange: conversionRatePecentChanges,
                 suffix: "%",
@@ -173,7 +175,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Giá trị đơn hàng trung bình",
-                value: roundTo2DecimalPlaces(BEStats?.avgRevenue || 0),
+                value: roundTo2DecimalPlaces(currentPeriod?.sales.avgRevenue || 0),
                 percentChange: avgRevenuePecentChanges,
                 suffix: "đ",
                 tooltip: "Doanh số trung bình mỗi đơn hàng trong khoảng thời gian đã chọn.",
@@ -182,16 +184,16 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Đơn hàng hủy",
-                value: 0,
-                percentChange: 0,
+                value: currentPeriod?.cancelledOrders.totalOrders || 0,
+                percentChange: cancelledPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
                 color: '#78716c',
                 _id: "cancelledOrders"
             },
             {
                 title: "Khách hàng quay lại",
-                value: 0,
-                percentChange: 0,
+                value: currentPeriod?.returningRate.totalReturingUsers || 0,
+                percentChange: returningRatePecentChanges,
                 suffix: "khách",
                 tooltip: "Tổng số lượng khách quay lại trong khoảng thời gian đã chọn",
                 color: '#78716c',
@@ -199,7 +201,7 @@ export default function BusinessPerformancePage() {
             },
         ]
         return result;
-    }, [BEStats, compareBEStats])
+    }, [currentPeriod, previousPeriod])
 
     useEffect(() => {
         if (!context.shopInfo) return;
@@ -213,31 +215,82 @@ export default function BusinessPerformancePage() {
             const [startTime, endTime] = DayjsToDate(selectedDates);
             await POST_getTopCitiesInSales(
                 context.shopInfo?._id as string,
-                startTime!, endTime!).then((response) => setCitiesSales(response.data.statisticData))
+                startTime!, endTime!).then((response) => {
+                    console.log("cities fetched", response.data.statisticsData);
+                    setCitiesSales(response.data.statisticsData)
+                })
         }
 
-        const fetchBEStats = async () => {
+        const fetchCurrentPeriod = async () => {
             const [BECurrentStartTime, BECurrentEndTime] = DayjsToDate(selectedDates);
-            await POST_getBEStats(
+
+            const totalSalesResponse = await POST_getTotalSales(
+                context.shopInfo?._id as string,
+                BECurrentStartTime || new Date(),
+                BECurrentEndTime || new Date(),
+                `${step}-d`);
+            const cancelledOrdersResponse = await POST_getOrderStatisticsWithStatus(
+                context.shopInfo?._id as string,
+                OrderStatusType.CANCELLED,
+                BECurrentStartTime || new Date(),
+                BECurrentEndTime || new Date(),
+                `${step}-d`);
+            const conversionRateResponse = await POST_getConversionRateStats(
                 context.shopInfo?._id as string,
                 BECurrentStartTime || new Date(),
                 BECurrentEndTime || new Date(),
                 `${step}-d`
-            ).then((response) => setBEStats(response.data as BusinessPerformanceStats))
+            )
+            const returnRateResponse = await POST_getReturnRateOfCustomers(
+                context.shopInfo?._id as string,
+                BECurrentStartTime || new Date(),
+                BECurrentEndTime || new Date(),
+                `${step}-d`
+            )
 
+            setCurrentPeriod({
+                sales: totalSalesResponse.data || [],
+                cancelledOrders: cancelledOrdersResponse.data || [],
+                conversionRate: conversionRateResponse.data || [],
+                returningRate: returnRateResponse.data || [],
+            } as BPChartStats)
+            
             const [BECompareStartTime, BECompareEndTime] = DayjsToDate(compareDates);
-            await POST_getBEStats(
+            const previousTotalSalesResponse = await POST_getTotalSales(
+                context.shopInfo?._id as string,
+                BECompareStartTime || new Date(),
+                BECompareEndTime || new Date(),
+                `${step}-d`);
+            const previousCancelledOrdersResponse = await POST_getOrderStatisticsWithStatus(
+                context.shopInfo?._id as string,
+                OrderStatusType.CANCELLED,
+                BECompareStartTime || new Date(),
+                BECompareEndTime || new Date(),
+                `${step}-d`);
+            const previousConversionRateResponse = await POST_getConversionRateStats(
                 context.shopInfo?._id as string,
                 BECompareStartTime || new Date(),
                 BECompareEndTime || new Date(),
                 `${step}-d`
-            ).then((response) => setCompareBEStats(response.data as BusinessPerformanceStats))
-        }
+            )
+            const previousReturnRateResponse = await POST_getReturnRateOfCustomers(
+                context.shopInfo?._id as string,
+                BECompareStartTime || new Date(),
+                BECompareEndTime || new Date(),
+                `${step}-d`
+            )
 
+            setPreviousPeriod({
+                sales: previousTotalSalesResponse.data || [],
+                cancelledOrders: previousCancelledOrdersResponse.data || [],
+                conversionRate: previousConversionRateResponse.data || [],
+                returningRate: previousReturnRateResponse.data || [],
+            } as BPChartStats)
+        }
 
         fetchTopProductsSales();
         fetchTopCitiesSales();
-        fetchBEStats();
+        fetchCurrentPeriod();
         setLastUpdateTime(dayjs());
 
     }, [context.shopInfo, selectedDates])
@@ -322,8 +375,8 @@ export default function BusinessPerformancePage() {
                                 } />
                         </div>
                         <BPChart 
-                            BECurrent={BEStats}
-                            BEPrevious={compareBEStats}
+                            currentPeriod={currentPeriod}
+                            previousPeriod={previousPeriod}
                             timeUnit={selectedReportPeriod}
                             dateRange={Array.from(DayjsToDate(selectedDates))}
                             categories={selectedCategories} />

@@ -14,7 +14,7 @@ import styled from 'styled-components'
 import { POST_GetProductListByShop } from '@/apis/product/ProductAPI';
 import { AuthContext } from '@/context/AuthContext';
 import { ProductType } from '@/model/ProductType';
-import { POST_getAddToCartRatio, POST_getProductViewers } from '@/apis/statistic/StatisticAPI';
+import { POST_getAddToCartRatio, POST_getAmountBuyerOfProducts, POST_getProductViewers } from '@/apis/statistic/StatisticAPI';
 
 interface RevenueAndVisitsProps {
 
@@ -99,7 +99,7 @@ const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
 
 export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
     const context = useContext(AuthContext);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date').subtract(1, 'day'), dayjs().endOf('date').subtract(1, 'day')])
@@ -112,7 +112,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
     useEffect(() => {
         const fetchAllProducts = async () => {
             if (!context.shopInfo) return;
-            setLoading(true);
+            // setLoading(true);
             let [startDate, endDate] = DayjsToDate(selectedDates);
             const response = await POST_GetProductListByShop(context.shopInfo?._id as string);
             if (response.status === 200) {
@@ -135,13 +135,33 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                 )
                 const getProductsAddToCartData = getProductsAddToCart.data;
 
+                //03. Xác nhận đơn hàng
+                const confirmedOrderStats = await POST_getAmountBuyerOfProducts(
+                    context.shopInfo?._id as string,
+                    products?.flatMap(product => product._id) || [],
+                    startDate ?? new Date(),
+                    endDate ?? new Date()
+                )
+                const confirmedOrderStatsData = confirmedOrderStats.data.statisticsData;
+
+
                 let productStatisticData = products?.map((item: ProductType, index: React.Key) => {
-                    let singleProductViewersData = getProductsViewersData.statisticData[0].statisticData?.find(
+                    let singleProductViewersData = getProductsViewersData.statisticsData[0].statisticsData?.find(
                         (productItem: any) => productItem.productId === item._id) ?? [];
                     let singleProductAddToCartData = getProductsAddToCartData?.find(
                         (productItem: any) => productItem.productId === item._id) ?? [];
                     let [totalViews, totalViewers] = [singleProductViewersData.views, singleProductViewersData.viewers];
                     let [viewerCount, addToCartCount] = [singleProductAddToCartData.viewerCount, singleProductViewersData.addToCartCount];
+                    let [unitsSold, 
+                        revenue, 
+                        conversionRate, 
+                        purchaseCount] = [confirmedOrderStatsData.sold,
+                        confirmedOrderStatsData.revenue,
+                        confirmedOrderStatsData.conversion,
+                        confirmedOrderStatsData.buyers.length]
+                    {
+                        // purchaseCount, conversionRate, unitsSold, revenue
+                    }
                     return {
                         key: item._id,
                         product: item,
@@ -149,10 +169,14 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         totalViewers: totalViewers ?? 0,
                         cartAdditions: addToCartCount ?? 0,
                         cartAddRates: (addToCartCount !== undefined) && (viewerCount !== undefined) ? Math.floor(addToCartCount / viewerCount) : 0,
+                        unitsSold: unitsSold ?? 0,
+                        revenue: revenue ?? 0,
+                        conversionRate: conversionRate ?? 0,
+                        purchaseCount: purchaseCount ?? 0
                     } as ProductStatisticsType
                 }) ?? [];
                 setProductStatisticData(productStatisticData);
-                setLoading(false);
+                // setLoading(false);   
             }
         }
 

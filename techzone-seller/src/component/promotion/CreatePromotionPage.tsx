@@ -1,5 +1,5 @@
 "use client";
-import { Affix, Breadcrumb, Divider, FormProps, Modal, RadioChangeEvent, Tooltip } from 'antd'
+import { Affix, Breadcrumb, Divider, FormProps, message, Modal, RadioChangeEvent, Tooltip } from 'antd'
 import React, { useContext, useEffect, useState } from 'react'
 import { HiOutlineHome } from 'react-icons/hi2'
 import runes from 'runes2';
@@ -33,7 +33,7 @@ import { useRouter } from 'next/navigation';
 import { TbDiscount, TbShoppingCartDiscount } from 'react-icons/tb';
 import ProductListModal from './ProductListModal';
 import { AuthContext } from '@/context/AuthContext';
-import { POST_CreatePromotion } from '@/apis/promotion/PromotionAPI';
+import { POST_CreatePromotion, POST_GetPromotionByCode } from '@/apis/promotion/PromotionAPI';
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -49,9 +49,14 @@ const formItemLayout = {
     },
 };
 
+/* eslint-disable no-template-curly-in-string */
 const validateMessages = {
     required: 'Vui lòng nhập thông tin này',
+    pattern: {
+        mismatch: 'Trường không hợp lệ',
+    },
 };
+/* eslint-enable no-template-curly-in-string */
 
 type DiscountInfoField = {
     name: string;
@@ -71,7 +76,7 @@ type DiscountInfoField = {
 const initialDiscount: DiscountInfoField = {
     name: '',
     code: '',
-    date: [dayjs(), dayjs().add(7,'day')],
+    date: [dayjs(), dayjs().add(7, 'day')],
     isRecommendStats: true,
     discountType: DiscountType.DIRECT_PRICE,
     discountValue: 0,
@@ -83,19 +88,6 @@ const initialDiscount: DiscountInfoField = {
     targetProducts: [],
 }
 
-const generatePromotionCode = () => {
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    const length = Math.floor(Math.random() * 6) + 5;
-    let result = '';
-
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        result += characters[randomIndex];
-    }
-
-    return result.toUpperCase();
-}
-
 const DIRECT_PRICE_RECOMMEND = 10000;
 const PERCENTAGE_RECOMMEND = 8;
 const LIMIT_AMOUNT_RECOMMEND = 80000;
@@ -105,7 +97,7 @@ export default function CreatePromotionPage() {
     const context = useContext(AuthContext);
     const [form] = Form.useForm<DiscountInfoField>();
     const discountName = Form.useWatch('name', form);
-    const discountCode = Form.useWatch('code', form);
+    const [discountCode, setDiscountCode] = useState<string>("");
     const date = Form.useWatch('date', form);
     const recommendStats = Form.useWatch('isRecommendStats', form);
     const discountType = Form.useWatch('discountType', form);
@@ -128,7 +120,7 @@ export default function CreatePromotionPage() {
             limitAmountToReduce: 0,
         } as DiscountTypeInfo,
         activeDate: new Date(),
-        expiredDate:  new Date(),
+        expiredDate: new Date(),
         targetProducts: [] as string[],
         quantity: 100,
         status: PromotionStatus.UPCOMMING,
@@ -148,6 +140,29 @@ export default function CreatePromotionPage() {
         setIsCreatePromotionModalOpen(false);
     }
 
+    const generatePromotionCode = async () => {
+        const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        const length = Math.floor(Math.random() * 6) + 5;
+        let isExistCode = true;
+
+        let currentCode = '';
+        while (isExistCode) {
+            // Generate random promotion code
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                currentCode += characters[randomIndex];
+            }
+            currentCode = currentCode.toUpperCase();
+            const response = await POST_GetPromotionByCode(context.shopInfo?._id as string, currentCode);
+            isExistCode = response.data ? (response.data.length === 0 ? false : true) : false;
+            console.log(`Response from promotion api, this code ${currentCode} is ${isExistCode ? 'exists' : 'not exists'}`);
+            if (isExistCode) {
+                currentCode = '';
+            }
+        }
+        return currentCode;
+    }
+
     useEffect(() => {
         console.log('Promotion changed', discount);
         let currentDiscountStatus: PromotionStatus;
@@ -156,7 +171,7 @@ export default function CreatePromotionPage() {
             if (currentDate < date[0]!.toDate()) {
                 currentDiscountStatus = PromotionStatus.UPCOMMING;
             }
-            else if (date[1]!.toDate() > currentDate ) {
+            else if (date[1]!.toDate() > currentDate) {
                 currentDiscountStatus = PromotionStatus.IN_PROGRESS;
             }
             else {
@@ -166,7 +181,7 @@ export default function CreatePromotionPage() {
         else {
             currentDiscountStatus = PromotionStatus.UPCOMMING;
         }
-        
+
         setDiscount({
             ...discount,
             name: discountName,
@@ -178,7 +193,7 @@ export default function CreatePromotionPage() {
                 limitAmountToReduce: limitAmountToReduce ?? 0,
             } as DiscountTypeInfo,
             activeDate: date ? date[0]?.toDate() : new Date(),
-            expiredDate:  date ? date[1]?.toDate() : new Date(),
+            expiredDate: date ? date[1]?.toDate() : new Date(),
             targetProducts: [],
             quantity: quantity,
             status: currentDiscountStatus,
@@ -189,14 +204,17 @@ export default function CreatePromotionPage() {
         discountType, discountValue, limitAmountToReduce,
         lowerBoundaryForOrder, quantity]);
 
-    const handleUpdatePromotionCode = () => {
-        const generateCode = generatePromotionCode();
-        // form.setFieldsValue({ code: generateCode });
+    const handleUpdatePromotionCode = async () => {
+        const generateCode = await generatePromotionCode();
+        setDiscountCode(generateCode);
+        // console.log('handleUpdatePromotionCode', generateCode);
         form.setFieldValue("code", generateCode);
+        form.validateFields(['code']);
     }
 
     const handlePromotionInputChange = (e: any) => {
         const transformedValue = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        setDiscountCode(transformedValue);
         form.setFieldValue("code", transformedValue);
         form.validateFields(['code']);
     };
@@ -235,7 +253,7 @@ export default function CreatePromotionPage() {
         if (dates) {
             // console.log('From: ', dates[0], ', to: ', dates[1]);
             // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-            form.setFieldsValue({date: [dayjs(dates[0]!), dayjs(dates[1]!)]});
+            form.setFieldsValue({ date: [dayjs(dates[0]!), dayjs(dates[1]!)] });
         } else {
             console.log('Clear');
         }
@@ -244,9 +262,20 @@ export default function CreatePromotionPage() {
     const handleCreatePromotion = async () => {
         const response = await POST_CreatePromotion(context.shopInfo?._id as string, discount);
         if (response.status === 200) {
-            console.log("Success, navigating...", response);
-            router.push('/marketing-center/promotion-tool/coupons');
+            // console.log("Success, navigating...", response);
+            message.success("Tạo mới Mã giảm giá thành công! Chuẩn bị điều hướng tới trang danh sách Mã giảm giá!");
+            setTimeout(() => {
+                router.push('/marketing-center/promotion-tool/coupons');
+            }, 3000);
         }
+    }
+
+    const onFinish = () => {
+        handleOpenCreatePromotionModal();
+    }
+
+    const onFinishFailed = () => {
+        message.error("Một số trường không hợp lệ! Vui lòng thử lại!");
     }
 
     return (
@@ -286,6 +315,8 @@ export default function CreatePromotionPage() {
                             initialValues={initialDiscount}
                             validateMessages={validateMessages}
                             form={form}
+                            onFinish={onFinish}
+                            onFinishFailed={onFinishFailed}
                             labelWrap
                             colon={false}>
                             <div className="mt-5">
@@ -306,7 +337,8 @@ export default function CreatePromotionPage() {
                                             <MdInfoOutline />
                                         </Tooltip>
                                     </div>
-                                } name="code" rules={[{ required: true, max: 10 }]}>
+                                } name="code"
+                                    rules={[{ required: true, pattern: new RegExp(/^[a-zA-Z0-9]{5,10}$/) }]}>
                                     <div className="flex flex-col">
                                         <div className="flex flex-col lg:flex-row lg:items-center gap-2 justify-between mt-1">
                                             <div className="mb-2">Chỉ bao gồm từ 5 - 10 ký tự thường và chữ số.</div>
@@ -327,7 +359,6 @@ export default function CreatePromotionPage() {
                                             }}
                                             placeholder={"Điền ký tự mã giảm giá"}
                                             value={discountCode}
-
                                             onChange={handlePromotionInputChange} />
                                     </div>
                                 </Form.Item>
@@ -351,6 +382,8 @@ export default function CreatePromotionPage() {
                             initialValues={initialDiscount}
                             validateMessages={validateMessages}
                             form={form}
+                            onFinish={onFinish}
+                            onFinishFailed={onFinishFailed}
                             labelWrap
                             colon={false}>
                             <div className="mt-5">
@@ -516,10 +549,10 @@ export default function CreatePromotionPage() {
                                     <div className="flex flex-row items-center gap-2">
                                         <div className="font-semibold">Số lượng mã giảm giá</div>
                                     </div>
-                                } name="quantity">
+                                } name="quantity" rules={[{required: true}]}> 
                                     <InputNumber style={{ width: '100%' }} size="large" value={quantity}
                                         placeholder={"Nhập số lượng"}
-                                        defaultValue={0}
+                                        defaultValue={100}
                                         min={0}
                                         controls={false}
                                         formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -605,19 +638,22 @@ export default function CreatePromotionPage() {
                             Quay lại
                         </Button>
                         <div className="px-2">&nbsp;</div>
-                        <Button size="large" onClick={() => handleOpenCreatePromotionModal()}>
-                            Tạo mới
+                        <Button className="bg-blue-500 hover:bg-blue-400 text-white" htmlType="submit" size="large" onClick={() => form.submit()}>
+                            <div className="flex flex-row gap-2 items-center">
+                                <div><FaPlus /></div>
+                                <div>Tạo mới</div>
+                            </div>
                         </Button>
                     </div>
                 </div>
             </div>
-            <ProductListModal 
+            <ProductListModal
                 targetProducts={targetProducts}
                 setTargetProducts={setTargetProducts}
                 open={isProductListModalOpen}
                 onCancel={() => setIsProductListModalOpen(false)}
             />
-             <Modal
+            <Modal
                 width={400}
                 open={isCreatePromotionModalOpen}
                 onCancel={handleCancelCreatePromotionModal}
@@ -630,7 +666,7 @@ export default function CreatePromotionPage() {
                 )}
                 centered
             >
-                Vui lòng xác thực đúng thông tin trước khi thêm mã giảm giá. Bạn có muốn thêm mã giảm giá này không? 
+                Vui lòng xác thực đúng thông tin trước khi thêm mã giảm giá. Bạn có muốn thêm mã giảm giá này không?
             </Modal>
         </React.Fragment >
     )
