@@ -15,7 +15,7 @@ import {
 } from "antd";
 
 import { Editor } from "@tinymce/tinymce-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import {
   MdOutlineCollections,
@@ -24,6 +24,7 @@ import {
 import CategoryDropdown from "./CategoryDropdown";
 
 import { ProductCreatedInput } from "@/apis/ProductAPI";
+import { AuthContext } from "@/context/AuthContext";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ProductType } from "@/model/ProductType";
 import { CategoryService } from "@/services/Category";
@@ -84,6 +85,7 @@ const sizeOptions: SelectProps["options"] = [
 ];
 
 export default function CreateNewProduct(props: CreateNewProductProps) {
+  const authContext = useContext(AuthContext);
   const router = useRouter();
   const [form] = Form.useForm();
   const [imageList, setImageList] = useState<string[]>([]);
@@ -111,6 +113,10 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
   const [creatingProductMessage, contextHolder] = message.useMessage();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    if (!authContext.shopInfo) {
+      router.push("/auth");
+      return;
+    }
     const colorList: {
       link: string;
       color: { label: string; value: string };
@@ -132,7 +138,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     }
 
     const createdProductData: ProductCreatedInput = {
-      shop: "",
+      shop: authContext.shopInfo._id,
       name: values.name,
       description: descriptionText,
       category: category[0] ? category[0] : "",
@@ -156,7 +162,8 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
     if (props.isCreating) {
       try {
         const { status, message } = await ProductService.createProduct(
-          createdProductData
+          createdProductData,
+          authContext.shopInfo._id
         );
         creatingProductMessage.open({
           type: status === 200 ? "success" : "error",
@@ -351,6 +358,8 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
         categoryList.push(props.updatingProduct.subCategoryType._id);
 
       setCategory(categoryList);
+    } else {
+      form.setFieldValue("description", "<p>Thêm mô tả sản phẩm ở đây</p>");
     }
   }, [currentProduct]);
 
@@ -546,10 +555,11 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                   <Editor
                     onEditorChange={(content, editor) => {
                       setDescriptionText(content);
+                      form.setFieldValue("description", content);
                     }}
                     apiKey="z34ywiojqhkcw0gkzqfv1wf2cvba4graf9pk4w88ttj0tqd4"
-                    //onInit={(_evt, editor) => (editorRef.current = editor)}
-                    initialValue={"<p>Thêm mô tả sản phẩm ở đây</p>"}
+                    // onInit={(_evt, editor) => (editorRef.current = editor)}
+                    // initialValue={"<p>Thêm mô tả sản phẩm ở đây</p>"}
                     value={descriptionText}
                     init={{
                       height: 500,
@@ -616,7 +626,10 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                 <AIDescriptionModal
                   isOpen={genaiDescriptionModalOpen}
                   openModal={setGenaiDescriptionModalOpen}
-                  setDescription={setDescriptionText}
+                  setDescription={(text: string) => {
+                    form.setFieldValue("description", text);
+                    setDescriptionText(text);
+                  }}
                   shortDescription={descriptionText}
                 />
               </Collapse.Panel>
@@ -624,7 +637,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                 key="3"
                 header={<p className="font-bold">3. Thêm hình ảnh</p>}
               >
-                <div className="flex  space-x-1 font-semibold items-center justify-between">
+                <div className="flex  space-x-1 font-semibold items-center justify-between mb-2">
                   <div className="flex">
                     <div className="text-red-500 font-bold text-sm">*</div>{" "}
                     <div className="mb-2 flex items-center space-x-1 font-semibold text-xs font-light">
@@ -708,7 +721,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
                 <div className="">
                   <Button
                     type="primary"
-                    className=""
+                    className="theme-button"
                     onClick={() => {
                       form.submit();
                     }}
@@ -726,7 +739,7 @@ export default function CreateNewProduct(props: CreateNewProductProps) {
             <Button
               type="link"
               onClick={isExpand ? handleCollapseInfo : handleExpandInfo}
-              className="text-xs"
+              className=" text-xs"
             >
               {isExpand ? "Thu gọn " : "Mở rộng "}thông tin
             </Button>

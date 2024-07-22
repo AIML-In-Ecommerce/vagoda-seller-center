@@ -1,9 +1,9 @@
 "use client";
 import {
-    Button, DatePicker, Divider, Input, Radio,
-    RadioChangeEvent, Select, Space, Table, TableColumnsType, Tooltip
+    Button, DatePicker, Divider, Empty, Input, Radio,
+    RadioChangeEvent, Select, Space, Spin, Table, TableColumnsType, Tooltip
 } from 'antd'
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { GoDownload } from 'react-icons/go'
 import CheckableCard from '@/component/report/CheckableCard'
 import type { Dayjs } from 'dayjs';
@@ -11,6 +11,11 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import { TbInfoCircle } from 'react-icons/tb';
 import styled from 'styled-components'
+import { POST_GetProductListByShop } from '@/apis/product/ProductAPI';
+import { AuthContext } from '@/context/AuthContext';
+import { ProductType } from '@/model/ProductType';
+import { POST_getAddToCartRatio, POST_getAmountBuyerOfProducts, POST_getProductViewers } from '@/apis/statistic/StatisticAPI';
+import { Currency } from '@/component/util/CurrencyDisplay';
 
 interface RevenueAndVisitsProps {
 
@@ -47,7 +52,7 @@ const { RangePicker } = DatePicker;
 
 interface ProductStatisticsType {
     key: React.Key,
-    name: string,
+    product: ProductType,
     totalViews: number,
     totalViewers: number,
     cartAdditions: number,
@@ -83,11 +88,123 @@ const TableWrapper = styled.div`
     background-color: #f6ffed !important; /* Change this color for the fourth group */
 }`
 
+const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
+    return dates.map(item => {
+        if (item === null) {
+            return null;
+        } else {
+            return item.toDate();
+        }
+    });
+}
+
 export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
+    const context = useContext(AuthContext);
+    const [loading, setLoading] = useState<boolean>(false);
     const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date').subtract(1, 'day'), dayjs().endOf('date').subtract(1, 'day')])
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
+    const [keyword, setKeyword] = useState<string>("");
+    //all the products by seller
+    const [products, setProducts] = useState<ProductType[]>([]);
+    const [productStatisticData, setProductStatisticData] = useState<ProductStatisticsType[]>([]);
+    const [filteredData, setFilteredData] = useState<ProductStatisticsType[]>([]);
+
+
+    useEffect(() => {
+        const fetchAllProducts = async () => {
+            if (!context.shopInfo) return;
+            // setLoading(true);
+            let [startDate, endDate] = DayjsToDate(selectedDates);
+            const response = await POST_GetProductListByShop(context.shopInfo?._id as string);
+            if (response.status === 200) {
+                let products = response.data;
+                setProducts(products ?? []);
+                //01. Xem trang sản phẩm
+                const getProductsViewersResponse = await POST_getProductViewers(
+                    context.shopInfo?._id as string,
+                    products?.flatMap(product => product._id) || [],
+                    startDate ?? new Date(),
+                    endDate ?? new Date(),
+                )
+
+                let getProductsViewersData = getProductsViewersResponse.data;
+                //02. Cho hàng vào giỏ
+                const getProductsAddToCart = await POST_getAddToCartRatio(context.shopInfo?._id as string,
+                    products?.flatMap(product => product._id) || [],
+                    startDate ?? new Date(),
+                    endDate ?? new Date(),
+                )
+                const getProductsAddToCartData = getProductsAddToCart.data;
+
+                //03. Xác nhận đơn hàng
+                const confirmedOrderStats = await POST_getAmountBuyerOfProducts(
+                    context.shopInfo?._id as string,
+                    products?.flatMap(product => product._id) || [],
+                    startDate ?? new Date(),
+                    endDate ?? new Date()
+                )
+                const confirmedOrderStatsData = confirmedOrderStats.data.at(0).statisticsData;
+
+                let productStatisticData = products?.map((item: ProductType, index: React.Key) => {
+                    let singleProductViewersData = getProductsViewersData.statisticsData[0].statisticsData?.find(
+                        (productItem: any) => productItem.productId === item._id) ?? [];
+                    let singleProductAddToCartData = getProductsAddToCartData?.find(
+                        (productItem: any) => productItem.productId === item._id) ?? [];
+                    let singleProductConfirmedOrderStatsData = confirmedOrderStatsData?.find(
+                        (productItem: any) => productItem.product === item._id) ?? [];
+                    let [totalViews, totalViewers] = [singleProductViewersData.views, singleProductViewersData.viewers];
+                    let [viewerCount, addToCartCount] = [singleProductAddToCartData.viewerCount, singleProductViewersData.addToCartCount];
+                    
+                    let [unitsSold, 
+                        revenue, 
+                        conversionRate, 
+                        purchaseCount] = [singleProductConfirmedOrderStatsData.sold,
+                            singleProductConfirmedOrderStatsData.revenue,
+                            singleProductConfirmedOrderStatsData.conversion,
+                            singleProductConfirmedOrderStatsData.buyers?.length ?? 0]
+                    {
+                        // purchaseCount, conversionRate, unitsSold, revenue
+                    }
+                    return {
+                        key: item._id,
+                        product: item,
+                        totalViews: totalViews ?? 0,
+                        totalViewers: totalViewers ?? 0,
+                        cartAdditions: addToCartCount ?? 0,
+                        cartAddRates: (addToCartCount !== undefined) && (viewerCount !== undefined) ? Math.floor(addToCartCount / viewerCount) : 0,
+                        unitsSold: unitsSold ?? 0,
+                        revenue: revenue ?? 0,
+                        conversionRate: conversionRate ?? 0,
+                        purchaseCount: purchaseCount ?? 0
+                    } as ProductStatisticsType
+                }) ?? [];
+                setProductStatisticData(productStatisticData);
+                // setLoading(false);   
+            }
+        }
+
+        fetchAllProducts();
+
+    }, [context.shopInfo, selectedDates])
+
+    const filterData = () => {
+        let data = productStatisticData;
+
+        if (keyword) {
+            data = data.filter(item =>
+                Object.values(item.product).some(value =>
+                    value.toString().toLowerCase().includes(keyword.toLowerCase())
+                )
+            );
+        }
+        setFilteredData(data);
+    };
+
+    useEffect(() => {
+        filterData();
+    }, [keyword, context.shopInfo, productStatisticData, selectedDates])
 
     const handlePreviousPeriod = (currentPeriod: [Dayjs, Dayjs], periodUnit: string) => {
         let previous: [Dayjs, Dayjs] = [...currentPeriod];
@@ -131,16 +248,33 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
         setSelectedReportPeriod(e.target.value);
         switchPeriod(e.target.value);
     };
-    const handleChange = (value: string, option: { value: string; label: string; } | { value: string; label: string; }[]) => {
+    const handleProductIdTypeChange = (value: string, option: { value: string; label: string; } | { value: string; label: string; }[]) => {
         return;
     }
 
     const columns: TableColumnsType<ProductStatisticsType> = [
         {
             title: 'Sản phẩm',
-            dataIndex: 'name',
+            dataIndex: 'product',
+            render: (value: any, record: ProductStatisticsType) => {
+                return (<div>
+                    <div>
+                        <div
+                            style={{ display: "flex", alignItems: "center" }}
+                            className="font-semibold"
+                        >
+                            <img
+                                src={record.product.imageLink}
+                                alt={""}
+                                style={{ marginRight: "8px", width: "64px", height: "64px" }}
+                            />
+                            {record.product.name ? record.product.name : ""}
+                        </div>
+                    </div>
+                </div>);
+            },
             fixed: 'left',
-            width: '20%',
+            width: '15%',
         },
         {
             title: '01. Xem trang sản phẩm',
@@ -227,6 +361,9 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'revenue',
+                    render: (value: any, record: ProductStatisticsType) => (
+                        <Currency value={record.revenue}/>
+                    )
                 },
             ]
         },
@@ -253,7 +390,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
                     </div>
                 </div>
-                <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
+                {/* <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
                     <div className="flex flex-col lg:flex-row ">
                         <div className="font-semibold">Chỉ số chính</div>
                         <div className="lg:ml-4">
@@ -272,7 +409,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                             }
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
                     <div className="flex flex-row justify-between items-center">
                         <div className="flex flex-row gap-4">
@@ -289,30 +426,35 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     <Divider />
                     <Space direction="vertical">
                         <Space.Compact>
-                            <Select
+                            {/* <Select
                                 size="large"
                                 style={{ width: '140px' }}
                                 placement='bottomLeft'
                                 defaultValue="product_name"
-                                onChange={handleChange}
+                                onChange={handleProductIdTypeChange}
                                 options={[
                                     { value: 'product_name', label: 'Tên sản phẩm' },
                                     { value: 'sku', label: 'SKU' },
                                     { value: 'psku', label: 'PSKU' },
                                 ]}
-                            />
+                            /> */}
                             <Input.Search size="large" style={{ width: '400px' }}
+                                onChange={(e) => setKeyword(e.target.value)}
                                 placeholder="Điền tên sản phẩm" />
                         </Space.Compact>
                     </Space>
                     <Divider />
-                    <TableWrapper>
-                        <Table columns={columns} scroll={{ x: "max-content" }}
-                            // dataSource={data}
-                            bordered />
-                    </TableWrapper>
+                    {
+                        loading ? <Spin /> : (
+                            <TableWrapper>
+                                <Table columns={columns} scroll={{ x: "max-content" }}
+                                    dataSource={filteredData}
+                                    loading={loading}
+                                    bordered />
+                            </TableWrapper>)
+                    }
                 </div>
             </div>
-        </React.Fragment>
+        </React.Fragment >
     )
 }

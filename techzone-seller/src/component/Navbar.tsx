@@ -12,7 +12,7 @@ import {
 } from "react-icons/io5";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { RxPerson } from "react-icons/rx";
-import logo from "../../public/asset/logo.png";
+import logo from "../../public/asset/v_logo.png";
 import mall_logo from "../../public/asset/mall_logo.png";
 import LanguageOption from "./LanguageOption";
 import Link from "next/link";
@@ -23,7 +23,7 @@ const { Search } = Input;
 export default function Navbar() {
   const [countItemsCart, setCountItemsCart] = useState(0);
 
-  const authContext = useContext(AuthContext)
+  const authContext = useContext(AuthContext);
 
   const handleChange = (value: string) => {
     console.log(`selected ${value}`);
@@ -51,7 +51,7 @@ export default function Navbar() {
         </div>
       ),
     },
-  ]
+  ];
 
   const items: MenuProps["items"] = [
     {
@@ -109,12 +109,10 @@ export default function Navbar() {
         <Link
           href="#"
           prefetch={false}
-          onClick={(e) =>
-            {
-              e.preventDefault()
-              authContext.methods?.forceSignIn()
-            }
-          }
+          onClick={(e) => {
+            e.preventDefault();
+            authContext.methods?.forceSignIn();
+          }}
         >
           <div className="flex space-x-2">
             <AiOutlineLogout size={20} />
@@ -188,10 +186,10 @@ export default function Navbar() {
       <header className="navbar border-bottom shadow-lg bg-white items-center space-x-8 w-full border-2 z-50">
         <header className="flex items-center h-30 space-x-4 justify-between ">
           <div className="flex items-center space-x-1">
-            <div className="mb-0 mx-5">
-              <Image src={logo} width={50} height={30} alt="Logo" />
+            <div className="mb-0 ml-6 mr-3">
+              <Image src={logo} width={55} height={55} alt="Logo" />
             </div>
-            <p className="uppercase font-bold text-md">seller center</p>
+            <p className="uppercase font-bold text-xl">SELLER CENTER</p>
           </div>
 
           <div className="right-0 flex space-x-4 mt-1">
@@ -215,8 +213,7 @@ export default function Navbar() {
                   />
                 </Badge>
               </div>
-              {
-                authContext.shopInfo ?
+              {authContext.shopInfo ? (
                 <>
                   <Dropdown menu={{ items }} placement="bottomLeft">
                     <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2">
@@ -228,13 +225,13 @@ export default function Navbar() {
                         className="rounded-full"
                       />
                       <p className="ml-2 text-sm truncate">
-                      {authContext.shopInfo.name}
+                        {authContext.shopInfo.name}
                       </p>
                       <RiArrowDropDownLine size={20} />
                     </div>
                   </Dropdown>
                 </>
-                :
+              ) : (
                 <>
                   <Dropdown menu={{ items }} placement="bottomLeft">
                     <div className="flex items-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-xl border m-2">
@@ -245,14 +242,12 @@ export default function Navbar() {
                         alt="Logo"
                         className="rounded-full"
                       />
-                      <p className="ml-2 text-sm">
-                      Tài khoản
-                      </p>
+                      <p className="ml-2 text-sm">Tài khoản</p>
                       <RiArrowDropDownLine size={20} />
                     </div>
                   </Dropdown>
                 </>
-              }
+              )}
 
               <LanguageOption />
             </div>

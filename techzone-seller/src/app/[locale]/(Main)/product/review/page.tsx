@@ -1,6 +1,7 @@
 "use client";
 import { ReviewInputType } from "@/apis/ReviewAPI";
 import ReviewInfoDrawer from "@/component/review/ReviewInfoDrawer";
+import { AuthContext } from "@/context/AuthContext";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ReviewType } from "@/model/ReviewType";
 import { CategoryService } from "@/services/Category";
@@ -22,7 +23,7 @@ import {
 } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GoStarFill } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
 
@@ -46,6 +47,8 @@ const exportOptions: MenuProps["items"] = [
 
 export default function ReviewProductPage() {
   const query = useSearchParams();
+  const authContext = useContext(AuthContext);
+
   const [allCategories, setAllCategories] = useState<_CategoryType[]>([]);
   const [allReviews, setAllReviews] = useState<_ReviewType[]>([]);
   const [totalReview, setTotalReview] = useState(0);
@@ -299,13 +302,13 @@ export default function ReviewProductPage() {
   };
 
   const onCategoryFilter = (value: string) => {
-    const categoryName = allCategories.filter((c) => c._id === value)[0].name;
-    setFilteredCategory(categoryName);
     const updatedQuery = new URLSearchParams(query);
 
     if (value.length != 0) {
       updatedQuery.set("category", value);
     } else {
+      const categoryName = allCategories.filter((c) => c._id === value)[0].name;
+      setFilteredCategory(categoryName);
       updatedQuery.delete("category");
     }
     window.history.pushState(
@@ -316,8 +319,11 @@ export default function ReviewProductPage() {
   };
 
   const loadFilteredReviews = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
     const filteredInput: ReviewInputType = {
-      shop: "65f1e8bbc4e39014df775166",
+      shop: authContext.shopInfo._id,
       category: query.get("category") || undefined,
       product: query.get("product") || undefined,
       isResponse: query.get("isResponse")
@@ -456,7 +462,7 @@ export default function ReviewProductPage() {
           <div className="font-semibold pb-2">Danh mục</div>
           <Select
             onChange={onCategoryFilter}
-            defaultValue="Tất cả"
+            // defaultValue="Tất cả"
             style={{ width: 160 }}
             options={categoryOptions()}
             value={filteredCategory}

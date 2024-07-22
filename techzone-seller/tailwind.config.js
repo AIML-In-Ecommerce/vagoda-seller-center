@@ -17,6 +17,7 @@ module.exports = {
     "border-[#f97316]",
     "border-[#0ea5e9]",
     "border-[#10b981]",
+    "border-blue-500",
     { pattern: /(bg|text|border)-./ },
     { pattern: /^\-?m(\w?)-/ },
   ],
@@ -24,10 +25,10 @@ module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     screens: {
-      sm: '480px',
-      md: '768px',
-      lg: '976px',
-      xl: '1440px',
+      sm: "480px",
+      md: "768px",
+      lg: "976px",
+      xl: "1440px",
     },
     extend: {},
   },

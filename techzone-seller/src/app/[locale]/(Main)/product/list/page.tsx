@@ -4,6 +4,7 @@ import { OptionType } from "@/component/Product/CreateBatchProduct";
 import FilterDropdown from "@/component/Product/FilterDropdown";
 import ProductDetail from "@/component/Product/ProductDetail";
 import { formatPrice } from "@/component/utils/formatPrice";
+import { AuthContext } from "@/context/AuthContext";
 import { _CategoryType } from "@/model/CategoryType";
 import { _ProductType } from "@/model/ProductType";
 import { CategoryService } from "@/services/Category";
@@ -27,7 +28,7 @@ import {
 import type { SearchProps } from "antd/es/input/Search";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { BiEditAlt } from "react-icons/bi";
 import { CiCircleRemove } from "react-icons/ci";
 import { HiOutlineHome, HiOutlineInformationCircle } from "react-icons/hi2";
@@ -77,6 +78,7 @@ const exportOptions: MenuProps["items"] = [
 ];
 
 export default function ProductListPage() {
+  const authContext = useContext(AuthContext);
   const router = useRouter();
   const [filterOptions, setFilterOptions] = useState<FilterCriteria[]>([]);
 
@@ -323,7 +325,7 @@ export default function ProductListPage() {
       render: (text: number) => formatPrice(text),
       sorter: (a: _ProductType, b: _ProductType) =>
         a.platformFee - b.platformFee,
-      width: "17%",
+      width: "16%",
     },
     {
       title: () => (
@@ -352,7 +354,7 @@ export default function ProductListPage() {
       ),
       dataIndex: "profit",
       sorter: (a: _ProductType, b: _ProductType) => a.profit - b.profit,
-      width: "15%",
+      width: "12%",
     },
     {
       title: "Thao tác",
@@ -478,11 +480,18 @@ export default function ProductListPage() {
   };
 
   const loadFilteredProducts = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
+
     const response: {
       total: number;
       totalPages: number;
       products: _ProductType[];
-    } = await ProductService.getProductByFilter(filter);
+    } = await ProductService.getProductByFilter(
+      filter,
+      authContext.shopInfo._id ?? ""
+    );
     setAllProducts(response.products);
     setTotalProduct(response.total);
     setTotalPages(response.totalPages);

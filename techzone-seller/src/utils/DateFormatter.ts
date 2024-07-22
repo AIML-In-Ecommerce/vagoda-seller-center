@@ -1,9 +1,9 @@
 //Get the previous week date range (in textual format)
 export const getPreviousWeekDateRange = () => {
   const endDate = new Date();
+  endDate.setHours(23,59,59,59);
   const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000); 
   startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(23,59,59,59);
 
   // Format the dates for display
   const startDateFormatted = formatDate(startDate);
@@ -15,9 +15,9 @@ export const getPreviousWeekDateRange = () => {
 
 export const getPreviousWeekDateRange_2 = () => {
   const endDate = new Date();
+  endDate.setHours(23,59,59,59);
   const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
   startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(23,59,59,59);
 
   return [startDate, endDate];
 };
