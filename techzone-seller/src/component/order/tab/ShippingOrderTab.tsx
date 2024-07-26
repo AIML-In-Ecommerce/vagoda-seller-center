@@ -463,7 +463,10 @@ export default function ShippingOrderTab({tabKey, dataSource, askToRefreshData}:
                 }
             </Flex>
 
-            <Table rowSelection={rowSelection} columns={dataColumns} dataSource={dataToDisplay} showHeader/>
+            <Table rowSelection={rowSelection} 
+                columns={dataColumns} 
+                scroll={{x: 550, y: 600}}
+                dataSource={dataToDisplay} showHeader/>
 
             
             <OrderDetailDrawer open={orderDetailOpen} orderProps={selectedOrderDetail} onCloseCallback={handleOrderDetailDrawerOnClose} 

@@ -484,7 +484,7 @@ export default function WaitingOrderTab({tabKey, dataSource, askToRefreshData}: 
             </Flex>
 
             <Table rowSelection={rowSelection} columns={dataColumns} 
-                scroll={{x: 550}}
+                scroll={{x: 550, y: 600}}
                 dataSource={dataToDisplay}/>
 
             <OrderDetailDrawer open={orderDetailOpen} orderProps={selectedOrderDetail} onCloseCallback={handleOrderDetailDrawerOnClose} 
