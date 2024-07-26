@@ -23,7 +23,7 @@ function filterFunction(dataSource: OrderPropType[], targetData: string)
     dataSource.forEach((value: OrderPropType) =>
     {
         const latestStatusIndex = value.orderStatus.length - 1
-        const time = new Date(value.orderStatus[latestStatusIndex].time * 1000).setHours(0,0,0,0)
+        const time = new Date(value.orderStatus[latestStatusIndex].time).setHours(0,0,0,0)
 
         if(targetDate == time)
         {
