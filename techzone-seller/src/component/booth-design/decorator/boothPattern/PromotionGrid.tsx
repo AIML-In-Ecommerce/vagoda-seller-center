@@ -85,16 +85,14 @@ export default function PromotionGrid(props: PromotionGridProps) {
 
   const handleGetPromotionList = async (ids: string[]) => {
     const response = await POST_GetPromotionList(ids);
-    if (response.status == 200) {
-      if (response.data) {
-        setPromotions(response.data);
-        console.log("promotion", response.data);
-      }
+    if (response.data) {
+      setPromotions(response.data);
+      console.log("promotion", response.data);
     }
   };
 
   return (
-    <div className="bg-white my-5 py-5 px-10 rounded-xl">
+    <div className="bg-white my-5 py-5 px-10 rounded-xl w-full">
       {/* <Typography.Text className="text-xl font-semibold w-full">
         {element.title}
       </Typography.Text> */}
@@ -119,7 +117,7 @@ export default function PromotionGrid(props: PromotionGridProps) {
         </div>
       )}
 
-      <div className="flex align-middle justify-center items-center">
+      <div className="w-full flex align-middle justify-center items-center">
         <List
           grid={{
             gutter: 16,
@@ -134,6 +132,7 @@ export default function PromotionGrid(props: PromotionGridProps) {
           locale={{
             emptyText: <CustomEmpty />,
           }}
+          className="w-full"
           renderItem={(item, i) => (
             <div key={i}>
               <List.Item>
