@@ -54,7 +54,7 @@ const roundTo2DecimalPlaces = (value: number) => {
     return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory) => {
+const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory, labels: string[], comparedLabels?: string[]) => {
     let categoryId = category._id;
     let result: number[] = [];
     switch (categoryId) {
@@ -118,9 +118,19 @@ const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory) 
                 break;
             }
 
-        
+
     }
-    return result;
+
+    if (comparedLabels) {
+
+    }
+    const formattedResult = result.map((data, index) => {
+        return {
+            key: labels[index],
+            value: data
+        }
+    })
+    return formattedResult;
 }
 
 interface BPChartProps {
@@ -159,6 +169,21 @@ const generateChartLabels = (timeUnit: string, startDate: Date, endDate: Date): 
     return labels;
 };
 
+function getCompareDate(dateString: string, timeUnit: string) {
+    let days = timeUnit === 'today' ? 0 :
+        timeUnit === 'yesterday' ? 1 : timeUnit === 'week' ? 7 : 30;
+
+    const [day, month, year] = dateString.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    date.setDate(date.getDate() - days);
+
+    const prevDay = String(date.getDate()).padStart(2, '0');
+    const prevMonth = String(date.getMonth() + 1).padStart(2, '0');
+    const prevYear = date.getFullYear();
+
+    return `${prevDay}/${prevMonth}/${prevYear}`;
+}
 
 export default function BPChart(props: BPChartProps) {
 
@@ -171,6 +196,14 @@ export default function BPChart(props: BPChartProps) {
     const dateTo = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[1] ?? defaultEndDate : defaultEndDate;
     }, [props.dateRange]);
+
+    // const dateFromCompare = useMemo(() => {
+    //     return props.compareDateRange.length > 0 ? props.compareDateRange[0] ?? defaultStartDate : defaultStartDate;
+    // }, [props.compareDateRange]);
+
+    // const dateToCompare = useMemo(() => {
+    //     return props.compareDateRange.length > 0 ? props.compareDateRange[1] ?? defaultEndDate : defaultEndDate;
+    // }, [props.compareDateRange]);
 
     const timeUnit = useMemo(() => {
         return props.timeUnit ? props.timeUnit : 'today'
@@ -190,103 +223,155 @@ export default function BPChart(props: BPChartProps) {
 
     const categoryOneData = useMemo(() => {
         if (categories.length < 1 || !props.currentPeriod) return [];
-        const result = getSpecifiedCategoryListData(props.currentPeriod, categories[0])
+        const result = getSpecifiedCategoryListData(props.currentPeriod, categories[0], labels)
         console.log('category 1 result', categories[0], result);
         return result;
-    }, [categories, props.currentPeriod]);
+    }, [categories, props.currentPeriod, labels]);
 
     const categoryTwoData = useMemo(() => {
         if (categories.length < 2 || !props.currentPeriod) return [];
 
-        const result = getSpecifiedCategoryListData(props.currentPeriod, categories[1])
+        const result = getSpecifiedCategoryListData(props.currentPeriod, categories[1], labels)
         return result;
-    }, [categories, props.currentPeriod]);
+    }, [categories, props.currentPeriod, labels]);
 
     const categoryOneCompareData = useMemo(() => {
         if (categories.length < 1 || !props.previousPeriod) return [];
-
-        const result = getSpecifiedCategoryListData(props.previousPeriod, categories[0])
-        console.log('category 2 result', categories[1], result);
+        const result = getSpecifiedCategoryListData(props.previousPeriod, categories[0], labels)
+        console.log('category 1 compare result', categories[1], result);
         return result;
-    }, [categories, props.previousPeriod]);
+    }, [categories, props.previousPeriod, labels]);
 
     const categoryTwoCompareData = useMemo(() => {
         if (categories.length < 2 || !props.previousPeriod) return [];
-
-        const result = getSpecifiedCategoryListData(props.previousPeriod, categories[1])
+        const result = getSpecifiedCategoryListData(props.previousPeriod, categories[1], labels)
         return result;
-    }, [categories, props.previousPeriod]);
+    }, [categories, props.previousPeriod, labels]);
 
+    // const datasetsGenerator = (categories: any) => {
+    //     if (categories.length === 0) return [];
+    //     else if (categories.length === 1) return [
+    //         {
+    //             type: 'line' as const,
+    //             label: categories[0]?.title ?? 'Danh mục 1',
+    //             borderColor: categories[0]?.color ?? 'black',
+    //             borderWidth: 2,
+    //             fill: false,
+    //             data: categoryOneData,
+    //             yAxisID: 'y',
+    //             tension: 0.25,
+    //         },
+    //         {
+    //             type: 'line' as const,
+    //             label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
+    //             borderColor: categories[0]?.color ?? 'black',
+    //             borderWidth: 2,
+    //             borderDash: [6, 6],
+    //             fill: false,
+    //             data: categoryOneCompareData,
+    //             tension: 0.25
+    //         },
+    //     ];
+    //     else if (categories.length === 2) {
+    //         return [
+    //             {
+    //                 type: 'line' as const,
+    //                 label: categories[0]?.title ?? 'Danh mục 1',
+    //                 borderColor: categories[0]?.color ?? 'black',
+    //                 borderWidth: 2,
+    //                 fill: false,
+    //                 data: categoryOneData,
+    //                 yAxisID: 'y',
+    //                 tension: 0.25
+    //             },
+    //             {
+    //                 type: 'line' as const,
+    //                 label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
+    //                 borderColor: categories[0]?.color ?? 'black',
+    //                 borderWidth: 2,
+    //                 borderDash: [6, 6],
+    //                 fill: false,
+    //                 data: categoryOneCompareData,
+    //                 tension: 0.25
+    //             },
+    //             {
+    //                 type: 'line' as const,
+    //                 label: categories[1]?.title ?? 'Danh mục 2',
+    //                 borderColor: categories[1]?.color ?? 'black',
+    //                 borderWidth: 2,
+    //                 fill: false,
+    //                 data: categoryTwoData,
+    //                 yAxisID: 'y1',
+    //                 tension: 0.25
+    //             },
+    //             {
+    //                 type: 'line' as const,
+    //                 label: categories[1]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 2',
+    //                 borderColor: categories[1]?.color ?? 'black',
+    //                 borderWidth: 2,
+    //                 borderDash: [6, 6],
+    //                 fill: false,
+    //                 data: categoryTwoCompareData,
+    //                 tension: 0.25
+    //             },
+
+    //         ]
+    //     }
+    // }
     const datasetsGenerator = (categories: any) => {
-        if (categories.length === 0) return [];
-        else if (categories.length === 1) return [
-            {
-                type: 'line' as const,
-                label: categories[0]?.title ?? 'Danh mục 1',
-                borderColor: categories[0]?.color ?? 'black',
-                borderWidth: 2,
-                fill: false,
-                data: categoryOneData,
-                yAxisID: 'y',
-                tension: 0.25
-            },
-            {
-                type: 'line' as const,
-                label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
-                borderColor: categories[0]?.color ?? 'black',
-                borderWidth: 2,
-                borderDash: [6, 6],
-                fill: false,
-                data: categoryOneCompareData,
-                tension: 0.25
-            },
-        ];
-        else if (categories.length === 2) {
+        const generateDataset = (category: { title: string; color: string; }, data: { key: string; value: number; }[], compareData: { key: string; value: number; }[], yAxisID: string) => {
+            const title = category?.title ?? 'Danh mục';
+            const color = category?.color ?? 'black';
+
             return [
                 {
                     type: 'line' as const,
-                    label: categories[0]?.title ?? 'Danh mục 1',
-                    borderColor: categories[0]?.color ?? 'black',
+                    label: title,
+                    borderColor: color,
                     borderWidth: 2,
                     fill: false,
-                    data: categoryOneData,
-                    yAxisID: 'y',
-                    tension: 0.25
+                    data: data,
+                    yAxisID: yAxisID,
+                    tension: 0.25,
+                    tooltip: {
+                        callbacks: {
+                            label: function (context: { label: any; parsed: { y: any; }; }) {
+                                return `${title}: ${context.parsed.y}`;
+                            }
+                        }
+                    }
                 },
                 {
                     type: 'line' as const,
-                    label: categories[0]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 1',
-                    borderColor: categories[0]?.color ?? 'black',
+                    label: `${title} (Chu kỳ trước)`,
+                    borderColor: color,
                     borderWidth: 2,
                     borderDash: [6, 6],
                     fill: false,
-                    data: categoryOneCompareData,
-                    tension: 0.25
-                },
-                {
-                    type: 'line' as const,
-                    label: categories[1]?.title ?? 'Danh mục 2',
-                    borderColor: categories[1]?.color ?? 'black',
-                    borderWidth: 2,
-                    fill: false,
-                    data: categoryTwoData,
-                    yAxisID: 'y1',
-                    tension: 0.25
-                },
-                {
-                    type: 'line' as const,
-                    label: categories[1]?.title + ' (Chu kỳ trước)' ?? 'Danh mục 2',
-                    borderColor: categories[1]?.color ?? 'black',
-                    borderWidth: 2,
-                    borderDash: [6, 6],
-                    fill: false,
-                    data: categoryTwoCompareData,
-                    tension: 0.25
-                },
+                    data: compareData,
+                    tension: 0.25,
+                    tooltip: {
+                        callbacks: {
+                            label: function (context: { label: any; parsed: { y: any; }; }) {
+                                return `${title} (${getCompareDate(context.label, timeUnit)}): ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                }
+            ];
+        };
 
-            ]
+        if (categories.length === 0) {
+            return [];
+        } else if (categories.length === 1) {
+            return generateDataset(categories[0], categoryOneData, categoryOneCompareData, 'y');
+        } else if (categories.length === 2) {
+            return [
+                ...generateDataset(categories[0], categoryOneData, categoryOneCompareData, 'y'),
+                ...generateDataset(categories[1], categoryTwoData, categoryTwoCompareData, 'y1')
+            ];
         }
-    }
+    };
 
     const datasets = useMemo(() => {
         const resultDatasets = datasetsGenerator(categories);
@@ -297,6 +382,7 @@ export default function BPChart(props: BPChartProps) {
         const settings = {
             labels: labels,
             datasets: datasets!,
+
         };
         return settings;
     }, [labels, categoryOneData, categoryTwoData]);
@@ -326,9 +412,9 @@ export default function BPChart(props: BPChartProps) {
                 display: categories.length > 0,
                 position: 'left' as const,
                 ticks: {
-                    // callback: function (val: any, index: any) {
-                    //     return index % 2 === 0 ? val : '';
-                    // },
+                    callback: function (val: any, index: any) {
+                        return index % 2 === 0 ? val : '';
+                    },
                 }
 
             },
@@ -353,11 +439,17 @@ export default function BPChart(props: BPChartProps) {
             x: {
                 grid: {
                     offset: true
-                }
+                },
+
             },
 
 
         },
+        parsing: {
+            xAxisKey: 'key',
+            yAxisKey: 'value'
+        },
+
         // Make the chart responsive
         maintainAspectRatio: false,
         responsive: true,

@@ -151,7 +151,7 @@ export interface ReturningRateStatistic {
   totalReturningRevenue: number;
   totalReturningProfit: number;
   totalUsers: number;
-  totalReturingUsers: number;
+  totalReturningUsers: number;
   returningRate: number;
   statisticsData: ReturningRateInterval[];
 }
