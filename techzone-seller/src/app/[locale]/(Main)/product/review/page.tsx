@@ -302,13 +302,13 @@ export default function ReviewProductPage() {
   };
 
   const onCategoryFilter = (value: string) => {
-    const categoryName = allCategories.filter((c) => c._id === value)[0].name;
-    setFilteredCategory(categoryName);
     const updatedQuery = new URLSearchParams(query);
 
     if (value.length != 0) {
       updatedQuery.set("category", value);
     } else {
+      const categoryName = allCategories.filter((c) => c._id === value)[0].name;
+      setFilteredCategory(categoryName);
       updatedQuery.delete("category");
     }
     window.history.pushState(
@@ -462,7 +462,7 @@ export default function ReviewProductPage() {
           <div className="font-semibold pb-2">Danh mục</div>
           <Select
             onChange={onCategoryFilter}
-            defaultValue="Tất cả"
+            // defaultValue="Tất cả"
             style={{ width: 160 }}
             options={categoryOptions()}
             value={filteredCategory}

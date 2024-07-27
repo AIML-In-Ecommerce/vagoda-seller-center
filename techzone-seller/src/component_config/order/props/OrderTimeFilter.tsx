@@ -28,7 +28,7 @@ function filterToDay(dataSource: any[])
 
     dataSource.forEach((value: any) =>
     {
-        const timestamp = getAttributeToFilter(value) * 1000
+        const timestamp = getAttributeToFilter(value)
         const date = new Date(new Date(timestamp).setHours(0,0,0,0))
         if(date == today)
         {
@@ -62,7 +62,7 @@ function filter7Days(dataSource: any[])
 
     dataSource.forEach((value: any) =>
     {
-        const timestamp = getAttributeToFilter(value)*1000
+        const timestamp = getAttributeToFilter(value)
         const date = new Date(new Date(timestamp).setHours(0,0,0,0))
         if(date <= today && date >= sevenDayBefore)
         {
@@ -97,7 +97,7 @@ function filter30Days(dataSource: any[])
 
     dataSource.forEach((value: any) =>
     {
-        const timestamp = getAttributeToFilter(value)*1000
+        const timestamp = getAttributeToFilter(value)
         const date = new Date(new Date(timestamp).setHours(0,0,0,0))
         if(date <= today && date >= thirtyDayBefore)
         {

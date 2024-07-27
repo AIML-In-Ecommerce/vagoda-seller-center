@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import Link from "next/link";
@@ -8,6 +8,11 @@ import { Divider, Flex, Modal, Result } from "antd";
 import { AuthContext } from "@/context/AuthContext";
 import { ResultStatusType } from "antd/es/result";
 import AuthService, { SignInResponseData } from "@/services/auth.service";
+import GoogleImage from "../../../public/asset/google.256x256.png"
+import FacebookImage from "../../../public/asset/facebook.256x256.png"
+import VagodaIcon from "../VagodaIcon";
+import VagodaText from "../VagodaText";
+import { clearTimeout, setTimeout } from "timers";
 
 interface AuthFormProps {
   showSuccessMsg: (show: boolean) => void;
@@ -15,10 +20,10 @@ interface AuthFormProps {
 
 const signInSuccessMessage = "Sign in successfully!"
 const signUpSuccessMessage = "Sign up successfully!"
-const localErrorMessage = "An error happened that has been identified yet"
-const goToLoginPageMessage = "We will direct you to Login page now..."
-const goToHomepageMessage =  "We will direct you to Homepage now..."
-const unauthorizedMessage = "Unauthorized. Please check your credentials"
+const localErrorMessage = "Email hay mật khẩu không hợp lệ"
+const goToLoginPageMessage = "Đang chuyển hướng đến trang đang nhập..."
+const goToHomepageMessage =  "Đang chuyển hướng đến trang chủ..."
+const unauthorizedMessage = "Thông tin đăng nhập không hợp lệ. Vui lòng thử lại"
 
 
 export default function AuthForm(props: AuthFormProps) {
@@ -75,15 +80,29 @@ export default function AuthForm(props: AuthFormProps) {
     return regex.test(password);
   };
 
+  useEffect(() =>
+  {
+    let timeout = undefined
+    if(validAuthMsg != null)
+    {
+      timeout =setTimeout(() =>
+      {
+        setValidAuthMsg(null)
+      }, 4000)
+    }
+
+    return () => clearTimeout(timeout)
+  }, [validAuthMsg])
+
   const isValidAuth = (email: string, password: string) => {
     setValidAuthMsg(null);
     if (!isEmail(email)) {
-      setValidAuthMsg(t("email_error_msg"));
+      setValidAuthMsg("Email không hợp lệ");
       console.error("Error email");
       return false;
     }
     if (!isPassword(password)) {
-      setValidAuthMsg(t("password_error_msg"));
+      setValidAuthMsg("Mật khẩu không hợp lệ");
       console.error("Error password");
       return false;
     }
@@ -151,19 +170,19 @@ export default function AuthForm(props: AuthFormProps) {
     if(username.length == 0)
     {
       check = false
-      message = t("empty_username")
+      message = "Hãy cung cấp tên cửa hàng của bạn"
       setValidAuthMsg(message)
     }
     else if(shopName.length == 0)
     {
       check = false
-      message = t("empty_shopname")
+      message = "Hãy cung cấp tên cửa hàng"
       setValidAuthMsg(message)
     }
     else if(password != confirmPassword)
     {
       check = false
-      message = t("different_password_confirm_password")
+      message = "Xác nhận mật khẩu không chính xác"
       setValidAuthMsg(message)
     }
     else if(isValidAuth(email, password) == false)
@@ -196,7 +215,7 @@ export default function AuthForm(props: AuthFormProps) {
     }
     else if(response.statusCode == 409)
     {
-      setValidAuthMsg("Email has already existed")
+      setValidAuthMsg("Email đã tồn tại. Mời sử dụng email khác")
     }
   };
 
@@ -253,97 +272,173 @@ export default function AuthForm(props: AuthFormProps) {
   }
 
   function goToResetPassword(): void {
-    router.push("/forget_password");
+    // router.push("/forget_password");
   }
 
   const handleGoogleLogin = async () => {
-    try {
-      router.push(`${process.env.NEXT_PUBLIC_BACKEND_PREFIX}auth/google`);
-      // router.push(`http://localhost:4000/auth/google`);
-    } catch (error) {
-      console.error("Error initiating Google login:", error);
-    }
+    // try {
+    //   router.push(`${process.env.NEXT_PUBLIC_BACKEND_PREFIX}auth/google`);
+    //   // router.push(`http://localhost:4000/auth/google`);
+    // } catch (error) {
+    //   console.error("Error initiating Google login:", error);
+    // }
   };
 
   const handleFacebookLogin = async () => {
-    try {
-      // router.push(`${process.env.NEXT_PUBLIC_BACKEND_PREFIX}auth/facebook`);
-    //   router.push(`http://localhost:4000/auth/facebook`);
-    } catch (error) {
-      console.error("Error initiating Facebook login:", error);
-    }
+    // try {
+    //   // router.push(`${process.env.NEXT_PUBLIC_BACKEND_PREFIX}auth/facebook`);
+    // //   router.push(`http://localhost:4000/auth/facebook`);
+    // } catch (error) {
+    //   console.error("Error initiating Facebook login:", error);
+    // }
   };
 
   return (
     <>
-      <div className="flex flex-col border rounded-xl p-4 m-8 w-96 mx-auto my-auto bg-white">
-          <Link href={"/"} prefetch={false} className="text-center">
-              <label className="font-semibold text-4xl text-center p-2 text-blue-900">TechZone</label>
-          </Link>
+      <div className="flex flex-col justify-center overflow-auto items-center py-4 px-16 md:px-16 w-full lg:w-1/2 mx-auto my-auto bg-white h-full"
+        style={{
+          height: `calc(100dvh/100*85)`
+        }}
+      >
+        <Link href={"/"} prefetch={false} className="text-center">
+          <div className="flex justify-center items-center">
+            <VagodaIcon width={50} height={50} color={"black"} />
+            <VagodaText width={100} height={30} color={"black"}/>
+          </div>
+        </Link>
+
+        <div className="invisible h-6">
+          hidden block
+        </div>
+
+        {isSigninOpeneded ? 
+        <div className="flex w-full justify-center items-center">
+          <p className="text-3xl lg:text-4xl font-semibold font-sans">Welcome Back!</p>
+        </div> : undefined }
+
+        <div className="flex w-full justify-center items-center">
+          <p className="text-sm"></p>
+        </div>
+
+        <div className="invisible h-5 md:h-5">hidden block</div>
+
+        {
+          isSigninOpeneded ?
+          <>
+            <div className="flex justify-center space-x-4">
+              <button
+                type="button"
+                title={undefined}
+                onClick={() => handleGoogleLogin()}
+                className="flex w-full w-28 md:w-28 items-center justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray py-2 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80
+                    hover:bg-gray-200
+                "
+                // className="hover:bg-gray-200 p-2 rounded-full"
+              >
+                <span>
+                  <img className="rounded-full" src={GoogleImage.src} alt="Google login" width={20} height={20}/>
+                </span>
+              </button>
+              <button
+                type={"button"}
+                title={undefined}
+                onClick={() => handleFacebookLogin()}
+                className="flex w-full items-center w-28 md:w-28 justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray py-2 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80
+                    hover:bg-gray-200
+                "
+                // className="hover:bg-gray-200 p-2 rounded-full"
+              >
+                <span>
+                  <img
+                    className="rounded-full"
+                    alt="Facebook login"
+                    width={20}
+                    height={20}
+                    src={FacebookImage.src}
+                  ></img>
+                </span>
+              </button>
+            </div>
+            <Divider />
+          </> : undefined
+        }
+
         {isSignupOpeneded && (
-          <input
-            type="text"
-            placeholder={t("username")}
-            className="input input-bordered w-full max-w-xs m-2 mx-auto px-1 py-2"
-            value={username}
-            maxLength={15}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        )}
-        {isSignupOpeneded && (
-          <input
-            type="text"
-            placeholder={t("shop_name")}
-            className="input input-bordered w-full max-w-xs m-2 mx-auto px-1 py-2"
-            value={shopName}
-            maxLength={15}
-            onChange={(e) => setShopName(e.target.value)}
-          />
+          <>
+            <div className="flex flex-col items-start justify-center w-full">
+              <label className="text-md font-semibold"> 
+                Tên người dùng
+              </label>
+              <input
+                type="text"
+                placeholder={"Tên người dùng"}
+                className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
+                value={username}
+                maxLength={15}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col items-start justify-center w-full">
+              <label className="text-md font-semibold"> 
+                Tên cửa hàng
+              </label>
+              <input
+                type="text"
+                placeholder={"Shop A***"}
+                className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
+                value={shopName}
+                maxLength={15}
+                onChange={(e) => setShopName(e.target.value)}
+              />
+            </div>
+          </>
         )}
 
-        <input
-          type="text"
-          placeholder={t("email")}
-          className="input input-bordered w-full max-w-xs m-2 mx-auto dark:bg-white dark:text-black px-1 py-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="flex flex-col items-start justify-center w-full mt-1">
+          <label className="text-md font-semibold">
+            Email
+          </label>
+          <input
+            type="text"
+            placeholder={"example@email.com"}
+            className="input input-bordered w-full m-2 mx-auto dark:bg-white dark:text-black px-1 py-2 bg-gray-100"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-        <div className="relative">
+        <div className="flex flex-col items-start justify-center w-full mt-1">
+          <label className="text-md font-semibold">
+            Mật khẩu
+          </label>
           <input
             type={isPasswordVisible ? "text" : "password"}
-            placeholder={t("password")}
-            className="input input-bordered w-full max-w-xs ml-4 mt-2 mx-auto px-1 py-2"
+            placeholder={"******************"}
+            className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
             value={password}
             maxLength={16}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {/* <button
-            className="absolute inset-y-0 right-4 flex items-center pt-2 px-4 text-gray-600"
-            onClick={togglePasswordVisibility}
-          >
-            {isPasswordVisible ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
-          </button> */}
         </div>
-        {
-          isSignupOpeneded &&
-            <div className="relative">
-              <input
+
+        {isSignupOpeneded && (
+          <div className="flex flex-col items-start justify-center w-full mt-1">
+            <label className="text-md font-semibold">
+              Xác nhận mật khẩu
+            </label>
+            <input
               type={isConfirmPasswordVisible ? "text" : "password"}
-              placeholder={t("confirm_password")}
-              className="input input-bordered w-full max-w-xs ml-4 mt-2 mx-auto px-1 py-2"
+              placeholder={""}
+              className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
               value={confirmPassword}
               maxLength={16}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            {/* <button
-              className="absolute inset-y-0 right-4 flex items-center pt-2 px-4 text-gray-600"
-              onClick={toggleConfirmPasswordVisibility}
-            >
-              {isConfirmPasswordVisible ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
-            </button> */}
           </div>
-          }
+        )}
+
+        <div className="invisible h-4">hidden block</div>
+
         {validAuthMsg && (
           <label className="flex text-center items-center justify-center my-3 text-red-700">
             {validAuthMsg}
@@ -353,18 +448,18 @@ export default function AuthForm(props: AuthFormProps) {
         {isSigninOpeneded && (
           <button
             onClick={() => handleLogin()}
-            className="btn btn-info w-full max-w-xs m-4 mx-auto mt-3 hover:bg-blue-600 text-white bg-blue-500 rounded-full py-2"
+            className="btn btn-info w-full m-4 mx-auto mt-3 hover:bg-blue-500 text-white bg-blue-700 rounded-full py-2"
           >
-            {t("signin_btn")}
+            Đăng nhập
           </button>
         )}
 
         {isSignupOpeneded && (
           <button
             onClick={() => handleSignup()}
-            className="btn btn-info w-full max-w-xs m-4 mx-auto mt-3 hover:bg-blue-600 text-white bg-blue-500 rounded-full py-2"
+            className="btn btn-info w-full m-4 mx-auto mt-3 hover:bg-blue-500 text-white bg-blue-700 rounded-full py-2"
           >
-            {t("signup_btn")}
+            Đăng ký
           </button>
         )}
 
@@ -372,87 +467,32 @@ export default function AuthForm(props: AuthFormProps) {
           <p>{}</p>
         </div>
 
-
-          <Divider />
-          <button
-          onClick={() => handleGoogleLogin()}
-          className="flex w-full items-center justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80 my-4
-              hover:bg-gray-200
-          "
-        >
-          <span>
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clipPath="url(#clip0_191_13499)">
-                <path
-                  d="M19.999 10.2217C20.0111 9.53428 19.9387 8.84788 19.7834 8.17737H10.2031V11.8884H15.8266C15.7201 12.5391 15.4804 13.162 15.1219 13.7195C14.7634 14.2771 14.2935 14.7578 13.7405 15.1328L13.7209 15.2571L16.7502 17.5568L16.96 17.5774C18.8873 15.8329 19.9986 13.2661 19.9986 10.2217"
-                  fill="#4285F4"
-                ></path>
-                <path
-                  d="M10.2055 19.9999C12.9605 19.9999 15.2734 19.111 16.9629 17.5777L13.7429 15.1331C12.8813 15.7221 11.7248 16.1333 10.2055 16.1333C8.91513 16.1259 7.65991 15.7205 6.61791 14.9745C5.57592 14.2286 4.80007 13.1801 4.40044 11.9777L4.28085 11.9877L1.13101 14.3765L1.08984 14.4887C1.93817 16.1456 3.24007 17.5386 4.84997 18.5118C6.45987 19.4851 8.31429 20.0004 10.2059 19.9999"
-                  fill="#34A853"
-                ></path>
-                <path
-                  d="M4.39899 11.9777C4.1758 11.3411 4.06063 10.673 4.05807 9.99996C4.06218 9.32799 4.1731 8.66075 4.38684 8.02225L4.38115 7.88968L1.19269 5.4624L1.0884 5.51101C0.372763 6.90343 0 8.4408 0 9.99987C0 11.5589 0.372763 13.0963 1.0884 14.4887L4.39899 11.9777Z"
-                  fill="#FBBC05"
-                ></path>
-                <path
-                  d="M10.2059 3.86663C11.668 3.84438 13.0822 4.37803 14.1515 5.35558L17.0313 2.59996C15.1843 0.901848 12.7383 -0.0298855 10.2059 -3.6784e-05C8.31431 -0.000477834 6.4599 0.514732 4.85001 1.48798C3.24011 2.46124 1.9382 3.85416 1.08984 5.51101L4.38946 8.02225C4.79303 6.82005 5.57145 5.77231 6.61498 5.02675C7.65851 4.28118 8.9145 3.87541 10.2059 3.86663Z"
-                  fill="#EB4335"
-                ></path>
-              </g>
-              <defs>
-                <clipPath id="clip0_191_13499">
-                  <rect width="20" height="20" fill="white"></rect>
-                </clipPath>
-              </defs>
-            </svg>
-          </span>
-          Sign in with Google
-        </button>
-        <button
-          onClick={() => handleFacebookLogin()}
-          className="flex w-full items-center justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80 mb-4
-              hover:bg-gray-200
-          "
-        >
-          <span>
-            <img
-              alt="presentation image"
-              width={30}
-              height={30}
-              src="https://cdn-icons-png.flaticon.com/128/5968/5968764.png"
-            ></img>
-          </span>
-          Sign in with Facebook
-        </button>
-
         {isSigninOpeneded && (
           <>
-              <div className="w-full h-3 invisible">hidden block</div>
-              <label
+            <div className="w-full h-3 invisible">hidden block</div>
+            <label
               onClick={() => goToSignup()}
               className="flex text-center items-center justify-center"
-              >
-              {t("go_to_signup_mg")}
-              <span className="text-blue-700 ml-2 hover:text-blue-500">{t("signup_btn")}</span>
-              </label>
+            >
+              Chưa có tài khoản?
+              <span className="text-blue-700 ml-2 hover:text-blue-500 font-semibold">
+                Đăng ký ngay
+              </span>
+            </label>
           </>
         )}
         {isSignupOpeneded && (
           <>
             <div className="w-full h-3 invisible">hidden block</div>
             <label
-            onClick={() => goToLogin()}
-            className="flex text-center items-center justify-center">
-              {t("go_to_signin_mg")}
-              <span className="text-blue-700 ml-2 hover:text-blue-500">{t("signin_btn")}</span>
-              </label>
+              onClick={() => goToLogin()}
+              className="flex text-center items-center justify-center"
+            >
+              Tôi đã có tài khoản!
+              <span className="text-blue-700 ml-2 hover:text-blue-500 font-semibold">
+                Đăng nhập
+              </span>
+            </label>
           </>
         )}
         {isSigninOpeneded && (
@@ -462,7 +502,7 @@ export default function AuthForm(props: AuthFormProps) {
               onClick={() => goToResetPassword()}
               className="flex text-center items-center justify-center italic text-blue-700 ml-2 hover:text-blue-500"
             >
-              {t("go_to_password_reset_mg")}
+              Quên mật khẩu!
             </label>
           </>
         )}

@@ -45,40 +45,28 @@ const roundTo2DecimalPlaces = (value: number) => {
     return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-const getCorrectInterval = (startDate: Date, endDate: Date, filterBy: string) => {
-    let _start = new Date(startDate);
-    let _end = new Date(endDate);
-
-    _start.setUTCHours(0, 0, 0, 0);
-
+const getCorrectInterval = (startDate: Dayjs, endDate: Dayjs, filterBy: string): [Dayjs, Dayjs] => {
     switch (filterBy) {
         case 'date':
-            return [_start, _end];
+            return [startDate, endDate];
         case 'month':
-            _start.setDate(1);
-            _end = new Date(_end.getFullYear(), _end.getMonth() + 1, 1);
-            _end.setDate(_end.getDate() - 1);
-            return [_start, _end];
-        case 'year':
-            _start = new Date(_start.getFullYear(), 0, 1); // January 1st of the start year
-            _end = new Date(_end.getFullYear(), 11, 31); // December 31st of the end year
-            return [_start, _end];
-        case 'quarter':
-            const quarterStartMonth = Math.floor(_start.getMonth() / 3) * 3; // Get the starting month of the quarter
-            const quarterEndMonth = quarterStartMonth + 3; // Get the ending month of the quarter
-            _start = new Date(_start.getFullYear(), quarterStartMonth, 1); // First day of the quarter
-            _end = new Date(_end.getFullYear(), quarterEndMonth + 1, 0); // Last day of the quarter
-            return [_start, _end];
+            startDate = startDate.startOf('month');
+            return [startDate, endDate]
+        case 'quarter': case 'year':
+            startDate = startDate.startOf('year');
+            return [startDate, endDate];
         default:
-            return [_start, _end];
+            return [startDate, endDate];
     }
 }
 
 const rangeDefaultsForFilter = (filterBy: string): [Dayjs, Dayjs] => {
+    // console.log('rangeDefaultsForFilter', dayjs().endOf('quarter'));
     // console.log('rangeFilter', [dayjs().startOf('year'), dayjs().startOf('quarter').add(1, 'quarter')]);
-    return filterBy === 'date' ? [dayjs().subtract(6, 'day'), dayjs()] :
-        filterBy === 'month' ? [dayjs().startOf('year'), dayjs()] :
-            filterBy === 'quarter' ? [dayjs().startOf('year'), dayjs().endOf('year')] : [dayjs().subtract(5, 'year'), dayjs()]
+    return filterBy === 'date' ? [dayjs().startOf('date').subtract(7, 'day'), dayjs()] :
+        filterBy === 'month' ? [dayjs().startOf('year').startOf('date'), dayjs()] :
+            filterBy === 'quarter' ? [dayjs().startOf('year').startOf('date'), dayjs().endOf('quarter')] 
+    : [dayjs().subtract(5, 'year').startOf('year'), dayjs()]
 }
 
 const handleRatingColor = (rating: number, intensity: number, prefix: string) => {
@@ -457,20 +445,21 @@ export default function HomePage() {
         setFilterValue(value);
         let range = rangeDefaultsForFilter(value);
         // console.log('Range: ', range, value);
-        let [_start, _end] = [new Date(range[0]!.format('YYYY-MM-DD')), new Date(range[1]!.format('YYYY-MM-DD'))];
-        let actualRange = getCorrectInterval(_start, _end, value);
+        // let [_start, _end] = [new Date(range[0]!.format('YYYY-MM-DD')), new Date(range[1]!.format('YYYY-MM-DD'))];
+        // let actualRange = getCorrectInterval(_start, _end, value);
         // console.log('Actual Range: ', actualRange);
-        setSelectedDates([dayjs(actualRange[0]), dayjs(actualRange[1])]); // Reset selected date when filter changes
+        // setSelectedDates([dayjs(actualRange[0]), dayjs(actualRange[1])]); // Reset selected date when filter changes
+        setSelectedDates(range); // Reset selected date when filter changes
     };
 
     const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
         if (dates) {
             // console.log('From: ', dates[0], ', to: ', dates[1]);
             // console.log('From: ', dateStrings[0], ', to: ', dateStrings[1]);
-            let [_start, _end] = [new Date(dates[0]!.format('YYYY-MM-DD')), new Date(dates[1]!.format('YYYY-MM-DD'))];
-            let range = getCorrectInterval(_start, _end, filterValue);
-
-            setSelectedDates([dayjs(range[0]), dayjs(range[1])]);
+            // let [_start, _end] = [new Date(dates[0]!.format('YYYY-MM-DD')), new Date(dates[1]!.format('YYYY-MM-DD'))];
+            let range = getCorrectInterval(dates[0]!, dates[1]!, filterValue);
+            // setSelectedDates([dayjs(range[0]), dayjs(range[1])]);
+            setSelectedDates([range[0], range[1]]);
         } else {
             console.log('Clear');
         }
@@ -479,10 +468,15 @@ export default function HomePage() {
     useEffect(() => {
         if (context.shopInfo) {
             fetchOrderStatistics();
-            fetchSalesStatistics();
             fetchReviewStatistics();
         }
-    }, [context.shopInfo])
+    }, [context.shopInfo]);
+
+    useEffect(() => {
+        if (context.shopInfo) {
+            fetchSalesStatistics();
+        }
+    }, [context.shopInfo, selectedDates]);
 
     const statisticData = useMemo<Task[]>(() => {
         const orderPendingValue = (orderStatistics.find(value => (value.orderStatus as OrderStatusType) === OrderStatusType.PENDING)?.totalOrders) ?? 0;

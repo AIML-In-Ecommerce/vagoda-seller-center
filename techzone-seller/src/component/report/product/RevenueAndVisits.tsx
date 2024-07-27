@@ -15,6 +15,7 @@ import { POST_GetProductListByShop } from '@/apis/product/ProductAPI';
 import { AuthContext } from '@/context/AuthContext';
 import { ProductType } from '@/model/ProductType';
 import { POST_getAddToCartRatio, POST_getAmountBuyerOfProducts, POST_getProductViewers } from '@/apis/statistic/StatisticAPI';
+import { Currency } from '@/component/util/CurrencyDisplay';
 
 interface RevenueAndVisitsProps {
 
@@ -104,9 +105,11 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date').subtract(1, 'day'), dayjs().endOf('date').subtract(1, 'day')])
     const [lastUpdateTime, setLastUpdateTime] = useState<Dayjs>(dayjs());
+    const [keyword, setKeyword] = useState<string>("");
     //all the products by seller
     const [products, setProducts] = useState<ProductType[]>([]);
     const [productStatisticData, setProductStatisticData] = useState<ProductStatisticsType[]>([]);
+    const [filteredData, setFilteredData] = useState<ProductStatisticsType[]>([]);
 
 
     useEffect(() => {
@@ -142,23 +145,25 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     startDate ?? new Date(),
                     endDate ?? new Date()
                 )
-                const confirmedOrderStatsData = confirmedOrderStats.data.statisticsData;
-
+                const confirmedOrderStatsData = confirmedOrderStats.data.at(0).statisticsData;
 
                 let productStatisticData = products?.map((item: ProductType, index: React.Key) => {
                     let singleProductViewersData = getProductsViewersData.statisticsData[0].statisticsData?.find(
                         (productItem: any) => productItem.productId === item._id) ?? [];
                     let singleProductAddToCartData = getProductsAddToCartData?.find(
                         (productItem: any) => productItem.productId === item._id) ?? [];
+                    let singleProductConfirmedOrderStatsData = confirmedOrderStatsData?.find(
+                        (productItem: any) => productItem.product === item._id) ?? [];
                     let [totalViews, totalViewers] = [singleProductViewersData.views, singleProductViewersData.viewers];
                     let [viewerCount, addToCartCount] = [singleProductAddToCartData.viewerCount, singleProductViewersData.addToCartCount];
+                    
                     let [unitsSold, 
                         revenue, 
                         conversionRate, 
-                        purchaseCount] = [confirmedOrderStatsData.sold,
-                        confirmedOrderStatsData.revenue,
-                        confirmedOrderStatsData.conversion,
-                        confirmedOrderStatsData.buyers.length]
+                        purchaseCount] = [singleProductConfirmedOrderStatsData.sold,
+                            singleProductConfirmedOrderStatsData.revenue,
+                            singleProductConfirmedOrderStatsData.conversion,
+                            singleProductConfirmedOrderStatsData.buyers?.length ?? 0]
                     {
                         // purchaseCount, conversionRate, unitsSold, revenue
                     }
@@ -183,6 +188,23 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
         fetchAllProducts();
 
     }, [context.shopInfo, selectedDates])
+
+    const filterData = () => {
+        let data = productStatisticData;
+
+        if (keyword) {
+            data = data.filter(item =>
+                Object.values(item.product).some(value =>
+                    value.toString().toLowerCase().includes(keyword.toLowerCase())
+                )
+            );
+        }
+        setFilteredData(data);
+    };
+
+    useEffect(() => {
+        filterData();
+    }, [keyword, context.shopInfo, productStatisticData, selectedDates])
 
     const handlePreviousPeriod = (currentPeriod: [Dayjs, Dayjs], periodUnit: string) => {
         let previous: [Dayjs, Dayjs] = [...currentPeriod];
@@ -339,6 +361,9 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'revenue',
+                    render: (value: any, record: ProductStatisticsType) => (
+                        <Currency value={record.revenue}/>
+                    )
                 },
             ]
         },
@@ -414,6 +439,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                                 ]}
                             /> */}
                             <Input.Search size="large" style={{ width: '400px' }}
+                                onChange={(e) => setKeyword(e.target.value)}
                                 placeholder="Điền tên sản phẩm" />
                         </Space.Compact>
                     </Space>
@@ -422,7 +448,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         loading ? <Spin /> : (
                             <TableWrapper>
                                 <Table columns={columns} scroll={{ x: "max-content" }}
-                                    dataSource={productStatisticData}
+                                    dataSource={filteredData}
                                     loading={loading}
                                     bordered />
                             </TableWrapper>)

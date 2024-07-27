@@ -71,12 +71,19 @@ export default function AvatarForm(formProps: FormProps) {
     </button>
   );
 
+  const dummyRequest = async (options: any) => {
+    setTimeout(() => {
+      options.onSuccess("ok");
+    }, 0);
+  };
+
   return (
     <>
       <div className="w-[300px]">
         <Flex gap="small">
           <Flex gap="small" vertical>
             <Upload
+              customRequest={dummyRequest}
               name="avatar"
               listType="picture-circle"
               className="avatar-uploader"
@@ -108,6 +115,7 @@ export default function AvatarForm(formProps: FormProps) {
           </Flex>
           {imageUrl ? (
             <Upload
+              customRequest={dummyRequest}
               name="avatar"
               listType="picture-circle"
               className="avatar-uploader"

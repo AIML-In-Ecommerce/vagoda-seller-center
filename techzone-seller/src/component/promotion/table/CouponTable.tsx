@@ -7,9 +7,7 @@ import { FaEye, FaMagnifyingGlass, FaRegEye } from 'react-icons/fa6';
 import { TbInfoCircle } from 'react-icons/tb';
 import styled from 'styled-components';
 import moment from 'moment';
-import { AuthContext } from '@/context/AuthContext';
 import PromotionCard from '@/component/booth-design/decorator/mini/PromotionCard';
-import { useRouter } from 'next/navigation';
 
 interface CouponTableProps {
     loading: boolean;

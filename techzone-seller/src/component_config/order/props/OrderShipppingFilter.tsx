@@ -10,7 +10,7 @@ const ShippingUnit =
 
 function getAttributeToFilter(item: OrderPropType)
 {
-    return item.shipping._id
+    return item.shippingAddress.idDistrict
 }
 
 

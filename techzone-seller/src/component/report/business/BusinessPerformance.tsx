@@ -1,5 +1,5 @@
 "use client";
-import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Space, Tooltip } from "antd";
+import { Breadcrumb, Card, Checkbox, DatePicker, Empty, Flex, Radio, RadioChangeEvent, Skeleton, Space, Spin, Tooltip } from "antd";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi";
 import CustomCarousel from "../../Carousel";
@@ -60,6 +60,7 @@ const calcPercentChanges = (value1: number, value2: number, isPercentageValue?: 
 
 export default function BusinessPerformancePage() {
     const context = useContext(AuthContext);
+    const [loading, setLoading] = useState<boolean>(true);
     const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("today");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
     const [compareDates, setCompareDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
@@ -78,8 +79,8 @@ export default function BusinessPerformancePage() {
         return endDate!.diff(startDate, 'day');
 
     }, [selectedDates])
-    
-    const step = useMemo(() => { 
+
+    const step = useMemo(() => {
         return Math.floor(totalLabels / maxLabels) === 0 ? 1 : Math.floor(totalLabels / maxLabels); // Calculate step size (date)
     }, [totalLabels]);
 
@@ -254,7 +255,7 @@ export default function BusinessPerformancePage() {
                 conversionRate: conversionRateResponse.data || [],
                 returningRate: returnRateResponse.data || [],
             } as BPChartStats)
-            
+
             const [BECompareStartTime, BECompareEndTime] = DayjsToDate(compareDates);
             const previousTotalSalesResponse = await POST_getTotalSales(
                 context.shopInfo?._id as string,
@@ -288,11 +289,12 @@ export default function BusinessPerformancePage() {
             } as BPChartStats)
         }
 
+        setLoading(true);
         fetchTopProductsSales();
         fetchTopCitiesSales();
         fetchCurrentPeriod();
         setLastUpdateTime(dayjs());
-
+        setLoading(false);
     }, [context.shopInfo, selectedDates])
 
     return (
@@ -345,41 +347,58 @@ export default function BusinessPerformancePage() {
                         <div className="lg:hidden sm:block">
                             <div className="grid grid-cols-2 gap-2">
                                 {
-                                    categories.map((item, key) => {
-                                        return (
-                                            <div key={key}>
-                                                <CheckableCard item={item} checkboxVisibility={true}
-                                                    isPercentageValue={item.isPercentageValue}
-                                                    selectedCategories={selectedCategories}
-                                                    setSelectedCategories={setSelectedCategories} />
-                                            </div>
-                                        )
-                                    })
+                                    loading ? new Array(4).map(() => <Skeleton.Node active={loading} />) :
+                                        categories.map((item, key) => {
+                                            return (
+                                                <div key={key}>
+                                                    <CheckableCard item={item} checkboxVisibility={true}
+                                                        isPercentageValue={item.isPercentageValue}
+                                                        selectedCategories={selectedCategories}
+                                                        setSelectedCategories={setSelectedCategories} />
+                                                </div>
+                                            )
+                                        })
                                 }
                             </div>
                         </div>
                         <div className="lg:block sm:hidden">
-                            <CustomCarousel loading={false} arrows infinite={false}
-                                slidesToShow={4} slidesToScroll={1}
-                                contents={
-                                    categories.map((item, key) => {
-                                        return (
-                                            <div key={key}>
-                                                <CheckableCard item={item} checkboxVisibility={true}
-                                                    suffix={item.suffix ?? ""}
-                                                    selectedCategories={selectedCategories}
-                                                    setSelectedCategories={setSelectedCategories} />
-                                            </div>
-                                        )
-                                    })
-                                } />
+                            {
+                                loading ? <div className="lg:grid lg:grid-cols-4">
+                                    <Skeleton.Node active={loading}>
+                                    </Skeleton.Node>
+                                    <Skeleton.Node active={loading}>
+                                    </Skeleton.Node>
+                                    <Skeleton.Node active={loading}>
+                                    </Skeleton.Node>
+                                    <Skeleton.Node active={loading}>
+                                    </Skeleton.Node>
+                                </div> :
+                                    <CustomCarousel loading={loading} arrows infinite={false}
+                                        slidesToShow={4} slidesToScroll={1}
+                                        contents={
+                                            categories.map((item, key) => {
+                                                return (
+                                                    <div key={key}>
+                                                        <CheckableCard item={item} checkboxVisibility={true}
+                                                            suffix={item.suffix ?? ""}
+                                                            selectedCategories={selectedCategories}
+                                                            setSelectedCategories={setSelectedCategories} />
+                                                    </div>
+                                                )
+                                            })
+                                        } />
+                            }
+
                         </div>
-                        <BPChart 
-                            currentPeriod={currentPeriod}
-                            previousPeriod={previousPeriod}
-                            timeUnit={selectedReportPeriod}
-                            dateRange={Array.from(DayjsToDate(selectedDates))}
-                            categories={selectedCategories} />
+                        {
+                            loading ? <Spin /> :
+                                <BPChart
+                                    currentPeriod={currentPeriod}
+                                    previousPeriod={previousPeriod}
+                                    timeUnit={selectedReportPeriod}
+                                    dateRange={Array.from(DayjsToDate(selectedDates))}
+                                    categories={selectedCategories} />
+                        }
                         {/* <Empty percentChange={<div>Không có dữ liệu. Hãy chọn thời gian báo cáo khác</div>}></Empty> */}
                     </div>
                 </div>
