@@ -73,11 +73,11 @@ export default function ProductItem(props: ProductItemProps) {
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="w-40 relative"
+      className="w-32 m-5 relative"
     >
       <motion.div
         whileHover={{ scale: 1.1 }} // Hiệu ứng mờ khi di chuột qua
-        className="w-40 "
+        className="w-32 "
       >
         <div
           className={`${
@@ -85,20 +85,20 @@ export default function ProductItem(props: ProductItemProps) {
           } relative w-full h-full overflow-hidden rounded-tl-lg rounded-tr-lg`}
         >
           {props.isFlashSale && (
-            <div className="absolute top-2 left-2 z-20 p-1  text-white font-bold text-[8px]   ">
+            <div className="absolute top-2 left-2 z-20 p-1 text-white font-bold text-[8px]">
               <img
                 src="https://cdn-icons-png.flaticon.com/128/1374/1374072.png"
-                width={30}
+                width={20}
               />
             </div>
           )}
-          <img src={props.imageLink} alt="Product" className="w-full h-48" />
+          <img src={props.imageLink} alt="Product" className="w-full h-28" />
         </div>
 
         <motion.button
           initial={{ opacity: 0, y: 0 }}
           animate={controls}
-          className={`flex space-x-1 justify-center ml-8 text-xs text-white absolute  z-10 transform  -translate-y-1/4 p-2 bg-[#797979] shadow-sm rounded-lg`}
+          className={`flex space-x-1 justify-center ml-3 text-[8px] text-white absolute z-10 transform -translate-y-1/4 p-2 bg-[#797979] shadow-sm rounded-lg`}
         >
           <PiShoppingCart size={16} color="white" />
           <p>Thêm vào giỏ hàng</p>
@@ -106,10 +106,10 @@ export default function ProductItem(props: ProductItemProps) {
 
         <div className="transform w-full bg-white rounded-bl-lg rounded-br-lg shadow-sm">
           <div className="p-3 text-xs">
-            <p className="font-bold overflow-hidden line-clamp-2">
+            <p className="font-bold overflow-hidden line-clamp-2 text-xs">
               {props.name}
             </p>
-            <div className="flex mt-1 justify-between items-center text-[10px]">
+            <div className="flex mt-1 justify-between items-center text-[8px]">
               <div>{soldAmount} sold</div>
               <Rate
                 disabled
@@ -118,8 +118,8 @@ export default function ProductItem(props: ProductItemProps) {
               />
             </div>
             <div className="flex mt-2 space-x-2 items-center">
-              <p className="font-semibold text-green-500 text-sm">{price}</p>
-              <p className="font-semibold text-gray-500 line-through text-[10px]">
+              <p className="font-semibold text-green-500 text-xs">{price}</p>
+              <p className="font-semibold text-gray-500 line-through text-[8px]">
                 {originalPrice}
               </p>
             </div>

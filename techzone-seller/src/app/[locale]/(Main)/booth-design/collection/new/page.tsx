@@ -31,7 +31,7 @@ type NotificationPlacement = NotificationArgsProps["placement"];
 
 export default function NewCollectionPage() {
   const authContext = useContext(AuthContext);
-  const shopId = authContext.shopInfo?._id ?? "";
+  const shopId = authContext.shopInfo?._id;
 
   //var
   const router = useRouter();
@@ -56,6 +56,7 @@ export default function NewCollectionPage() {
 
   // function
   const handleSave = async () => {
+    if (!shopId) return;
     if (imageUrl === "") {
       openNotification("Hãy thêm hình ảnh cho bộ sưu tập của bạn!", <></>);
       return;
@@ -99,11 +100,12 @@ export default function NewCollectionPage() {
   }, [shopId]);
 
   const handleGetProductList = async () => {
+    if (!shopId) return;
     const response = await POST_GetProductListByShop(shopId);
     if (response.status == 200) {
       if (response.data) {
         setProducts(response.data);
-        // console.log("product", data);
+        console.log("product of shop id ", shopId, " is ", response.data);
       }
     }
   };
@@ -111,7 +113,7 @@ export default function NewCollectionPage() {
   return (
     <Layout>
       {contextHolder}
-      {(products && (
+      {(products && shopId && (
         <div className="m-5 grid grid-cols-6 lg:grid-cols-8 h-fit">
           <div className="col-span-1">
             <Anchor
