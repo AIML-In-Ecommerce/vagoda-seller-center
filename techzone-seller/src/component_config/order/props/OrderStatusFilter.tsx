@@ -23,7 +23,7 @@ function filterByProcessingStatus(dataSource: OrderPropType[], targetData: any)
 
     dataSource.forEach((value: OrderPropType) =>
     {
-        const deadline = value.orderStatus[value.orderStatus.length - 1].deadline * 1000
+        const deadline = new Date(value.orderStatus[value.orderStatus.length - 1].deadline).getTime()
 
         if(deadline > today || deadline == today)
         {
@@ -50,7 +50,7 @@ function filterByExpiredStatus(dataSource: OrderPropType[], targetData: any)
 
     dataSource.forEach((value: OrderPropType) =>
     {
-        const deadline = value.orderStatus[value.orderStatus.length - 1].deadline * 1000
+        const deadline = new Date(value.orderStatus[value.orderStatus.length - 1].deadline).getTime()
         if(deadline < today)
         {
             result.push(value)

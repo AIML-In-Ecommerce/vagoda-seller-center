@@ -16,7 +16,7 @@ function getOrderId(item: OrderPropType)
 
 function getUsername(item: OrderPropType)
 {
-    return item.user.name
+    return item.user.fullName
 }
 
 function getUserPhone(item: OrderPropType)

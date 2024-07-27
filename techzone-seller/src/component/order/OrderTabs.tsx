@@ -77,7 +77,7 @@ export default function OrderTabs({}: OrderTabsProps) {
         href: `/order?tab=${defaultTabKey}`
       },
       dataSource: waitingData,
-      refreshDataFunction: fetchWaitingOrders,
+      refreshDataFunction: refetchAfterExecutingOnWaitingTabs,
       // children: <WaitingOrderTab tabKey={"awaiting_confirmation"} dataSource={waitingData} askToRefreshData={handleAskToRequestData}/>,
       children: WaitingOrderTab
     },
@@ -90,7 +90,7 @@ export default function OrderTabs({}: OrderTabsProps) {
         href: `/order?tab=processing`
       },
       dataSource: processingData,
-      refreshDataFunction: fetchProcessingOrders,
+      refreshDataFunction: refetchAfterExecutingOnProcessingTabs,
       // children: <ProcessingOrderTab dataSource={processingData} />,
       children: ProcessingOrderTab
     },
@@ -103,7 +103,7 @@ export default function OrderTabs({}: OrderTabsProps) {
         href: `/order?tab=shipping`
       },
       dataSource: shippingData,
-      refreshDataFunction: fetchShippingOrders,
+      refreshDataFunction: refetchAfterExecutingOnShippingTabs,
       // children: <ShippingOrderTab dataSource={shippingData} />,
       children: ShippingOrderTab
     },
@@ -224,36 +224,56 @@ export default function OrderTabs({}: OrderTabsProps) {
       }
   }
 
+  async function refetchAfterExecutingOnWaitingTabs()
+  {
+    await fetchWaitingOrders()
+    await fetchProcessingOrders()
+    await fetchCancelledOrders()
+  }
+
+  async function refetchAfterExecutingOnProcessingTabs()
+  {
+    await fetchProcessingOrders()
+    await fetchShippingOrders()
+    await fetchCancelledOrders()
+  }
+
+  async function refetchAfterExecutingOnShippingTabs()
+  {
+    await fetchShippingOrders()
+    await fetchCompletedOrders()
+  }
+
   useEffect(() => {
     //fetch data here 
     fetchWaitingOrders()
-  }, []);
+  }, [authContext.shopInfo]);
 
   useEffect(() => {
     fetchProcessingOrders()
-  }, [])
+  }, [authContext.shopInfo])
 
   useEffect(() =>
   {
     fetchShippingOrders()
-  }, [])
+  }, [authContext.shopInfo])
 
   useEffect(() =>
   {
     fetchCompletedOrders()
-  }, [])
+  }, [authContext.shopInfo])
 
   useEffect(() =>
   {
     fetchCancelledOrders()
-  }, [])
+  }, [authContext.shopInfo])
 
   useEffect(() => {
     const clonedData = [...orderCount];
     clonedData[0] = waitingData.length;
 
     setOrderCount(clonedData);
-  }, [waitingData.length]);
+  }, [waitingData]);
 
   useEffect(() => {
     const clonedData = [...orderCount];

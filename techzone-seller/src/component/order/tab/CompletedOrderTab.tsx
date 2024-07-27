@@ -302,7 +302,7 @@ export default function CompletedOrderTab({tabKey, dataSource, askToRefreshData}
                 const completeTime = value.orderStatus[value.orderStatus.length - 1].complete != null ? new Date(value.orderStatus[value.orderStatus.length - 1].complete!) : null
                 const deadlineTime = new Date(value.orderStatus[value.orderStatus.length - 1].deadline)
     
-                if(today > deadlineTime)
+                if(today > deadlineTime && completeTime == null)
                 {
                     orderStatus =
                     {
@@ -493,7 +493,9 @@ export default function CompletedOrderTab({tabKey, dataSource, askToRefreshData}
                 }
             </Flex>
 
-            <Table rowSelection={rowSelection} columns={dataColumns} dataSource={dataToDisplay} showHeader/>
+            <Table rowSelection={rowSelection} 
+                scroll={{x: 550, y: 600}}
+                columns={dataColumns} dataSource={dataToDisplay} showHeader/>
 
             
             <OrderDetailDrawer open={orderDetailOpen} orderProps={selectedOrderDetail} onCloseCallback={handleOrderDetailDrawerOnClose} 

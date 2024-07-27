@@ -23,6 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <AuthContextProvider>
           {/* <SocketProvider> */}
           <NotificationContextProvider>{children}</NotificationContextProvider>
+
           {/* </SocketProvider> */}
         </AuthContextProvider>
       </body>
