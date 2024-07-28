@@ -400,6 +400,7 @@ export function DetailedOpScorePage() {
                         <div className="flex flex-row gap-1 items-center">
                             <div>Loaị vi phạm:</div>
                             <Radio.Group onChange={onInfractionChange} value={currentInfractionType}>
+                                <Radio.Button value={null}>Tất cả</Radio.Button>
                                 <Radio.Button value={InfractionType.OverdueConfirmation}>Quá hạn xác nhận</Radio.Button>
                                 <Radio.Button value={InfractionType.OverdueDelivery}>Quá hạn bàn giao</Radio.Button>
                                 <Radio.Button value={InfractionType.Cancelled}>Hủy</Radio.Button>

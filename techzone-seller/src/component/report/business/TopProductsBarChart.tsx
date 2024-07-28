@@ -17,6 +17,7 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
 
 ChartJS.register(
   LinearScale,
@@ -44,9 +45,9 @@ interface TopProductsBarChartProps {
 
 export default function TopProductsBarChart(props: TopProductsBarChartProps) {
   const items = useMemo<ItemData[]>(() => {
-      const items = props.items;
-      return items;
-  },[props.items])
+    const items = props.items;
+    return items.sort((a,b) => a.value > b.value ? -1 : 1);
+  }, [props.items])
 
   const options = {
     indexAxis: 'y' as const,
@@ -67,7 +68,7 @@ export default function TopProductsBarChart(props: TopProductsBarChartProps) {
       datalabels: {
         display: true,
         color: "black",
-        formatter: (value: number) => value.toLocaleString(),
+        formatter: (value: number) => formatCurrencyFromValue({ value: value }),
         anchor: 'end' as const,
         align: 'end' as const,
       },
@@ -76,9 +77,9 @@ export default function TopProductsBarChart(props: TopProductsBarChartProps) {
     scales: {
       x: {
         ticks: {
-          // callback: function (val: any, index: any) {
-          //   return index % 2 === 0 ? val.toLocaleString() : '';
-          // },
+          callback: function (val: any, index: any) {
+            return formatCurrencyFromValue({ value: val });
+          },
           maxTicksLimit: 6
         }
       }
@@ -88,8 +89,16 @@ export default function TopProductsBarChart(props: TopProductsBarChartProps) {
     responsive: true,
   };
 
+  const shortenText = (text: string, wordLimit = 5) => {
+    const words = text.split(' ');
+    if (words.length > wordLimit) {
+      return words.slice(0, wordLimit).join(' ') + '...';
+    }
+    return text;
+  }
+
   const data = {
-    labels: items.map(item => item.title),
+    labels: items.map(item => shortenText(item.title)),
     datasets: [
       {
         data: items.map(item => item.value),

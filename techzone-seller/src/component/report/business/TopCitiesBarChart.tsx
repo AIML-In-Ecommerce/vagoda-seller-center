@@ -18,6 +18,8 @@ import {
 import { Chart } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { getProvince } from '@/apis/statistic/AddressAPI';
+import { currencyFormater } from '@/component/util/MyFormater';
+import { Currency, formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
 
 ChartJS.register(
   LinearScale,
@@ -49,7 +51,7 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
 
   const items = useMemo<ItemData[]>(() => {
       const items = props.items;
-      return items;
+      return items.sort((a,b) => a.revenue > b.revenue ? -1 : 1);
   },[props.items])
 
   const options = {
@@ -71,7 +73,7 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
       datalabels: {
         display: true,
         color: "black",
-        formatter: (value: number) => value.toLocaleString(),
+        formatter: (value: number) => formatCurrencyFromValue({value: value}),
         anchor: 'end' as const,
         align: 'end' as const,
       },
@@ -80,9 +82,9 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
     scales: {
       x: {
         ticks: {
-          // callback: function (val: any, index: any) {
-          //   return index % 2 === 0 ? val.toLocaleString() : '';
-          // },
+          callback: function (val: any, index: any) {
+            return formatCurrencyFromValue({value: val});
+          },
           maxTicksLimit: 6
         }
       }

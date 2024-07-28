@@ -151,7 +151,7 @@ export interface ReturningRateStatistic {
   totalReturningRevenue: number;
   totalReturningProfit: number;
   totalUsers: number;
-  totalReturingUsers: number;
+  totalReturningUsers: number;
   returningRate: number;
   statisticsData: ReturningRateInterval[];
 }
@@ -399,7 +399,7 @@ export async function POST_getTotalLateTimeOrders(
   isAscending?: boolean,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/late_in_process?shopId=${shopId}`;
+  const url = `${GATEWAY_PREFIX}/statistics/order/late_pending_processing?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -443,7 +443,7 @@ export async function POST_getTotalOnTimeOrders(
   endTime: Date,
   isAscending?: boolean
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/on_time_process?shopId=${shopId}`;
+  const url = `${GATEWAY_PREFIX}/statistics/order/on_time_pending_processing?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -484,15 +484,18 @@ export async function POST_getTotalProcessOrders(
   shopId: string,
   startTime: Date,
   endTime: Date,
-  isAscending?: boolean
+  isAscending?: boolean,
+  step?: string,
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/waiting_for_process?shopId=${shopId}`;
+  const url = `${GATEWAY_PREFIX}/statistics/order/on_waiting_pending_processing?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
+      orderStatus: "PENDING", 
       startTime: startTime,
       endTime: endTime,
       isAscending: isAscending,
+      step: step,
     });
     const responseData: StatisticResponse = response.data;
 

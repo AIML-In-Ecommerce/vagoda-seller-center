@@ -35,9 +35,9 @@ export default function CouponTable(props: CouponTableProps) {
     const [isDeletePromotionModalOpen, setIsDeletePromotionModalOpen] = useState<boolean>(false);
     const [currentPromotionId, setCurrentPromotionId] = useState<string>("");
 
-    const [isHovering, setIsHovered] = useState<string | null>(null);
-    const onMouseEnter = (promotionId: string) => setIsHovered(promotionId);
-    const onMouseLeave = () => setIsHovered(null);
+    // const [isHovering, setIsHovered] = useState<string | null>(null);
+    // const onMouseEnter = (promotionId: string) => setIsHovered(promotionId);
+    // const onMouseLeave = () => setIsHovered(null);
     
     const handleOpenDeletePromotionModal = (promotionId: string) => {
         setCurrentPromotionId(promotionId);
@@ -59,7 +59,7 @@ export default function CouponTable(props: CouponTableProps) {
             dataIndex: 'name',
             fixed: 'left',
             render: (text: any, record: PromotionType) => {
-                const isHoveringRow = isHovering === record._id;
+                // const isHoveringRow = isHovering === record._id;
                 let triggerSelected = false;
                 const innerContent = (
                     <div className="flex flex-col gap-1 relative">
@@ -73,11 +73,11 @@ export default function CouponTable(props: CouponTableProps) {
                                 </div>
                             </div>
                         </Tag>
-                        <div className="absolute right-0 top-0"
+                        {/* <div className="absolute right-0 top-0"
                             onMouseEnter={() => onMouseEnter(record._id)}
                             onMouseLeave={() => onMouseLeave()}>
                             {isHoveringRow ? <FaEye></FaEye> : <FaRegEye />}
-                        </div>
+                        </div> */}
                     </div>
                 )
                 const popupContent = (<PromotionCard item={record}
@@ -85,14 +85,20 @@ export default function CouponTable(props: CouponTableProps) {
                     applyDiscount={() => { triggerSelected = true }}
                     removeDiscount={() => { triggerSelected = false }} />)
                 return (
-                    isHoveringRow ? (
+                    // isHoveringRow ? (
+                    // <Popover placement="top" title="Xem trước" content={popupContent}
+                    //     autoAdjustOverflow
+                    //     arrow={{ pointAtCenter: true }}
+                    //     overlayInnerStyle={{ width: '400px' }}>
+                    //     {innerContent}
+                    // </Popover>) : innerContent
                     <Popover placement="top" title="Xem trước" content={popupContent}
                         autoAdjustOverflow
                         arrow={{ pointAtCenter: true }}
                         overlayInnerStyle={{ width: '400px' }}>
                         {innerContent}
-                    </Popover>) : innerContent
-                )
+                    </Popover>)
+                // )
             },
             width: '20%',
         },

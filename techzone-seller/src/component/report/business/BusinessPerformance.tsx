@@ -134,7 +134,7 @@ export default function BusinessPerformancePage() {
         const totalProfitPecentChanges = calcPercentChanges(currentPeriod?.sales.totalProfit!, previousPeriod?.sales.totalProfit!);
         const conversionRatePecentChanges = calcPercentChanges(currentPeriod?.conversionRate.conversionRate! * 100, previousPeriod?.conversionRate.conversionRate! * 100, true);
         const avgRevenuePecentChanges = calcPercentChanges(currentPeriod?.sales.avgRevenue!, previousPeriod?.sales.avgRevenue!);
-        const returningRatePecentChanges = calcPercentChanges(currentPeriod?.returningRate.totalReturingUsers!, previousPeriod?.returningRate.totalReturingUsers!);
+        const returningRatePecentChanges = calcPercentChanges(currentPeriod?.returningRate.totalReturningUsers!, previousPeriod?.returningRate.totalReturningUsers!);
         const cancelledPecentChanges = calcPercentChanges(currentPeriod?.cancelledOrders.totalOrders!, previousPeriod?.cancelledOrders.totalOrders!);
 
         const result: BPCategory[] = [
@@ -193,7 +193,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Khách hàng quay lại",
-                value: currentPeriod?.returningRate.totalReturingUsers || 0,
+                value: currentPeriod?.returningRate.totalReturningUsers || 0,
                 percentChange: returningRatePecentChanges,
                 suffix: "khách",
                 tooltip: "Tổng số lượng khách quay lại trong khoảng thời gian đã chọn",
@@ -248,6 +248,8 @@ export default function BusinessPerformancePage() {
                 BECurrentEndTime || new Date(),
                 `${step}-d`
             )
+
+            console.log("ReturningRateResponse", returnRateResponse.data);
 
             setCurrentPeriod({
                 sales: totalSalesResponse.data || [],

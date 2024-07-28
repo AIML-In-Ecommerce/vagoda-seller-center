@@ -98,6 +98,10 @@ const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
     });
 }
 
+const roundTo2DecimalPlaces = (value: number) => {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
 export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
     const context = useContext(AuthContext);
     const [loading, setLoading] = useState<boolean>(false);
@@ -137,6 +141,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     endDate ?? new Date(),
                 )
                 const getProductsAddToCartData = getProductsAddToCart.data;
+                console.log(getProductsAddToCartData);
 
                 //03. Xác nhận đơn hàng
                 const confirmedOrderStats = await POST_getAmountBuyerOfProducts(
@@ -155,15 +160,15 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     let singleProductConfirmedOrderStatsData = confirmedOrderStatsData?.find(
                         (productItem: any) => productItem.product === item._id) ?? [];
                     let [totalViews, totalViewers] = [singleProductViewersData.views, singleProductViewersData.viewers];
-                    let [viewerCount, addToCartCount] = [singleProductAddToCartData.viewerCount, singleProductViewersData.addToCartCount];
-                    
-                    let [unitsSold, 
-                        revenue, 
-                        conversionRate, 
+                    let [viewerCount, addToCartCount] = [singleProductAddToCartData.viewerCount, singleProductAddToCartData.addToCartCount];
+
+                    let [unitsSold,
+                        revenue,
+                        conversionRate,
                         purchaseCount] = [singleProductConfirmedOrderStatsData.sold,
-                            singleProductConfirmedOrderStatsData.revenue,
-                            singleProductConfirmedOrderStatsData.conversion,
-                            singleProductConfirmedOrderStatsData.buyers?.length ?? 0]
+                        singleProductConfirmedOrderStatsData.revenue,
+                        singleProductConfirmedOrderStatsData.conversion,
+                        singleProductConfirmedOrderStatsData.buyers?.length ?? 0]
                     {
                         // purchaseCount, conversionRate, unitsSold, revenue
                     }
@@ -173,10 +178,10 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         totalViews: totalViews ?? 0,
                         totalViewers: totalViewers ?? 0,
                         cartAdditions: addToCartCount ?? 0,
-                        cartAddRates: (addToCartCount !== undefined) && (viewerCount !== undefined) ? Math.floor(addToCartCount / viewerCount) : 0,
+                        cartAddRates: (addToCartCount !== undefined) && (viewerCount !== undefined) ? roundTo2DecimalPlaces(addToCartCount / viewerCount) : 0,
                         unitsSold: unitsSold ?? 0,
                         revenue: revenue ?? 0,
-                        conversionRate: conversionRate ?? 0,
+                        conversionRate: roundTo2DecimalPlaces(conversionRate) ?? 0,
                         purchaseCount: purchaseCount ?? 0
                     } as ProductStatisticsType
                 }) ?? [];
@@ -320,6 +325,9 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'cartAddRates',
+                    render: (value: any) => {
+                        return `${value * 100}%`
+                    }
                 },
             ]
         },
@@ -343,6 +351,9 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'conversionRate',
+                    render: (value: any) => {
+                        return `${value * 100}%`
+                    }
                 },
                 {
                     title: <div className="flex flex-row gap-1 items-center">
@@ -362,7 +373,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     </div>,
                     dataIndex: 'revenue',
                     render: (value: any, record: ProductStatisticsType) => (
-                        <Currency value={record.revenue}/>
+                        <Currency value={record.revenue} />
                     )
                 },
             ]

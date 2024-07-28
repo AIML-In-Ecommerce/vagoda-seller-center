@@ -16,6 +16,7 @@ import TodoTasks, { Task, TaskType } from "./TodoTasks";
 import Link from "next/link";
 import { AuthContext } from "@/context/AuthContext";
 import { Order, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalRecievedOrders, POST_getTotalSales, ReviewRange, SalesStatistic } from "@/apis/statistic/StatisticAPI";
+import { formatCurrencyFromValue } from "../util/CurrencyDisplay";
 
 dayjs.extend(quarterOfYear);
 
@@ -65,8 +66,8 @@ const rangeDefaultsForFilter = (filterBy: string): [Dayjs, Dayjs] => {
     // console.log('rangeFilter', [dayjs().startOf('year'), dayjs().startOf('quarter').add(1, 'quarter')]);
     return filterBy === 'date' ? [dayjs().startOf('date').subtract(7, 'day'), dayjs()] :
         filterBy === 'month' ? [dayjs().startOf('year').startOf('date'), dayjs()] :
-            filterBy === 'quarter' ? [dayjs().startOf('year').startOf('date'), dayjs().endOf('quarter')] 
-    : [dayjs().subtract(5, 'year').startOf('year'), dayjs()]
+            filterBy === 'quarter' ? [dayjs().startOf('year').startOf('date'), dayjs().endOf('quarter')]
+                : [dayjs().subtract(5, 'year').startOf('year'), dayjs()]
 }
 
 const handleRatingColor = (rating: number, intensity: number, prefix: string) => {
@@ -178,7 +179,7 @@ export default function HomePage() {
                 // console.log("orders", salesInterval);
                 if (salesInterval) setOrders(salesInterval.statisticsData);
                 else setOrders([]);
-                
+
             })
     }
 
@@ -218,35 +219,35 @@ export default function HomePage() {
 
 
     const bannerContent = [
-        { 
-            title: 'Quản lý đơn hàng', 
+        {
+            title: 'Quản lý đơn hàng',
             description: "Quản lý đơn hàng dễ dàng và hiệu quả với các công cụ của chúng tôi.",
-            urlRedirect: '/order' 
+            urlRedirect: '/order'
         },
-        { 
-            title: 'Tạo sản phẩm', 
-            description: "Cửa hàng của bạn đã sẵn sàng để nhận các đơn hàng. Hãy bắt đầu tạo sản phẩm nào!", 
-            urlRedirect: '/product/create'  
+        {
+            title: 'Tạo sản phẩm',
+            description: "Cửa hàng của bạn đã sẵn sàng để nhận các đơn hàng. Hãy bắt đầu tạo sản phẩm nào!",
+            urlRedirect: '/product/create'
         },
-        { 
-            title: 'Xem hiệu quả kinh doanh', 
-            description: "Theo dõi và đánh giá hiệu quả kinh doanh của bạn với báo cáo chi tiết.", 
-            urlRedirect: '/report/business-performance'  
+        {
+            title: 'Xem hiệu quả kinh doanh',
+            description: "Theo dõi và đánh giá hiệu quả kinh doanh của bạn với báo cáo chi tiết.",
+            urlRedirect: '/report/business-performance'
         },
-        { 
-            title: 'Trung tâm phát triển', 
-            description: "Khám phá các công cụ và tài nguyên mới để phát triển cửa hàng của bạn.", 
-            urlRedirect: '/report/business-performance'  
+        {
+            title: 'Trung tâm phát triển',
+            description: "Khám phá các công cụ và tài nguyên mới để phát triển cửa hàng của bạn.",
+            urlRedirect: '/report/business-performance'
         },
-        { 
-            title: 'Xem công cụ khuyến mãi', 
+        {
+            title: 'Xem công cụ khuyến mãi',
             description: "Tăng doanh số bằng cách sử dụng các công cụ khuyến mãi và quảng cáo.",
-            urlRedirect: '/marketing-center/promotion-tool'  
+            urlRedirect: '/marketing-center/promotion-tool'
         },
-        { 
-            title: 'Thiết kế gian hàng', 
-            description: "Tạo ra một gian hàng độc đáo và chuyên nghiệp để thu hút khách hàng.", 
-            urlRedirect: '/booth-design/decorator'  
+        {
+            title: 'Thiết kế gian hàng',
+            description: "Tạo ra một gian hàng độc đáo và chuyên nghiệp để thu hút khách hàng.",
+            urlRedirect: '/booth-design/decorator'
         },
     ];
 
@@ -309,22 +310,25 @@ export default function HomePage() {
         //   }
     ]
 
-    const notificationData: NotificationType[] = [
-        {
-            _id: '1',
-            title: 'Báo cáo doanh thu tuần',
-            image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
-            description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt 13.360.783đ`,
-            timestamp: new Date(2024, 2, 31, 12, 24, 52)
-        },
-        {
-            _id: '2',
-            title: 'Thông báo từ hệ thống',
-            image: 'https://cdn-icons-png.flaticon.com/512/1169/1169118.png',
-            description: `Xin chào ${context.shopInfo?.name}, Điều khoản & Điều kiện của bạn đã được chấp nhận & thành công. Cảm ơn bạn đã hợp tác cùng chúng tôi`,
-            timestamp: new Date(2024, 2, 31, 12, 24, 52)
-        }
-    ]
+    const notificationData = useMemo<NotificationType[]>(() => {
+        const data: NotificationType[] = [
+            {
+                _id: '1',
+                title: 'Báo cáo doanh thu tuần',
+                image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
+                description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt ${formatCurrencyFromValue({value: totalRevenue})}`,
+                timestamp: new Date()
+            },
+            {
+                _id: '2',
+                title: 'Thông báo từ hệ thống',
+                image: 'https://cdn-icons-png.flaticon.com/512/1169/1169118.png',
+                description: `Xin chào ${context.shopInfo?.name}, Điều khoản & Điều kiện của bạn đã được chấp nhận & thành công. Cảm ơn bạn đã hợp tác cùng chúng tôi`,
+                timestamp: new Date(context.shopInfo?.createAt as Date) ?? new Date()
+            }
+        ]
+        return data;
+    }, [context.shopInfo, totalRevenue]);
 
     const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
         return isAboveThreshold ? value >= threshold : value <= threshold;
