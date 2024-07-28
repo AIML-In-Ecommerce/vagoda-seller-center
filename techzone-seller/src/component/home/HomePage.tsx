@@ -16,6 +16,7 @@ import TodoTasks, { Task, TaskType } from "./TodoTasks";
 import Link from "next/link";
 import { AuthContext } from "@/context/AuthContext";
 import { Order, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalRecievedOrders, POST_getTotalSales, ReviewRange, SalesStatistic } from "@/apis/statistic/StatisticAPI";
+import { formatCurrencyFromValue } from "../util/CurrencyDisplay";
 
 dayjs.extend(quarterOfYear);
 
@@ -315,7 +316,7 @@ export default function HomePage() {
                 _id: '1',
                 title: 'Báo cáo doanh thu tuần',
                 image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
-                description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt ${totalRevenue}`,
+                description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt ${formatCurrencyFromValue({value: totalRevenue})}`,
                 timestamp: new Date()
             },
             {
@@ -327,7 +328,7 @@ export default function HomePage() {
             }
         ]
         return data;
-    }, [context.shopInfo]);
+    }, [context.shopInfo, totalRevenue]);
 
     const checkThreshold = (value: number, threshold: number, isAboveThreshold: boolean) => {
         return isAboveThreshold ? value >= threshold : value <= threshold;
