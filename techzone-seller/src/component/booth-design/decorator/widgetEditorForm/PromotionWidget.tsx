@@ -28,66 +28,6 @@ interface WidgetProps {
 }
 
 export default function PromotionWidget(props: WidgetProps) {
-  // mock data
-  const promotionsData: PromotionType[] = [
-    {
-      _id: "1",
-      name: "Giảm 50%",
-      description: "Áp dụng cho thanh toán qua ví điện tử MoMo (tối đa 100k)",
-      discountType: DiscountType.PERCENTAGE,
-      discountValue: 50,
-      quantity: 6,
-      upperBound: 100000,
-      expiredDate: formatDate(new Date("2024-03-24T12:30:00")),
-      code: "BONJOUR",
-    },
-    {
-      _id: "2",
-      name: "Giảm 200k",
-      description:
-        "Áp dụng cho mọi đối tượng khách hàng (cho đơn tối thiểu 400k)",
-      discountType: DiscountType.DIRECT_PRICE,
-      discountValue: 200000,
-      quantity: 20,
-      lowerBound: 400000,
-      expiredDate: formatDate(new Date("2024-03-27T12:30:00")),
-      code: "MERCI",
-    },
-    {
-      _id: "3",
-      name: "Giảm 20%",
-      description: "Áp dụng cho tất cả khách hàng (tối đa 50k)",
-      discountType: DiscountType.PERCENTAGE,
-      discountValue: 20,
-      quantity: 15,
-      upperBound: 50000,
-      expiredDate: formatDate(new Date("2024-03-22T12:30:00")),
-      code: "AUREVOIR",
-    },
-    {
-      _id: "4",
-      name: "Giảm 50k",
-      description: "Chỉ áp dụng cho khách hàng VIP",
-      discountType: DiscountType.DIRECT_PRICE,
-      discountValue: 50000,
-      quantity: 10,
-      lowerBound: 0,
-      expiredDate: formatDate(new Date("2024-04-30T12:30:00")),
-      code: "BONSOIR",
-    },
-    {
-      _id: "5",
-      name: "Giảm 10%",
-      description: "Áp dụng cho thanh toán qua thẻ tín dụng (tối đa 50k)",
-      discountType: DiscountType.PERCENTAGE,
-      discountValue: 10,
-      quantity: 8,
-      upperBound: 50000,
-      expiredDate: formatDate(new Date("2024-03-25T12:30:00")),
-      code: "BIENVENUE",
-    },
-  ];
-
   const authContext = useContext(AuthContext);
   const shopId = authContext.shopInfo?._id;
 
@@ -95,7 +35,7 @@ export default function PromotionWidget(props: WidgetProps) {
   const [proxyPromotionId, setProxyPromotionId] = useState<Array<string>>([]);
 
   // variables
-  const [promotions, setPromotions] = useState<PromotionType[]>(promotionsData);
+  const [promotions, setPromotions] = useState<PromotionType[]>();
 
   const [proxyPromotionWidget, setProxyPromotionWidget] = useState(
     props.widget
@@ -164,11 +104,9 @@ export default function PromotionWidget(props: WidgetProps) {
   const handleGetPromotionList = async () => {
     if (!shopId) return;
     const response = await GET_GetPromotionListByShop(shopId);
-    if (response.status == 200) {
-      if (response.data) {
-        setPromotions(response.data);
-        // console.log("product", data);
-      }
+    if (response.data) {
+      setPromotions(response.data);
+      console.log("promotions", response.data);
     }
   };
 

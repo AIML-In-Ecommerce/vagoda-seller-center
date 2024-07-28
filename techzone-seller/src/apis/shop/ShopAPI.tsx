@@ -116,17 +116,12 @@ export async function PUT_UpdateShopInfoDesign(
     const path1Response = await POST_GetPath(shopInfoDesign.avatarUrl);
     const path2Response = await POST_GetPath(shopInfoDesign.bannerUrl);
 
-    if (
-      path1Response.status == 200 &&
-      path1Response.data &&
-      path2Response.status == 200 &&
-      path2Response.data
-    ) {
+    if (path1Response.status == 200 && path1Response.data) {
       // console.log(response);
       // alert("Upload successfully! " + pathResponse.data);
 
       let avatarUrl = path1Response.data;
-      let bannerUrl = path2Response.data;
+      let bannerUrl = path2Response.data ? path2Response.data : "";
 
       const requestBody = {
         shopInfoDesign: {
