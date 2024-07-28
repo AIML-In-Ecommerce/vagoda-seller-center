@@ -356,6 +356,14 @@ export async function POST_GetPath(image: string) {
     "/upload"
   ).toString();
 
+  if (!image)
+    return {
+      isDenied: true,
+      message: "Failed to create link",
+      status: 500,
+      data: undefined,
+    };
+
   try {
     // console.log(url);
     let file = await dataUrlToFile(image, "temp");

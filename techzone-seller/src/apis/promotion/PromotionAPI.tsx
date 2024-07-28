@@ -30,13 +30,13 @@ export async function POST_GetPromotionList(ids: string[]) {
   try {
     // console.log(url);
     const requestBody = {
-      ids: ids,
+      promotionIds: ids,
     };
 
     const response = await axios.post(url, requestBody);
     const responseData: PromotionListResponse = response.data;
 
-    if (responseData.status == 200) {
+    if (responseData.data) {
       return {
         isDenied: false,
         message: "Get promotion successfully",
@@ -146,8 +146,11 @@ export async function GET_GetPromotionListByShop(shopId: string) {
   }
 }
 
-export async function POST_CreatePromotion(shopId: string, promotion: PromotionType) {
-  const url = `${GATEWAY_PREFIX}/promotion/seller/create?shopId=${shopId}`
+export async function POST_CreatePromotion(
+  shopId: string,
+  promotion: PromotionType
+) {
+  const url = `${GATEWAY_PREFIX}/promotion/seller/create?shopId=${shopId}`;
 
   try {
     // console.log(url);
@@ -161,7 +164,7 @@ export async function POST_CreatePromotion(shopId: string, promotion: PromotionT
       quantity: promotion.quantity || 2,
       redeemedTotal: 0,
       status: promotion.status,
-      code: promotion.code
+      code: promotion.code,
     });
     const responseData: PromotionListResponse = response.data;
 
@@ -191,11 +194,15 @@ export async function POST_CreatePromotion(shopId: string, promotion: PromotionT
   }
 }
 
-export async function PUT_UpdatePromotion(shopId: string, promotionId: string, promotion: PromotionType) {
-  const url = `${GATEWAY_PREFIX}/promotion/seller/update?shopId=${shopId}&promotionId=${promotionId}`
+export async function PUT_UpdatePromotion(
+  shopId: string,
+  promotionId: string,
+  promotion: PromotionType
+) {
+  const url = `${GATEWAY_PREFIX}/promotion/seller/update?shopId=${shopId}&promotionId=${promotionId}`;
 
   try {
-    // console.log(url);  
+    // console.log(url);
     const response = await axios.put(url, {
       name: promotion.name || "",
       shopId: shopId,
@@ -207,7 +214,7 @@ export async function PUT_UpdatePromotion(shopId: string, promotionId: string, p
       quantity: promotion.quantity || 2,
       redeemedTotal: 0,
       status: promotion.status,
-      code: promotion.code
+      code: promotion.code,
     });
     const responseData: PromotionListResponse = response.data;
 
@@ -237,11 +244,14 @@ export async function PUT_UpdatePromotion(shopId: string, promotionId: string, p
   }
 }
 
-export async function DELETE_DeletePromotion(shopId: string, promotionId: string) {
-  const url = `${GATEWAY_PREFIX}/promotion/seller/delete?shopId=${shopId}&promotionId=${promotionId}`
+export async function DELETE_DeletePromotion(
+  shopId: string,
+  promotionId: string
+) {
+  const url = `${GATEWAY_PREFIX}/promotion/seller/delete?shopId=${shopId}&promotionId=${promotionId}`;
 
   try {
-    // console.log(url);  
+    // console.log(url);
     const response = await axios.delete(url);
     const responseData: PromotionListResponse = response.data;
 
@@ -272,12 +282,12 @@ export async function DELETE_DeletePromotion(shopId: string, promotionId: string
 }
 
 export async function POST_GetPromotionByCode(shopId: string, code: string) {
-  const url = `${GATEWAY_PREFIX}/promotion/codes?shopId=${shopId}`
+  const url = `${GATEWAY_PREFIX}/promotion/codes?shopId=${shopId}`;
 
   try {
-    // console.log(url);  
+    // console.log(url);
     const response = await axios.post(url, {
-       codes: [code]
+      codes: [code],
     });
     const responseData: PromotionListResponse = response.data;
 
@@ -307,11 +317,14 @@ export async function POST_GetPromotionByCode(shopId: string, code: string) {
   }
 }
 
-export async function GET_GetPromotionById(shopId: string, promotionId: string) {
-  const url = `${GATEWAY_PREFIX}/promotion/info?promotionId=${promotionId}`
+export async function GET_GetPromotionById(
+  shopId: string,
+  promotionId: string
+) {
+  const url = `${GATEWAY_PREFIX}/promotion/info?promotionId=${promotionId}`;
 
   try {
-    // console.log(url);  
+    // console.log(url);
     const response = await axios.get(url);
     const responseData: PromotionSingleResponse = response.data;
 
@@ -340,7 +353,3 @@ export async function GET_GetPromotionById(shopId: string, promotionId: string) 
     };
   }
 }
-
-
-
-
