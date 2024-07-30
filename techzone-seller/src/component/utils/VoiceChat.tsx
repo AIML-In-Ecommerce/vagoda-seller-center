@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Drawer, Flex, Radio, Space } from "antd";
-import "../../../custom_css/VoiceAnimation.css";
+import "../../custom_css/VoiceAnimation.css";
 type InputType = "VOICE" | "KEYBOARD";
 
 interface VocieChatProps {

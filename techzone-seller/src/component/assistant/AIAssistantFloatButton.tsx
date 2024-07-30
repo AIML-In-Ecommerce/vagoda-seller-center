@@ -26,12 +26,12 @@ import { FiShoppingCart } from "react-icons/fi";
 import { FaChartLine } from "react-icons/fa6";
 import { FiMic } from "react-icons/fi";
 
-import InfiniteProductsList, {
-  InfiniteScrollProductsProps,
-} from "../utils/InfiniteProductsList";
-import InfinitePromotionList, {
-  InfinitePromotionListProps,
-} from "../utils/InfinitePromotionList";
+// import InfiniteProductsList, {
+//   InfiniteScrollProductsProps,
+// } from "../utils/InfiniteProductsList";
+// import InfinitePromotionList, {
+//   InfinitePromotionListProps,
+// } from "../utils/InfinitePromotionList";
 import { BsChatDots } from "react-icons/bs";
 
 import "@/custom_css/AntdFullscreenModal.css";
@@ -41,7 +41,7 @@ import LineChart from "../utils/Chart/LineChart";
 import BarChart from "../utils/Chart/BarChar";
 import PieChart from "../utils/Chart/PieChart";
 import "../../custom_css/Loader.css";
-import InfiniteCart from "../utils/InfiniteCart";
+// import InfiniteCart from "../utils/InfiniteCart";
 import { ShopInfoType } from "@/model/ShopInfoType";
 import VoiceChat from "../utils/VoiceChat";
 const authLocalStorageID = "#auth-context-user-info-record-ID";
@@ -84,15 +84,15 @@ const AIAssistantLocalStorageKeyword = "ai_assistant";
 const AIAssistantImageLink =
   "https://cdn-icons-png.freepik.com/512/9732/9732800.png";
 
-const InfiniteProductsListSetup: InfiniteScrollProductsProps = {
-  productsPerRow: 4,
-  overFlowMaxHeight: "100dvh",
-  productItemSize: "small",
-};
+// const InfiniteProductsListSetup: InfiniteScrollProductsProps = {
+//   productsPerRow: 4,
+//   overFlowMaxHeight: "100dvh",
+//   productItemSize: "small",
+// };
 
-const InfinitePromotionListSetup: InfinitePromotionListProps = {
-  overflowMaxHeight: "100dvh",
-};
+// const InfinitePromotionListSetup: InfinitePromotionListProps = {
+//   overflowMaxHeight: "100dvh",
+// };
 
 const testCaseNumber = 3;
 
@@ -422,18 +422,21 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
     switch (response.type) {
       case "product_getter":
         setExtendedMessage("product_getter");
-        return (
-          <InfiniteProductsList
-            setupProps={InfiniteProductsListSetup}
-            additionalData={response.data}
-          />
-        );
+        // return (
+        //   <InfiniteProductsList
+        //     setupProps={InfiniteProductsListSetup}
+        //     additionalData={response.data}
+        //   />
+        // );
+        return greetingReactNode;
       case "promotion_getter":
         setExtendedMessage("promotion_getter");
-        return <InfinitePromotionList setup={InfinitePromotionListSetup} />;
+        // return <InfinitePromotionList setup={InfinitePromotionListSetup} />;
+        return greetingReactNode;
       case "cart_adding":
         setExtendedMessage("cart_adding");
-        return <InfiniteCart />;
+        // return <InfiniteCart />;
+        return greetingReactNode;
       case "gen_chart":
         setExtendedMessage("gen_chart");
         switch (response.data.type) {
@@ -965,7 +968,7 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
                 align="center"
               >
                 <BiSupport className="w-full h-full text-sm text-white" />
-                <Typography.Text className="text-xs text-white font-medium">
+                <Typography.Text className="text-xs h-auto text-white font-medium overflow-hidden">
                   Trợ lý
                 </Typography.Text>
               </Flex>
