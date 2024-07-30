@@ -355,7 +355,7 @@ export default function HomePage() {
             title: <div className="font-semibold">Điểm hiện tại</div>,
             dataIndex: 'score',
             render: (score: number) => {
-                return <div className="font-semibold text-xl">{score * 100}%</div>
+                return <div className="font-semibold text-xl">{roundTo2DecimalPlaces(score * 100)}%</div>
             },
             width: '27%'
         },
