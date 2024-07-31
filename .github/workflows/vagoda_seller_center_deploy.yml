@@ -1,0 +1,25 @@
+# vercel-merge.yml
+name: Deploy to vercel on merge
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      #  your build commands
+      # - name: build 
+      #   run: |
+      #     cd ./techzone-seller
+      #     npm ci --force
+      #     npm run build
+      - uses: amondnet/vercel-action@v25.2.0
+        with:
+          vercel-token: ${{ secrets.VERCEL_SECRET_TOKEN }}
+          # github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID}}
+          vercel-project-id: ${{ secrets.PROJECT_ID}}
+          vercel-args: '--prod'
+          working-directory: techzone-seller/
