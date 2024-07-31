@@ -1,5 +1,5 @@
-import { Card, Checkbox, CheckboxProps, ConfigProvider, Statistic, Tooltip } from "antd";
-import React, { useState } from "react";
+import { Card, Checkbox, CheckboxProps, ConfigProvider, message, Statistic, Tooltip } from "antd";
+import React, { useMemo, useState } from "react";
 import { TbInfoCircle } from "react-icons/tb";
 import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";
 
@@ -25,13 +25,27 @@ const DecreasingValueStyle: React.CSSProperties = {
     fontWeight: "bold",
 }
 
-
 export default function CheckableCard(props: CheckableCardProps) {
     const [isVisible, setIsVisible] = useState<boolean>(props.borderVisibility || false);
     // const value = Math.round(Math.random() * 100 * Math.random() * 100);
     // const mockDiffPercents = Math.round(Math.random() * 100) / 100 + Math.random();
-    const isIncreasing = props.item?.percentChange > 0 ? true : false;
-    const absPercentChange = isIncreasing ? props.item?.percentChange : (-1) * props.item?.percentChange;
+    const isIncreasing = useMemo<boolean>(() => {
+        const result = props.item?.percentChange > 0 ? true : false;
+        return result;
+    }, [props.item?.percentChange]);
+
+    const absPercentChange = useMemo<number>(() => {
+        const result = isIncreasing ? props.item?.percentChange : (-1) * props.item?.percentChange;
+        return result;
+    }, [isIncreasing]);
+
+    const isNumber = useMemo<boolean>(() => {
+        return typeof absPercentChange === 'number' && isFinite(absPercentChange);
+    }, [absPercentChange])
+
+    const isInfinity = useMemo<boolean>(() => {
+        return absPercentChange === Infinity || absPercentChange === -Infinity;
+    }, [absPercentChange])
 
     const handleSelectedCard = (category: any) => {
         // console.log('handleSelectedCard', category);
@@ -49,7 +63,7 @@ export default function CheckableCard(props: CheckableCardProps) {
                 props.setSelectedCategories!(categories);
             }
             else {
-                console.log("Limit selected categories");
+                message.error("Giới hạn 2 mục dữ liệu");
                 return;
             };
         }
@@ -80,7 +94,7 @@ export default function CheckableCard(props: CheckableCardProps) {
                         }
                         {
                             props.isPercentageValue ? <>{<>
-                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={"%"}/>
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={"%"} />
                                 {
                                     isIncreasing ? (
                                         <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
@@ -91,15 +105,17 @@ export default function CheckableCard(props: CheckableCardProps) {
                                     )
                                 }
                             </>}</> : <>{<>
-                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={props.suffix ?? ""}/>
+                                <Statistic className={`mt-4 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={props.item?.value || 0} suffix={props.suffix ?? ""} />
                                 {
-                                    isIncreasing ? (
-                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
-                                            prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
-                                    ) : (
-                                        <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={absPercentChange} precision={2}
-                                            prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
-                                    )
+                                    //handle Infinity & NaN values
+                                    !isInfinity ?
+                                        (isIncreasing ? (
+                                            <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={isNumber ? absPercentChange : 0} precision={2}
+                                                prefix={<BiSolidUpArrow />} suffix={'%'} valueStyle={IncreasingValueStyle} />
+                                        ) : (
+                                            <Statistic className={`mt-3 ${props.checkboxVisibility ? "lg:ml-6" : ""}`} value={isNumber ? absPercentChange : 0} precision={2}
+                                                prefix={<BiSolidDownArrow />} suffix={'%'} valueStyle={DecreasingValueStyle} />
+                                        )) : <div className={`mt-3 italic text-slate-500 ${props.checkboxVisibility ? "lg:ml-6" : ""}`}>Không có dữ liệu</div>
                                 }
                             </>}</>
                         }

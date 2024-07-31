@@ -32,7 +32,7 @@ export interface Order {
   user: string;
   shop: string;
   products: Product[];
-  promotion: null;
+  promotion: string[];
   paymentMethod: PaymentMethod;
   shippingFee: number;
   totalPrice: number;

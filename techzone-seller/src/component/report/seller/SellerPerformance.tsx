@@ -294,9 +294,9 @@ export default function SellerPerformancePage() {
                             },
                         ]}
                     />
-                    <div className="font-semibold text-lg uppercase">Hiệu quả vận hành</div>
+                    <div className="my-5 uppercase text-xl font-semibold">Hiệu quả vận hành</div>
                 </div>
-                <div className="mt-10 bg-white">
+                <div className="mt-5 bg-white">
                     <Card title={
                         <div className="font-semibold">Điểm chất lượng vận hành</div>
                     } extra={

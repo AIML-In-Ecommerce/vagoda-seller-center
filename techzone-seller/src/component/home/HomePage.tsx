@@ -187,7 +187,7 @@ export default function HomePage() {
         const [startDate, endDate] = DayjsToDate(selectedDates);
         const responseAllReviews = await POST_getReviewStatistics(
             context.shopInfo?._id as string,
-            [], undefined, startDate || new Date(), endDate || new Date()
+            []
         )
 
         if (responseAllReviews) {
@@ -355,7 +355,7 @@ export default function HomePage() {
             title: <div className="font-semibold">Điểm hiện tại</div>,
             dataIndex: 'score',
             render: (score: number) => {
-                return <div className="font-semibold text-xl">{score * 100}%</div>
+                return <div className="font-semibold text-xl">{roundTo2DecimalPlaces(score * 100)}%</div>
             },
             width: '27%'
         },

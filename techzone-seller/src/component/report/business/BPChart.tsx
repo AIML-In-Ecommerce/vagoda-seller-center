@@ -19,6 +19,7 @@ import {
 import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
 import { ConversionRateInterval, ConversionRateStatistic, Order, OrderStatusInterval, OrderStatusStatistic, ReturningRateInterval, ReturningRateStatistic, SalesInterval, SalesStatistic } from '@/apis/statistic/StatisticAPI';
+import { formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
 
 ChartJS.register(
     LinearScale,
@@ -54,7 +55,7 @@ const roundTo2DecimalPlaces = (value: number) => {
     return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory, labels: string[], comparedLabels?: string[]) => {
+const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory, labels: string[]) => {
     let categoryId = category._id;
     let result: number[] = [];
     switch (categoryId) {
@@ -118,12 +119,8 @@ const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory, 
                 break;
             }
 
-
     }
 
-    if (comparedLabels) {
-
-    }
     const formattedResult = result.map((data, index) => {
         return {
             key: labels[index],
@@ -131,6 +128,19 @@ const getSpecifiedCategoryListData = (data: BPChartStats, category: BPCategory, 
         }
     })
     return formattedResult;
+}
+
+const displayYLabelChart = (displayCategoryType: any, value: any) => {
+    switch (displayCategoryType) {
+        case "currency":
+            return formatCurrencyFromValue({ value: value });
+        case "percentage":
+            return `${value * 100}%`;
+        default:
+            return Number(value).toLocaleString("vi-VN", {
+                minimumFractionDigits: 0,
+            });
+    }
 }
 
 interface BPChartProps {
@@ -189,6 +199,7 @@ export default function BPChart(props: BPChartProps) {
 
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
 
+
     const dateFrom = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[0] ?? defaultStartDate : defaultStartDate;
     }, [props.dateRange]);
@@ -210,21 +221,42 @@ export default function BPChart(props: BPChartProps) {
     }, [props.timeUnit]);
 
     const labels = useMemo(() => {
-        return generateChartLabels(timeUnit, dateFrom, dateTo);
+        const labelsResult = generateChartLabels(timeUnit, dateFrom, dateTo);
+        return labelsResult;
     }, [props.timeUnit, props.dateRange])
 
     const categories = useMemo(() => {
         return props.categories ?? [];
     }, [props.categories])
 
-    useEffect(() => {
+    const displayCategoryOneType = useMemo(() => {
+        if (categories[0]) {
+            let categoryType = categories[0]._id;
+            switch (categoryType) {
+                case "revenue": case "profit": case "avgRevenuePerOrder":
+                    return "currency";
+                case "conversionRate":
+                    return "percentage";
+            }
+        }
+    }, [categories])
 
+    const displayCategoryTwoType = useMemo(() => {
+        if (categories[1]) {
+            let categoryType = categories[1]._id;
+            switch (categoryType) {
+                case "revenue": case "profit": case "avgRevenuePerOrder":
+                    return "currency";
+                case "conversionRate":
+                    return "percentage";
+            }
+        }
     }, [categories])
 
     const categoryOneData = useMemo(() => {
         if (categories.length < 1 || !props.currentPeriod) return [];
         const result = getSpecifiedCategoryListData(props.currentPeriod, categories[0], labels)
-        console.log('category 1 result', categories[0], result);
+        // console.log('category 1 result', categories[0], result);
         return result;
     }, [categories, props.currentPeriod, labels]);
 
@@ -238,7 +270,7 @@ export default function BPChart(props: BPChartProps) {
     const categoryOneCompareData = useMemo(() => {
         if (categories.length < 1 || !props.previousPeriod) return [];
         const result = getSpecifiedCategoryListData(props.previousPeriod, categories[0], labels)
-        console.log('category 1 compare result', categories[1], result);
+        // console.log('category 1 compare result', categories[1], result);
         return result;
     }, [categories, props.previousPeriod, labels]);
 
@@ -318,7 +350,7 @@ export default function BPChart(props: BPChartProps) {
     //         ]
     //     }
     // }
-    const datasetsGenerator = (categories: any) => {
+    const datasetsGenerator = (categories: BPCategory[]) => {
         const generateDataset = (category: { title: string; color: string; }, data: { key: string; value: number; }[], compareData: { key: string; value: number; }[], yAxisID: string) => {
             const title = category?.title ?? 'Danh mục';
             const color = category?.color ?? 'black';
@@ -336,7 +368,13 @@ export default function BPChart(props: BPChartProps) {
                     tooltip: {
                         callbacks: {
                             label: function (context: { label: any; parsed: { y: any; }; }) {
-                                return `${title}: ${context.parsed.y}`;
+                                switch (yAxisID) {
+                                    case 'y':
+                                        return `${title}: ${displayYLabelChart(displayCategoryOneType, context.parsed.y)}`;
+                                    case 'y1':
+                                        return `${title}: ${displayYLabelChart(displayCategoryTwoType, context.parsed.y)}`;
+                                }
+
                             }
                         }
                     }
@@ -349,11 +387,17 @@ export default function BPChart(props: BPChartProps) {
                     borderDash: [6, 6],
                     fill: false,
                     data: compareData,
+                    yAxisID: `${yAxisID}`,
                     tension: 0.25,
                     tooltip: {
                         callbacks: {
                             label: function (context: { label: any; parsed: { y: any; }; }) {
-                                return `${title} (${getCompareDate(context.label, timeUnit)}): ${context.parsed.y}`;
+                                switch (yAxisID) {
+                                    case 'y':
+                                        return `${title} (${getCompareDate(context.label, timeUnit)}): ${displayYLabelChart(displayCategoryOneType, context.parsed.y)}`;
+                                    case 'y1':
+                                        return `${title} (${getCompareDate(context.label, timeUnit)}): ${displayYLabelChart(displayCategoryTwoType, context.parsed.y)}`;
+                                }
                             }
                         }
                     }
@@ -376,84 +420,101 @@ export default function BPChart(props: BPChartProps) {
     const datasets = useMemo(() => {
         const resultDatasets = datasetsGenerator(categories);
         return resultDatasets;
-    }, [categories]);
+    }, [categories, categoryOneData, categoryTwoData, labels]);
 
     const data = useMemo(() => {
         const settings = {
             labels: labels,
-            datasets: datasets!,
+            datasets: datasets ?? [],
 
         };
         return settings;
-    }, [labels, categoryOneData, categoryTwoData]);
+    }, [labels, datasets]);
 
 
-    const options = {
-        interaction: {
-            mode: 'index' as const,
-            intersect: false,
-        },
-        layout: {
-
-        },
-        stacked: false,
-        plugins: {
-            title: {
-                display: true,
+    const options = useMemo(() => {
+        return {
+            interaction: {
+                mode: 'index' as const,
+                intersect: false,
             },
-            legend: {
-                display: true,
-                align: 'center' as const,
+            layout: {
+
             },
-        },
-        scales: {
-            'y': {
-                type: 'linear' as const,
-                display: categories.length > 0,
-                position: 'left' as const,
-                ticks: {
-                    callback: function (val: any, index: any) {
-                        return index % 2 === 0 ? val : '';
+            stacked: false,
+            plugins: {
+                title: {
+                    display: true,
+                },
+                legend: {
+                    display: true,
+                    align: 'center' as const,
+                },
+            },
+            scales: {
+                'y': {
+                    type: 'linear' as const,
+                    display: categories.length > 0,
+                    position: 'left' as const,
+                    ticks: {
+                        callback: function (val: any, index: any) {
+                            // switch (displayCategoryOneType) {
+                            //     case "currency":
+                            //         return index % 2 === 0 ? formatCurrencyFromValue({value: val}) : '';
+                            //     case "percentage":
+                            //         return index % 2 === 0 ? `${val * 100}%` : '';
+                            // }
+                            if (!displayCategoryOneType) return Number.isInteger(val) ? val : '';
+                            return index % 2 === 0 ? displayYLabelChart(displayCategoryOneType, val) : '';
+                        },
+                    }
+
+                },
+                'y1': {
+                    type: 'linear' as const,
+                    display: categories.length > 1,
+                    position: 'right' as const,
+                    grid: {
+                        drawOnChartArea: false,
                     },
-                }
+                    ticks: {
+                        callback: function (val: any, index: any) {
+                            // switch (displayCategoryTwoType) {
+                            //     case "currency":
+                            //         return index % 2 === 0 ? formatCurrencyFromValue({value: val}) : '';
+                            //     case "percentage":
+                            //         return index % 2 === 0 ? `${val * 100}%` : '';
+                            // }
+                            if (!displayCategoryTwoType) return Number.isInteger(val) ? val : '';
+                            return index % 2 === 0 ? displayYLabelChart(displayCategoryTwoType, val) : '';
+                        },
+                    }
 
-            },
-            'y1': {
-                type: 'linear' as const,
-                display: categories.length > 1,
-                position: 'right' as const,
-                grid: {
-                    drawOnChartArea: false,
                 },
-                ticks: {
-                    // callback: function (val: any, index: any) { 
-                    //     return val.toLocaleString("vi-VN", {
-                    //         style: "currency",
-                    //         currency: "VND",
-                    //         minimumFractionDigits: 0
-                    //     });
-                    // },
-                }
+                x: {
+                    grid: {
+                        offset: true
+                    },
 
-            },
-            x: {
-                grid: {
-                    offset: true
                 },
 
+
+            },
+            parsing: {
+                xAxisKey: 'key',
+                yAxisKey: 'value'
             },
 
+            // Make the chart responsive
+            maintainAspectRatio: false,
+            responsive: true,
+        };
+    }, [categories, displayCategoryOneType, displayCategoryTwoType])
 
-        },
-        parsing: {
-            xAxisKey: 'key',
-            yAxisKey: 'value'
-        },
+    useEffect(() => {
+        console.log("update", labels, data, options);
+    },[data])
 
-        // Make the chart responsive
-        maintainAspectRatio: false,
-        responsive: true,
-    };
 
     return (
         <div className="w-[100%] h-[320px]">

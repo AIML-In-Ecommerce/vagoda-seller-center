@@ -99,7 +99,9 @@ const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
 }
 
 const roundTo2DecimalPlaces = (value: number) => {
-    return Math.round((value + Number.EPSILON) * 100) / 100;
+    const result = Math.round((value + Number.EPSILON) * 100) / 100;
+    if (isFinite(result)) return result; //Check for NaN values
+    else return 0;
 }
 
 export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
