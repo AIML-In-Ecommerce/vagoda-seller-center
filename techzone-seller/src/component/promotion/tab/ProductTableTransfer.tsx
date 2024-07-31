@@ -1,10 +1,11 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Space, Switch, Table, Tag, Transfer } from 'antd';
 import type { GetProp, TableColumnsType, TableProps, TransferProps } from 'antd';
 import { ProductService } from '@/services/Product';
 import { _ProductType } from '@/model/ProductType';
 import { Currency } from '@/component/util/CurrencyDisplay';
+import { AuthContext } from '@/context/AuthContext';
 
 type TransferItem = GetProp<TransferProps, 'dataSource'>[number];
 type TableRowSelection<T extends object> = TableProps<T>['rowSelection'];
@@ -77,8 +78,8 @@ const columns: TableColumnsType<ProductType> = [
         title: 'Danh mục',
         render: (tag: string[]) => <div className="flex flex-row gap-2">
             {
-                tag ? tag.map((item) =>
-                    <Tag style={{ marginInlineEnd: 0 }} color="cyan">
+                tag ? tag.map((item: string, index: number) =>
+                    <Tag key={index} style={{ marginInlineEnd: 0 }} color="cyan">
                         {item.toUpperCase()}
                     </Tag >) : <Tag style={{ marginInlineEnd: 0 }} color="grey">
                     {"KHÔNG".toUpperCase()}
@@ -108,13 +109,17 @@ export default function ProductTableTransfer(props: ProductTableTransferProps) {
     const [keyword, setKeyword] = useState<string>(props.currentKeyword);
     const [products, setProducts] = useState<ProductType[]>([]);
 
+    const authContext = useContext(AuthContext)
+
+
+
     useEffect(() => {
         const fetchProducts = async () => {
             const response: {
                 total: number,
                 totalPages: number,
                 products: _ProductType[];
-            } = await ProductService.getProductByFilter({ keyword: keyword });
+            } = await ProductService.getProductByFilter({ keyword: keyword }, authContext.shopInfo?._id as string);
             console.log('RESPONSE:', response);
             props.setTargetProducts(products);
             if (response) {
@@ -140,8 +145,12 @@ export default function ProductTableTransfer(props: ProductTableTransferProps) {
                 setProducts(simplifyProducts);
             }
         }
-        fetchProducts();
-    }, [keyword])
+
+        if(keyword.length > 1 && authContext.shopInfo != null )
+        {
+            fetchProducts();
+        }
+    }, [keyword, authContext.shopInfo])
 
     useEffect(() => {
         console.log("ProductList: ", products);

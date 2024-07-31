@@ -154,7 +154,7 @@ export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
                 </div>
               </div>
             ) : (
-              <div></div>
+              <div key={index}></div>
             )
           )}
       </div>

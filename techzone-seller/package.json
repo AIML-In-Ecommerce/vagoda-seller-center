@@ -14,6 +14,7 @@
     "@lottiefiles/lottie-player": "^2.0.4",
     "@tinymce/tinymce-react": "^5.0.1",
     "@types/draft-js": "^0.11.18",
+    "@types/js-cookie": "^3.0.6",
     "@types/react-scroll": "^1.8.10",
     "antd": "^5.15.3",
     "antd-img-crop": "^4.22.0",
@@ -48,6 +49,7 @@
     "runes2": "^1.1.4",
     "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.8",
+    "vega-embed": "^6.26.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

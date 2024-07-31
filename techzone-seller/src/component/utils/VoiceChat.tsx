@@ -15,7 +15,9 @@ const VoiceChat: React.FC<VocieChatProps> = (props) => {
   //   const [input, setInput] = useState<string>("");
   const [isListening, setIsListening] = useState(true);
   const [transcript, setTranscript] = useState("Bắt đầu ghi");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  // const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any | null>(null);
+
 
   const showDrawer = () => {
     setOpen(true);
@@ -29,7 +31,7 @@ const VoiceChat: React.FC<VocieChatProps> = (props) => {
   useEffect(() => {
     let finalTranscript = "";
     const SpeechRecognition =
-      window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.lang = "vi-VN"; // Đặt ngôn ngữ là tiếng Việt
@@ -48,7 +50,7 @@ const VoiceChat: React.FC<VocieChatProps> = (props) => {
       //     setTranscript((prev) => prev + interimTranscript);
       //   };
 
-      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      recognitionRef.current.onresult = (event: any) => {
         setTranscript("");
         let interimTranscript = "";
         for (let i = event.resultIndex; i < event.results.length; ++i) {

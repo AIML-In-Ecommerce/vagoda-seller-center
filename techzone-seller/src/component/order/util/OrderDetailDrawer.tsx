@@ -178,22 +178,27 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
         return total
     }
 
-    function getTotalPromitionDiscount(promotion: PromotionInOrder)
+    function getTotalPromitionDiscount(promotion: PromotionInOrder | null)
     {
+        if(orderProps == null)
+        {
+            return 0
+        }
+
         if(promotion == null)
         {
             return 0
         }
 
         let total = 0
-        if(promotion.discountType == PromotionTypeConvention.DIRECT_PRICE)
+        if(promotion.type == PromotionTypeConvention.DIRECT_PRICE)
         {
-            total += promotion.discountValue
+            total += promotion.value
         }
-        else if(promotion.discountType == PromotionTypeConvention.PERCENTAGE)
+        else if(promotion.type == PromotionTypeConvention.PERCENTAGE)
         {
             //TODO: fix this later
-            total += 1000
+            total += orderProps.totalPrice / 100 * promotion.value
         }
 
         return total
@@ -332,10 +337,10 @@ export default function OrderDetailDrawer({open, orderProps, onCloseCallback, co
                                 <Typography.Text>{orderProps.promotion.name}</Typography.Text>
                             </Col>
                             <Col span={10}>
-                                <Typography.Text>{currencyFormater(MyLocaleRef.VN, orderProps.promotion.discountValue)}</Typography.Text>
+                                <Typography.Text>{currencyFormater(MyLocaleRef.VN, orderProps.promotion.value)}</Typography.Text>
                             </Col>
                             <Col span={4}>
-                                <Typography.Text>{getDiscountType(orderProps.promotion.discountType)}</Typography.Text>
+                                <Typography.Text>{getDiscountType(orderProps.promotion.type)}</Typography.Text>
                             </Col>
                         </Row>
                         :

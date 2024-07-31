@@ -54,8 +54,9 @@ export default function FixedRatioCropper(props: FixedRatioCropperProps) {
       onCancel={props.onCancel}
       centered
       footer={[
-        <Button onClick={() => props.onCancel()}>Hủy thay đổi</Button>,
+        <Button key={"cancel-button-in-cropper"} onClick={() => props.onCancel()}>Hủy thay đổi</Button>,
         <Button
+          key={"edit-button-in-cropper"}
           onClick={() => {
             handleCroppedImage();
             props.onCrop();

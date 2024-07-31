@@ -77,8 +77,9 @@ export default function ImageCropper(props: ImageCropperProps) {
       onCancel={props.onCancel}
       centered
       footer={[
-        <Button onClick={() => props.onCancel()}>Hủy thay đổi</Button>,
+        <Button key={"cancel-button-in-imagecropper"} onClick={() => props.onCancel()}>Hủy thay đổi</Button>,
         <Button
+          key={"edit-button-in-imagecropper"}
           onClick={() => {
             handleCroppedImage();
             props.onCrop();

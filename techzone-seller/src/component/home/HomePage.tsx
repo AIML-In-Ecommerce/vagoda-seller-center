@@ -540,7 +540,7 @@ export default function HomePage() {
                         contents={
                             bannerContent.map((item, key) => {
                                 return (
-                                    <Link href={item.urlRedirect}>
+                                    <Link key={key} href={item.urlRedirect}>
                                         <div key={key} className="bg-sky-600 h-[240px] rounded-lg">
                                             <div className="lg:grid lg:grid-cols-2 p-10 m-5">
                                                 <div className="text-2xl font-semibold text-white text-center">{item.title}</div>

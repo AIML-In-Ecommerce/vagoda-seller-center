@@ -4,7 +4,7 @@ import { HiOutlineHome } from "react-icons/hi2";
 export default function HistoryProductPage() {
   return (
     <div className="pt-4 pr-4 space-y-2">
-      <Breadcrumb
+      {/* <Breadcrumb
         className="text-xs"
         items={[
           {
@@ -78,7 +78,7 @@ export default function HistoryProductPage() {
             ]}
           />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

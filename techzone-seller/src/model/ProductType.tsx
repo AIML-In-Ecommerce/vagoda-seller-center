@@ -12,6 +12,17 @@ export type ProductType = {
   category: string;
 };
 
+export type AttributeProductType = {
+  colors: {
+    link: string;
+    color: { label: string; value: string };
+  }[];
+  size: string[];
+  material: string;
+  warranty: string;
+  manufacturingPlace: string;
+}
+
 export type _ProductType = {
   _id: string;
   name: string;
@@ -28,16 +39,7 @@ export type _ProductType = {
   subCategoryType: CategoryType;
   brand: string;
   inventoryAmount: number;
-  attribute: {
-    colors: {
-      link: string;
-      color: { label: string; value: string };
-    }[];
-    size: string[];
-    material: string;
-    warranty: string;
-    manufacturingPlace: string;
-  };
+  attribute: AttributeProductType;
   profit: number;
   platformFee: number;
 };
