@@ -1,4 +1,4 @@
-import { Card, Checkbox, CheckboxProps, ConfigProvider, Statistic, Tooltip } from "antd";
+import { Card, Checkbox, CheckboxProps, ConfigProvider, message, Statistic, Tooltip } from "antd";
 import React, { useMemo, useState } from "react";
 import { TbInfoCircle } from "react-icons/tb";
 import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";
@@ -63,7 +63,7 @@ export default function CheckableCard(props: CheckableCardProps) {
                 props.setSelectedCategories!(categories);
             }
             else {
-                console.log("Limit selected categories");
+                message.error("Giới hạn 2 mục dữ liệu");
                 return;
             };
         }

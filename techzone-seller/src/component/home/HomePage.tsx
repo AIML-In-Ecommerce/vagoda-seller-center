@@ -187,7 +187,7 @@ export default function HomePage() {
         const [startDate, endDate] = DayjsToDate(selectedDates);
         const responseAllReviews = await POST_getReviewStatistics(
             context.shopInfo?._id as string,
-            [], undefined, startDate || new Date(), endDate || new Date()
+            []
         )
 
         if (responseAllReviews) {

@@ -166,7 +166,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Tỉ lệ chuyển đổi",
-                value: roundTo2DecimalPlaces(currentPeriod?.conversionRate.conversionRate || 0) * 100,
+                value: roundTo2DecimalPlaces(currentPeriod?.conversionRate.conversionRate! * 100 || 0),
                 isPercentageValue: true,
                 percentChange: conversionRatePecentChanges,
                 suffix: "%",
@@ -349,46 +349,35 @@ export default function BusinessPerformancePage() {
                         <div className="lg:hidden sm:block">
                             <div className="grid grid-cols-2 gap-2">
                                 {
-                                    loading ? new Array(4).map(() => <Skeleton.Node active={loading} />) :
-                                        categories.map((item, key) => {
-                                            return (
-                                                <div key={key}>
-                                                    <CheckableCard item={item} checkboxVisibility={true}
-                                                        isPercentageValue={item.isPercentageValue}
-                                                        selectedCategories={selectedCategories}
-                                                        setSelectedCategories={setSelectedCategories} />
-                                                </div>
-                                            )
-                                        })
+                                    categories.map((item, key) => {
+                                        return (
+                                            <div key={key}>
+                                                <CheckableCard item={item} checkboxVisibility={true}
+                                                    isPercentageValue={item.isPercentageValue}
+                                                    selectedCategories={selectedCategories}
+                                                    setSelectedCategories={setSelectedCategories} />
+                                            </div>
+                                        )
+                                    })
                                 }
                             </div>
                         </div>
                         <div className="lg:block sm:hidden">
                             {
-                                loading ? <div className="lg:grid lg:grid-cols-4">
-                                    <Skeleton.Node active={loading}>
-                                    </Skeleton.Node>
-                                    <Skeleton.Node active={loading}>
-                                    </Skeleton.Node>
-                                    <Skeleton.Node active={loading}>
-                                    </Skeleton.Node>
-                                    <Skeleton.Node active={loading}>
-                                    </Skeleton.Node>
-                                </div> :
-                                    <CustomCarousel loading={loading} arrows infinite={false}
-                                        slidesToShow={4} slidesToScroll={1}
-                                        contents={
-                                            categories.map((item, key) => {
-                                                return (
-                                                    <div key={key}>
-                                                        <CheckableCard item={item} checkboxVisibility={true}
-                                                            suffix={item.suffix ?? ""}
-                                                            selectedCategories={selectedCategories}
-                                                            setSelectedCategories={setSelectedCategories} />
-                                                    </div>
-                                                )
-                                            })
-                                        } />
+                                <CustomCarousel loading={loading} arrows infinite={false}
+                                    slidesToShow={4} slidesToScroll={1}
+                                    contents={
+                                        categories.map((item, key) => {
+                                            return (
+                                                <div key={key}>
+                                                    <CheckableCard item={item} checkboxVisibility={true}
+                                                        suffix={item.suffix ?? ""}
+                                                        selectedCategories={selectedCategories}
+                                                        setSelectedCategories={setSelectedCategories} />
+                                                </div>
+                                            )
+                                        })
+                                    } />
                             }
 
                         </div>
