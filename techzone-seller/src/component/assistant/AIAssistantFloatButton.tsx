@@ -14,7 +14,7 @@ import {
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import TextArea from "antd/es/input/TextArea";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BiRefresh, BiSupport } from "react-icons/bi";
 import {
   IoCloseOutline,
@@ -44,6 +44,7 @@ import "../../custom_css/Loader.css";
 // import InfiniteCart from "../utils/InfiniteCart";
 import { ShopInfoType } from "@/model/ShopInfoType";
 import VoiceChat from "../utils/VoiceChat";
+import { AuthContext } from "@/context/AuthContext";
 const authLocalStorageID = "#auth-context-user-info-record-ID";
 
 interface AIAssistantFloatButtonProps {}
@@ -305,7 +306,9 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
   const [inputType, setInputType] = useState<InputType>("KEYBOARD");
   const buttonRef = useRef<HTMLDivElement>(null);
   const userInputRef = useRef<string>("");
-  const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
+  const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN as string;
+
+  const authContext = useContext(AuthContext)
 
   const sendClick = () => {
     if (buttonRef.current) {
@@ -335,7 +338,17 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
     }
   }
 
-  const userInfo = initLoading();
+  const userInfo = useMemo(() =>
+  {
+    if(authContext.shopInfo == null)
+    {
+      return null
+    }
+    else
+    {
+      return authContext.shopInfo as ShopInfoType
+    }
+  }, [authContext.shopInfo])
 
   const greetingLottie = (
     <lottie-player

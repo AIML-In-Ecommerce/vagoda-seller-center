@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import AuthContextProvider from "@/context/AuthContext";
-import NotificationContextProvider from "@/context/NotificationContext";
 import { ReactNode } from "react";
 import "./globals.css";
 

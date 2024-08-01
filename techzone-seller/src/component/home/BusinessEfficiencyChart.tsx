@@ -19,6 +19,7 @@ import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
 import { AuthContext } from '@/context/AuthContext';
 import { Order, OrderStatusType } from '@/apis/statistic/StatisticAPI';
+import { Spin } from 'antd';
 
 ChartJS.register(
     LinearScale,
@@ -255,6 +256,13 @@ export function BEChart(props: BEChartProps) {
     // const context = useContext(AuthContext);
     // Generate 1000 random products
     // const [products, setProducts] = useState<Product[]>([]);
+
+    const onLoadingDisplay = 
+        <div className="w-full flex justify-center items-center">
+            <Spin size={"large"}/>
+        </div>
+
+    const [chartDisplay, setChartDisplay] = useState<JSX.Element>(onLoadingDisplay)
     const [orders, setOrders] = useState<Order[]>(props.orders);
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
     
@@ -277,13 +285,13 @@ export function BEChart(props: BEChartProps) {
 
     const quantityData = useMemo(() => {
         const result = getTotalQuantitiesInRange(orders, dateFrom, dateTo, filterBy);
-        props.setTotalOrderQuantity(calculateTotals(result));
+        // props.setTotalOrderQuantity(calculateTotals(result));
         return result;
     }, [orders, dateFrom, dateTo, filterBy]);
 
     const revenueData = useMemo(() => {
         const result = getTotalPricesInRange(orders, dateFrom, dateTo, filterBy);
-        props.setTotalRevenue(calculateTotals(result));
+        // props.setTotalRevenue(calculateTotals(result));
         return result;
     }, [orders, dateFrom, dateTo, filterBy]);
 
@@ -378,9 +386,18 @@ export function BEChart(props: BEChartProps) {
         }
     }, [props.orders])
 
+    useEffect(() =>
+    {
+        const newChartDisplay = <Chart type='bar' data={data} options={options} />
+
+        setChartDisplay(newChartDisplay)
+        props.setTotalOrderQuantity(calculateTotals(quantityData))
+        props.setTotalRevenue(calculateTotals(revenueData))
+    }, [data])
+
     return (
         <div id="chart-container" className="w-[100%] h-[100%]">
-            <Chart type='bar' data={data} options={options} />
+            {chartDisplay}
         </div>
     );
 }

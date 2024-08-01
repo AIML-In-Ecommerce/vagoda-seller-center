@@ -1,5 +1,5 @@
-import { Card, Empty, Image } from "antd";
-import React from "react";
+import { Card, Empty, Image, Spin } from "antd";
+import React, { useEffect, useState } from "react";
 
 interface NotificationListProps {
     data: NotificationType[]
@@ -57,18 +57,40 @@ export function NotificationCard(props: NotificationCardProps) {
 }
 
 export default function NotificationList(props: NotificationListProps) {
+
+    const onLoadingDisplay = 
+            new Array(2).fill(null).map((value, index) =>
+                <div key={index} className="w-full flex justify-center items-center">
+                    <Spin size="default" />
+                </div>
+            )
+
+    const [mainDisplay, setMainDisplay] = useState<JSX.Element | JSX.Element[]>(onLoadingDisplay)
+
+    useEffect(() =>
+    {
+        if(props)
+        {
+            const newDisplay = props.data.length > 0 ?
+            (
+                props.data.map((item, key) => {
+                    return (
+                    <div key={key}>
+                        <NotificationCard item={item} />
+                    </div>)
+                })
+            ) : <Empty description={"Không có thông báo mới!"} />
+
+            setMainDisplay(newDisplay)
+        }
+
+    }, [props])
+
     return (
         <React.Fragment>
             <div className="flex flex-col">
                 {
-                    props.data.length > 0 ?
-                        (
-                            props.data.map((item, key) => {
-                                return (<div key={key}>
-                                    <NotificationCard item={item} />
-                                </div>)
-                            })
-                        ) : <Empty description={"Không có thông báo mới!"} />
+                    mainDisplay
                 }
             </div>
         </React.Fragment>
