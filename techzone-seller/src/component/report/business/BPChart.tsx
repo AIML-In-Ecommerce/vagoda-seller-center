@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
     Chart as ChartJS,
     LinearScale,
@@ -12,13 +12,10 @@ import {
     Tooltip,
     LineController,
     BarController,
-    BubbleDataPoint,
-    ChartTypeRegistry,
-    Point,
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
-import { ConversionRateInterval, ConversionRateStatistic, Order, OrderStatusInterval, OrderStatusStatistic, ReturningRateInterval, ReturningRateStatistic, SalesInterval, SalesStatistic } from '@/apis/statistic/StatisticAPI';
+import { ConversionRateInterval, ConversionRateStatistic, OrderStatusInterval, OrderStatusStatistic, ReturningRateInterval, ReturningRateStatistic, SalesInterval, SalesStatistic } from '@/apis/statistic/StatisticAPI';
 import { formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
 
 ChartJS.register(

@@ -1,14 +1,11 @@
 "use client";
-import { DatePicker, Empty, Radio, RadioChangeEvent, Select, SelectProps } from "antd";
+import { DatePicker, Radio, RadioChangeEvent, Select, SelectProps } from "antd";
 import React, { useState } from "react";
-import CustomCarousel from "../../Carousel";
-import CheckableCard from "../CheckableCard";
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import CouponInsightTable from "./table/CouponInsightTable";
-import { PromotionType } from "@/model/PromotionType";
 
 dayjs.extend(LocalizedFormat)
 

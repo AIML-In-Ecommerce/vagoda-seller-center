@@ -7,8 +7,6 @@ import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { useRouter } from "next/navigation";
 import CouponInsight from "./CouponInsight";
-import ShippingInsight from "./ShippingInsight";
-import CampaignInsight from "./CampaignInsight";
 
 dayjs.extend(LocalizedFormat)
 

@@ -1,23 +1,16 @@
 "use client";
-import { Affix, Breadcrumb, Divider, FormProps, message, Modal, RadioChangeEvent, Spin, Tooltip } from 'antd'
+import { Breadcrumb, message, Modal, RadioChangeEvent, Spin, Tooltip } from 'antd'
 import React, { useContext, useEffect, useState } from 'react'
 import { HiOutlineHome } from 'react-icons/hi2'
 import runes from 'runes2';
 import {
     Button,
-    Cascader,
-    Checkbox,
-    ColorPicker,
     DatePicker,
     Form,
     Input,
     InputNumber,
     Radio,
-    Select,
-    Slider,
     Switch,
-    TreeSelect,
-    Upload,
     Image,
 } from 'antd';
 import { MdInfoOutline } from 'react-icons/md';
@@ -26,14 +19,13 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { RiCoupon3Line } from 'react-icons/ri';
 import { DiscountType, DiscountTypeInfo, PromotionStatus, PromotionType } from '@/model/PromotionType';
-import { FaPlus } from 'react-icons/fa6';
 import PromotionCard from '../booth-design/decorator/mini/PromotionCard';
 import { formatCurrencyFromValue } from '../util/CurrencyDisplay';
 import { useParams, useRouter } from 'next/navigation';
 import { TbDiscount } from 'react-icons/tb';
 import ProductListModal from './ProductListModal';
 import { AuthContext } from '@/context/AuthContext';
-import { GET_GetPromotionById, POST_CreatePromotion, POST_GetPromotionByCode, PUT_UpdatePromotion } from '@/apis/promotion/PromotionAPI';
+import { GET_GetPromotionById, POST_GetPromotionByCode, PUT_UpdatePromotion } from '@/apis/promotion/PromotionAPI';
 import { FaSave } from 'react-icons/fa';
 
 const { RangePicker } = DatePicker;

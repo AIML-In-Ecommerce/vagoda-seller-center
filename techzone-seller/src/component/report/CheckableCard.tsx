@@ -1,4 +1,4 @@
-import { Card, Checkbox, CheckboxProps, ConfigProvider, message, Statistic, Tooltip } from "antd";
+import { Checkbox, ConfigProvider, message, Statistic, Tooltip } from "antd";
 import React, { useMemo, useState } from "react";
 import { TbInfoCircle } from "react-icons/tb";
 import { BiSolidUpArrow, BiSolidDownArrow } from "react-icons/bi";

@@ -5,16 +5,16 @@ import { FaPlus } from 'react-icons/fa6';
 import { HiOutlineHome } from 'react-icons/hi2';
 import CouponTable from './table/CouponTable';
 import { useRouter } from 'next/navigation';
-import { PromotionType } from '@/model/PromotionType';
+import { PromotionStatus, PromotionType } from '@/model/PromotionType';
 import { AuthContext } from '@/context/AuthContext';
-import { DELETE_DeletePromotion, GET_GetPromotionListByShop } from '@/apis/promotion/PromotionAPI';
+import { DELETE_DeletePromotion, GET_GetPromotionListByShop, PUT_UpdatePromotion } from '@/apis/promotion/PromotionAPI';
 
 export default function CouponManagementPage() {
     const context = useContext(AuthContext);
     const [loading, setLoading] = useState<boolean>(true);
     const router = useRouter();
     const [promotions, setPromotions] = useState<PromotionType[]>([]);
-    
+
     const handleAddPromotion = () => {
         router.push('/marketing-center/promotion-tool/coupons/new');
     }
@@ -37,7 +37,44 @@ export default function CouponManagementPage() {
             const response = await GET_GetPromotionListByShop(context.shopInfo?._id as string);
             if (response) {
                 const promotionListData = response.data as PromotionType[];
-                setPromotions(promotionListData);
+                // setPromotions(promotionListData);
+                //update promotion status 
+                const updatePromotionStatus = (promotion: PromotionType) => {
+                    const currentDate = new Date();
+                    const dates = [new Date(promotion.activeDate), new Date(promotion.expiredDate)]
+                    let currentDiscountStatus = promotion.status;
+
+                    if (dates && dates[0] && dates[1]) {
+                        if (currentDate < dates[0]) {
+                            currentDiscountStatus = PromotionStatus.UPCOMMING;
+                        }
+                        else if (currentDate < dates[1]) {
+                            currentDiscountStatus = PromotionStatus.IN_PROGRESS;
+                        }
+                        else {
+                            currentDiscountStatus = PromotionStatus.EXPIRED;
+                        }
+                    }
+                    else {
+                        currentDiscountStatus = PromotionStatus.UPCOMMING;
+                    }
+                    const newPromotion = {
+                        ...promotion,
+                        status: currentDiscountStatus
+                    } as PromotionType
+
+                    console.log(`promotion #${promotion._id}`, currentDate, promotion.activeDate, promotion.expiredDate, currentDiscountStatus)
+                    return newPromotion;
+                }
+                let newPromotions: PromotionType[] = [];
+                if (promotionListData && promotionListData.length > 0) {
+                    for (const promotion of promotionListData) {
+                        const newPromotion = updatePromotionStatus(promotion);
+                        newPromotions.push(newPromotion)
+                        await PUT_UpdatePromotion(context.shopInfo?._id as string, promotion._id, newPromotion)
+                    }
+                    setPromotions(newPromotions);
+                }
                 console.log('fetchPromotionList', promotionListData);
             }
         }
@@ -46,8 +83,8 @@ export default function CouponManagementPage() {
             fetchPromotions();
             setLoading(false);
         }
-    }, [context.shopInfo])
-    
+    }, [context.shopInfo]);
+
 
     return (
         <React.Fragment>
@@ -90,7 +127,7 @@ export default function CouponManagementPage() {
                     <CouponTable loading={loading}
                         promotionData={promotions}
                         handleEditPromotion={handleEditPromotion}
-                        handleDeletePromotion={handleDeletePromotion}/>
+                        handleDeletePromotion={handleDeletePromotion} />
                 </div>
             </div>
         </React.Fragment>

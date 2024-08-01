@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import RatingChart from "../RatingChart";
-import { Breadcrumb, Button, Card, DatePicker, List, Slider, Tooltip } from "antd";
+import { Breadcrumb, Button, Card, DatePicker, List, Tooltip } from "antd";
 import { HiOutlineHome } from "react-icons/hi";
 import { SlArrowRight } from "react-icons/sl";
 import { TbInfoCircle } from "react-icons/tb";

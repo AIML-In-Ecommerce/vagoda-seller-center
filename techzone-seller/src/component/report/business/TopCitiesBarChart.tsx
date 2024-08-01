@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Chart as ChartJS,
   LinearScale,
@@ -11,15 +11,11 @@ import {
   Tooltip,
   LineController,
   BarController,
-  BubbleDataPoint,
-  ChartTypeRegistry,
-  Point,
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { getProvince } from '@/apis/statistic/AddressAPI';
-import { currencyFormater } from '@/component/util/MyFormater';
-import { Currency, formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
+import { formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
 
 ChartJS.register(
   LinearScale,

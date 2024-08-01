@@ -1,23 +1,16 @@
 "use client";
-import { Affix, Breadcrumb, Divider, FormProps, message, Modal, RadioChangeEvent, Tooltip } from 'antd'
+import { Breadcrumb, message, Modal, RadioChangeEvent, Tooltip } from 'antd'
 import React, { useContext, useEffect, useState } from 'react'
 import { HiOutlineHome } from 'react-icons/hi2'
 import runes from 'runes2';
 import {
     Button,
-    Cascader,
-    Checkbox,
-    ColorPicker,
     DatePicker,
     Form,
     Input,
     InputNumber,
     Radio,
-    Select,
-    Slider,
     Switch,
-    TreeSelect,
-    Upload,
     Image,
 } from 'antd';
 import { MdInfoOutline } from 'react-icons/md';
@@ -30,7 +23,7 @@ import { FaPlus } from 'react-icons/fa6';
 import PromotionCard from '../booth-design/decorator/mini/PromotionCard';
 import { formatCurrencyFromValue } from '../util/CurrencyDisplay';
 import { useRouter } from 'next/navigation';
-import { TbDiscount, TbShoppingCartDiscount } from 'react-icons/tb';
+import { TbDiscount } from 'react-icons/tb';
 import ProductListModal from './ProductListModal';
 import { AuthContext } from '@/context/AuthContext';
 import { POST_CreatePromotion, POST_GetPromotionByCode } from '@/apis/promotion/PromotionAPI';

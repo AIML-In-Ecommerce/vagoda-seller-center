@@ -8,7 +8,7 @@ import {
 } from 'chart.js'
 
 
-import { Chart, Doughnut } from "react-chartjs-2";
+import { Chart } from "react-chartjs-2";
 import { Empty, Tag } from "antd";
 
 ChartJS.register(ArcElement, Tooltip, Legend);

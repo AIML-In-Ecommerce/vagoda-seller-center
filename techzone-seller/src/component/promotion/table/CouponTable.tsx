@@ -189,12 +189,24 @@ export default function CouponTable(props: CouponTableProps) {
     const filterData = () => {
         let data = props.promotionData;
 
+        const searchInObject = (obj: any, keyword: string) => {
+            if (typeof obj !== 'object' || obj === null) {
+                return false;
+            }
+            for (let key in obj) {
+                if (typeof obj[key] === 'object') {
+                    if (searchInObject(obj[key], keyword)) {
+                        return true;
+                    }
+                } else if (obj[key].toString().toLowerCase().includes(keyword.toLowerCase())) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         if (keyword) {
-            data = data.filter(item =>
-                Object.values(item).some(value =>
-                    value.toString().toLowerCase().includes(keyword.toLowerCase())
-                )
-            );
+            data = data.filter(item => searchInObject(item, keyword));
         }
 
         if (currentStatusValue) {

@@ -1,5 +1,5 @@
 "use client";
-import { Breadcrumb, Button, ConfigProvider, DatePicker, Empty, Radio, RadioChangeEvent, Segmented, Tabs, TabsProps } from "antd";
+import { Breadcrumb, Tabs, TabsProps } from "antd";
 import React, { useState } from "react";
 import { HiOutlineHome } from "react-icons/hi2";
 import dayjs from 'dayjs';
@@ -7,8 +7,6 @@ import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import RevenueAndVisits from "@/component/report/product/RevenueAndVisits";
 import { useRouter } from "next/navigation";
-import LowInventory from "./LowInventory";
-import LowSales from "./LowSales";
 
 dayjs.extend(LocalizedFormat)
 
