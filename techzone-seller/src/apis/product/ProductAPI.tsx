@@ -9,6 +9,9 @@ import axios from "axios";
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const PRODUCT_PORT = process.env.NEXT_PUBLIC_PRODUCT_PORT;
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${PRODUCT_PORT}`
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+
 interface Data {
   _id: string;
   name: string;
@@ -42,10 +45,7 @@ interface ProductDetailResponse {
 }
 
 export async function GET_GetProductDetail(id: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    PRODUCT_PORT?.toString() +
+  const url = (publicAPIURL +
     "/product/" +
     id
   ).toString();
@@ -101,10 +101,7 @@ interface ProductListResponse {
 }
 
 export async function POST_GetProductList(idList: string[]) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    PRODUCT_PORT?.toString() +
+  const url = (publicAPIURL +
     "/products/list"
   ).toString();
 
@@ -157,10 +154,7 @@ export async function POST_GetProductList(idList: string[]) {
 }
 
 export async function POST_GetProductListByShop(shopId: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    PRODUCT_PORT?.toString() +
+  const url = (publicAPIURL +
     "/products/filter"
   ).toString();
 

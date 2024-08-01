@@ -6,6 +6,9 @@ import axios from "axios";
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${WIDGET_PORT}`
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+
 interface WidgetListResponse {
   status: number;
   data: WidgetType[];
@@ -13,10 +16,7 @@ interface WidgetListResponse {
 }
 
 export async function POST_GetWidgetList(ids: string[]) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widgets/list"
   ).toString();
 
@@ -61,10 +61,7 @@ interface WidgetResponse {
 }
 
 export async function GET_GetWidget(id: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widget/" +
     id
   ).toString();
@@ -101,10 +98,7 @@ export async function GET_GetWidget(id: string) {
 }
 
 export async function POST_CreateWidget(props: WidgetType) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widget"
   ).toString();
 
@@ -161,10 +155,7 @@ export async function POST_CreateWidget(props: WidgetType) {
 }
 
 export async function DELETE_DeleteWidget(id: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widget/" +
     id
   ).toString();
@@ -201,10 +192,7 @@ export async function DELETE_DeleteWidget(id: string) {
 }
 
 export async function PUT_UpdateWidgetOrder(id: string, order: number) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widget/" +
     id
   ).toString();
@@ -247,10 +235,7 @@ export async function PUT_UpdateWidgetVisibility(
   id: string,
   visibility: boolean
 ) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widget/" +
     id
   ).toString();
@@ -290,10 +275,7 @@ export async function PUT_UpdateWidgetVisibility(
 }
 
 export async function PUT_UpdateWidget(data: WidgetType) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/widget/" +
     data._id
   ).toString();
@@ -349,10 +331,7 @@ export async function dataUrlToFile(
 }
 
 export async function POST_GetPath(image: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/upload"
   ).toString();
 

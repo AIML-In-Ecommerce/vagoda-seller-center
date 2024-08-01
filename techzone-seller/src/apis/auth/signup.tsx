@@ -16,7 +16,7 @@ const accountType = "SHOP"
 export async function POST_SignUpByEmailPassword(props: SignUpProps)
 {
     // const API_URL: string = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_AUTH_PORT}`
-    const API_URL: string = `${process.env.NEXT_PUBLIC_S_BACKEND_PREFIX}`
+    const API_URL: string = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
     const url = API_URL + "/auth/register/"
     
     const requestBody = 

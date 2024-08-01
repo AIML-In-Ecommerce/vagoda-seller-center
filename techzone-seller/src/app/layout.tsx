@@ -22,8 +22,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="w-full">
         <AuthContextProvider>
           {/* <SocketProvider> */}
-          <NotificationContextProvider>{children}</NotificationContextProvider>
-
+            {children}
           {/* </SocketProvider> */}
         </AuthContextProvider>
       </body>

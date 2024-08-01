@@ -7,6 +7,9 @@ const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const PROMOTION_PORT = process.env.NEXT_PUBLIC_PROMOTION_PORT;
 const GATEWAY_PREFIX = process.env.NEXT_PUBLIC_GATEWAY_PREFIX;
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${PROMOTION_PORT}`
+const publicAPIURL = `${GATEWAY_PREFIX}`
+
 interface PromotionListResponse {
   status: number;
   data: PromotionType[];
@@ -20,10 +23,7 @@ interface PromotionSingleResponse {
 }
 
 export async function POST_GetPromotionList(ids: string[]) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    PROMOTION_PORT?.toString() +
+  const url = (publicAPIURL +
     "/promotions/list"
   ).toString();
 
@@ -63,10 +63,7 @@ export async function POST_GetPromotionList(ids: string[]) {
 }
 
 export async function GET_GetAllPromotions() {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    PROMOTION_PORT?.toString() +
+  const url = (publicAPIURL +
     "/promotions"
   ).toString();
 
@@ -110,7 +107,7 @@ export async function GET_GetPromotionListByShop(shopId: string) {
   //   shopId
   // ).toString();
   const url = (
-    GATEWAY_PREFIX?.toString() +
+    publicAPIURL +
     "/promotion/shop/all?shopId=" +
     shopId
   ).toString();
@@ -150,7 +147,7 @@ export async function POST_CreatePromotion(
   shopId: string,
   promotion: PromotionType
 ) {
-  const url = `${GATEWAY_PREFIX}/promotion/seller/create?shopId=${shopId}`;
+  const url = `${publicAPIURL}/promotion/seller/create?shopId=${shopId}`;
 
   try {
     // console.log(url);
@@ -199,7 +196,7 @@ export async function PUT_UpdatePromotion(
   promotionId: string,
   promotion: PromotionType
 ) {
-  const url = `${GATEWAY_PREFIX}/promotion/seller/update?shopId=${shopId}&promotionId=${promotionId}`;
+  const url = `${publicAPIURL}/promotion/seller/update?shopId=${shopId}&promotionId=${promotionId}`;
 
   try {
     // console.log(url);
@@ -248,7 +245,7 @@ export async function DELETE_DeletePromotion(
   shopId: string,
   promotionId: string
 ) {
-  const url = `${GATEWAY_PREFIX}/promotion/seller/delete?shopId=${shopId}&promotionId=${promotionId}`;
+  const url = `${publicAPIURL}/promotion/seller/delete?shopId=${shopId}&promotionId=${promotionId}`;
 
   try {
     // console.log(url);
@@ -282,7 +279,7 @@ export async function DELETE_DeletePromotion(
 }
 
 export async function POST_GetPromotionByCode(shopId: string, code: string) {
-  const url = `${GATEWAY_PREFIX}/promotion/codes?shopId=${shopId}`;
+  const url = `${publicAPIURL}/promotion/codes?shopId=${shopId}`;
 
   try {
     // console.log(url);
@@ -321,7 +318,7 @@ export async function GET_GetPromotionById(
   shopId: string,
   promotionId: string
 ) {
-  const url = `${GATEWAY_PREFIX}/promotion/info?promotionId=${promotionId}`;
+  const url = `${publicAPIURL}/promotion/info?promotionId=${promotionId}`;
 
   try {
     // console.log(url);

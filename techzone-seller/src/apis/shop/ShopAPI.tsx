@@ -6,6 +6,9 @@ import { POST_GetPath } from "../widget/WidgetAPI";
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const SHOP_PORT = process.env.NEXT_PUBLIC_SHOP_PORT;
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${SHOP_PORT}`
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+
 interface ShopResponse {
   status: number;
   data: ShopType;
@@ -13,10 +16,7 @@ interface ShopResponse {
 }
 
 export async function GET_GetShop(id: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    SHOP_PORT?.toString() +
+  const url = (publicAPIURL +
     "/shop/" +
     id
   ).toString();
@@ -54,10 +54,7 @@ export async function GET_GetShop(id: string) {
 
 // update widgets
 export async function PUT_UpdateShopDesign(id: string, design: string[]) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    SHOP_PORT?.toString() +
+  const url = (publicAPIURL +
     "/shop/" +
     id
   ).toString();
@@ -102,10 +99,7 @@ export async function PUT_UpdateShopInfoDesign(
   id: string,
   shopInfoDesign: ShopInfoDesignType
 ) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    SHOP_PORT?.toString() +
+  const url = (publicAPIURL +
     "/shop/" +
     id
   ).toString();
@@ -171,10 +165,7 @@ export async function PUT_UpdateShopInfoDesign(
 }
 
 export async function PUT_AddImageCollection(id: string, image_link: string) {
-  const URL = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    SHOP_PORT?.toString() +
+  const URL = (publicAPIURL +
     "/shop/addImgCollection/" +
     id
   ).toString();
@@ -192,10 +183,7 @@ export async function PUT_RemoveImageCollection(
   id: string,
   image_link: string
 ) {
-  const URL = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    SHOP_PORT?.toString() +
+  const URL = (publicAPIURL +
     "/shop/removeImgCollection/" +
     id
   ).toString();

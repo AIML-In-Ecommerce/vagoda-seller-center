@@ -7,6 +7,9 @@ import { POST_GetPath } from "../widget/WidgetAPI";
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
 const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${WIDGET_PORT}`
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+
 interface CollectionResponse {
   status: number;
   data: CollectionType;
@@ -14,10 +17,7 @@ interface CollectionResponse {
 }
 
 export async function GET_GetCollection(id: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/collectionType/" +
     id
   ).toString();
@@ -54,10 +54,7 @@ export async function GET_GetCollection(id: string) {
 }
 
 export async function POST_CreateCollection(props: CollectionType) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/collectionType"
   ).toString();
 
@@ -119,10 +116,7 @@ export async function POST_CreateCollection(props: CollectionType) {
 }
 
 export async function DELETE_DeleteCollection(id: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/collectionType/" +
     id
   ).toString();
@@ -159,10 +153,7 @@ export async function DELETE_DeleteCollection(id: string) {
 }
 
 export async function PUT_UpdateCollection(props: CollectionType) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/collectionType/" +
     props._id
   ).toString();
@@ -231,10 +222,7 @@ interface CollectionListResponse {
 }
 
 export async function GET_GetCollectionListByShop(shopId: string) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/collectionTypes/shop/" +
     shopId
   ).toString();
@@ -271,10 +259,7 @@ export async function GET_GetCollectionListByShop(shopId: string) {
 }
 
 export async function POST_GetCollectionList(ids: string[]) {
-  const url = (
-    BACKEND_PREFIX?.toString() +
-    ":" +
-    WIDGET_PORT?.toString() +
+  const url = (publicAPIURL +
     "/collectionTypes/list"
   ).toString();
 
