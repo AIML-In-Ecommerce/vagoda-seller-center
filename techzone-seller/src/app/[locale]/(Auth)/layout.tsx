@@ -29,7 +29,6 @@ export default function AuthLayout({
   params: { locale },
 }: AuthLayoutProps) {
   const messages = useMessages();
-  const notificationContext = useContext(NotificationContext)
 
   if (!locales.includes(locale as any)) notFound();
   return (
@@ -39,7 +38,6 @@ export default function AuthLayout({
           {/* <AuthProvider>
             <RecoveryProvider>{children}</RecoveryProvider>
           </AuthProvider> */}
-          {notificationContext?.notificationContextHolder}
           {children}
         </NextIntlClientProvider>
       </body>

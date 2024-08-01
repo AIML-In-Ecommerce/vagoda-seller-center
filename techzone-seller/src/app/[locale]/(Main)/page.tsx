@@ -1,3 +1,5 @@
+'use client';
+
 import HomePage from "@/component/home/HomePage";
 import React from "react";
 
