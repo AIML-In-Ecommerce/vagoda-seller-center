@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_CATEGORY_PORT}`;
+// const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_CATEGORY_PORT}`;
+
+const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
 
 export const CategoryAPI = {
   getAllCategories: async () => {

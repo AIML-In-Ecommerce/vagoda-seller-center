@@ -1,7 +1,9 @@
 import axios from "axios";
 import FormData from "form-data";
 
-const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_WIDGET_PORT}`;
+// const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_BACKEND_PREFIX}:${process.env.NEXT_PUBLIC_WIDGET_PORT}`;
+const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+
 
 export const UploadAPI = {
   getURLImage: async (data: FormData) => {
