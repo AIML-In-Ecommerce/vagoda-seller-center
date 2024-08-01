@@ -4,6 +4,7 @@ import GenAiFormModal from "@/component/Product/GenAiFormModal";
 import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 import GenAiResultModal from "@/component/Product/GenAiResultModal";
 import { Modal } from "antd";
+import axios from "axios";
 import { useRef, useState } from "react";
 
 interface GenAiResultModalProp {
@@ -30,34 +31,34 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
       garmentImgUrl: values.imageLink,
     };
 
-    // try {
-    //   console.log("Post body:  ", postBody);
-    //   const response = await axios.post(
-    //     "http://localhost:8000/genai/generate-product-image",
-    //     postBody,
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     },
-    //   );
-
-    //   if (response.status == 200) {
-    //     console.log("Response: ", response);
-    //     const imageUrl = response.data.data.genaiProductImage[0];
-    //     setGeneratedImageUrl(imageUrl);
-    //     setGenAiStatus("COMPLETED");
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching generate product image:", error);
-    // }
-
-    setTimeout(() => {
-      setGeneratedImageUrl(
-        "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg"
+    try {
+      console.log("Post body:  ", postBody);
+      const response = await axios.post(
+        "http://localhost:8000/genai/generate-product-image",
+        postBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
       );
-      setGenAiStatus("COMPLETED");
-    }, 3000);
+
+      if (response.status == 200) {
+        console.log("Response: ", response);
+        const imageUrl = response.data.data.genaiProductImage[0];
+        setGeneratedImageUrl(imageUrl);
+        setGenAiStatus("COMPLETED");
+      }
+    } catch (error) {
+      console.error("Error fetching generate product image:", error);
+    }
+
+    // setTimeout(() => {
+    //   setGeneratedImageUrl(
+    //     "https://res.cloudinary.com/dgsrxvev1/image/upload/v1716443927/thun_n0jgqa.jpg"
+    //   );
+    //   setGenAiStatus("COMPLETED");
+    // }, 3000);
   };
 
   const openPreview = (image: string) => {

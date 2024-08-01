@@ -1,0 +1,51 @@
+.progress {
+  position: relative;
+  display: flex;
+}
+.progress:before,
+.progress:after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  position: relative;
+  margin: 0 1.25px;
+  border-radius: 50%;
+  color: #fff;
+  background: currentColor;
+  box-shadow: 20px 0;
+  animation: left 1s infinite ease-in-out;
+}
+.progress:after {
+  color: #ff3d00;
+  animation: right 1s infinite ease-in-out;
+}
+
+@keyframes right {
+  0%,
+  100% {
+    transform: translateY(-6px);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes left {
+  0%,
+  100% {
+    transform: translateY(6px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.markdown a {
+  color: rgb(55, 48, 48) !important;
+  font-weight: 600;
+}
+
+.markdown a:hover {
+  text-decoration: underline;
+}

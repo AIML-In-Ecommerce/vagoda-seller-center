@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import AuthContextProvider from "@/context/AuthContext";
-import NotificationContextProvider from "@/context/NotificationContext";
 import { ReactNode } from "react";
 import "./globals.css";
 
@@ -22,8 +21,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="w-full">
         <AuthContextProvider>
           {/* <SocketProvider> */}
-          <NotificationContextProvider>{children}</NotificationContextProvider>
-
+            {children}
           {/* </SocketProvider> */}
         </AuthContextProvider>
       </body>

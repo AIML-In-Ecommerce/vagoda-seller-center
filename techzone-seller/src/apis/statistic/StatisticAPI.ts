@@ -1,8 +1,11 @@
 import axios from "axios";
 
-// const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
-// const STATISTICS_PORT = process.env.NEXT_PUBLIC_STATISTICS_PORT;
+const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
+const STATISTICS_PORT = process.env.NEXT_PUBLIC_STATISTICS_PORT;
 const GATEWAY_PREFIX = process.env.NEXT_PUBLIC_GATEWAY_PREFIX;
+
+// const publicAPIURL = `${BACKEND_PREFIX}:${STATISTICS_PORT}`
+const publicAPIURL = `${GATEWAY_PREFIX}`
 
 interface StatisticResponse {
   status: number;
@@ -189,7 +192,7 @@ export async function POST_getTopProductsInSales(
   startTime: Date,
   endTime: Date
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/top/in_sales?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/top/in_sales?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -230,7 +233,7 @@ export async function POST_getTopCitiesInSales(
   endTime: Date,
   amount?: number
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/shop/top_city_in_sales?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/shop/top_city_in_sales?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -272,7 +275,7 @@ export async function POST_getOrderStatistics(
   startTime: Date,
   endTime: Date
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/latest_status?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/order/latest_status?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -314,7 +317,7 @@ export async function POST_getTotalSales(
   endTime: Date,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/shop/sales/total?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/shop/sales/total?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -356,7 +359,7 @@ export async function POST_getTotalRecievedOrders(
   endTime: Date,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/received?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/order/received?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -399,7 +402,7 @@ export async function POST_getTotalLateTimeOrders(
   isAscending?: boolean,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/late_pending_processing?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/order/late_pending_processing?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -443,7 +446,7 @@ export async function POST_getTotalOnTimeOrders(
   endTime: Date,
   isAscending?: boolean
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/on_time_pending_processing?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/order/on_time_pending_processing?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -487,7 +490,7 @@ export async function POST_getTotalProcessOrders(
   isAscending?: boolean,
   step?: string,
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/on_waiting_pending_processing?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/order/on_waiting_pending_processing?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -532,7 +535,7 @@ export async function POST_getConversionRateStats(
   endTime: Date,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/shop/conversion/view_and_sales?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/shop/conversion/view_and_sales?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -578,7 +581,7 @@ export async function POST_getReviewStatistics(
   useReviewInfo?: boolean,
   useProductInfo?: boolean
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/reviews?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/reviews?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -619,7 +622,7 @@ export async function POST_getReviewStatistics(
 
 //Shop performance
 export async function GET_getShopPerformanceStatistics(shopId: string) {
-  const url = `${GATEWAY_PREFIX}/shop_info/shopDetail?shopId=${shopId}`;
+  const url = `${publicAPIURL}/shop_info/shopDetail?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.get(url);
@@ -658,7 +661,7 @@ export async function POST_getReturnRateOfCustomers(
   endTime?: Date,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/shop/returning_rate?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/shop/returning_rate?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -703,7 +706,7 @@ export async function POST_getProductViewers(
   accessType?: string,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/views_viewers?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/views_viewers?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -748,7 +751,7 @@ export async function POST_getAddToCartRatio(
   startTime: Date | number,
   endTime: Date | number
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -791,7 +794,7 @@ export async function POST_getAddToCartAmount(
   startTime: Date | number,
   endTime: Date | number
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/ratio/add_to_cart?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -835,7 +838,7 @@ export async function POST_getSoldAmountOfProducts(
   endTime: Date | number,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/sold_amount/detail?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/sold_amount/detail?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -880,7 +883,7 @@ export async function POST_getOrderStatisticsWithStatus(
   step?: string,
   isAscending?: boolean
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/order/status?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/order/status?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {
@@ -926,7 +929,7 @@ export async function POST_getAmountBuyerOfProducts(
   endTime: Date | number,
   step?: string
 ) {
-  const url = `${GATEWAY_PREFIX}/statistics/product/amount_of_buyers?shopId=${shopId}`;
+  const url = `${publicAPIURL}/statistics/product/amount_of_buyers?shopId=${shopId}`;
   try {
     // console.log(url);
     const response = await axios.post(url, {

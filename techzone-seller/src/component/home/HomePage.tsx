@@ -1,6 +1,6 @@
 "use client";
 import { getPreviousWeekDateRange } from "@/utils/DateFormatter"
-import { Rate, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Card, Tag } from "antd"
+import { Rate, Select, Table, TableColumnsType, Tooltip, DatePicker, DatePickerProps, Card, Tag, Spin } from "antd"
 import React, { useContext, useEffect, useState, useMemo } from "react"
 import { FaRegCalendarAlt, FaStar, FaBookmark } from "react-icons/fa"
 import { BEChart } from "./BusinessEfficiencyChart"
@@ -528,6 +528,16 @@ export default function HomePage() {
 
     }, [orderStatistics, totalBadRatingProduct]);
 
+    function handleUpdateTotalOrderQuantityCallback(total: number)
+    {
+        setTotalOrderQuantity(total)
+    }
+
+    function handleUpdateTotalRevenueCallback(total: number)
+    {
+        setTotalRevenue(total)
+    }
+
     return (
         <React.Fragment>
             <div className="container flex flex-col px-4 md:px-8 lg:px-12 xl:px-16 mx-auto">
@@ -540,7 +550,7 @@ export default function HomePage() {
                         contents={
                             bannerContent.map((item, key) => {
                                 return (
-                                    <Link href={item.urlRedirect}>
+                                    <Link key={key} href={item.urlRedirect}>
                                         <div key={key} className="bg-sky-600 h-[240px] rounded-lg">
                                             <div className="lg:grid lg:grid-cols-2 p-10 m-5">
                                                 <div className="text-2xl font-semibold text-white text-center">{item.title}</div>
@@ -716,8 +726,8 @@ export default function HomePage() {
                                     <BEChart filterBy={filterValue}
                                         dateRange={Array.from(DayjsToDate(selectedDates))}
                                         orders={orders}
-                                        setTotalOrderQuantity={setTotalOrderQuantity}
-                                        setTotalRevenue={setTotalRevenue} />
+                                        setTotalOrderQuantity={handleUpdateTotalOrderQuantityCallback}
+                                        setTotalRevenue={handleUpdateTotalRevenueCallback} />
                                 </div>
                             </div>
                         </div>

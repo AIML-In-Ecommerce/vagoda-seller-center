@@ -14,6 +14,7 @@ import { ItemType } from "antd/es/breadcrumb/Breadcrumb";
 import { HiOutlineHome } from "react-icons/hi2";
 import OrderService from "@/services/order.service";
 import { AuthContext } from "@/context/AuthContext";
+import { NotificationContext } from "@/context/NotificationContext";
 
 interface OrderTabsProps {}
 
@@ -66,6 +67,7 @@ export default function OrderTabs({}: OrderTabsProps) {
 
   const [breadcrumbItems, setBreadcrumbItems] = useState<ItemType[]>(defaultBreadcrumbItems)
 
+  const notificationContext = useContext(NotificationContext)
 
   const tabs = [
     {
@@ -373,6 +375,7 @@ export default function OrderTabs({}: OrderTabsProps) {
   return (
     <>
       <div className="w-full h-screen bg-white px-4 rounded-lg">
+        {notificationContext?.notificationContextHolder}
         <Flex
           vertical
           className="w-full mb-4 py-2"

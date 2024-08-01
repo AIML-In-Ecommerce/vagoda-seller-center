@@ -3,14 +3,16 @@ import axios from "axios"
 
 const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX
 const SERVICE_PORT = process.env.NEXT_PUBLIC_ORDER_PORT
-const API_URL: string = `${process.env.NEXT_PUBLIC_S_BACKEND_PREFIX}`
+// const API_URL: string = `${process.env.NEXT_PUBLIC_S_BACKEND_PREFIX}`
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${SERVICE_PORT}`
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
 
 const OrderAPI =
 {
     async getOrdersByShopId(shopId: string, targetOrderStatus: string)
     {
-        const url = `${API_URL}/order/seller/orders`
+        const url = `${publicAPIURL}/order/seller/orders`
 
         try
         {
@@ -39,7 +41,7 @@ const OrderAPI =
 
     async updateOnOrderStatus(shopId: string, orderId: string, specStatusCode: string | undefined)
     {
-        const url = `${API_URL}/order/seller/status/update_one`
+        const url = `${publicAPIURL}/order/seller/status/update_one`
         const requestBody = 
         {
             orderId: orderId,
@@ -79,7 +81,7 @@ const OrderAPI =
     {
         try
         {
-            const url = `${API_URL}/order/seller/status/update_many`
+            const url = `${publicAPIURL}/order/seller/status/update_many`
             const requestBody = 
             {
                 orderIds: orderIds,

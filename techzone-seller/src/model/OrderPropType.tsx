@@ -42,11 +42,9 @@ export interface ProductInOrder
 export interface PromotionInOrder
 {
     _id: string,
-    shop: string,
     name: string,
-    discountType: string,
-    discountValue: number,
-    expiredDate: EpochTimeStamp
+    type: string,
+    value: number
 }
 
 export const PromotionTypeConvention = 

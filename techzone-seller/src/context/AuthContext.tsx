@@ -36,23 +36,23 @@ export interface AuthContextFunctions
     getAccessToken: () => string | null
 }
 
-function initLoading()
-{
-  const storageInfo = localStorage.getItem(authLocalStorageID)
-  if(storageInfo != null)
-  {
-    return JSON.parse(storageInfo) as ShopInfoType
-  }
-  else
-  {
-    return null
-  }
-}
+// function initLoading()
+// {
+//   const storageInfo = localStorage.getItem(authLocalStorageID)
+//   if(storageInfo != null)
+//   {
+//     return JSON.parse(storageInfo) as ShopInfoType
+//   }
+//   else
+//   {
+//     return null
+//   }
+// }
 
 
 const defaultContextValue: AuthContextProps = 
 {
-    shopInfo: initLoading(),
+    shopInfo: null,
     methods: null,
 }
 
@@ -126,7 +126,13 @@ export default function AuthContextProvider({children}: AuthContextProviderInitP
 
     function getAccessToken()
     {
-        return Cookies.get(accessTokenCookieKey)
+        const storageToken = Cookies.get(accessTokenCookieKey)
+        if(storageToken == undefined)
+        {
+            return null
+        }
+        
+        return storageToken
     }
 
     async function refreshToken()

@@ -6,6 +6,9 @@ const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX
 const USER_PORT = process.env.NEXT_PUBLIC_USER_PORT
 const GATEWAY_PREFIX = process.env.NEXT_PUBLIC_GATEWAY_PREFIX
 
+// const publicAPIURL = `${BACKEND_PREFIX}:${USER_PORT}`
+const publicAPIURL = `${GATEWAY_PREFIX}`
+
 export interface ShippingAddress {
     street: string;
     idProvince: string;
@@ -78,7 +81,7 @@ export function getFullAddress(address: Address): string {
 }
 
 export async function GET_getUserShippingAddress(userId: string) {
-    const url = `${GATEWAY_PREFIX}/user_info/shipping_address?userId=${userId}`
+    const url = `${publicAPIURL}/user_info/shipping_address?userId=${userId}`
     try {
         const response = await axios.get(url);
         if (userId == null) {
@@ -99,7 +102,7 @@ export async function GET_getUserShippingAddress(userId: string) {
 }
 
 export async function POST_addUserShippingAddress(userId: string, shippingAddress: ShippingAddress) {
-    const url = `${GATEWAY_PREFIX}/user_info/shipping_address?userId=${userId}`
+    const url = `${publicAPIURL}/user_info/shipping_address?userId=${userId}`
     try {
         const response = await axios.post(url, {
             "street": shippingAddress.street,
@@ -131,7 +134,7 @@ export async function POST_addUserShippingAddress(userId: string, shippingAddres
 }
 
 export async function PUT_updateUserShippingAddress(userId: string, shippingAddress: ShippingAddress) {
-    const url = `${GATEWAY_PREFIX}/user_info/shipping_address?userId=${userId}&targetId=${shippingAddress._id}`;
+    const url = `${publicAPIURL}/user_info/shipping_address?userId=${userId}&targetId=${shippingAddress._id}`;
     try {
         const response = await axios.put(url, {
             "street": shippingAddress.street,
@@ -161,7 +164,7 @@ export async function PUT_updateUserShippingAddress(userId: string, shippingAddr
 }
 
 export async function DELETE_removeUserShippingAddress(userId: string, _id: string) {
-    const url = `${GATEWAY_PREFIX}/user_info/shipping_address?userId=${userId}&targetId=${_id}`;
+    const url = `${publicAPIURL}/user_info/shipping_address?userId=${userId}&targetId=${_id}`;
     try {
         const response = await axios.delete(url);
         if (userId === null) {
