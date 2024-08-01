@@ -41,6 +41,10 @@ export default function PromotionCard(props: PromotionCardProps) {
     } else props.removeDiscount(props.item);
   }, [isSelected]);
 
+  const checkExpiredDate = (expiredDate: Date) => {
+    return new Date(expiredDate).getTime() - Date.now() > 0;
+  };
+
   return (
     <div
       className="h-auto select-none grid"
@@ -124,15 +128,19 @@ export default function PromotionCard(props: PromotionCardProps) {
         </div>
         <div className="absolute right-1 bottom-2 z-10 text-xs">
           {!props.isSelected ? (
-            <Button
-              className="w-24 bg-sky-500 text-white font-semibold text-center"
-              onClick={() => props.applyDiscount(props.item)}
-            >
-              Áp dụng
-            </Button>
+            <span>
+              {checkExpiredDate(props.item.expiredDate) && (
+                <Button
+                  className="w-20 bg-sky-500 text-white font-semibold text-center"
+                  onClick={() => props.applyDiscount(props.item)}
+                >
+                  Áp dụng
+                </Button>
+              )}
+            </span>
           ) : (
             <Button
-              className="w-24 bg-gray-500 text-white font-semibold text-center"
+              className="w-20 bg-gray-500 text-white font-semibold text-center"
               onClick={() => props.removeDiscount(props.item)}
             >
               Hủy

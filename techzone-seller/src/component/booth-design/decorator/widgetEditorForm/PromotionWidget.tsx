@@ -134,6 +134,24 @@ export default function PromotionWidget(props: WidgetProps) {
     props.setSaveStatus(saveStatus);
   }, [title, proxyPromotionId, isSwitched]);
 
+  const searchInObject = (obj: any, keyword: string) => {
+    if (typeof obj !== "object" || obj === null) {
+      return false;
+    }
+    for (let key in obj) {
+      if (typeof obj[key] === "object") {
+        if (searchInObject(obj[key], keyword)) {
+          return true;
+        }
+      } else if (
+        obj[key].toString().toLowerCase().includes(keyword.toLowerCase())
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   return (
     <div className="m-5 pb-5 h-[500px] overflow-y-auto overflow-x-hidden">
       <div className="m-5 text-2xl font-semibold flex justify-between">
@@ -219,11 +237,8 @@ export default function PromotionWidget(props: WidgetProps) {
                   {searchText && (
                     <span>
                       {
-                        promotions.filter((p) =>
-                          p.name
-                            .toLowerCase()
-                            .includes(searchText.toLowerCase())
-                        ).length
+                        promotions.filter((p) => searchInObject(p, searchText))
+                          .length
                       }{" "}
                     </span>
                   )}
@@ -240,10 +255,7 @@ export default function PromotionWidget(props: WidgetProps) {
                         className={`${
                           searchText === ""
                             ? ""
-                            : searchText &&
-                              !item.name
-                                .toLowerCase()
-                                .includes(searchText.toLowerCase())
+                            : searchText && !searchInObject(item, searchText)
                             ? "hidden"
                             : ""
                         }
