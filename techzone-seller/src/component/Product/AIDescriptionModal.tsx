@@ -29,6 +29,8 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const ref = useRef(null);
 
+  const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
+
   useEffect(() => {
     import("@lottiefiles/lottie-player");
   });
@@ -43,13 +45,13 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
 
     try {
       const rawResponse = await axios.post(
-        "http://54.255.29.11/genai/generate-product-description",
+        `${AI_DOMAIN}/genai/generate-product-description`,
         postBody,
         {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
       if (rawResponse.status == 200) {
         setDescription(rawResponse.data.data);
@@ -61,9 +63,9 @@ export default function AIDescriptionModal(props: AIDescriptionModalProp) {
   };
 
   useEffect(() => {
-    //getDescriptionFromAI(props.shortDescription);
-    setDescription(mockdata);
-    setIsLoading(false);
+    getDescriptionFromAI(props.shortDescription);
+    // setDescription(mockdata);
+    // setIsLoading(false);
   }, [props.isOpen]);
 
   const displayLoading = (

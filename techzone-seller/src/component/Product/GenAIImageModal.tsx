@@ -20,6 +20,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
+  const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
 
   const handleFormSubmit = async (values: any) => {
     setGenAiStatus("IN_PROGRESS");
@@ -34,7 +35,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
     try {
       console.log("Post body:  ", postBody);
       const response = await axios.post(
-        "http://localhost:8000/genai/generate-product-image",
+        `${AI_DOMAIN}/genai/generate-product-image`,
         postBody,
         {
           headers: {
