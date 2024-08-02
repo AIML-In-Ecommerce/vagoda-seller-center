@@ -302,8 +302,8 @@ export default function AuthForm(props: AuthFormProps) {
       >
         <Link href={"/"} prefetch={false} className="text-center">
           <div className="flex justify-center items-center">
-            <VagodaIcon width={50} height={50} color={"black"} />
-            <VagodaText width={100} height={30} color={"black"}/>
+            <VagodaIcon width={60} height={60} color={"black"} />
+            <VagodaText width={150} height={40} color={"black"}/>
           </div>
         </Link>
 
