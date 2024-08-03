@@ -37,7 +37,7 @@ export default function CheckableCard(props: CheckableCardProps) {
     const absPercentChange = useMemo<number>(() => {
         const result = isIncreasing ? props.item?.percentChange : (-1) * props.item?.percentChange;
         return result;
-    }, [isIncreasing]);
+    }, [props.item?.percentChange, isIncreasing]);
 
     const isNumber = useMemo<boolean>(() => {
         return typeof absPercentChange === 'number' && isFinite(absPercentChange);
