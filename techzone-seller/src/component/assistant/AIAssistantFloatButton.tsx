@@ -14,7 +14,14 @@ import {
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import TextArea from "antd/es/input/TextArea";
-import { ChangeEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { BiRefresh, BiSupport } from "react-icons/bi";
 import {
   IoCloseOutline,
@@ -308,7 +315,7 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
   const userInputRef = useRef<string>("");
   const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN as string;
 
-  const authContext = useContext(AuthContext)
+  const authContext = useContext(AuthContext);
 
   const sendClick = () => {
     if (buttonRef.current) {
@@ -338,17 +345,13 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
     }
   }
 
-  const userInfo = useMemo(() =>
-  {
-    if(authContext.shopInfo == null)
-    {
-      return null
+  const userInfo = useMemo(() => {
+    if (authContext.shopInfo == null) {
+      return null;
+    } else {
+      return authContext.shopInfo as ShopInfoType;
     }
-    else
-    {
-      return authContext.shopInfo as ShopInfoType
-    }
-  }, [authContext.shopInfo])
+  }, [authContext.shopInfo]);
 
   const greetingLottie = (
     <lottie-player
@@ -677,7 +680,7 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
 
     setUserInput(undefined);
 
-    let prompt = "USER_ID " + " " + userInfo?._id + ": " + message.message;
+    let prompt = "SHOP_ID " + " " + userInfo?._id + ": " + message.message;
 
     const postBody = {
       history_conservation: history_conservation,
@@ -692,7 +695,7 @@ export default function AIAssistantFloatButton({}: AIAssistantFloatButtonProps) 
       setAiState("THINKING");
 
       const rawResponse = await axios.post(
-        `${AI_DOMAIN}/chat/agent`,
+        `${AI_DOMAIN}/chat/agent/seller-center`,
         postBody,
         {
           headers: {
