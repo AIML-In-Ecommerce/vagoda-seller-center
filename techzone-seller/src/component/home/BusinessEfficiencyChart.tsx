@@ -20,6 +20,7 @@ import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
 import { AuthContext } from '@/context/AuthContext';
 import { Order, OrderStatusType } from '@/apis/statistic/StatisticAPI';
 import { Spin } from 'antd';
+import { formatCurrencyFromValue } from '../util/CurrencyDisplay';
 
 ChartJS.register(
     LinearScale,
@@ -174,7 +175,7 @@ const getTotalQuantitiesInRange = (orders: Order[], startDate: Date, endDate: Da
             Math.ceil(step / 29) : filterBy === 'quarter' ?
                 Math.ceil(step / 29) * 3 : Math.ceil(Math.ceil(step / 29) / 12);
     // console.log(`step ${filterBy}`, step);
-    let currentDate = new Date(startDate);  
+    let currentDate = new Date(startDate);
     let dateAfterStep = getDateAfterStep(currentDate, step, filterBy);
     // console.log('current vs after', currentDate, dateAfterStep);
     while (currentDate <= endDate) {
@@ -211,7 +212,7 @@ const getTotalPriceFromSpecificDate = (orders: Order[], specificDate: Date): num
 
     const totalPrices = filterSpecificDateOrders.reduce(
         (accumulator, currentOrder) => accumulator + currentOrder.totalPrice
-    , initialPrice);
+        , initialPrice);
 
     return totalPrices;
 };
@@ -243,7 +244,7 @@ const getTotalPricesInRange = (orders: Order[], startDate: Date, endDate: Date, 
         currentDate = new Date(dateAfterStep);
         dateAfterStep = getDateAfterStep(dateAfterStep, step, filterBy); // Get the date after step
     }
-    
+
     return totalPrices;
 };
 
@@ -257,20 +258,20 @@ export function BEChart(props: BEChartProps) {
     // Generate 1000 random products
     // const [products, setProducts] = useState<Product[]>([]);
 
-    const onLoadingDisplay = 
+    const onLoadingDisplay =
         <div className="w-full flex justify-center items-center">
-            <Spin size={"large"}/>
+            <Spin size={"large"} />
         </div>
 
     const [chartDisplay, setChartDisplay] = useState<JSX.Element>(onLoadingDisplay)
     const [orders, setOrders] = useState<Order[]>(props.orders);
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
-    
+
 
     const dateFrom = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[0] ?? defaultStartDate : defaultStartDate;
     }, [props.dateRange]);
-    
+
     const dateTo = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[1] ?? defaultEndDate : defaultEndDate;
     }, [props.dateRange]);
@@ -308,6 +309,14 @@ export function BEChart(props: BEChartProps) {
                     fill: false,
                     data: quantityData,
                     yAxisID: 'y',
+                    tension: 0.25,
+                    tooltip: {
+                        callbacks: {
+                            label: function (context: { label: any; parsed: { y: any; }; }) {
+                                return `Đơn hàng: ${context.parsed.y} đơn`;
+                            }
+                        }
+                    }
 
                 },
                 {
@@ -318,6 +327,14 @@ export function BEChart(props: BEChartProps) {
                     borderColor: 'white',
                     borderWidth: 2,
                     yAxisID: 'y1',
+                    tension: 0.25,
+                    tooltip: {
+                        callbacks: {
+                            label: function (context: { label: any; parsed: { y: any; }; }) {
+                                return `Doanh thu: ${formatCurrencyFromValue({ value: context.parsed.y })} `;
+                            }
+                        }
+                    }
                 },
             ],
         };
@@ -348,9 +365,9 @@ export function BEChart(props: BEChartProps) {
                 display: true,
                 position: 'left' as const,
                 ticks: {
-                    // callback: function (val: any, index: any) {
-                    //     return index % 2 === 0 ? val : '';
-                    // },
+                    callback: function (val: any, index: any) {
+                        return Number.isInteger(val) ? `${val}` : '';
+                    },
                 }
 
             },
@@ -386,8 +403,7 @@ export function BEChart(props: BEChartProps) {
         }
     }, [props.orders])
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         const newChartDisplay = <Chart type='bar' data={data} options={options} />
 
         setChartDisplay(newChartDisplay)

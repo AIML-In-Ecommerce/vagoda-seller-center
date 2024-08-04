@@ -109,7 +109,7 @@ export default function Auth() {
                       width: "100%"
                     }}/>
 
-                    <div className="absolute top-0 overflow-hidden hidden md:block z-20 w-full">
+                    {/* <div className="absolute top-0 overflow-hidden hidden md:block z-20 w-full">
                       <div className="flex justify-center items-center w-full"
                         style={{
                           height: `calc(100dvh/100*85)`
@@ -128,7 +128,7 @@ export default function Auth() {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
 
                   </div>
                 </div>

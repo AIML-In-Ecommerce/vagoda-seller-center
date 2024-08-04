@@ -140,7 +140,7 @@ export default function BusinessPerformancePage() {
         const result: BPCategory[] = [
             {
                 title: "Doanh số",
-                value: currentPeriod?.sales.totalRevenue || 0,
+                value: roundTo2DecimalPlaces(currentPeriod?.sales.totalRevenue || 0),
                 percentChange: totalRevenuePecentChanges,
                 suffix: "đ",
                 tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
@@ -149,7 +149,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Đơn hàng",
-                value: currentPeriod?.sales.totalOrders || 0,
+                value: roundTo2DecimalPlaces(currentPeriod?.sales.totalOrders || 0),
                 percentChange: totalOrdersPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
                 color: '#f97316',
@@ -157,7 +157,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Doanh thu thuần",
-                value: currentPeriod?.sales.totalProfit || 0,
+                value: roundTo2DecimalPlaces(currentPeriod?.sales.totalProfit || 0),
                 percentChange: totalProfitPecentChanges,
                 suffix: "đ",
                 tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Vagoda).",
@@ -185,7 +185,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Đơn hàng hủy",
-                value: currentPeriod?.cancelledOrders.totalOrders || 0,
+                value: roundTo2DecimalPlaces(currentPeriod?.cancelledOrders.totalOrders || 0),
                 percentChange: cancelledPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
                 color: '#78716c',
@@ -193,7 +193,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Khách hàng quay lại",
-                value: currentPeriod?.returningRate.totalReturningUsers || 0,
+                value: roundTo2DecimalPlaces(currentPeriod?.returningRate.totalReturningUsers || 0),
                 percentChange: returningRatePecentChanges,
                 suffix: "khách",
                 tooltip: "Tổng số lượng khách quay lại trong khoảng thời gian đã chọn",
@@ -217,7 +217,7 @@ export default function BusinessPerformancePage() {
             await POST_getTopCitiesInSales(
                 context.shopInfo?._id as string,
                 startTime!, endTime!).then((response) => {
-                    console.log("cities fetched", response.data.statisticsData);
+                    // console.log("cities fetched", response.data.statisticsData);
                     setCitiesSales(response.data.statisticsData)
                 })
         }
@@ -249,7 +249,7 @@ export default function BusinessPerformancePage() {
                 `${step}-d`
             )
 
-            console.log("ReturningRateResponse", returnRateResponse.data);
+            // console.log("ReturningRateResponse", returnRateResponse.data);
 
             setCurrentPeriod({
                 sales: totalSalesResponse.data || [],
@@ -335,7 +335,7 @@ export default function BusinessPerformancePage() {
                                 <Radio.Button value="month">30 ngày qua</Radio.Button>
                             </Radio.Group>
                             <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY" />
-                            <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
+                            <div suppressHydrationWarning>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
                         </div>
                     </div>
                 </div>

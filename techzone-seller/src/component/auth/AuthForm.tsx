@@ -13,6 +13,7 @@ import FacebookImage from "../../../public/asset/facebook.256x256.png"
 import VagodaIcon from "../VagodaIcon";
 import VagodaText from "../VagodaText";
 import { clearTimeout, setTimeout } from "timers";
+import VagodaText2 from "../VagodaText2";
 
 interface AuthFormProps {
   showSuccessMsg: (show: boolean) => void;
@@ -302,8 +303,9 @@ export default function AuthForm(props: AuthFormProps) {
       >
         <Link href={"/"} prefetch={false} className="text-center">
           <div className="flex justify-center items-center">
-            <VagodaIcon width={50} height={50} color={"black"} />
-            <VagodaText width={100} height={30} color={"black"}/>
+            {/* <VagodaIcon width={60} height={60} color={"black"} />
+            <VagodaText width={150} height={40} color={"black"}/> */}
+            <VagodaText2 width={180} height={60}/>
           </div>
         </Link>
 
@@ -311,10 +313,10 @@ export default function AuthForm(props: AuthFormProps) {
           hidden block
         </div>
 
-        {isSigninOpeneded ? 
+        {/* {isSigninOpeneded ? 
         <div className="flex w-full justify-center items-center">
           <p className="text-3xl lg:text-4xl font-semibold font-sans">Welcome Back!</p>
-        </div> : undefined }
+        </div> : undefined } */}
 
         <div className="flex w-full justify-center items-center">
           <p className="text-sm"></p>
@@ -330,7 +332,7 @@ export default function AuthForm(props: AuthFormProps) {
                 type="button"
                 title={undefined}
                 onClick={() => handleGoogleLogin()}
-                className="flex w-full w-28 md:w-28 items-center justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray py-2 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80
+                className="flex w-32 md:w-28 items-center justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray py-2 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80
                     hover:bg-gray-200
                 "
                 // className="hover:bg-gray-200 p-2 rounded-full"
@@ -343,7 +345,7 @@ export default function AuthForm(props: AuthFormProps) {
                 type={"button"}
                 title={undefined}
                 onClick={() => handleFacebookLogin()}
-                className="flex w-full items-center w-28 md:w-28 justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray py-2 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80
+                className="flex w-32 items-center md:w-28 justify-center gap-3.5 font-medium rounded-lg border border-stroke bg-gray py-2 hover:bg-opacity-80 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-80
                     hover:bg-gray-200
                 "
                 // className="hover:bg-gray-200 p-2 rounded-full"
@@ -372,7 +374,7 @@ export default function AuthForm(props: AuthFormProps) {
               <input
                 type="text"
                 placeholder={"Tên người dùng"}
-                className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
+                className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100 rounded-sm"
                 value={username}
                 maxLength={15}
                 onChange={(e) => setUsername(e.target.value)}
@@ -385,7 +387,7 @@ export default function AuthForm(props: AuthFormProps) {
               <input
                 type="text"
                 placeholder={"Shop A***"}
-                className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
+                className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100 rounded-sm"
                 value={shopName}
                 maxLength={15}
                 onChange={(e) => setShopName(e.target.value)}
@@ -401,7 +403,7 @@ export default function AuthForm(props: AuthFormProps) {
           <input
             type="text"
             placeholder={"example@email.com"}
-            className="input input-bordered w-full m-2 mx-auto dark:bg-white dark:text-black px-1 py-2 bg-gray-100"
+            className="input input-bordered w-full m-2 mx-auto dark:bg-white dark:text-black px-1 py-2 bg-gray-100 rounded-sm"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -414,7 +416,7 @@ export default function AuthForm(props: AuthFormProps) {
           <input
             type={isPasswordVisible ? "text" : "password"}
             placeholder={"******************"}
-            className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
+            className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100 rounded-sm"
             value={password}
             maxLength={16}
             onChange={(e) => setPassword(e.target.value)}
@@ -429,7 +431,7 @@ export default function AuthForm(props: AuthFormProps) {
             <input
               type={isConfirmPasswordVisible ? "text" : "password"}
               placeholder={""}
-              className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100"
+              className="input input-bordered w-full m-2 mx-auto px-1 py-2 bg-gray-100 rounded-sm"
               value={confirmPassword}
               maxLength={16}
               onChange={(e) => setConfirmPassword(e.target.value)}
