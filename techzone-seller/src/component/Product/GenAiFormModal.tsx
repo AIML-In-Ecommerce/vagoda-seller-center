@@ -193,6 +193,8 @@ const bodyShapeList = [
 const postureList = [
   { value: "standing", label: "Đứng" },
   { value: "sitting", label: "Ngồi" },
+  { value: "working", label: "Đi" },
+  { value: "running", label: "Chạy" },
 ];
 
 const backgroundList = [
