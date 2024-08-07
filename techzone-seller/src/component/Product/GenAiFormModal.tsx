@@ -201,6 +201,7 @@ const backgroundList = [
   { value: "restaurant", label: "Nhà hàng" },
   { value: "park", label: "Công viên" },
   { value: "stadium", label: "Sân vận động" },
+  { value: "beach", label: "Bãi biển" },
 ];
 
 type FieldType = {
