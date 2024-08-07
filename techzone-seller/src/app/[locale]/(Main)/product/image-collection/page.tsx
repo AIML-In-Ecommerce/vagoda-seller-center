@@ -155,7 +155,7 @@ const ImageCollection = () => {
     setPreviewImage(null);
   };
   const loadImageCollection = async () => {
-    const { data } = await GET_GetShop("65f1e8bbc4e39014df775166");
+    const { data } = await GET_GetShop(`${shopInfo?._id}`);
     if (data) {
       setImageCollection(data.imageCollection);
     }
