@@ -23,6 +23,6 @@ export type _ReviewType = {
   asset: string[];
   conversation: RawCommentType[];
   like: string[];
-  isResponse: boolean;
+  isResponseByShop: boolean;
   createdAt: string;
 };
