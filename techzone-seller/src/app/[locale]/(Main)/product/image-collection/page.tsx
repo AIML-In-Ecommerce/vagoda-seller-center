@@ -19,6 +19,7 @@ import { HiOutlineHome } from "react-icons/hi2";
 import { RiDeleteBinLine } from "react-icons/ri";
 import "./local.css";
 import axios from "axios";
+const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
 
 type NotificationPlacement = NotificationArgsProps["placement"];
 
@@ -68,9 +69,11 @@ const ImageCollection = () => {
     };
 
     try {
+      const apiEndpoint = `${AI_DOMAIN}/genai/generate-product-image`;
+      console.log("API Endpoint: ", apiEndpoint);
       console.log("Post body:  ", postBody);
       const response = await axios.post(
-        "http://54.255.29.11/genai/generate-product-image",
+        `${AI_DOMAIN}/genai/generate-product-image`,
         postBody,
         {
           headers: {

@@ -33,7 +33,10 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
     };
 
     try {
+      const apiEndpoint = `${AI_DOMAIN}/genai/generate-product-image`;
+      console.log("API Endpoint: ", apiEndpoint);
       console.log("Post body:  ", postBody);
+
       const response = await axios.post(
         `${AI_DOMAIN}/genai/generate-product-image`,
         postBody,
