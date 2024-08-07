@@ -653,7 +653,7 @@ export default function CreatePromotionPage() {
                 title={<span className="text-xl">Thêm mã giảm giá</span>}
                 footer={() => (
                     <>
-                        <Button key="cancel" onClick={handleCancelCreatePromotionModal}>Hủy</Button>,
+                        <Button key="cancel" onClick={handleCancelCreatePromotionModal}>Hủy</Button>
                         <Button className="bg-blue-500 cursor-pointer hover:bg-blue-800 text-white" key="ok" onClick={handleCreatePromotion}>Xác nhận</Button>
                     </>
                 )}

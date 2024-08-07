@@ -73,7 +73,8 @@ export default function CouponManagementPage() {
                         newPromotions.push(newPromotion)
                         await PUT_UpdatePromotion(context.shopInfo?._id as string, promotion._id, newPromotion)
                     }
-                    setPromotions(newPromotions);
+                    // sort promotion based on promotion creation timestamp
+                    setPromotions(newPromotions.sort((a, b) => a.createAt < b.createAt ? 1 : -1));
                 }
                 console.log('fetchPromotionList', promotionListData);
             }

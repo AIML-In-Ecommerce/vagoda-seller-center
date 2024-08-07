@@ -15,27 +15,28 @@ import { AuthContext } from '@/context/AuthContext';
 import { ProductType } from '@/model/ProductType';
 import { POST_getAddToCartRatio, POST_getAmountBuyerOfProducts, POST_getProductViewers } from '@/apis/statistic/StatisticAPI';
 import { Currency } from '@/component/util/CurrencyDisplay';
+import CSVExporter from '@/component/Product/File/CSVExporter';
 
 interface RevenueAndVisitsProps {
 
 }
 
-const mainValues = [
-    {
-        title: "SKU bán ra",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng SKU bán ra tính trên các đơn hàng được xác nhận trong khoảng thời gian đã chọn. Nếu một SKU được bán nhiều lần, hệ thống ghi nhận là một.",
-        backgroundColor: '#0ea5e9'
-    },
-    {
-        title: "Đơn vị đã bán",
-        value: "--",
-        description: "Không có dữ liệu",
-        tooltip: "Tổng số lượng sản phẩm đã bán tính trên các đơn hàng được xác nhận trong khoảng thời gian đã chọn. Nếu có hai sản phẩm bán được trong cùng một SKU, hệ thống ghi nhận là hai.",
-        backgroundColor: '#f97316'
-    }
-]
+// const mainValues = [
+//     {
+//         title: "SKU bán ra",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng số lượng SKU bán ra tính trên các đơn hàng được xác nhận trong khoảng thời gian đã chọn. Nếu một SKU được bán nhiều lần, hệ thống ghi nhận là một.",
+//         backgroundColor: '#0ea5e9'
+//     },
+//     {
+//         title: "Đơn vị đã bán",
+//         value: "--",
+//         description: "Không có dữ liệu",
+//         tooltip: "Tổng số lượng sản phẩm đã bán tính trên các đơn hàng được xác nhận trong khoảng thời gian đã chọn. Nếu có hai sản phẩm bán được trong cùng một SKU, hệ thống ghi nhận là hai.",
+//         backgroundColor: '#f97316'
+//     }
+// ]
 
 const convertPeriodLabel = (period: string) => {
     return period === "today" ? "Hôm nay" :
@@ -116,11 +117,22 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
     const [productStatisticData, setProductStatisticData] = useState<ProductStatisticsType[]>([]);
     const [filteredData, setFilteredData] = useState<ProductStatisticsType[]>([]);
 
+    const generateFileName = (filename?: string) => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        return `${filename ? `${filename}_` : ""}${year}${month}${day}_${hours}${minutes}${seconds}`;
+    };
 
     useEffect(() => {
         const fetchAllProducts = async () => {
             if (!context.shopInfo) return;
-            // setLoading(true);
+            setLoading(true);
             let [startDate, endDate] = DayjsToDate(selectedDates);
             const response = await POST_GetProductListByShop(context.shopInfo?._id as string);
             if (response.status === 200) {
@@ -179,15 +191,16 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         totalViews: totalViews ?? 0,
                         totalViewers: totalViewers ?? 0,
                         cartAdditions: addToCartCount ?? 0,
-                        cartAddRates: (addToCartCount !== undefined) && (viewerCount !== undefined) ? roundTo2DecimalPlaces(addToCartCount / viewerCount) : 0,
+                        cartAddRates: (addToCartCount !== undefined) && (viewerCount !== undefined) ? addToCartCount / viewerCount : 0,
                         unitsSold: unitsSold ?? 0,
                         revenue: revenue ?? 0,
-                        conversionRate: roundTo2DecimalPlaces(conversionRate) ?? 0,
+                        conversionRate: conversionRate ?? 0,
                         purchaseCount: purchaseCount ?? 0
                     } as ProductStatisticsType
                 }) ?? [];
                 setProductStatisticData(productStatisticData);
-                // setLoading(false);   
+                setLoading(false);
+                setLastUpdateTime(dayjs());
             }
         }
 
@@ -281,6 +294,8 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
             },
             fixed: 'left',
             width: '15%',
+            sorter: (a, b) => a.product.name.localeCompare(b.product.name),
+            showSorterTooltip: false,
         },
         {
             title: '01. Xem trang sản phẩm',
@@ -293,6 +308,8 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'totalViews',
+                    sorter: (a, b) => a.totalViews - b.totalViews,
+                    showSorterTooltip: false,
                 },
                 {
                     title: <div className="flex flex-row gap-1 items-center">
@@ -302,6 +319,8 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'totalViewers',
+                    sorter: (a, b) => a.totalViewers - b.totalViewers,
+                    showSorterTooltip: false,
                 },
             ],
 
@@ -317,6 +336,8 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'cartAdditions',
+                    sorter: (a, b) => a.cartAdditions - b.cartAdditions,
+                    showSorterTooltip: false,
                 },
                 {
                     title: <div className="flex flex-row gap-1 items-center">
@@ -327,8 +348,10 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     </div>,
                     dataIndex: 'cartAddRates',
                     render: (value: any) => {
-                        return `${value * 100}%`
-                    }
+                        return `${roundTo2DecimalPlaces(value * 100)}%`
+                    },
+                    sorter: (a, b) => a.cartAddRates - b.cartAddRates,
+                    showSorterTooltip: false,
                 },
             ]
         },
@@ -343,6 +366,8 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'purchaseCount',
+                    sorter: (a, b) => a.purchaseCount - b.purchaseCount,
+                    showSorterTooltip: false,
                 },
                 {
                     title: <div className="flex flex-row gap-1 items-center">
@@ -353,8 +378,10 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     </div>,
                     dataIndex: 'conversionRate',
                     render: (value: any) => {
-                        return `${value * 100}%`
-                    }
+                        return `${roundTo2DecimalPlaces(value * 100)}%`
+                    },
+                    sorter: (a, b) => a.conversionRate - b.conversionRate,
+                    showSorterTooltip: false,
                 },
                 {
                     title: <div className="flex flex-row gap-1 items-center">
@@ -364,6 +391,8 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                         </Tooltip>
                     </div>,
                     dataIndex: 'unitsSold',
+                    sorter: (a, b) => a.unitsSold - b.unitsSold,
+                    showSorterTooltip: false,
                 },
                 {
                     title: <div className="flex flex-row gap-1 items-center">
@@ -375,15 +404,17 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     dataIndex: 'revenue',
                     render: (value: any, record: ProductStatisticsType) => (
                         <Currency value={record.revenue} />
-                    )
+                    ),
+                    sorter: (a, b) => a.revenue - b.revenue,
+                    showSorterTooltip: false,
                 },
             ]
         },
-        {
-            title: 'Thao tác',
-            dataIndex: 'operation',
-            fixed: 'right',
-        }
+        // {
+        //     title: 'Thao tác',
+        //     dataIndex: 'operation',
+        //     fixed: 'right',
+        // }
     ];
 
     return (
@@ -399,7 +430,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                             <Radio.Button value="month">30 ngày qua</Radio.Button>
                         </Radio.Group>
                         <RangePicker picker="date" value={selectedDates} format="DD/MM/YYYY" />
-                        <div>(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
+                        <div suppressHydrationWarning >(Lần cập nhật cuối {lastUpdateTime.locale('vi').format('L LTS')})</div>
                     </div>
                 </div>
                 {/* <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
@@ -423,17 +454,34 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     </div>
                 </div> */}
                 <div className="bg-white py-4 px-4 mx-5 mt-5 flex flex-col">
-                    <div className="flex flex-row justify-between items-center">
+                    <div className="flex lg:flex-row flex-col gap-5 lg:justify-between lg:items-center">
                         <div className="flex flex-row gap-4">
                             <div className="font-semibold">Hiệu quả sản phẩm</div>
                             <div>{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                         </div>
-                        <Button disabled>
+                        {/* <Button onClick={() => handleExportSaleTrafficReport()}>
                             <div className="flex flex-row items-center gap-1">
                                 <div>Tải dữ liệu</div>
                                 <GoDownload />
                             </div>
-                        </Button>
+                        </Button> */}
+                        <CSVExporter filename={generateFileName()}
+                            data={filteredData.map(
+                                (item: ProductStatisticsType) => {
+                                    return {
+                                        productId: item.product._id,
+                                        productName: item.product.name,
+                                        totalViews: item.totalViews,
+                                        totalViewers: item.totalViewers,
+                                        cartAdditions: item.cartAdditions,
+                                        cartAddRates: item.cartAddRates,
+                                        purchaseCount: item.purchaseCount,
+                                        conversionRate: item.conversionRate,
+                                        unitsSold: item.unitsSold,
+                                        revenue: item.revenue,
+                                     }
+                                })} 
+                            />
                     </div>
                     <Divider />
                     <Space direction="vertical">
@@ -457,13 +505,12 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     </Space>
                     <Divider />
                     {
-                        loading ? <Spin /> : (
-                            <TableWrapper>
-                                <Table columns={columns} scroll={{ x: "max-content" }}
-                                    dataSource={filteredData}
-                                    loading={loading}
-                                    bordered />
-                            </TableWrapper>)
+                        <TableWrapper>
+                            <Table columns={columns} scroll={{ x: "max-content" }}
+                                dataSource={filteredData}
+                                loading={loading}
+                                bordered />
+                        </TableWrapper>
                     }
                 </div>
             </div>
