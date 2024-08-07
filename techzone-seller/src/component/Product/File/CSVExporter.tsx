@@ -1,6 +1,7 @@
+import { Button, Select, Space } from "antd";
 import { saveAs } from "file-saver";
 import { useState } from "react";
-import { FaFileExport } from "react-icons/fa6";
+import { GoDownload } from "react-icons/go";
 import { WritingOptions, utils, write } from "xlsx";
 
 interface CSVExporterProps {
@@ -39,32 +40,63 @@ export default function CSVExporter(props: CSVExporterProps) {
     return `${header}\n${rows.join("\n")}`;
   };
 
+  // const convertToCSV = (dataArray: any) => {
+  //   // Helper function to flatten an object
+  //   const flattenObject = (obj: any, parent: string = '', res: any = {}) => {
+  //     for (let key in obj) {
+  //       const propName = parent ? `${parent}.${key}` : key;
+  //       if (typeof obj[key] === 'object' && obj[key] !== null) {
+  //         flattenObject(obj[key], propName, res);
+  //       } else {
+  //         res[propName] = obj[key];
+  //       }
+  //     }
+  //     return res;
+  //   };
+
+  //   // Flatten all objects in the array
+  //   const flattenedArray = dataArray.map((item: any) => flattenObject(item));
+
+  //   // Create CSV header
+  //   const header = Object.keys(flattenedArray[0]).join(',');
+
+  //   // Create CSV rows
+  //   const rows = flattenedArray.map((item: any) =>
+  //     Object.values(item).map(value =>
+  //       (typeof value === 'string' && value.includes(',')) ? `"${value}"` : value
+  //     ).join(',')
+  //   );
+
+  //   // Combine header and rows
+  //   return `${header}\n${rows.join('\n')}`;
+  // };
+
   return (
-    <label className="form-control w-full max-w-xs">
+    <Space className="form-control">
       <div className="label">
-        <span className="label-text">Export to</span>
+        <span className="label-text">Định dạng</span>
       </div>
 
-      <select
+      <Select
         className="select select-bordered"
         value={fileType}
-        onChange={(e) => setFileType(e.target.value)}
+        onChange={(e) => setFileType(e)}
       >
         <option value="csv">CSV</option>
         <option value="xlsx">Excel (XLSX)</option>
-      </select>
+      </Select>
       <div className="label">
         <span className="label-text-alt"></span>
-        <button
-          className="label-text-alt btn btn-info text-white flex flex-row"
+        <Button
+          className="label-text-alt btn btn-info flex flex-row"
           onClick={fileType === "csv" ? exportToCSV : exportToExcel}
         >
-          <span className="text-white text-xl">
-            <FaFileExport />
-          </span>
-          <span>Export</span>
-        </button>
+          <div className="flex flex-row items-center gap-1">
+            <div>Tải dữ liệu</div>
+            <GoDownload />
+          </div>
+        </Button>
       </div>
-    </label>
+    </Space>
   );
 }

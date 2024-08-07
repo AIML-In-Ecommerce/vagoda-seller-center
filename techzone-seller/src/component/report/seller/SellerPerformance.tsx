@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import RatingChart from "../RatingChart";
-import { Breadcrumb, Button, Card, DatePicker, List, Tooltip } from "antd";
+import { Breadcrumb, Button, Card, DatePicker, List, Popover, Tooltip } from "antd";
 import { HiOutlineHome } from "react-icons/hi";
 import { SlArrowRight } from "react-icons/sl";
 import { TbInfoCircle } from "react-icons/tb";
@@ -14,6 +14,7 @@ import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { AuthContext } from "@/context/AuthContext";
 import { POST_getTotalRecievedOrders, POST_getTotalLateTimeOrders, POST_getTotalOnTimeOrders, POST_getTotalProcessOrders, OrderStatusType, POST_getOrderStatistics, POST_getReviewStatistics, ReviewRange, ShopPerformanceDetail, GET_getShopPerformanceStatistics } from "@/apis/statistic/StatisticAPI";
+import CSVExporter from "@/component/Product/File/CSVExporter";
 
 dayjs.extend(LocalizedFormat)
 
@@ -121,7 +122,17 @@ const handleRatingColor = (rating: number, intensity: number, prefix: string) =>
     return `${prefix}-${color}-${intensity}`;
 }
 
-
+const generateFileName = (filename?: string) => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    return `${filename ? `${filename}_` : ""}${year}${month}${day}_${hours}${minutes}${seconds}`;
+};
 
 export default function SellerPerformancePage() {
     const context = useContext(AuthContext);
@@ -130,6 +141,8 @@ export default function SellerPerformancePage() {
     const [totalReceivedOrders, setTotalReceivedOrders] = useState<number>(0);
     const [totalOnTimeOrders, setTotalOnTimeOrders] = useState<number>(0);
     const [totalLateTimeOrders, setTotalLateTimeOrders] = useState<number>(0);
+    const [lateTimeOrders, setLateTimeOrders] = useState<any[]>([]);
+    const [cancelledOrders, setCancelledOrders] = useState<any>([]);
     const [totalCancelledOrders, setTotalCancelledOrders] = useState<number>(0);
     const [totalProcessTimeOrders, setTotalProcessTimeOrders] = useState<number>(0);
     const [ratingItems, setRatingItems] = useState<RatingItem[]>([] as RatingItem[]);
@@ -191,7 +204,7 @@ export default function SellerPerformancePage() {
             },
         ];
         return statistics;
-    }, [selectedDates, 
+    }, [selectedDates,
         totalLateTimeOrders, totalOnTimeOrders,
         totalCancelledOrders, totalProcessTimeOrders, totalReceivedOrders]);
 
@@ -205,7 +218,10 @@ export default function SellerPerformancePage() {
         await POST_getTotalLateTimeOrders(context.shopInfo?._id as string,
             startDate || new Date(),
             endDate || new Date()
-        ).then((response) => setTotalLateTimeOrders(response.data.totalOrders))
+        ).then((response) => {
+            setTotalLateTimeOrders(response.data.totalOrders);
+            setLateTimeOrders(response.data.statisticsData[0].statisticsData);
+        })
 
         await POST_getTotalOnTimeOrders(context.shopInfo?._id as string,
             startDate || new Date(),
@@ -221,7 +237,10 @@ export default function SellerPerformancePage() {
             OrderStatusType.CANCELLED,
             startDate || new Date(),
             endDate || new Date()
-        ).then((response) => setTotalCancelledOrders(response.data.totalOrders))
+        ).then((response) => {
+            setTotalCancelledOrders(response.data.totalOrders);
+            setCancelledOrders(response.data.statisticsData[0].statisticsData);
+        })
     }
 
     const fetchReviewStatistics = async () => {
@@ -248,7 +267,7 @@ export default function SellerPerformancePage() {
     }
 
     const fetchShopPerformance = async () => {
-        const shopPerformanceResponse = 
+        const shopPerformanceResponse =
             await GET_getShopPerformanceStatistics(context.shopInfo?._id as string)
         if (shopPerformanceResponse) {
             const data = shopPerformanceResponse.data as ShopPerformanceDetail
@@ -269,6 +288,10 @@ export default function SellerPerformancePage() {
             setOpScore(shopPerformance.operationalQuality);
         }
     }, [shopPerformance])
+
+    useEffect(() => {
+
+    }, [lateTimeOrders, cancelledOrders])
 
     return (
         <React.Fragment>
@@ -364,12 +387,19 @@ export default function SellerPerformancePage() {
                                             <TbInfoCircle />
                                         </Tooltip>
                                     </div>
-                                    <Button disabled>
-                                        <div className="flex flex-row items-center gap-1">
-                                            <div>Xuất các đơn bị hủy</div>
-                                            <GoDownload />
-                                        </div>
-                                    </Button>
+                                    <Popover content={
+                                        <CSVExporter filename={generateFileName()}
+                                            data={cancelledOrders}
+                                        />
+                                    }>
+                                        <Button>
+                                            <div className="flex flex-row items-center gap-1">
+                                                <div>Xuất các đơn bị hủy</div>
+                                                <GoDownload />
+                                            </div>
+                                        </Button>
+                                    </Popover>
+
                                 </div>
                                 <div className="my-5">
                                     {/* Cancellation rate gauge */}
@@ -395,12 +425,18 @@ export default function SellerPerformancePage() {
                                             <TbInfoCircle />
                                         </Tooltip>
                                     </div>
-                                    <Button disabled>
-                                        <div className="flex flex-row items-center gap-1">
-                                            <div>Xuất các đơn trễ hạn</div>
-                                            <GoDownload />
-                                        </div>
-                                    </Button>
+                                    <Popover content={
+                                        <CSVExporter filename={generateFileName()}
+                                            data={lateTimeOrders}
+                                        />
+                                    }>
+                                        <Button>
+                                            <div className="flex flex-row items-center gap-1">
+                                                <div>Xuất các đơn trễ hạn</div>
+                                                <GoDownload />
+                                            </div>
+                                        </Button>
+                                    </Popover>
                                 </div>
                                 <div className="my-5">
                                     {/* On-time application processing rate gauge */}
@@ -440,7 +476,7 @@ export default function SellerPerformancePage() {
                             </div>
                             <div className="my-5">
                                 {/* On-time application processing rate gauge */}
-                                {/* <GaugeChart label={"Đơn hàng"}
+                        {/* <GaugeChart label={"Đơn hàng"}
                                     labels={["Sản phẩm đổi trả", "Sản phẩm không đổi trả"]}
                                     datasets={operationalEfficiency['ReturnRate']}
                                     isBelow={true} thresholdValue={2} />
@@ -459,7 +495,7 @@ export default function SellerPerformancePage() {
                             <div className="flex flex-row justify-between items-center">
                                 <div className="flex flex-row gap-1 items-center">
                                     <div className="font-semibold">Đánh giá sản phẩm</div>
-                                    <Tooltip title={""}>
+                                    <Tooltip title={"Trung bình tất cả các đánh giá sản phẩm của nhà bán trong khoảng thời gian đã chọn"}>
                                         <TbInfoCircle />
                                     </Tooltip>
                                 </div>
@@ -472,7 +508,7 @@ export default function SellerPerformancePage() {
                                 </Button>
                             </div>
                             <div className="mt-10">
-                                <RatingStatistics ratings={ratingItems}/>
+                                <RatingStatistics ratings={ratingItems} />
                             </div>
                         </div>
                     </div>

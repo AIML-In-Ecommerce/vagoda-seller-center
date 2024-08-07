@@ -109,6 +109,7 @@ export default function HomePage() {
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().subtract(6, 'day'), dayjs()]);
     const [totalOrderQuantity, setTotalOrderQuantity] = useState<number>(0);
     const [totalRevenue, setTotalRevenue] = useState<number>(0);
+    const [totalWeekRevenue, setTotalWeekRevenue] = useState<number>(0);
     const [qosScore, setQosScore] = useState<number>(5);
     const [loading, setLoading] = useState<boolean>(false);
     const [orderStatistics, setOrderStatistics] = useState<OrderStatusTotalValue[]>([] as OrderStatusTotalValue[]);
@@ -316,7 +317,7 @@ export default function HomePage() {
                 _id: '1',
                 title: 'Báo cáo doanh thu tuần',
                 image: 'https://cdn-icons-png.flaticon.com/512/432/432548.png',
-                description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt ${formatCurrencyFromValue({value: totalRevenue})}`,
+                description: `Xin chào ${context.shopInfo?.name}, Doanh thu của bạn tuần vừa qua đạt ${formatCurrencyFromValue({value: totalWeekRevenue})}`,
                 timestamp: new Date()
             },
             {
@@ -536,6 +537,7 @@ export default function HomePage() {
     function handleUpdateTotalRevenueCallback(total: number)
     {
         setTotalRevenue(total)
+        if (filterValue === 'date') setTotalWeekRevenue(total);
     }
 
     return (

@@ -144,7 +144,8 @@ export default function CouponTable(props: CouponTableProps) {
                     //     <div>Kết thúc: {formatDate(record.expiredDate)}</div>
                     // </div>
                 )
-            }
+            },
+            width: '20%'
     
         },
         {
