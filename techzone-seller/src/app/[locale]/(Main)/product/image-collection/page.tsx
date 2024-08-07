@@ -122,10 +122,7 @@ const ImageCollection = () => {
       case "FORM":
         return (
           <GenAiFormModal
-            onClose={() => {
-              setIsFormVisible(false);
-              setGenAiStatus("FORM");
-            }}
+            onClose={() => setIsFormVisible(false)}
             onSubmit={handleFormSubmit}
           />
         );
@@ -250,7 +247,6 @@ const ImageCollection = () => {
           width={900}
           onCancel={() => {
             setGenAiModalOpen(false);
-            setGenAiStatus("FORM");
           }}
           footer={null}
         >
