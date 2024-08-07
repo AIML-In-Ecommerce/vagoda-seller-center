@@ -162,10 +162,10 @@ export default function ReviewProductPage() {
     },
     {
       title: "Trạng thái",
-      dataIndex: "isResponse",
-      render: (isResponse: boolean, record: _ReviewType) => (
+      dataIndex: "isResponseByShop",
+      render: (isResponseByShop: boolean, record: _ReviewType) => (
         <div className="flex space-x-2 text-xs ">
-          {isResponse ? (
+          {isResponseByShop ? (
             <Tag color="success">Đã phản hồi</Tag>
           ) : (
             <Tag color="warning">Chưa phản hồi</Tag>
