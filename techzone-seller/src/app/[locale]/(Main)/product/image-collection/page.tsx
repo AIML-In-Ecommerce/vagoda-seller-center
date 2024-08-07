@@ -155,7 +155,7 @@ const ImageCollection = () => {
     setPreviewImage(null);
   };
   const loadImageCollection = async () => {
-    const { data } = await GET_GetShop(`${shopInfo?._id}`);
+    const { data } = await GET_GetShop("65f1e8bbc4e39014df775166");
     if (data) {
       setImageCollection(data.imageCollection);
     }
@@ -201,10 +201,11 @@ const ImageCollection = () => {
       </div>
       <Divider className="my-4" />
 
-      <div className="grid-wrapper">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* <div className="grid-wrapper"> */}
         {imageCollection.map((image, index) => (
           <div key={index} onClick={() => openPreview(image)}>
-            <img src={image} alt={`Image ${index}`} />
+            <img src={image} alt={`Image ${index}`} className="rounded-md" />
           </div>
         ))}
       </div>
