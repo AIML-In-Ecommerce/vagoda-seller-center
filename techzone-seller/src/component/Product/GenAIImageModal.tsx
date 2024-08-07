@@ -74,7 +74,10 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
       case "FORM":
         return (
           <GenAiFormModal
-            onClose={() => setIsFormVisible(false)}
+            onClose={() => {
+              setIsFormVisible(false);
+              setGenAiStatus("FORM");
+            }}
             onSubmit={handleFormSubmit}
           />
         );
