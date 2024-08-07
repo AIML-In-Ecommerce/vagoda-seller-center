@@ -19,7 +19,9 @@ import { HiOutlineHome } from "react-icons/hi2";
 import { RiDeleteBinLine } from "react-icons/ri";
 import "./local.css";
 import axios from "axios";
+import { ShopInfoType } from "@/model/ShopInfoType";
 const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
+const authLocalStorageID = "#auth-context-user-info-record-ID";
 
 type NotificationPlacement = NotificationArgsProps["placement"];
 
@@ -47,6 +49,17 @@ const ImageCollection = () => {
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
   const [imageCollection, setImageCollection] = useState<string[]>([]);
   const [api, contextHolder] = notification.useNotification();
+
+  function initLoading() {
+    const storageInfo = localStorage.getItem(authLocalStorageID);
+    if (storageInfo != null) {
+      return JSON.parse(storageInfo) as ShopInfoType;
+    } else {
+      return null;
+    }
+  }
+
+  const shopInfo = initLoading();
 
   const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
   const openNotification = (title: string, content: ReactElement) => {
@@ -130,7 +143,7 @@ const ImageCollection = () => {
 
   const deleteImage = async (image_link: string) => {
     const response: { status: number; message: string } =
-      await PUT_RemoveImageCollection("65f1e8bbc4e39014df775166", image_link);
+      await PUT_RemoveImageCollection(`${shopInfo?._id}`, image_link);
 
     if (response.status == 200) {
       message.success("Xóa sản phẩm thành công");
@@ -142,7 +155,7 @@ const ImageCollection = () => {
     setPreviewImage(null);
   };
   const loadImageCollection = async () => {
-    const { data } = await GET_GetShop("65f1e8bbc4e39014df775166");
+    const { data } = await GET_GetShop(`${shopInfo?._id}`);
     if (data) {
       setImageCollection(data.imageCollection);
     }
