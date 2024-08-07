@@ -21,7 +21,7 @@ import "./local.css";
 import axios from "axios";
 import { ShopInfoType } from "@/model/ShopInfoType";
 const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
-const authLocalStorageID = "#auth-context-user-info-record-ID";
+const authLocalStorageID = "#auth-context-shop-info#";
 
 type NotificationPlacement = NotificationArgsProps["placement"];
 
