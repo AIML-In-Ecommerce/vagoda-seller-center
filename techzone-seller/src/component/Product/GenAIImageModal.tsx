@@ -92,7 +92,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
             imageUrl={generatedImageUrl}
             isCreatingProductMode={true}
             addImage={props.addImage}
-            isError={true}
+            isError={isError}
           />
         );
     }

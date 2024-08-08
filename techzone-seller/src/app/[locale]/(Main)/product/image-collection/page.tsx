@@ -139,7 +139,7 @@ const ImageCollection = () => {
             isCreatingProductMode={false}
             addImage={function (image_link: string): void {}}
             closeModal={setGenAiModalOpen}
-            isError={false}
+            isError={isError}
           />
         );
     }
