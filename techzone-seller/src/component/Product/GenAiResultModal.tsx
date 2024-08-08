@@ -81,17 +81,15 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
           <p className="text-[16px] font-semibold absolute bottom-32">
             Đã xảy ra sự cố khi tạo ảnh, vui lòng thử lại sau.{" "}
           </p>
-          {isCreatingProductMode && (
-            <Button
-              type="primary"
-              style={{ width: "20%" }}
-              onClick={() => {
-                tryAgainFnc();
-              }}
-            >
-              Tạo lại
-            </Button>
-          )}
+          <Button
+            type="primary"
+            style={{ width: "20%" }}
+            onClick={() => {
+              tryAgainFnc();
+            }}
+          >
+            Tạo lại
+          </Button>
         </div>
       ) : (
         <div className="space-y-2  flex flex-col justify-center items-center">
