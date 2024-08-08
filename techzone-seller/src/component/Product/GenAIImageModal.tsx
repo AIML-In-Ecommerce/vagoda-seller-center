@@ -19,11 +19,13 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
+  const [isError, setIsError] = useState<boolean>(false);
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
   const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
 
   const handleFormSubmit = async (values: any) => {
     setGenAiStatus("IN_PROGRESS");
+
     const promptTemplate = `hyperdetailed photography, soft light, head portrait, (white background:13, skin details, sharp and in focus,\n${values.gender} ${values.nationality} student,\n${values.bodyShape} body shape,\n${values.skinColor} skin,\n${values.hairColor} ${values.hairStyle},\nbig ${values.eyesColor} eyes,\nhigh nose,\nslim,\ncute,\nbeautiful`;
     const contextTemplate = `${values.gender} is wearing ${values.clothType} and ${values.posture} in ${values.background}`;
     const postBody = {
@@ -44,7 +46,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (response.status == 200) {
@@ -55,6 +57,8 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
       }
     } catch (error) {
       console.error("Error fetching generate product image:", error);
+      setIsError(true);
+      setGenAiStatus("COMPLETED");
     }
 
     // setTimeout(() => {
@@ -88,6 +92,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
             imageUrl={generatedImageUrl}
             isCreatingProductMode={true}
             addImage={props.addImage}
+            isError={true}
           />
         );
     }

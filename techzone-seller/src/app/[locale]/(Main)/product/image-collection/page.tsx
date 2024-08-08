@@ -4,6 +4,7 @@ import { GET_GetShop, PUT_RemoveImageCollection } from "@/apis/shop/ShopAPI";
 import GenAiFormModal from "@/component/Product/GenAiFormModal";
 import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 import GenAiResultModal from "@/component/Product/GenAiResultModal";
+import { ShopInfoType } from "@/model/ShopInfoType";
 import {
   Breadcrumb,
   Button,
@@ -13,13 +14,12 @@ import {
   notification,
   NotificationArgsProps,
 } from "antd";
+import axios from "axios";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { FaMagic } from "react-icons/fa";
 import { HiOutlineHome } from "react-icons/hi2";
 import { RiDeleteBinLine } from "react-icons/ri";
 import "./local.css";
-import axios from "axios";
-import { ShopInfoType } from "@/model/ShopInfoType";
 const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
 const authLocalStorageID = "#auth-context-shop-info#";
 
@@ -46,6 +46,7 @@ const ImageCollection = () => {
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
+  const [isError, setIsError] = useState<boolean>(false);
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
   const [imageCollection, setImageCollection] = useState<string[]>([]);
   const [api, contextHolder] = notification.useNotification();
@@ -92,7 +93,7 @@ const ImageCollection = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (response.status == 200) {
@@ -103,6 +104,8 @@ const ImageCollection = () => {
       }
     } catch (error) {
       console.error("Error fetching generate product image:", error);
+      setIsError(true);
+      setGenAiStatus("COMPLETED");
     }
 
     // setTimeout(() => {
@@ -136,6 +139,7 @@ const ImageCollection = () => {
             isCreatingProductMode={false}
             addImage={function (image_link: string): void {}}
             closeModal={setGenAiModalOpen}
+            isError={false}
           />
         );
     }
