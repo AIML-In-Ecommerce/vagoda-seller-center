@@ -1,6 +1,7 @@
 "use client";
 
 import { GET_GetShop, PUT_RemoveImageCollection } from "@/apis/shop/ShopAPI";
+import GenAIErrorResultModal from "@/component/Product/GenAIErrorResultModal";
 import GenAiFormModal from "@/component/Product/GenAiFormModal";
 import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 import GenAiResultModal from "@/component/Product/GenAiResultModal";
@@ -46,7 +47,6 @@ const ImageCollection = () => {
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
   const [imageCollection, setImageCollection] = useState<string[]>([]);
   const [api, contextHolder] = notification.useNotification();
@@ -104,8 +104,7 @@ const ImageCollection = () => {
       }
     } catch (error) {
       console.error("Error fetching generate product image:", error);
-      setIsError(true);
-      setGenAiStatus("COMPLETED");
+      setGenAiStatus("ERROR");
     }
 
     // setTimeout(() => {
@@ -139,8 +138,11 @@ const ImageCollection = () => {
             isCreatingProductMode={false}
             addImage={function (image_link: string): void {}}
             closeModal={setGenAiModalOpen}
-            isError={isError}
           />
+        );
+      case "ERROR":
+        return (
+          <GenAIErrorResultModal tryAgainFnc={() => setGenAiStatus("FORM")} />
         );
     }
   };
