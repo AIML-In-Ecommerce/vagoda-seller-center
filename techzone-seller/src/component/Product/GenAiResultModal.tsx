@@ -3,7 +3,7 @@ import { Button, Image, message } from "antd";
 // import fs from "fs-extra";
 import { PUT_AddImageCollection } from "@/apis/shop/ShopAPI";
 import { AuthContext } from "@/context/AuthContext";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
 interface GenAiResultModalProps {
@@ -12,6 +12,7 @@ interface GenAiResultModalProps {
   isCreatingProductMode: boolean;
   addImage: (image_link: string) => void;
   closeModal: (isOpen: boolean) => void;
+  isError: boolean;
 }
 
 const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
@@ -20,7 +21,25 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   isCreatingProductMode,
   addImage,
   closeModal,
+  isError,
 }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    import("@lottiefiles/lottie-player");
+  });
+
+  const lottie = (
+    <lottie-player
+      id="firstLottie"
+      ref={ref}
+      autoPlay
+      loop
+      mode="normal"
+      src="https://lottie.host/10e2f813-52c5-4014-b8bf-0591d8d9eb55/7vcvIB5FbV.json"
+      style={{ width: "300px", height: "300px" }}
+      className="absolute top-12 "
+    />
+  );
   const [imageLink, setImageLink] = useState<string>(imageUrl);
   const authContext = useContext(AuthContext);
 
@@ -56,43 +75,61 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
         </p>
       </div>
 
-      <div className="space-y-2  flex flex-col justify-center items-center">
-        <div className="rounded-lg overflow-hidden">
-          <Image height={320} width={320} src={imageLink} />
-        </div>
-
-        <div className="flex justify-center w-full space-x-2 ">
+      {isError ? (
+        <div className=" flex flex-col justify-center items-center">
+          <div className="">{lottie}</div>
+          <p className="text-[16px] font-semibold absolute bottom-32">
+            Đã xảy ra sự cố khi tạo ảnh, vui lòng thử lại sau.{" "}
+          </p>
           <Button
             type="primary"
-            className="bg-slate-400 "
             style={{ width: "20%" }}
-            onClick={() => tryAgainFnc()}
+            onClick={() => {
+              tryAgainFnc();
+            }}
           >
             Tạo lại
           </Button>
-          <Button
-            type="primary"
-            className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
-            style={{ width: "20%" }}
-            onClick={handleSaveImage}
-          >
-            Lưu vào bộ sưu tập
-          </Button>
-          {isCreatingProductMode && (
+        </div>
+      ) : (
+        <div className="space-y-2  flex flex-col justify-center items-center">
+          <div className="rounded-lg overflow-hidden">
+            <Image height={320} width={320} src={imageLink} />
+          </div>
+
+          <div className="flex justify-center w-full space-x-2 ">
             <Button
               type="primary"
-              className=" bg-lime-500 "
+              className="bg-slate-400 "
               style={{ width: "20%" }}
-              onClick={() => {
-                addImage(imageLink);
-                closeModal(false);
-              }}
+              onClick={() => tryAgainFnc()}
             >
-              Chọn ảnh
+              Tạo lại
             </Button>
-          )}
+            <Button
+              type="primary"
+              className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
+              style={{ width: "20%" }}
+              onClick={handleSaveImage}
+            >
+              Lưu vào bộ sưu tập
+            </Button>
+            {isCreatingProductMode && (
+              <Button
+                type="primary"
+                className=" bg-lime-500 "
+                style={{ width: "20%" }}
+                onClick={() => {
+                  addImage(imageLink);
+                  closeModal(false);
+                }}
+              >
+                Chọn ảnh
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

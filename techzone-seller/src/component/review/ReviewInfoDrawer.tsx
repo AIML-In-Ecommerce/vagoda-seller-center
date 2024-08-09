@@ -154,7 +154,34 @@ export default function ReviewInfoDrawer(props: ReviewInfoDrawerProps) {
                 </div>
               </div>
             ) : (
-              <div key={index}></div>
+              comment.comment.shop && (
+                <div key={comment._id} className="flex space-x-2 mb-4">
+                  <Image
+                    height={40}
+                    width={60}
+                    src={
+                      comment.comment.shop
+                        ? comment.comment.shop.avatar
+                        : "https://cdn-icons-png.flaticon.com/128/1653/1653671.png"
+                    }
+                    className="rounded-full"
+                  />
+
+                  <div className="col-span-2 bg-slate-100 rounded-xl  space-y-2">
+                    <p className="font-semibold text-md">
+                      {comment.comment.shop.name}
+                    </p>
+
+                    <p>{comment.comment.content}</p>
+
+                    <p className="text-slate-400 text-xs">
+                      {moment(comment.comment.createdAt).format(
+                        "DD/MM/YYYY HH:mm:ss"
+                      )}
+                    </p>
+                  </div>
+                </div>
+              )
             )
           )}
       </div>
