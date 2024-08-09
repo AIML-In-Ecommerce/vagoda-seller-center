@@ -204,7 +204,11 @@ const ImageCollection = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* <div className="grid-wrapper"> */}
         {imageCollection.map((image, index) => (
-          <div key={index} onClick={() => openPreview(image)}>
+          <div
+            key={index}
+            onClick={() => openPreview(image)}
+            className="cursor-pointer"
+          >
             <img src={image} alt={`Image ${index}`} className="rounded-md" />
           </div>
         ))}
