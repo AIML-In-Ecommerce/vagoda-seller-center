@@ -323,7 +323,8 @@ export default function SellerPerformancePage() {
                     <Card title={
                         <div className="font-semibold">Điểm chất lượng vận hành</div>
                     } extra={
-                        <div>
+                        <div className="flex flex-row lg:gap-5 items-center">
+                            <div>Chọn khoảng thời gian</div>
                             <RangePicker picker="date"
                                 defaultValue={[dayjs().subtract(14, 'day'), dayjs()]}
                                 value={selectedDates}

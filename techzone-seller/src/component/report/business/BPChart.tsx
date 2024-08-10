@@ -17,6 +17,7 @@ import { Chart } from 'react-chartjs-2';
 import { getPreviousWeekDateRange_2 } from '@/utils/DateFormatter';
 import { ConversionRateInterval, ConversionRateStatistic, OrderStatusInterval, OrderStatusStatistic, ReturningRateInterval, ReturningRateStatistic, SalesInterval, SalesStatistic } from '@/apis/statistic/StatisticAPI';
 import { formatCurrencyFromValue } from '@/component/util/CurrencyDisplay';
+import { Empty } from 'antd';
 
 ChartJS.register(
     LinearScale,
@@ -195,7 +196,6 @@ function getCompareDate(dateString: string, timeUnit: string) {
 export default function BPChart(props: BPChartProps) {
 
     const [defaultStartDate, defaultEndDate] = getPreviousWeekDateRange_2();
-
 
     const dateFrom = useMemo(() => {
         return props.dateRange.length > 0 ? props.dateRange[0] ?? defaultStartDate : defaultStartDate;
@@ -510,12 +510,16 @@ export default function BPChart(props: BPChartProps) {
 
     useEffect(() => {
         console.log("update", labels, data, options);
-    },[data])
+    }, [data])
 
 
     return (
         <div className="w-[100%] h-[320px]">
-            <Chart type='bar' data={data} options={options} />
+            {
+                props.categories.length === 0 ?
+                    <Empty className="items-center" description="Không có dữ liệu, vui lòng chọn Chỉ số để hiển thị" /> :
+                    <Chart type='bar' data={data} options={options} />
+            }
         </div>
     )
 }
