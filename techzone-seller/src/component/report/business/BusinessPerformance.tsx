@@ -50,12 +50,13 @@ const dateRangeToString = (selectedDates: [Dayjs | null, Dayjs | null]) => {
     return `${selectedDates[0]?.format('DD/MM/YYYY')} - ${selectedDates[1]?.format('DD/MM/YYYY')}`
 }
 
-const roundTo2DecimalPlaces = (value: number) => {
-    return Math.round((value + Number.EPSILON) * 100) / 100;
+const roundToNDecimalPlaces = (value: number, precision: number) => {
+    const result = Math.pow(10, precision);
+    return Math.round((value + Number.EPSILON) * result) / result;
 }
 
 const calcPercentChanges = (value1: number, value2: number, isPercentageValue?: boolean) => {
-    return !isPercentageValue ? roundTo2DecimalPlaces((value1 ?? 0 - value2 ?? 0) / value2 ?? 0 * 100) : roundTo2DecimalPlaces(value1 ?? 0 - value2 ?? 0);
+    return !isPercentageValue ? roundToNDecimalPlaces((value1 ?? 0 - value2 ?? 0) * 100 / (value2 ?? 1) , 2) : roundToNDecimalPlaces(value1 ?? 0 - value2 ?? 0, 2);
 }
 
 export default function BusinessPerformancePage() {
@@ -140,7 +141,7 @@ export default function BusinessPerformancePage() {
         const result: BPCategory[] = [
             {
                 title: "Doanh số",
-                value: roundTo2DecimalPlaces(currentPeriod?.sales.totalRevenue || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.sales.totalRevenue || 0, 0),
                 percentChange: totalRevenuePecentChanges,
                 suffix: "đ",
                 tooltip: "Tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn, bao gồm doanh số từ các đơn hủy và đơn Trả hàng/Hoàn tiền.",
@@ -149,7 +150,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Đơn hàng",
-                value: roundTo2DecimalPlaces(currentPeriod?.sales.totalOrders || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.sales.totalOrders || 0, 0),
                 percentChange: totalOrdersPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng được xác nhận trong khoảng thời gian đã chọn",
                 color: '#f97316',
@@ -157,7 +158,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Doanh thu thuần",
-                value: roundTo2DecimalPlaces(currentPeriod?.sales.totalProfit || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.sales.totalProfit || 0, 0),
                 percentChange: totalProfitPecentChanges,
                 suffix: "đ",
                 tooltip: "Tổng doanh thu của các đơn hàng giao thành công. (Doanh thu = Giá trị hàng hoá - NB giảm giá - Phí trả Vagoda).",
@@ -166,7 +167,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Tỉ lệ chuyển đổi",
-                value: roundTo2DecimalPlaces(currentPeriod?.conversionRate.conversionRate! * 100 || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.conversionRate.conversionRate! * 100 || 0, 2),
                 isPercentageValue: true,
                 percentChange: conversionRatePecentChanges,
                 suffix: "%",
@@ -176,7 +177,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Giá trị đơn hàng trung bình",
-                value: roundTo2DecimalPlaces(currentPeriod?.sales.avgRevenue || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.sales.avgRevenue || 0, 0),
                 percentChange: avgRevenuePecentChanges,
                 suffix: "đ",
                 tooltip: "Doanh số trung bình mỗi đơn hàng trong khoảng thời gian đã chọn.",
@@ -185,7 +186,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Đơn hàng hủy",
-                value: roundTo2DecimalPlaces(currentPeriod?.cancelledOrders.totalOrders || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.cancelledOrders.totalOrders || 0, 0),
                 percentChange: cancelledPecentChanges,
                 tooltip: "Tổng số lượng đơn hàng hủy trong khoảng thời gian đã chọn",
                 color: '#78716c',
@@ -193,7 +194,7 @@ export default function BusinessPerformancePage() {
             },
             {
                 title: "Khách hàng quay lại",
-                value: roundTo2DecimalPlaces(currentPeriod?.returningRate.totalReturningUsers || 0),
+                value: roundToNDecimalPlaces(currentPeriod?.returningRate.totalReturningUsers || 0, 0),
                 percentChange: returningRatePecentChanges,
                 suffix: "khách",
                 tooltip: "Tổng số lượng khách quay lại trong khoảng thời gian đã chọn",

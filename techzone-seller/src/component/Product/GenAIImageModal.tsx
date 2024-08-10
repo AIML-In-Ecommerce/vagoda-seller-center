@@ -6,6 +6,7 @@ import GenAiResultModal from "@/component/Product/GenAiResultModal";
 import { Modal } from "antd";
 import axios from "axios";
 import { useRef, useState } from "react";
+import GenAIErrorResultModal from "./GenAIErrorResultModal";
 
 interface GenAiResultModalProp {
   openModal: boolean;
@@ -19,7 +20,6 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string>("");
   const [isFormVisible, setIsFormVisible] = useState<boolean>(true);
-  const [isError, setIsError] = useState<boolean>(false);
   const [genAiStatus, setGenAiStatus] = useState<string>("FORM");
   const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
 
@@ -57,8 +57,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
       }
     } catch (error) {
       console.error("Error fetching generate product image:", error);
-      setIsError(true);
-      setGenAiStatus("COMPLETED");
+      setGenAiStatus("ERROR");
     }
 
     // setTimeout(() => {
@@ -92,8 +91,11 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
             imageUrl={generatedImageUrl}
             isCreatingProductMode={true}
             addImage={props.addImage}
-            isError={isError}
           />
+        );
+      case "ERROR":
+        return (
+          <GenAIErrorResultModal tryAgainFnc={() => setGenAiStatus("FORM")} />
         );
     }
   };

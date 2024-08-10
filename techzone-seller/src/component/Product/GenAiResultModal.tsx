@@ -12,7 +12,6 @@ interface GenAiResultModalProps {
   isCreatingProductMode: boolean;
   addImage: (image_link: string) => void;
   closeModal: (isOpen: boolean) => void;
-  isError: boolean;
 }
 
 const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
@@ -21,7 +20,6 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   isCreatingProductMode,
   addImage,
   closeModal,
-  isError,
 }) => {
   const ref = useRef(null);
   useEffect(() => {
@@ -75,61 +73,43 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
         </p>
       </div>
 
-      {isError ? (
-        <div className=" flex flex-col justify-center items-center">
-          <div className="">{lottie}</div>
-          <p className="text-[16px] font-semibold absolute bottom-32">
-            Đã xảy ra sự cố khi tạo ảnh, vui lòng thử lại sau.{" "}
-          </p>
+      <div className="space-y-2  flex flex-col justify-center items-center">
+        <div className="rounded-lg overflow-hidden">
+          <Image height={320} width={320} src={imageLink} />
+        </div>
+
+        <div className="flex justify-center w-full space-x-2 ">
           <Button
             type="primary"
+            className="bg-slate-400 "
             style={{ width: "20%" }}
-            onClick={() => {
-              tryAgainFnc();
-            }}
+            onClick={() => tryAgainFnc()}
           >
             Tạo lại
           </Button>
-        </div>
-      ) : (
-        <div className="space-y-2  flex flex-col justify-center items-center">
-          <div className="rounded-lg overflow-hidden">
-            <Image height={320} width={320} src={imageLink} />
-          </div>
-
-          <div className="flex justify-center w-full space-x-2 ">
+          <Button
+            type="primary"
+            className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
+            style={{ width: "20%" }}
+            onClick={handleSaveImage}
+          >
+            Lưu vào bộ sưu tập
+          </Button>
+          {isCreatingProductMode && (
             <Button
               type="primary"
-              className="bg-slate-400 "
+              className=" bg-lime-500 "
               style={{ width: "20%" }}
-              onClick={() => tryAgainFnc()}
+              onClick={() => {
+                addImage(imageLink);
+                closeModal(false);
+              }}
             >
-              Tạo lại
+              Chọn ảnh
             </Button>
-            <Button
-              type="primary"
-              className=" bg-gradient-to-r from-cyan-500 to-blue-500 "
-              style={{ width: "20%" }}
-              onClick={handleSaveImage}
-            >
-              Lưu vào bộ sưu tập
-            </Button>
-            {isCreatingProductMode && (
-              <Button
-                type="primary"
-                className=" bg-lime-500 "
-                style={{ width: "20%" }}
-                onClick={() => {
-                  addImage(imageLink);
-                  closeModal(false);
-                }}
-              >
-                Chọn ảnh
-              </Button>
-            )}
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

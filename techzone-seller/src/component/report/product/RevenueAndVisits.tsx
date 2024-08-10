@@ -470,7 +470,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                                 (item: ProductStatisticsType) => {
                                     return {
                                         productId: item.product._id,
-                                        productName: item.product.name,
+                                        productName: `"${item.product.name}"`,
                                         totalViews: item.totalViews,
                                         totalViewers: item.totalViewers,
                                         cartAdditions: item.cartAdditions,
