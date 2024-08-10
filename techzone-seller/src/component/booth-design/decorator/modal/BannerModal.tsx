@@ -1,6 +1,6 @@
 "use client";
 import { Button, Modal } from "antd";
-import Banner from "./mini/Banner";
+import Banner from "../mini/Banner";
 
 interface BannerProps {
   color: string;

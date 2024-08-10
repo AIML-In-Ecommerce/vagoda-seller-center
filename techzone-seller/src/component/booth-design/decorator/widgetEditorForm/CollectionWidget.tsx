@@ -63,6 +63,19 @@ export default function CollectionWidget(props: WidgetProps) {
     return temp;
   }, [props.widget.element, shopId]);
 
+  useEffect(() => {
+    if (collections && collections.length > 0) {
+      let ids: string[] = [];
+      collections.forEach((c) => {
+        ids.push(c._id);
+      });
+
+      let temp = proxyCollectionId.filter((id) => ids.includes(id));
+
+      setProxyCollectionId(temp);
+    }
+  }, [collections]);
+
   const [pattern, setPattern] = useState(element.pattern);
   const [searchText, setSearchText] = useState("");
   const handleSearch = (e: any) => {

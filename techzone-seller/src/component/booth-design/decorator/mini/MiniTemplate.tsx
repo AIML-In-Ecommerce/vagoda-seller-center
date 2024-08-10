@@ -7,6 +7,7 @@ interface CardProps {
   icon: ReactNode;
   previewImageUrl: string;
   description: string;
+  usage: number;
 }
 
 export default function MiniDesignPattern(cardProps: CardProps) {
@@ -14,13 +15,13 @@ export default function MiniDesignPattern(cardProps: CardProps) {
     <div className="m-2 flex flex-col justify-center align-middle w-[100px] cursor-pointer">
       {/* onFocus show image */}
       <Popover
-        placement="rightTop"
+        placement="bottomLeft"
         title={cardProps.description}
         content={
           <Image
             className="pointer-events-none"
             preview={false}
-            height={120}
+            height={300}
             src={cardProps.previewImageUrl}
           />
         }
@@ -28,7 +29,10 @@ export default function MiniDesignPattern(cardProps: CardProps) {
         <Card hoverable style={{ width: 100, height: 100 }}>
           {cardProps.icon}
         </Card>
-        <div className="m-2 text-sm">{cardProps.title}</div>
+        <div className="m-2 text-sm font-semibold">{cardProps.title}</div>
+        <div className="m-2 text-xs font-extralight">
+          Lượt dùng: {cardProps.usage}
+        </div>
       </Popover>
     </div>
   );

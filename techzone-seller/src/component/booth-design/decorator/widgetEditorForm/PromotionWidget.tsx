@@ -121,6 +121,19 @@ export default function PromotionWidget(props: WidgetProps) {
     return temp;
   }, [props.widget.element, shopId]);
 
+  useEffect(() => {
+    if (promotions && promotions.length > 0) {
+      let ids: string[] = [];
+      promotions.forEach((p) => {
+        ids.push(p._id);
+      });
+
+      let temp = proxyPromotionId.filter((id) => ids.includes(id));
+
+      setProxyPromotionId(temp);
+    }
+  }, [promotions]);
+
   const [title, setTitle] = useState(element.title);
 
   useEffect(() => {

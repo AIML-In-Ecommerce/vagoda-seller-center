@@ -33,17 +33,23 @@ import { Link } from "react-scroll";
 import { ShopInfoDesignType, ShopType } from "@/model/ShopType";
 import {
   GET_GetShop,
+  POST_UseTemplate,
   PUT_UpdateShopDesign,
   PUT_UpdateShopInfoDesign,
 } from "@/apis/shop/ShopAPI";
 import {
   DELETE_DeleteWidget,
+  GET_GetTemplates,
   POST_CreateWidget,
   POST_GetWidgetList,
   PUT_UpdateWidgetVisibility,
 } from "@/apis/widget/WidgetAPI";
 import { GoSearch } from "react-icons/go";
 import { AuthContext } from "@/context/AuthContext";
+import TemplateDrawer from "@/component/booth-design/decorator/TemplateDrawer";
+import TemplateDetailModal from "@/component/booth-design/decorator/modal/TemplateDetailModal";
+import ApplyTemplateModal from "@/component/booth-design/decorator/modal/ApplyTemplateModal";
+import { DesignTemplateType } from "@/model/DesignTemplateType";
 
 type NotificationPlacement = NotificationArgsProps["placement"];
 
@@ -194,6 +200,15 @@ export default function BoothDecoratorPage() {
   // widget drawer
   const [openDrawer, setOpenDrawer] = useState(false);
 
+  // template
+  const [openTemplateDrawer, setOpenTemplateDrawer] = useState(false);
+  const [openTemplateDetail, setOpenTemplateDetail] = useState(false);
+  const [openTemplateModal, setOpenTemplateModal] = useState(false);
+
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<DesignTemplateType>();
+  const [templates, setTemplates] = useState<DesignTemplateType[]>([]);
+
   // add widget
   const addWidget = async (type: string, pattern: string, order: number) => {
     // console.log("addWidget", type, pattern, order);
@@ -269,7 +284,19 @@ export default function BoothDecoratorPage() {
     } else console.log(response.message);
   };
 
+  const handleOpenTemplateDetail = (
+    value: boolean,
+    selectedTemplate: DesignTemplateType
+  ) => {
+    setOpenTemplateDetail(value);
+    setSelectedTemplate(selectedTemplate);
+  };
+
   // call api
+  useEffect(() => {
+    handleGetTemplates();
+  }, []);
+
   useEffect(() => {
     handleGetShop();
   }, [shopId]);
@@ -330,6 +357,37 @@ export default function BoothDecoratorPage() {
       setShopInfo(design);
       openNotification("Cập nhật thành công", <></>);
     } else console.log(response.message);
+  };
+
+  const handleGetTemplates = async () => {
+    const response = await GET_GetTemplates();
+    if (response.status == 200) {
+      console.log(response.message);
+      console.log(response.data);
+
+      if (response.data) {
+        setTemplates(response.data);
+      }
+    }
+  };
+
+  const handleUseTemplate = async (design: WidgetType[]) => {
+    if (!shop || !design) return;
+    const response = await POST_UseTemplate(shop._id, design);
+
+    if (response) {
+      const response2 = await POST_GetWidgetList(response);
+      if (response2.status == 200) {
+        // console.log(response.message);
+        // console.log(response.data);
+
+        if (response2.data) {
+          setWidgets(response2.data);
+        }
+      }
+      setOpenTemplateModal(false);
+      setSelectedTemplate(undefined);
+    }
   };
 
   return (
@@ -445,6 +503,25 @@ export default function BoothDecoratorPage() {
             <Affix offsetTop={80}>
               <Link
                 activeClass="active"
+                to="general-info"
+                spy={true}
+                smooth={true}
+                offset={-80}
+                duration={500}
+              >
+                <Button
+                  className="mb-2 mr-5 w-full min-w-80 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-purple-600 hover:font-semibold text-white"
+                  block
+                  onClick={() => {
+                    setOpenTemplateDrawer(true);
+                  }}
+                >
+                  Áp dụng template
+                </Button>
+              </Link>
+
+              <Link
+                activeClass="active"
                 to="new-widget"
                 spy={true}
                 smooth={true}
@@ -484,6 +561,13 @@ export default function BoothDecoratorPage() {
             order={widgets.length}
           />
 
+          <TemplateDrawer
+            templates={templates}
+            openDrawer={openTemplateDrawer}
+            setOpenDrawer={setOpenTemplateDrawer}
+            setOpenDetail={handleOpenTemplateDetail}
+          />
+
           <FloatButton.BackTop tooltip={<div>Lướt lên đầu</div>} />
 
           <DeleteWidgetModal
@@ -491,6 +575,34 @@ export default function BoothDecoratorPage() {
             handleOk={() => deleteWidget()}
             handleCancel={() => setOpenDeleteModal(false)}
           />
+
+          {selectedTemplate && (
+            <ApplyTemplateModal
+              open={openTemplateModal}
+              handleOk={() => {
+                handleUseTemplate(selectedTemplate.design);
+              }}
+              handleCancel={() => {
+                setOpenTemplateModal(false);
+                setSelectedTemplate(undefined);
+              }}
+            />
+          )}
+
+          {selectedTemplate && (
+            <TemplateDetailModal
+              template={selectedTemplate}
+              open={openTemplateDetail}
+              handleOk={() => {
+                setOpenTemplateModal(true);
+                setOpenTemplateDetail(false);
+              }}
+              handleCancel={() => {
+                setOpenTemplateDetail(false);
+                setSelectedTemplate(undefined);
+              }}
+            />
+          )}
         </div>
       )) || <Skeleton active style={{ margin: 10 }} />}
     </div>
