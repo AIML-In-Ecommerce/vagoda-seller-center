@@ -27,6 +27,7 @@ export default function CreateProductPage() {
 
   useEffect(() => {
     window.history.pushState({}, "", `${window.location.pathname}`);
+    console.log("User agent id", navigator.userAgent);
   }, []);
 
   return (
