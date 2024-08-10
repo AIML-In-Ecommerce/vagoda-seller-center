@@ -1,9 +1,11 @@
 "use client";
 
 import { GET_GetShop, PUT_RemoveImageCollection } from "@/apis/shop/ShopAPI";
+import GenAIErrorResultModal from "@/component/Product/GenAIErrorResultModal";
 import GenAiFormModal from "@/component/Product/GenAiFormModal";
 import GenAiProgressModal from "@/component/Product/GenAiProgressModel";
 import GenAiResultModal from "@/component/Product/GenAiResultModal";
+import { ShopInfoType } from "@/model/ShopInfoType";
 import {
   Breadcrumb,
   Button,
@@ -13,12 +15,14 @@ import {
   notification,
   NotificationArgsProps,
 } from "antd";
+import axios from "axios";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { FaMagic } from "react-icons/fa";
 import { HiOutlineHome } from "react-icons/hi2";
 import { RiDeleteBinLine } from "react-icons/ri";
 import "./local.css";
-import axios from "axios";
+const AI_DOMAIN = process.env.NEXT_PUBLIC_AI_DOMAIN;
+const authLocalStorageID = "#auth-context-shop-info#";
 
 type NotificationPlacement = NotificationArgsProps["placement"];
 
@@ -47,6 +51,17 @@ const ImageCollection = () => {
   const [imageCollection, setImageCollection] = useState<string[]>([]);
   const [api, contextHolder] = notification.useNotification();
 
+  function initLoading() {
+    const storageInfo = localStorage.getItem(authLocalStorageID);
+    if (storageInfo != null) {
+      return JSON.parse(storageInfo) as ShopInfoType;
+    } else {
+      return null;
+    }
+  }
+
+  const shopInfo = initLoading();
+
   const placement: NotificationPlacement = "topRight"; //topLeft, bottomRight, bottomLeft
   const openNotification = (title: string, content: ReactElement) => {
     api.info({
@@ -68,15 +83,17 @@ const ImageCollection = () => {
     };
 
     try {
+      const apiEndpoint = `${AI_DOMAIN}/genai/generate-product-image`;
+      console.log("API Endpoint: ", apiEndpoint);
       console.log("Post body:  ", postBody);
       const response = await axios.post(
-        "http://54.255.29.11/genai/generate-product-image",
+        `${AI_DOMAIN}/genai/generate-product-image`,
         postBody,
         {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (response.status == 200) {
@@ -87,6 +104,7 @@ const ImageCollection = () => {
       }
     } catch (error) {
       console.error("Error fetching generate product image:", error);
+      setGenAiStatus("ERROR");
     }
 
     // setTimeout(() => {
@@ -122,12 +140,16 @@ const ImageCollection = () => {
             closeModal={setGenAiModalOpen}
           />
         );
+      case "ERROR":
+        return (
+          <GenAIErrorResultModal tryAgainFnc={() => setGenAiStatus("FORM")} />
+        );
     }
   };
 
   const deleteImage = async (image_link: string) => {
     const response: { status: number; message: string } =
-      await PUT_RemoveImageCollection("65f1e8bbc4e39014df775166", image_link);
+      await PUT_RemoveImageCollection(`${shopInfo?._id}`, image_link);
 
     if (response.status == 200) {
       message.success("Xóa sản phẩm thành công");
@@ -139,7 +161,7 @@ const ImageCollection = () => {
     setPreviewImage(null);
   };
   const loadImageCollection = async () => {
-    const { data } = await GET_GetShop("65f1e8bbc4e39014df775166");
+    const { data } = await GET_GetShop(`${shopInfo?._id}`);
     if (data) {
       setImageCollection(data.imageCollection);
     }
@@ -185,10 +207,15 @@ const ImageCollection = () => {
       </div>
       <Divider className="my-4" />
 
-      <div className="grid-wrapper">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {/* <div className="grid-wrapper"> */}
         {imageCollection.map((image, index) => (
           <div key={index} onClick={() => openPreview(image)}>
-            <img src={image} alt={`Image ${index}`} />
+            <img
+              src={image}
+              alt={`Image ${index}`}
+              className="rounded-md cursor-pointer"
+            />
           </div>
         ))}
       </div>

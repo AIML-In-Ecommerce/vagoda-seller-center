@@ -306,7 +306,7 @@ export default function ProductListPage() {
     {
       title: () => (
         <div className="flex space-x-1 items-center">
-          <p>Phí Techzone thu</p>
+          <p>Phí Vagoda thu</p>
           <Tooltip
             title={
               <div className="tooltip-content">
@@ -339,10 +339,10 @@ export default function ProductListPage() {
                   sau khi trừ các phí:
                 </p>
                 <p className="text-green-500">
-                  · Số dương: Techzone sẽ trả cho Nhà bán
+                  · Số dương: Vagoda sẽ trả cho Nhà bán
                 </p>
                 <p className="text-amber-400">
-                  · Số âm: Nhà bán phải trả cho Techzone
+                  · Số âm: Nhà bán phải trả cho Vagoda
                 </p>
               </div>
             }

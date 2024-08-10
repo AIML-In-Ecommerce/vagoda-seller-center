@@ -16,10 +16,15 @@ const clothTypeList = [
   { value: "shirt", label: "Áo Sơ Mi" },
   { value: "polo shirt", label: "Áo Polo" },
   { value: "jacket", label: "Áo Khoác" },
+  { value: "sports shirt", label: "Áo thể thao" },
   { value: "trousers", label: "Quần âu" },
   { value: "shorts", label: "Quần short" },
   { value: "jeans", label: "Quần Jean" },
   { value: "sports pants", label: "Quần thể thao" },
+  { value: "dress", label: "Đầm nữ" },
+  { value: "mini skirt", label: "Váy ngắn" },
+  { value: "maxi skirt", label: "Váy dài" },
+  { value: "hat", label: "Nón" },
 ];
 
 const nationalityList = [
@@ -188,6 +193,8 @@ const bodyShapeList = [
 const postureList = [
   { value: "standing", label: "Đứng" },
   { value: "sitting", label: "Ngồi" },
+  { value: "working", label: "Đi" },
+  { value: "running", label: "Chạy" },
 ];
 
 const backgroundList = [
@@ -196,6 +203,7 @@ const backgroundList = [
   { value: "restaurant", label: "Nhà hàng" },
   { value: "park", label: "Công viên" },
   { value: "stadium", label: "Sân vận động" },
+  { value: "beach", label: "Bãi biển" },
 ];
 
 type FieldType = {

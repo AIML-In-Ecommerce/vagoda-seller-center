@@ -6,6 +6,7 @@ import GenAiResultModal from "@/component/Product/GenAiResultModal";
 import { Modal } from "antd";
 import axios from "axios";
 import { useRef, useState } from "react";
+import GenAIErrorResultModal from "./GenAIErrorResultModal";
 
 interface GenAiResultModalProp {
   openModal: boolean;
@@ -24,6 +25,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
 
   const handleFormSubmit = async (values: any) => {
     setGenAiStatus("IN_PROGRESS");
+
     const promptTemplate = `hyperdetailed photography, soft light, head portrait, (white background:13, skin details, sharp and in focus,\n${values.gender} ${values.nationality} student,\n${values.bodyShape} body shape,\n${values.skinColor} skin,\n${values.hairColor} ${values.hairStyle},\nbig ${values.eyesColor} eyes,\nhigh nose,\nslim,\ncute,\nbeautiful`;
     const contextTemplate = `${values.gender} is wearing ${values.clothType} and ${values.posture} in ${values.background}`;
     const postBody = {
@@ -33,7 +35,10 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
     };
 
     try {
+      const apiEndpoint = `${AI_DOMAIN}/genai/generate-product-image`;
+      console.log("API Endpoint: ", apiEndpoint);
       console.log("Post body:  ", postBody);
+
       const response = await axios.post(
         `${AI_DOMAIN}/genai/generate-product-image`,
         postBody,
@@ -41,7 +46,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (response.status == 200) {
@@ -52,6 +57,7 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
       }
     } catch (error) {
       console.error("Error fetching generate product image:", error);
+      setGenAiStatus("ERROR");
     }
 
     // setTimeout(() => {
@@ -86,6 +92,10 @@ const GenAIImageModal = (props: GenAiResultModalProp) => {
             isCreatingProductMode={true}
             addImage={props.addImage}
           />
+        );
+      case "ERROR":
+        return (
+          <GenAIErrorResultModal tryAgainFnc={() => setGenAiStatus("FORM")} />
         );
     }
   };

@@ -3,7 +3,7 @@ import { Button, Image, message } from "antd";
 // import fs from "fs-extra";
 import { PUT_AddImageCollection } from "@/apis/shop/ShopAPI";
 import { AuthContext } from "@/context/AuthContext";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
 interface GenAiResultModalProps {
@@ -21,6 +21,23 @@ const GenAiResultModal: React.FC<GenAiResultModalProps> = ({
   addImage,
   closeModal,
 }) => {
+  const ref = useRef(null);
+  useEffect(() => {
+    import("@lottiefiles/lottie-player");
+  });
+
+  const lottie = (
+    <lottie-player
+      id="firstLottie"
+      ref={ref}
+      autoPlay
+      loop
+      mode="normal"
+      src="https://lottie.host/10e2f813-52c5-4014-b8bf-0591d8d9eb55/7vcvIB5FbV.json"
+      style={{ width: "300px", height: "300px" }}
+      className="absolute top-12 "
+    />
+  );
   const [imageLink, setImageLink] = useState<string>(imageUrl);
   const authContext = useContext(AuthContext);
 

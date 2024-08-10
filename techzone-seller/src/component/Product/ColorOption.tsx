@@ -52,8 +52,8 @@ export default function ColorOption(props: ColorOptionProps) {
                   style={{ display: "flex" }}
                   className="items-start"
                 >
-                  <div className="space-y-1">
-                    <p className="font-semibold">
+                  <div className="space-y-1 mr-2">
+                    <p className="font-semibold ">
                       <span className="text-red-400 font-bold">*</span> Chọn mã
                       màu
                     </p>
@@ -98,7 +98,7 @@ export default function ColorOption(props: ColorOptionProps) {
                         <span className="text-red-400 font-bold">*</span> Ảnh
                         minh họa(theo màu sắc vừa chọn)
                       </p>
-                      <div className="ml-2">
+                      <div className="flex ml-2 space-x-6 ">
                         <ColorImage
                           isDisplayLarge={false}
                           initialUrl={form.getFieldValue([
@@ -111,11 +111,18 @@ export default function ColorOption(props: ColorOptionProps) {
                           }}
                           maxNumber={1}
                         />{" "}
+                        <p className="text-xs italic w-36">
+                          {" "}
+                          <span className="font-semibold ">Lưu ý</span>: Vui
+                          lòng chọn ảnh chỉ có sản phẩm, không chứa các vật thể
+                          gây nhiễu làm ảnh hưởng đến việc sinh ảnh sản phẩm với
+                          model ảo
+                        </p>
                       </div>
                     </div>
                   </Form.Item>{" "}
                   <MinusCircleOutlined
-                    style={{ padding: 0, marginLeft: 8 }}
+                    style={{ padding: 0, marginLeft: 20, alignItems: "end" }}
                     onClick={() => remove(name)}
                   />
                 </Space>

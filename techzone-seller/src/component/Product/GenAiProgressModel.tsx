@@ -5,7 +5,6 @@ import "../../app/[locale]/(Main)/product/image-collection/local.css";
 
 interface GenAiProgressModalProps {
   onClose: () => void;
-  imageUrl: string;
 }
 
 const GenAiProgressModal: React.FC = () => {
