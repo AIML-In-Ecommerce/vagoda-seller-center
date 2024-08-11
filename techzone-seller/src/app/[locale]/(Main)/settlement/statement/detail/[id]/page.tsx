@@ -126,7 +126,7 @@ export default function UpdateProductInfo({
       render: (text: string, record: ProductStatementType, index: number) => (
         <div>
           {index == 0 ? (
-            <div></div>
+            <div className="font-bold">{record.product_name}</div>
           ) : (
             <div style={{ display: "flex", alignItems: "center" }}>
               <img
@@ -146,7 +146,7 @@ export default function UpdateProductInfo({
       dataIndex: "amount",
       render: (_: any, record: ProductStatementType, index: number) => {
         return (
-          <p className={`${index == 0 ? "font-bold" : ""}`}>
+          <p className={`${index == 0 ? "font-bold " : ""}`}>
             {index == 0 ? totalAmount : record.amount}
           </p>
         );
@@ -156,12 +156,13 @@ export default function UpdateProductInfo({
     {
       title: "Giá bán",
       dataIndex: "price",
+      render: (text: number) => formatPrice(text),
       width: "15%",
     },
     {
       title: "Phí nền tảng",
       dataIndex: "system_fee",
-
+      render: (text: number) => formatPrice(text),
       width: "15%",
     },
 
@@ -204,7 +205,7 @@ export default function UpdateProductInfo({
     const summaryRecord: ProductStatementType = {
       _id: "",
       product_avatar: "",
-      product_name: "",
+      product_name: "TỔNG",
       amount: response.totalAmount,
       price: null,
       system_fee: null,
@@ -311,6 +312,7 @@ export default function UpdateProductInfo({
             ),
           }}
           className=""
+          rowClassName={(record, index) => (index === 0 ? "bg-slate-100" : "")}
         />
       </div>
     </div>
