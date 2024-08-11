@@ -1,3 +1,16 @@
+export type BankCard = {
+  _id: string;
+  bankName: string;
+  owner: string;
+  accountNumber: string;
+}
+
+export type WalletType = {
+  _id: string;
+  balance: number,
+  bankCard: BankCard[]
+}
+
 export type ShopInfoDesignType = {
   color: string;
   name: string;
@@ -27,4 +40,5 @@ export type ShopType = {
   shopDetail: ShopDetailType;
   createAt: Date;
   imageCollection: string[];
+  wallet: WalletType;
 };

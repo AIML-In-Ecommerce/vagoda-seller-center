@@ -69,15 +69,15 @@ const columns: TableColumnsType<CouponInsightStatistics> = [
     dataIndex: 'activeDate',
     width: '20%',
     render: (value: any, record: CouponInsightStatistics) => {
-      return (<Timeline mode="right" className="w-full"
+      return (<Timeline mode="left" className="w-full"
         items={[
-          {
-            children: 'Bắt đầu',
-            label: `${formatDate(record.promotion.activeDate)}`
+          { 
+            // children: 'Bắt đầu',
+            children: `Bắt đầu: ${formatDate(record.promotion.activeDate)}`
           },
           {
-            children: 'Kết thúc',
-            label: `${formatDate(record.promotion.expiredDate)}`
+            // children: 'Kết thúc',
+            children: `Kết thúc: ${formatDate(record.promotion.expiredDate)}`
           }
         ]}>
       </Timeline>)

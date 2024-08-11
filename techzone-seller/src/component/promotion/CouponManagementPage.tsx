@@ -39,42 +39,42 @@ export default function CouponManagementPage() {
                 const promotionListData = response.data as PromotionType[];
                 // setPromotions(promotionListData);
                 //update promotion status 
-                const updatePromotionStatus = (promotion: PromotionType) => {
-                    const currentDate = new Date();
-                    const dates = [new Date(promotion.activeDate), new Date(promotion.expiredDate)]
-                    let currentDiscountStatus = promotion.status;
+                // const updatePromotionStatus = (promotion: PromotionType) => {
+                //     const currentDate = new Date();
+                //     const dates = [new Date(promotion.activeDate), new Date(promotion.expiredDate)]
+                //     let currentDiscountStatus = promotion.status;
 
-                    if (dates && dates[0] && dates[1]) {
-                        if (currentDate < dates[0]) {
-                            currentDiscountStatus = PromotionStatus.UPCOMMING;
-                        }
-                        else if (currentDate < dates[1]) {
-                            currentDiscountStatus = PromotionStatus.IN_PROGRESS;
-                        }
-                        else {
-                            currentDiscountStatus = PromotionStatus.EXPIRED;
-                        }
-                    }
-                    else {
-                        currentDiscountStatus = PromotionStatus.UPCOMMING;
-                    }
-                    const newPromotion = {
-                        ...promotion,
-                        status: currentDiscountStatus
-                    } as PromotionType
+                //     if (dates && dates[0] && dates[1]) {
+                //         if (currentDate < dates[0]) {
+                //             currentDiscountStatus = PromotionStatus.UPCOMMING;
+                //         }
+                //         else if (currentDate < dates[1]) {
+                //             currentDiscountStatus = PromotionStatus.IN_PROGRESS;
+                //         }
+                //         else {
+                //             currentDiscountStatus = PromotionStatus.EXPIRED;
+                //         }
+                //     }
+                //     else {
+                //         currentDiscountStatus = PromotionStatus.UPCOMMING;
+                //     }
+                //     const newPromotion = {
+                //         ...promotion,
+                //         status: currentDiscountStatus
+                //     } as PromotionType
 
-                    console.log(`promotion #${promotion._id}`, currentDate, promotion.activeDate, promotion.expiredDate, currentDiscountStatus)
-                    return newPromotion;
-                }
-                let newPromotions: PromotionType[] = [];
+                //     console.log(`promotion #${promotion._id}`, currentDate, promotion.activeDate, promotion.expiredDate, currentDiscountStatus)
+                //     return newPromotion;
+                // }
+                // let newPromotions: PromotionType[] = [];
                 if (promotionListData && promotionListData.length > 0) {
-                    for (const promotion of promotionListData) {
-                        const newPromotion = updatePromotionStatus(promotion);
-                        newPromotions.push(newPromotion)
-                        await PUT_UpdatePromotion(context.shopInfo?._id as string, promotion._id, newPromotion)
-                    }
-                    // sort promotion based on promotion creation timestamp
-                    setPromotions(newPromotions.sort((a, b) => a.createAt < b.createAt ? 1 : -1));
+                    // for (const promotion of promotionListData) {
+                    //     const newPromotion = updatePromotionStatus(promotion);
+                    //     newPromotions.push(newPromotion)
+                    //     await PUT_UpdatePromotion(context.shopInfo?._id as string, promotion._id, newPromotion)
+                    // }
+                    // // sort promotion based on promotion creation timestamp
+                    setPromotions(promotionListData.sort((a, b) => a.createAt < b.createAt ? 1 : -1));
                 }
                 console.log('fetchPromotionList', promotionListData);
             }

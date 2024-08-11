@@ -129,12 +129,12 @@ export default function CouponTable(props: CouponTableProps) {
                         <Timeline mode="left" className="w-full"
                             items={[
                                 {
-                                    label: 'Bắt đầu',
-                                    children: `${formatDate(record.activeDate)}`
+                                    // label: 'Bắt đầu',
+                                    children: `Bắt đầu: ${formatDate(record.activeDate)}`
                                 },
                                 {
-                                    label: 'Kết thúc',
-                                    children: `${formatDate(record.expiredDate)}`
+                                    // label: 'Kết thúc',
+                                    children: `Kết thúc: ${formatDate(record.expiredDate)}`
                                 }
                             ]}>
                         </Timeline>
