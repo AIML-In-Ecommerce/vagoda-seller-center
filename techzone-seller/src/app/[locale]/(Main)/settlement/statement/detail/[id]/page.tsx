@@ -1,63 +1,144 @@
 "use client";
+import { ProductStatementInput } from "@/apis/SettlementAPI";
 import { formatPrice } from "@/component/utils/formatPrice";
 import { AuthContext } from "@/context/AuthContext";
 import { ProductStatementType } from "@/model/ProductStatementType";
-import { StatementType } from "@/model/StatementType";
-import { Breadcrumb, Empty, Table, Tooltip } from "antd";
+import { SettlementService } from "@/services/Settlement";
+import { Breadcrumb, Button, Empty, Table, Tooltip } from "antd";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 import { CgList } from "react-icons/cg";
 import { GoInfo } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
 import { IoIosArrowBack } from "react-icons/io";
 
-const productStatements: ProductStatementType[] = [
-  {
-    _id: "1",
-    product_name: "Product A",
-    amount: 10,
-    price: 100,
-    system_fee: 5,
-    revenue: 950,
-  },
-  {
-    _id: "2",
-    product_name: "Product B",
-    amount: 5,
-    price: 200,
-    system_fee: 10,
-    revenue: 990,
-  },
-  {
-    _id: "3",
-    product_name: "Product C",
-    amount: 8,
-    price: 150,
-    system_fee: 7.5,
-    revenue: 1120,
-  },
-];
-
 export default function UpdateProductInfo({
   params,
 }: {
   params: { id: string };
 }) {
-  const [statement, setStatement] = useState<StatementType>({
-    _id: "1",
-    name: "Statement 1",
-    date: "2024-08-01",
-    period: "01/08/2020 -16/08/2020",
-    revenue: 15000000,
-  });
+  const query = useSearchParams();
   const authContext = useContext(AuthContext);
-  const [allProductStatements, setAllProductStatements] =
-    useState<ProductStatementType[]>(productStatements);
+  const [allProductStatements, setAllProductStatements] = useState<
+    ProductStatementType[]
+  >([]);
+  const router = useRouter();
+
+  const [total, setTotal] = useState<number>(0);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [totalRevenue, setTotalRevenue] = useState<number>(0);
+  const [period, setPeriod] = useState<string>("");
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query.toString());
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  // const columns = [
+  //   {
+  //     title: "Tên sản phẩm",
+  //     dataIndex: "name",
+  //     render: (text: string, record: ProductStatementType, index: number) => (
+  //       <div>
+  //         {index == 0 ? (
+  //           <div></div>
+  //         ) : (
+  //           <div style={{ display: "flex", alignItems: "center" }}>
+  //             <img
+  //               src={record.product_avatar ?? ""}
+  //               alt={text}
+  //               style={{ marginRight: "8px", width: "32px", height: "32px" }}
+  //             />
+  //             {record.product_name}
+  //           </div>
+  //         )}
+  //       </div>
+  //     ),
+  //     width: "30%",
+  //   },
+  //   {
+  //     title: "Số lượng",
+  //     dataIndex: "amount",
+  //     render: (_: any, record: ProductStatementType, index: number) => {
+  //       return (
+  //         <p className={`${index == 0 ? "font-bold" : ""}`}>
+  //           {index == 0 ? totalAmount : record.amount}
+  //         </p>
+  //       );
+  //     },
+  //     width: "10%",
+  //   },
+  //   {
+  //     title: "Giá bán",
+  //     dataIndex: "price",
+  //     width: "15%",
+  //     render: (_: any, record: ProductStatementType, index: number) => {
+  //       return (
+  //         <div>
+  //           {index == 0 ? <div></div> : <div className="">{record.price}</div>}
+  //         </div>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     title: "Phí nền tảng",
+  //     dataIndex: "system_fee",
+  //     render: (_: any, record: ProductStatementType, index: number) => {
+  //       return (
+  //         <div>
+  //           {index == 0 ? (
+  //             <div></div>
+  //           ) : (
+  //             <div className="">{record.system_fee}</div>
+  //           )}
+  //         </div>
+  //       );
+  //     },
+  //     width: "15%",
+  //   },
+
+  //   {
+  //     title: "Doanh thu",
+  //     dataIndex: "revenue",
+  //     render: (_: any, record: ProductStatementType, index: number) => {
+  //       return (
+  //         <p className={`${index == 0 ? "font-bold" : ""}`}>
+  //           {index == 0 ? totalRevenue : record.revenue}
+  //         </p>
+  //       );
+  //     },
+  //     sorter: (a: ProductStatementType, b: ProductStatementType) =>
+  //       a.revenue - b.revenue,
+  //     width: "20%",
+  //   },
+  // ];
 
   const columns = [
     {
       title: "Tên sản phẩm",
-      dataIndex: "product_name",
-
+      dataIndex: "name",
+      render: (text: string, record: ProductStatementType, index: number) => (
+        <div>
+          {index == 0 ? (
+            <div className="font-bold">{record.product_name}</div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <img
+                src={record.product_avatar ?? ""}
+                alt={text}
+                style={{ marginRight: "8px", width: "32px", height: "32px" }}
+              />
+              {record.product_name}
+            </div>
+          )}
+        </div>
+      ),
       width: "30%",
     },
     {
@@ -65,8 +146,8 @@ export default function UpdateProductInfo({
       dataIndex: "amount",
       render: (_: any, record: ProductStatementType, index: number) => {
         return (
-          <p className={`${index == 0 ? "font-semibold" : ""}`}>
-            {record.amount}
+          <p className={`${index == 0 ? "font-bold " : ""}`}>
+            {index == 0 ? totalAmount : record.amount}
           </p>
         );
       },
@@ -75,12 +156,13 @@ export default function UpdateProductInfo({
     {
       title: "Giá bán",
       dataIndex: "price",
+      render: (text: number) => formatPrice(text),
       width: "15%",
     },
     {
       title: "Phí nền tảng",
       dataIndex: "system_fee",
-
+      render: (text: number) => formatPrice(text),
       width: "15%",
     },
 
@@ -89,8 +171,10 @@ export default function UpdateProductInfo({
       dataIndex: "revenue",
       render: (_: any, record: ProductStatementType, index: number) => {
         return (
-          <p className={`${index == 0 ? "font-semibold" : ""}`}>
-            {record.revenue}
+          <p className={`${index == 0 ? "font-bold" : ""}`}>
+            {index == 0
+              ? formatPrice(totalRevenue)
+              : formatPrice(record.revenue)}
           </p>
         );
       },
@@ -100,31 +184,51 @@ export default function UpdateProductInfo({
     },
   ];
 
-  useEffect(() => {
-    const loadAllStatements = async () => {
-      if (!authContext.shopInfo) {
-        return;
-      }
-      console.log("Loading");
+  const loadProductStatement = async () => {
+    const input: ProductStatementInput = { id: params.id };
+    if (query.get("index")) {
+      input.index = Number(query.get("index")) ?? undefined;
+    }
+    if (query.get("amount")) {
+      input.amount = Number(query.get("index")) ?? undefined;
+    }
 
-      // const response: {
-      //   total: number;
-      //   totalPages: number;
-      //   products: _ProductType[];
-      // } = await ProductService.getProductByFilter(
-      //   filter,
-      //   authContext.shopInfo._id ?? ""
-      // );
-      setStatement({
-        _id: "1",
-        name: "Statement 1",
-        date: "2024-08-01",
-        period: "August 2024",
-        revenue: 1500.0,
-      });
+    const response: {
+      total: number;
+      totalPages: number;
+      totalAmount: number;
+      totalRevenue: number;
+      period: string;
+      productStatements: ProductStatementType[];
+    } = await SettlementService.getStatementById(input);
+    console.log("THAO", response);
+    const summaryRecord: ProductStatementType = {
+      _id: "",
+      product_avatar: "",
+      product_name: "TỔNG",
+      amount: response.totalAmount,
+      price: null,
+      system_fee: null,
+      revenue: response.totalRevenue,
     };
 
-    loadAllStatements;
+    const productStatements = response.productStatements;
+    productStatements.unshift(summaryRecord);
+
+    setAllProductStatements(productStatements);
+    setTotal(response.total + 1);
+    setTotalAmount(response.totalAmount);
+    setTotalRevenue(response.totalRevenue);
+    setPeriod(response.period);
+    setAllProductStatements(response.productStatements);
+  };
+
+  useEffect(() => {
+    loadProductStatement();
+  }, [query]);
+
+  useEffect(() => {
+    loadProductStatement();
   }, []);
 
   return (
@@ -154,13 +258,19 @@ export default function UpdateProductInfo({
             },
           ]}
         />
+
         <div className="flex space-x-2 items-center my-4">
-          <IoIosArrowBack size={28} />
+          <Button
+            type="text"
+            icon={<IoIosArrowBack size={28} />}
+            onClick={() => router.push("/settlement/statement")}
+          />
+
           <div className="">
             <p className=" text-xl font-semibold">
               Chi tiết sao kê - ID: {params.id}
             </p>
-            <p className="text-xs">Sao kê kỳ: {statement?.period}</p>
+            <p className="text-xs">Sao kê kỳ: {period}</p>
           </div>
         </div>
 
@@ -177,27 +287,20 @@ export default function UpdateProductInfo({
             </Tooltip>
           </div>
           <div className="ml-8 text-2xl text-sky-500 font-bold">
-            {formatPrice(statement.revenue)} đ
+            {formatPrice(totalRevenue)} đ
           </div>
         </div>
       </div>
       <div className="bg-white top-4 rounded-lg">
         <Table
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                // () => showDrawer(record);
-              },
-            };
-          }}
           pagination={{
             defaultPageSize: 20,
             pageSizeOptions: ["20", "10", "5"],
 
             showSizeChanger: true,
-            total: 9,
+            total: total,
             onChange: (page, pageSize) => {
-              //   fetchRecords(page, pageSize);
+              fetchRecords(page, pageSize);
             },
           }}
           bordered
@@ -209,6 +312,7 @@ export default function UpdateProductInfo({
             ),
           }}
           className=""
+          rowClassName={(record, index) => (index === 0 ? "bg-slate-100" : "")}
         />
       </div>
     </div>
