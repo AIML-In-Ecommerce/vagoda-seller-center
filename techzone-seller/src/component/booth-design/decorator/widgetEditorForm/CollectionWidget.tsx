@@ -236,7 +236,7 @@ export default function CollectionWidget(props: WidgetProps) {
                 </div>
               )}
 
-              <Card className="overflow-auto h-96">
+              <Card className="overflow-auto h-fit max-h-96 flex flex-col gap-10">
                 {collections.map((item, index) => {
                   return (
                     <div

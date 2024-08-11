@@ -15,15 +15,20 @@ export default function MiniDesignPattern(cardProps: CardProps) {
     <div className="m-2 flex flex-col justify-center align-middle w-[100px] cursor-pointer">
       {/* onFocus show image */}
       <Popover
+        // open
+        className="w-fit"
         placement="bottomLeft"
         title={cardProps.description}
         content={
-          <Image
-            className="pointer-events-none"
-            preview={false}
-            height={300}
-            src={cardProps.previewImageUrl}
-          />
+          <div className="w-fit h-fit max-h-[300px] max-w-[200px] overflow-x-auto">
+            {/* <div className="w-fit h-fit max-h-[300px] max-w-[200px] flex items-center align-middle justify-center"> */}
+            <Image
+              className="pointer-events-none"
+              preview={false}
+              // height={300}
+              src={cardProps.previewImageUrl}
+            />
+          </div>
         }
       >
         <Card hoverable style={{ width: 100, height: 100 }}>

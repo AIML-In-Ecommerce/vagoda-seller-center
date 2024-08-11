@@ -244,7 +244,7 @@ export default function PromotionWidget(props: WidgetProps) {
                 </div>
               )}
 
-              <Card className="overflow-auto h-96">
+              <Card className="overflow-auto h-fit max-h-96">
                 {promotions &&
                   promotions.map((item, index) => {
                     return (
@@ -260,7 +260,7 @@ export default function PromotionWidget(props: WidgetProps) {
                             ? "hidden"
                             : ""
                         }
-                      `}
+                       flex flex-col gap-5`}
                       >
                         <PromotionCard
                           item={item}
