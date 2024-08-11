@@ -9,6 +9,7 @@ import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { GoDownload } from 'react-icons/go';
 import { AuthContext } from '@/context/AuthContext';
+import { TransactionAPI } from '@/apis/settlement/TransactionAPI';
 
 dayjs.extend(LocalizedFormat)
 
@@ -29,19 +30,34 @@ interface TransactionType {
 
 const { RangePicker } = DatePicker;
 
+const formatShortDate = (date: Date) => {
+    return dayjs(date).locale('vi').format('L');
+}
+
+const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
+    return dates.map(item => {
+        if (item === null) {
+            return null;
+        } else {
+            return item.toDate();
+        }
+    });
+}
+
+
 export default function TransactionHistoryTable(props: TransactionHistoryTableProps) {
     const context = useContext(AuthContext);
     const [selectedReportPeriod, setSelectedReportPeriod] = useState<string>("week");
     const [selectedDates, setSelectedDates] = useState<[Dayjs | null, Dayjs | null]>([dayjs().startOf('date'), dayjs().endOf('date')]);
-    const [totalMoneyIn, setTotalMoneyIn] = useState<number>(10000000);
-    const [totalMoneyOut, setTotalMoneyOut] = useState<number>(500000);
+    const [totalMoneyIn, setTotalMoneyIn] = useState<number>(0);
+    const [totalMoneyOut, setTotalMoneyOut] = useState<number>(0);
     const [activeKey, setActiveKey] = useState<string>('all');
     const [keyword, setKeyword] = useState<string>("");
     const [idType, setIdType] = useState<string>("transaction");
     const [selectedTransactionCategories, setSelectedTransactionCategories] = useState<string>("");
     const [transactionData, setTransactionData] = useState<TransactionType[]>([])
     const [filteredData, setFilteredData] = useState<TransactionType[]>([]);
-    
+
 
     const onTabChange = (key: string) => {
         setActiveKey(key);
@@ -108,38 +124,41 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
     const columns = useMemo<TableColumnsType<TransactionType>>(() => {
         const result: TableColumnsType<TransactionType> = [
             {
-              title: <div>Mã giao dịch</div>,
-              dataIndex: '_id',
-              fixed: 'left',
-              width: '10%',
+                title: <div>Mã giao dịch</div>,
+                dataIndex: '_id',
+                fixed: 'left',
+                width: '10%',
             },
             {
-              title: <div>Thời gian giao dịch</div>,
-              dataIndex: 'transactionDate',
-              width: '20%',
+                title: <div>Thời gian giao dịch</div>,
+                dataIndex: 'transactionDate',
+                width: '20%',
+                render: (value: any, record: TransactionType) => <div>{formatShortDate(record.transactionDate)}</div>
             },
             {
-              title: <div>Loại giao dịch</div>,
-              dataIndex: 'transactionCategory',
+                title: <div>Loại giao dịch</div>,
+                dataIndex: 'transactionCategory',
             },
             {
-              title: <div>Số tiền</div>,
-              dataIndex: 'money',
+                title: <div>Số tiền</div>,
+                dataIndex: 'money',
+                render: (value: any, record: TransactionType) => <Currency value={record.money ?? 0} />
             },
             {
-              title: <div>Số dư</div>,
-              dataIndex: 'balance',
+                title: <div>Số dư</div>,
+                dataIndex: 'balance',
+                render: (value: any, record: TransactionType) => <Currency value={record.balance ?? 0} />
             },
             {
-              title: <div>Mã đơn hàng</div>,
-              dataIndex: 'orderId',
+                title: <div>Mã đơn hàng</div>,
+                dataIndex: 'orderId',
             },
             {
-              title: <div>Nội dung giao dịch</div>,
-              dataIndex: 'transactionDescription',
+                title: <div>Nội dung giao dịch</div>,
+                dataIndex: 'transactionDescription',
             },
-          ];
-          return result;
+        ];
+        return result;
     }, [transactionData])
 
     const filterData = (transactionData: TransactionType[]) => {
@@ -161,6 +180,7 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
         //     return false;
         // };
 
+
         if (keyword && idType) {
             if (idType === 'order') {
                 data = data.filter(item => item.orderId === keyword);
@@ -172,23 +192,47 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
         if (selectedTransactionCategories.length !== 0) {
             data = data.filter(item => selectedTransactionCategories.includes(item.transactionCategory))
         }
+
+        console.log('filtered data');
         setFilteredData(data);
     };
 
+    //legacy fetch
+    // useEffect(() => {
+    //     const fetchTransactionData = async () => {
+    //         const listTransactionResponse = await TransactionAPI.getTransactionByShopId(context.shopInfo?._id as string);
+    //         if (listTransactionResponse.status === 200) {
+    //             setTransactionData(listTransactionResponse.data ?? []);
+    //         }
+    //     }
+    //     if (context.shopInfo) {
+    //         fetchTransactionData();
+    //     }
+    // }, [context.shopInfo])
+
     useEffect(() => {
         const fetchTransactionData = async () => {
-            setTransactionData([]);
+            const [startDate, endDate] = DayjsToDate(selectedDates);
+            const listTransactionResponse = await TransactionAPI.filterTransaction(
+                context.shopInfo?._id as string,
+                selectedTransactionCategories,
+                startDate ? startDate : undefined,
+                endDate ? endDate : undefined
+            );
+            if (listTransactionResponse.status === 200) {
+                setTransactionData(listTransactionResponse.data ?? []);
+            }
         }
         if (context.shopInfo) {
             fetchTransactionData();
         }
-    }, [context.shopInfo])
+    }, [context.shopInfo, selectedDates, selectedTransactionCategories])
 
     useEffect(() => {
         if (transactionData) {
             filterData(transactionData);
         }
-    },[transactionData])
+    }, [transactionData])
 
     useEffect(() => {
         switchPeriod(selectedReportPeriod);

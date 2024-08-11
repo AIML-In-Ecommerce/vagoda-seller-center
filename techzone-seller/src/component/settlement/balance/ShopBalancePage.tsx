@@ -1,10 +1,13 @@
 "use client";
 import { Currency } from '@/component/util/CurrencyDisplay'
 import { Breadcrumb, Col, Flex, Row, Space, Tabs, TabsProps } from 'antd'
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { HiOutlineCurrencyDollar, HiOutlineHome } from 'react-icons/hi2'
 import VirtualBalanceTab from './tab/VirtualBalanceTab';
 import styled from 'styled-components';
+import { WalletType } from '@/model/ShopType';
+import { AuthContext } from '@/context/AuthContext';
+import { GET_GetShop } from '@/apis/shop/ShopAPI';
 
 
 const TabsWrapper = styled.div`
@@ -16,12 +19,39 @@ const TabsWrapper = styled.div`
 `
 
 export default function ShopBalancePage() {
+    const context = useContext(AuthContext);
     const [activeKey, setActiveKey] = useState<string>("virtualBalance");
-    const [totalBalance, setTotalBalance] = useState<number>(19283000);
+    const [shopWallet, setShopWallet] = useState<WalletType>({
+        _id: '',
+        balance: 0,
+        bankCard: []
+    } as WalletType);
+    const [totalBalance, setTotalBalance] = useState<number>(0);
+
+    useEffect(() => {
+        const fetchShopWallet = async () => {
+            const shopInfoResponse = await GET_GetShop(context.shopInfo?._id as string);
+            console.log("shopInfoResponse", shopInfoResponse);
+            if (shopInfoResponse.status === 200) {
+                const shopWalletData = shopInfoResponse.data?.wallet as WalletType;
+                setShopWallet(shopWalletData);
+                setTotalBalance(shopWalletData.balance);
+            }
+        }
+        if (context.shopInfo) {
+            fetchShopWallet();
+        }
+    }, [context.shopInfo]);
+
+    useEffect(() => {
+
+    }, [shopWallet, totalBalance])
+
 
     const onTabChange = (key: string) => {
         setActiveKey(key);
     }
+
     const tabItems: TabsProps['items'] = [
         {
             key: 'virtualBalance',
@@ -42,7 +72,7 @@ export default function ShopBalancePage() {
                     </Col>
                 </Row>
             </Space>,
-            children: <VirtualBalanceTab />,
+            children: <VirtualBalanceTab shopWallet={shopWallet}/>,
         },
     ]
     return (

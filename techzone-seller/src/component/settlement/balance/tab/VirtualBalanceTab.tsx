@@ -10,8 +10,14 @@ import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/vi';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import { WalletType } from '@/model/ShopType'
 
 dayjs.extend(LocalizedFormat)
+
+
+interface VirtualBalanceTabProps {
+    shopWallet: WalletType;
+}
 
 const getNextScheduledPaymentDate = () => {
     const today = new Date();
@@ -35,20 +41,6 @@ const formatShortDate = (date: Date) => {
     return dayjs(date).locale('vi').format('L');
 }
 
-interface BankAccount {
-    _id: string,
-    bankName: string,
-    owner: string
-    accountNumber: string
-}
-
-const sampleBankAccount: BankAccount = {
-    _id: '24fmngnd35b3334bb',
-    bankName: 'TP Bank',
-    owner: 'Nguyễn Võ Minh Trí',
-    accountNumber: '002984010192'
-}
-
 const convertUserBankName = (name: string) => {
     // Remove diacritics (accents) and convert to uppercase
     return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
@@ -59,8 +51,10 @@ const getCensoredUserBankNumber = (accountNumber: string) => {
     return censoredString.concat(accountNumber.substring(accountNumber.length - 4));
 }
 
-export default function VirtualBalanceTab() {
-    const [totalBalance, setTotalBalance] = useState<number>(19283000);
+export default function VirtualBalanceTab(props: VirtualBalanceTabProps) {
+    const totalBalance = props.shopWallet.balance;
+    const bankAccount = props.shopWallet.bankCard.at(0);
+    
 
     const nextScheduledPaymentDate = useMemo(() => {
         return formatShortDate(getNextScheduledPaymentDate());
@@ -101,10 +95,10 @@ export default function VirtualBalanceTab() {
                             </div>
                         </div>
                         {
-                            sampleBankAccount ? <div className="ml-11 flex flex-col space-y-2">
-                                <div>{sampleBankAccount.bankName}</div>
-                                <div>{convertUserBankName(sampleBankAccount.owner)}</div>
-                                <div>{getCensoredUserBankNumber(sampleBankAccount.accountNumber)}</div>
+                            bankAccount ? <div className="ml-11 flex flex-col space-y-2">
+                                <div>{bankAccount.bankName}</div>
+                                <div>{convertUserBankName(bankAccount.owner)}</div>
+                                <div>{getCensoredUserBankNumber(bankAccount.accountNumber)}</div>
                                 <div className="text-sky-500 cursor-pointer hover:text-blue-500 flex flex-row items-center gap-1">
                                     <span>Thay đổi thông tin</span>
                                     <span><SlArrowRight /></span>
