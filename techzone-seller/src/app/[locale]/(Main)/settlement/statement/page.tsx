@@ -1,39 +1,21 @@
 "use client";
+import { StatementInput } from "@/apis/SettlementAPI";
 import { formatPrice } from "@/component/utils/formatPrice";
 import { AuthContext } from "@/context/AuthContext";
 import { StatementType } from "@/model/StatementType";
+import { SettlementService } from "@/services/Settlement";
 import { Breadcrumb, Button, Empty, Table, Tooltip } from "antd";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
 import { useContext, useEffect, useState } from "react";
 import { GoInfo } from "react-icons/go";
 import { HiOutlineCurrencyDollar, HiOutlineHome } from "react-icons/hi2";
-const statements: StatementType[] = [
-  {
-    _id: "1",
-    name: "Statement 1",
-    date: "2024-08-01",
-    period: "August 2024",
-    revenue: 1500.0,
-  },
-  {
-    _id: "2",
-    name: "Statement 2",
-    date: "2024-07-01",
-    period: "July 2024",
-    revenue: 2000.0,
-  },
-  {
-    _id: "3",
-    name: "Statement 3",
-    date: "2024-06-01",
-    period: "June 2024",
-    revenue: 1800.0,
-  },
-];
 
 export default function StatementPage() {
+  const query = useSearchParams();
   const [totalStatements, setTotalStatements] = useState(0);
-  const [allStatements, setAllStatements] =
-    useState<StatementType[]>(statements);
+  const [allStatements, setAllStatements] = useState<StatementType[]>([]);
   const authContext = useContext(AuthContext);
 
   const columns = [
@@ -51,8 +33,9 @@ export default function StatementPage() {
     },
     {
       title: "Ngày sao kê",
-      dataIndex: "date",
+      dataIndex: "statementDate",
       width: "12%",
+      render: (text: string) => new Date(text).toLocaleDateString("en-GB"),
     },
     {
       title: "Kỳ sao kê",
@@ -75,13 +58,11 @@ export default function StatementPage() {
       render: (_: any, record: StatementType) => {
         return (
           <div className="xl:space-x-1 space-y-2 mx-2">
-            <Button
-              type="primary"
-              className="w-full bg-sky-500 "
-              // onClick={() => showDrawer(record)}
-            >
-              Xem chi tiết
-            </Button>
+            <Link href={`statement/detail/${record._id}`}>
+              <Button type="primary" className="w-full bg-sky-500 ">
+                Xem chi tiết
+              </Button>
+            </Link>
           </div>
         );
       },
@@ -89,27 +70,47 @@ export default function StatementPage() {
     },
   ];
 
+  const fetchRecords = (page: number, pageSize: number) => {
+    const updatedQuery = new URLSearchParams(query.toString());
+    updatedQuery.set("index", page.toString());
+    updatedQuery.set("amount", pageSize.toString());
+
+    window.history.pushState(
+      {},
+      "",
+      `${window.location.pathname}?${updatedQuery.toString()}`
+    );
+  };
+
+  const loadAllStatements = async () => {
+    if (!authContext.shopInfo) {
+      return;
+    }
+    console.log("Loading");
+
+    const input: StatementInput = { shopId: authContext.shopInfo._id };
+    if (query.get("index")) {
+      input.index = Number(query.get("index")) ?? undefined;
+    }
+    if (query.get("amount")) {
+      input.amount = Number(query.get("index")) ?? undefined;
+    }
+
+    const response: {
+      total: number;
+      totalPages: number;
+      statements: StatementType[];
+    } = await SettlementService.getAllStatements(input);
+    console.log("Statements loaded", response);
+    setAllStatements(response.statements);
+    setTotalStatements(response.total);
+  };
+
   useEffect(() => {
-    const loadAllStatements = async () => {
-      if (!authContext.shopInfo) {
-        return;
-      }
-      console.log("Loading");
-
-      // const response: {
-      //   total: number;
-      //   totalPages: number;
-      //   products: _ProductType[];
-      // } = await ProductService.getProductByFilter(
-      //   filter,
-      //   authContext.shopInfo._id ?? ""
-      // );
-      setAllStatements(statements);
-      setTotalStatements(statements.length);
-    };
-
-    loadAllStatements;
-  }, []);
+    if (authContext.shopInfo) {
+      loadAllStatements();
+    }
+  }, [query, authContext.shopInfo]);
 
   return (
     <div className="mt-4 mr-1 space-y-2">
@@ -149,18 +150,13 @@ export default function StatementPage() {
               <GoInfo />
             </Tooltip>
           </div>
-          <div className="text-xl text-sky-500 font-bold">100.000.000 đ</div>
+          <div className="text-xl text-sky-500 font-bold">
+            {formatPrice(allStatements?.at(-1)?.revenue ?? 0)} đ
+          </div>
         </div>
       </div>
       <div className="bg-white top-4 rounded-lg">
         <Table
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                // () => showDrawer(record);
-              },
-            };
-          }}
           pagination={{
             defaultPageSize: 20,
             pageSizeOptions: ["20", "10", "5"],
@@ -168,7 +164,7 @@ export default function StatementPage() {
             showSizeChanger: true,
             total: totalStatements,
             onChange: (page, pageSize) => {
-              //   fetchRecords(page, pageSize);
+              fetchRecords(page, pageSize);
             },
           }}
           bordered

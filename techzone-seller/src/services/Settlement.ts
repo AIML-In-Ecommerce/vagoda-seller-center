@@ -16,12 +16,12 @@ export const SettlementService = {
   }> => {
     try {
       const response: any = await SettlementAPI.getAllStatements(input);
-
-      if (response.data && Array.isArray(response.data)) {
-        const formatedData: StatementType[] = response.data;
+      console.log("Statements", response);
+      if (response.data) {
+        const formatedData: StatementType[] = response.data.statements;
         return {
-          total: response.total,
-          totalPages: response.totalPages,
+          total: response.data.total,
+          totalPages: response.data.totalPages,
           statements: formatedData,
         };
       }
@@ -48,19 +48,21 @@ export const SettlementService = {
     totalPages: number;
     totalAmount: number;
     totalRevenue: number;
+    period: string;
     productStatements: ProductStatementType[];
   }> => {
     try {
       const response: any = await SettlementAPI.getStatementById(input);
 
-      if (response.data && Array.isArray(response.data)) {
-        const formatedData: ProductStatementType[] = response.data;
+      if (response.data) {
+        console.log("STTT: ", response.data.productStatements);
         return {
-          total: response.total,
-          totalPages: response.totalPages,
-          totalAmount: response.totalAmount,
-          totalRevenue: response.totalRevenue,
-          productStatements: formatedData,
+          total: response.data.total,
+          totalPages: response.data.totalPages,
+          totalAmount: response.data.totalAmount,
+          totalRevenue: response.data.totalRevenue,
+          period: response.data.statementPeriod,
+          productStatements: response.data.productStatements,
         };
       }
 
@@ -69,6 +71,7 @@ export const SettlementService = {
         totalPages: 0,
         totalAmount: 0,
         totalRevenue: 0,
+        period: "-",
         productStatements: [],
       };
     } catch (error) {
@@ -79,6 +82,7 @@ export const SettlementService = {
         totalPages: 0,
         totalAmount: 0,
         totalRevenue: 0,
+        period: "-",
         productStatements: [],
       };
     }

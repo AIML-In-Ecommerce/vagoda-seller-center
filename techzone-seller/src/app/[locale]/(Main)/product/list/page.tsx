@@ -398,7 +398,7 @@ export default function ProductListPage() {
         value,
       };
 
-      const updatedQuery = new URLSearchParams(query);
+      const updatedQuery = new URLSearchParams(query.toString());
       updatedQuery.set("keyword", value);
 
       window.history.pushState(
@@ -542,7 +542,7 @@ export default function ProductListPage() {
   // };
 
   const fetchRecords = (page: number, pageSize: number) => {
-    const updatedQuery = new URLSearchParams(query);
+    const updatedQuery = new URLSearchParams(query.toString());
     updatedQuery.set("index", page.toString());
     updatedQuery.set("amount", pageSize.toString());
 
@@ -555,7 +555,7 @@ export default function ProductListPage() {
 
   const handleTabChange = async (activeKey: string) => {
     setCurrentTab(activeKey);
-    const updatedQuery = new URLSearchParams(query);
+    const updatedQuery = new URLSearchParams(query.toString());
     if (activeKey == "") {
       updatedQuery.delete("status");
     } else {

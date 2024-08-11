@@ -4,19 +4,19 @@ const BACKEND_SERVER_PREFIX = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`;
 
 export interface StatementInput {
   shopId: string;
-  index?: string;
+  index?: number;
   amount?: number;
 }
 
 export interface ProductStatementInput {
   id: string;
-  index?: string;
+  index?: number;
   amount?: number;
 }
 
 export const SettlementAPI = {
   getAllStatements: async (input: StatementInput) => {
-    const URL = `${BACKEND_SERVER_PREFIX}/settlement/statement`;
+    const URL = `${BACKEND_SERVER_PREFIX}/settlement/statement/of_shop`;
     try {
       const response = await axios.post(URL, input);
       return response.data;
