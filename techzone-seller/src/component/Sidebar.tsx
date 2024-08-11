@@ -31,7 +31,7 @@ function getItem(
   key: React.Key,
   icon?: React.ReactNode,
   items?: MenuItem[],
-  url?: string,
+  url?: string
 ): MenuItem {
   return {
     key,
@@ -85,8 +85,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     router.push(url ? url : "/");
   };
 
-
-
   useEffect(() => {
     noticeCollapsingCallback(collapsed);
   }, [collapsed]);
@@ -97,89 +95,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
-  // const menuItems = [
-  //   { key: "1", icon: <HiOutlineHome />, label: "Trang chủ", url: "/" },
-  //   {
-  //     key: "2",
-  //     icon: <RiTodoLine />,
-  //     label: "Đơn hàng",
-  //     items: [
-  //       { label: "Danh sách đơn hàng", url: "/order" },
-  //       { label: "Đổi trả bảo hành", url: "/order/return-order" },
-  //       { label: "Quản lý hóa đơn", url: "/order/invoice" },
-  //     ],
-  //     url: null,
-  //   },
-  //   {
-  //     key: "3",
-  //     icon: <LiaBoxSolid />,
-  //     label: "Sản phẩm",
-  //     items: [
-  //       { label: "Danh sách sản phẩm", url: "/product/list" },
-  //       { label: "Tạo sản phẩm", url: "/product/create" },
-  //       { label: "Quản lý đánh giá", url: "/product/review" },
-  //       { label: "Lịch sử thay đổi", url: "/product/history" },
-  //       {
-  //         label: "Bộ sưu tập hình ảnh",
-  //         url: "/product/image-collection",
-  //       },
-  //     ],
-  //     url: null,
-  //   },
-  //   {
-  //     key: "4",
-  //     icon: <BsShop />,
-  //     label: "Kho & hàng tồn",
-  //     url: "/warehouse-management",
-  //   },
-  //   {
-  //     key: "5",
-  //     icon: <AiOutlineLineChart />,
-  //     label: "Trung tâm phát triển",
-  //     items: [
-  //       { label: "Hiệu quả kinh doanh", url: "/report/business-performance" },
-  //       { label: "Chỉ số sản phẩm", url: "/report/product-sale-traffic" },
-  //       { label: "Chỉ số khuyến mãi", url: "/report/coupon-insight" },
-  //       { label: "Hiệu quả vận hành", url: "/report/seller-performance" },
-  //     ],
-  //     url: null,
-  //   },
-  //   {
-  //     key: "6",
-  //     icon: <TbSpeakerphone />,
-  //     label: "Trung tâm marketing",
-  //     items: [
-  //       {
-  //         label: "Công cụ khuyến mãi",
-  //         url: "/marketing-center/promotion-tool",
-  //       },
-  //     ],
-  //     url: null,
-  //   },
-  //   {
-  //     key: "7",
-  //     icon: <LiaWalletSolid />,
-  //     label: "Quản lý tài chính",
-  //     url: "/fee-structure",
-  //   },
-  //   {
-  //     key: "8",
-  //     icon: <BsHouseHeart />,
-  //     label: "Thiết kế gian hàng",
-  //     items: [
-  //       { label: "Trang trí gian hàng", url: "/booth-design/decorator" },
-  //       { label: "Bộ sưu tập", url: "/booth-design/collection" },
-  //     ],
-  //     url: null,
-  //   },
-  //   {
-  //     key: "9",
-  //     icon: <BsPersonVideo />,
-  //     label: "Thông tin nhà bán",
-  //     url: "/seller",
-  //   },
-  // ];
 
   const menuItems: MenuItem[] = [
     { key: "1", icon: <HiOutlineHome />, label: "Trang chủ", url: "/" },
@@ -203,7 +118,11 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
         { key: "3-2", label: "Tạo sản phẩm", url: "/product/create" },
         { key: "3-3", label: "Quản lý đánh giá", url: "/product/review" },
         { key: "3-4", label: "Lịch sử thay đổi", url: "/product/history" },
-        { key: "3-5", label: "Bộ sưu tập hình ảnh", url: "/product/image-collection", },
+        {
+          key: "3-5",
+          label: "Bộ sưu tập hình ảnh",
+          url: "/product/image-collection",
+        },
       ],
       url: null,
     },
@@ -218,10 +137,26 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       icon: <AiOutlineLineChart />,
       label: "Trung tâm phát triển",
       children: [
-        { key: "5-1", label: "Hiệu quả kinh doanh", url: "/report/business-performance" },
-        { key: "5-2", label: "Chỉ số sản phẩm", url: "/report/product-sale-traffic" },
-        { key: "5-3", label: "Chỉ số khuyến mãi", url: "/report/coupon-insight" },
-        { key: "5-4", label: "Hiệu quả vận hành", url: "/report/seller-performance" },
+        {
+          key: "5-1",
+          label: "Hiệu quả kinh doanh",
+          url: "/report/business-performance",
+        },
+        {
+          key: "5-2",
+          label: "Chỉ số sản phẩm",
+          url: "/report/product-sale-traffic",
+        },
+        {
+          key: "5-3",
+          label: "Chỉ số khuyến mãi",
+          url: "/report/coupon-insight",
+        },
+        {
+          key: "5-4",
+          label: "Hiệu quả vận hành",
+          url: "/report/seller-performance",
+        },
       ],
       url: null,
     },
@@ -242,14 +177,22 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       key: "7",
       icon: <LiaWalletSolid />,
       label: "Quản lý tài chính",
-      url: "/fee-structure",
+      children: [
+        { key: "7-1", label: "Quản lý tài sản", url: "/settlement/my-balance" },
+        { key: "7-2", label: "Sao kê", url: "/settlement/statement" },
+      ],
+      url: null,
     },
     {
       key: "8",
       icon: <BsHouseHeart />,
       label: "Thiết kế gian hàng",
       children: [
-        { key: "8-1", label: "Trang trí gian hàng", url: "/booth-design/decorator" },
+        {
+          key: "8-1",
+          label: "Trang trí gian hàng",
+          url: "/booth-design/decorator",
+        },
         { key: "8-2", label: "Bộ sưu tập", url: "/booth-design/collection" },
       ],
       url: null,
@@ -262,13 +205,15 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     },
   ];
 
-  const getNavigationUrl = (key: string, menuItems: MenuItem[]): string | null => {
+  const getNavigationUrl = (
+    key: string,
+    menuItems: MenuItem[]
+  ): string | null => {
     for (const menuItem of menuItems) {
       // console.log(menuItem.key, key, menuItem.key === key);
       if (menuItem.key === key) {
         return menuItem.url;
-      }
-      else if (menuItem.children) {
+      } else if (menuItem.children) {
         const result = getNavigationUrl(key, menuItem.children);
         if (result) {
           return result;
@@ -278,22 +223,25 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     return null;
   };
 
-  const getKeyFromNavigationUrl = (url: string, menuItems: MenuItem[]): string[] => {
-    if (url === '/') return ['1'];
-  
+  const getKeyFromNavigationUrl = (
+    url: string,
+    menuItems: MenuItem[]
+  ): string[] => {
+    if (url === "/") return ["1"];
+
     for (const menuItem of menuItems) {
       if (menuItem.url && url.includes(menuItem.url)) {
-        if (menuItem.url === '/') continue;
+        if (menuItem.url === "/") continue;
         const keyPath = [menuItem.key];
-        console.log('push key: ', menuItem.key);
-  
+        console.log("push key: ", menuItem.key);
+
         if (menuItem.children) {
           const childKeyPath = getKeyFromNavigationUrl(url, menuItem.children);
           if (childKeyPath.length > 0) {
             return keyPath.concat(childKeyPath);
           }
         }
-  
+
         return keyPath;
       } else if (menuItem.children) {
         const result = getKeyFromNavigationUrl(url, menuItem.children);
@@ -304,8 +252,6 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     }
     return [];
   };
-
-
 
   const [option, setOption] = useState<string[]>([]);
   const pathname = usePathname();
@@ -362,20 +308,20 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     const keyPath = getKeyFromNavigationUrl(pathname, menuItems);
     // console.log('keyPath: ', keyPath);
     setOption(keyPath);
-  }, [pathname])
+  }, [pathname]);
 
-  const onMenuClick: MenuProps['onClick'] = (e) => {
+  const onMenuClick: MenuProps["onClick"] = (e) => {
     const url = getNavigationUrl(e.key.toString(), menuItems);
     console.log(`onClick ${e.key} ${url}`);
     setOption(e.keyPath);
     handleMenuItemClick(url);
-  }
+  };
 
   interface LevelKeysProps {
     key?: string;
     children?: LevelKeysProps[];
   }
-  
+
   const getLevelKeys = (items1: LevelKeysProps[]) => {
     const key: Record<string, number> = {};
     const func = (items2: LevelKeysProps[], level = 1) => {
@@ -391,10 +337,10 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     func(items1);
     return key;
   };
-  
+
   const levelKeys = getLevelKeys(menuItems as LevelKeysProps[]);
 
-  const onOpenChange: MenuProps['onOpenChange'] = (openKeys) => {
+  const onOpenChange: MenuProps["onOpenChange"] = (openKeys) => {
     const currentOpenKey = openKeys.find((key) => !option.includes(key));
 
     if (currentOpenKey !== undefined) {
@@ -405,14 +351,13 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       setOption(
         openKeys
           .filter((_, index) => index !== repeatIndex)
-          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey]),
+          .filter((key) => levelKeys[key] <= levelKeys[currentOpenKey])
       );
     } else {
       setOption(openKeys);
     }
     // console.log('openKeys', openKeys)
   };
-  
 
   const filteredMenuItems = (
     <div className="ant-layout-sider-items bg-white">
@@ -457,7 +402,8 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
             </React.Fragment>
           ))}
       </Menu> */}
-      <Menu theme="light"
+      <Menu
+        theme="light"
         mode="inline"
         onClick={onMenuClick}
         selectedKeys={option}
@@ -465,7 +411,8 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
         onOpenChange={onOpenChange}
         style={{ height: "auto", overflowY: "auto", width: "100%" }}
         className="text-xs overflow-auto custom-scrollbar h-screen"
-        items={menuItems} />
+        items={menuItems}
+      />
     </div>
   );
 
