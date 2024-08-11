@@ -254,6 +254,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
   };
 
   const [option, setOption] = useState<string[]>([]);
+  const [previousOption, setPreviousOption] = useState<string[]>([]);
   const pathname = usePathname();
 
   // useEffect(() => {
@@ -308,6 +309,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     const keyPath = getKeyFromNavigationUrl(pathname, menuItems);
     // console.log('keyPath: ', keyPath);
     setOption(keyPath);
+    setPreviousOption(keyPath);
   }, [pathname]);
 
   const onMenuClick: MenuProps["onClick"] = (e) => {
@@ -406,7 +408,7 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
         theme="light"
         mode="inline"
         onClick={onMenuClick}
-        selectedKeys={option}
+        selectedKeys={previousOption}
         openKeys={option}
         onOpenChange={onOpenChange}
         style={{ height: "auto", overflowY: "auto", width: "100%" }}
