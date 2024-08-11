@@ -183,12 +183,20 @@ export async function PUT_RemoveImageCollection(
   }
 }
 
-export async function POST_UseTemplate(shopId: string, design: WidgetType[]) {
+export async function POST_UseTemplate(
+  shopId: string,
+  design: WidgetType[],
+  templateId: string
+) {
   // const URL = (oldpublicAPIURL + "/shop/useTemplate").toString();
   const URL = (publicAPIURL + "/shop/useTemplate").toString();
 
   try {
-    const response = await axios.post(URL, { shop: shopId, design: design });
+    const response = await axios.post(URL, {
+      shop: shopId,
+      design: design,
+      template: templateId,
+    });
     return response.data.data.design;
   } catch (error) {
     console.log("API_ERROR_ShopAPI_removeImageCollection: ", error);

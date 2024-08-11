@@ -371,9 +371,12 @@ export default function BoothDecoratorPage() {
     }
   };
 
-  const handleUseTemplate = async (design: WidgetType[]) => {
+  const handleUseTemplate = async (
+    design: WidgetType[],
+    templateId: string
+  ) => {
     if (!shop || !design) return;
-    const response = await POST_UseTemplate(shop._id, design);
+    const response = await POST_UseTemplate(shop._id, design, templateId);
 
     if (response) {
       const response2 = await POST_GetWidgetList(response);
@@ -580,7 +583,10 @@ export default function BoothDecoratorPage() {
             <ApplyTemplateModal
               open={openTemplateModal}
               handleOk={() => {
-                handleUseTemplate(selectedTemplate.design);
+                handleUseTemplate(
+                  selectedTemplate.design,
+                  selectedTemplate._id
+                );
               }}
               handleCancel={() => {
                 setOpenTemplateModal(false);
