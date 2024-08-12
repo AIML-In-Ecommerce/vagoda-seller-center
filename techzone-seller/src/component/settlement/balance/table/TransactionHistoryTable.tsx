@@ -1,5 +1,5 @@
 import { Currency } from '@/component/util/CurrencyDisplay';
-import { Button, DatePicker, Divider, Empty, Input, Radio, RadioChangeEvent, Select, Space, Table, TableColumnsType, Tabs, TabsProps } from 'antd';
+import { Button, DatePicker, Divider, Empty, Input, Popover, Radio, RadioChangeEvent, Select, Space, Table, TableColumnsType, Tabs, TabsProps } from 'antd';
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { BsBoxArrowInRight, BsBoxArrowRight } from 'react-icons/bs'
 import { FaMinus, FaPlus } from 'react-icons/fa6';
@@ -10,6 +10,7 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import { GoDownload } from 'react-icons/go';
 import { AuthContext } from '@/context/AuthContext';
 import { TransactionAPI } from '@/apis/settlement/TransactionAPI';
+import CSVExporter from '@/component/Product/File/CSVExporter';
 
 dayjs.extend(LocalizedFormat)
 
@@ -17,12 +18,18 @@ interface TransactionHistoryTableProps {
 
 }
 
+enum TransactionCategoryType {
+    INCOME = "INCOME",
+    EXPENSE = "EXPENSE",
+}
+
 interface TransactionType {
     _id: string,
-    shopId: string,
-    transactionDate: Date,
-    transactionCategory: string,
-    transactionDescription: string,
+    shop: string,
+    date: Date,
+    category: string,
+    type: TransactionCategoryType,
+    description: string,
     orderId: string,
     money: number,
     balance: number
@@ -31,7 +38,7 @@ interface TransactionType {
 const { RangePicker } = DatePicker;
 
 const formatShortDate = (date: Date) => {
-    return dayjs(date).locale('vi').format('L');
+    return dayjs(date).locale('vi').format('LTS L');
 }
 
 const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
@@ -44,6 +51,19 @@ const DayjsToDate = (dates: [Dayjs | null, Dayjs | null]) => {
     });
 }
 
+const generateFileName = (filename?: string) => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    return `${filename ? `${filename}_` : ""}${year}${month}${day}_${hours}${minutes}${seconds}`;
+};
+
+
 
 export default function TransactionHistoryTable(props: TransactionHistoryTableProps) {
     const context = useContext(AuthContext);
@@ -54,9 +74,10 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
     const [activeKey, setActiveKey] = useState<string>('all');
     const [keyword, setKeyword] = useState<string>("");
     const [idType, setIdType] = useState<string>("transaction");
-    const [selectedTransactionCategories, setSelectedTransactionCategories] = useState<string>("");
+    const [selectedTransactionCategories, setSelectedTransactionCategories] = useState<TransactionCategoryType>(TransactionCategoryType.INCOME);
     const [transactionData, setTransactionData] = useState<TransactionType[]>([])
     const [filteredData, setFilteredData] = useState<TransactionType[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
 
     const onTabChange = (key: string) => {
@@ -65,6 +86,10 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
 
     const handleChange = (value: string) => {
         setIdType(value);
+    };
+
+    const handleCategoryChange = (value: TransactionCategoryType) => {
+        setSelectedTransactionCategories(value);
     };
 
     const switchPeriod = (selectedPeriod: string) => {
@@ -131,13 +156,13 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
             },
             {
                 title: <div>Thời gian giao dịch</div>,
-                dataIndex: 'transactionDate',
+                dataIndex: 'date',
                 width: '20%',
-                render: (value: any, record: TransactionType) => <div>{formatShortDate(record.transactionDate)}</div>
+                render: (value: any, record: TransactionType) => <div>{formatShortDate(record.date)}</div>
             },
             {
                 title: <div>Loại giao dịch</div>,
-                dataIndex: 'transactionCategory',
+                dataIndex: 'category',
             },
             {
                 title: <div>Số tiền</div>,
@@ -149,19 +174,20 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
                 dataIndex: 'balance',
                 render: (value: any, record: TransactionType) => <Currency value={record.balance ?? 0} />
             },
-            {
-                title: <div>Mã đơn hàng</div>,
-                dataIndex: 'orderId',
-            },
+            // {
+            //     title: <div>Mã đơn hàng</div>,
+            //     dataIndex: 'orderId',
+            // },
             {
                 title: <div>Nội dung giao dịch</div>,
-                dataIndex: 'transactionDescription',
+                dataIndex: 'description',
             },
         ];
         return result;
     }, [transactionData])
 
     const filterData = (transactionData: TransactionType[]) => {
+        setLoading(true);
         let data = transactionData;
 
         // const searchInObject = (obj: any, keyword: string) => {
@@ -183,18 +209,17 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
 
         if (keyword && idType) {
             if (idType === 'order') {
-                data = data.filter(item => item.orderId === keyword);
+                data = data.filter(item => item.orderId.includes(keyword));
             }
             else {
-                data = data.filter(item => item._id === keyword);
+                data = data.filter(item => item._id.includes(keyword));
             }
         }
         if (selectedTransactionCategories.length !== 0) {
-            data = data.filter(item => selectedTransactionCategories.includes(item.transactionCategory))
+            data = data.filter(item => selectedTransactionCategories.includes(item.type))
         }
-
-        console.log('filtered data');
         setFilteredData(data);
+        setLoading(false);
     };
 
     //legacy fetch
@@ -224,7 +249,9 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
             }
         }
         if (context.shopInfo) {
+            setLoading(true);
             fetchTransactionData();
+            setLoading(false);
         }
     }, [context.shopInfo, selectedDates, selectedTransactionCategories])
 
@@ -232,7 +259,7 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
         if (transactionData) {
             filterData(transactionData);
         }
-    }, [transactionData])
+    }, [transactionData, idType, keyword])
 
     useEffect(() => {
         switchPeriod(selectedReportPeriod);
@@ -315,28 +342,37 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
                             size="large"
                             style={{ width: '400px' }}
                             placement='bottomLeft'
-                            // defaultValue="transaction"
-                            // onChange={handleChange}
+                            value={selectedTransactionCategories}
+                            onChange={handleCategoryChange}
                             placeholder="Loại giao dịch"
                             options={[
-                                // { value: 'order', label: 'Mã đơn hàng' },
-                                // { value: 'transaction', label: 'Mã giao dịch' },
+                                { value: TransactionCategoryType.EXPENSE, label: 'Chi phí' },
+                                { value: TransactionCategoryType.INCOME, label: 'Doanh thu' },
                             ]}
                         />
                     </Space>
                 </div>
                 <div className="mt-10 flex flex-row gap-10">
                     <div className="text-xl font-semibold mb-5">Giao dịch</div>
-                    <Button onClick={() => { }} disabled>
-                        <div className="flex flex-row gap-2 items-center">
-                            <div>Xuất excel</div>
-                            <GoDownload />
-                        </div>
-                    </Button>
+                    <Popover content={
+                        <CSVExporter filename={generateFileName()}
+                            data={filteredData}
+                        />
+                    }>
+                        <Button>
+                            <div className="flex flex-row gap-2 items-center">
+                                <div>Xuất excel</div>
+                                <GoDownload />
+                            </div>
+                        </Button>
+                    </Popover>
+
+
                 </div>
                 <div className="mt-5">
                     <Table columns={columns}
                         dataSource={filteredData}
+                        loading={loading}
                         scroll={{ x: "max-content" }}
                         locale={{
                             emptyText: <Empty description="Không có dữ liệu"></Empty>

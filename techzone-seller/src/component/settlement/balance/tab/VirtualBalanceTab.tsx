@@ -54,11 +54,7 @@ const getCensoredUserBankNumber = (accountNumber: string) => {
 export default function VirtualBalanceTab(props: VirtualBalanceTabProps) {
     const totalBalance = props.shopWallet.balance;
     const bankAccount = props.shopWallet.bankCard.at(0);
-    
-
-    const nextScheduledPaymentDate = useMemo(() => {
-        return formatShortDate(getNextScheduledPaymentDate());
-    }, [])
+    const nextScheduledPaymentDate = formatShortDate(getNextScheduledPaymentDate());
     
     return (
         <React.Fragment>
@@ -133,11 +129,11 @@ export default function VirtualBalanceTab(props: VirtualBalanceTabProps) {
                     </div> */}
 
                 </div>
-                <div className="w-32 mt-5 p-5">
+                {/* <div className="w-32 mt-5 p-5">
                     <Button size="large" disabled>
                         <div className="text-lg">Thanh toán ngay</div>
                     </Button>
-                </div>
+                </div> */}
                 <div className="flex flex-col space-y-5 mt-5 p-5">
                     <div className="text-red-500">Bạn có thể thực hiện "Thanh toán ngay" tối đa 1 lần mỗi ngày.</div>
                     <div className="font-semibold">
