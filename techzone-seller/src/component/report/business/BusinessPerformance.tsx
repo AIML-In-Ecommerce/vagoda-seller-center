@@ -1,5 +1,5 @@
 "use client";
-import { Breadcrumb, Card, DatePicker, Empty, Radio, RadioChangeEvent, Spin, Tooltip } from "antd";
+import { Breadcrumb, Card, DatePicker, Empty, Radio, RadioChangeEvent, Spin, Tooltip, Image } from "antd";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { HiOutlineHome } from "react-icons/hi";
 import CustomCarousel from "../../Carousel";
@@ -56,7 +56,7 @@ const roundToNDecimalPlaces = (value: number, precision: number) => {
 }
 
 const calcPercentChanges = (value1: number, value2: number, isPercentageValue?: boolean) => {
-    return !isPercentageValue ? roundToNDecimalPlaces((value1 ?? 0 - value2 ?? 0) * 100 / (value2 ?? 1) , 2) : roundToNDecimalPlaces(value1 ?? 0 - value2 ?? 0, 2);
+    return !isPercentageValue ? roundToNDecimalPlaces((value1 ?? 0 - value2 ?? 0) * 100 / (value2 ?? 1), 2) : roundToNDecimalPlaces(value1 ?? 0 - value2 ?? 0, 2);
 }
 
 export default function BusinessPerformancePage() {
@@ -397,12 +397,15 @@ export default function BusinessPerformancePage() {
                 <div className="lg:grid lg:grid-cols-2 flex flex-col gap-5 mt-5">
                     <Card className="bg-white py-4 px-10 mt-5 flex flex-col lg:mb-20"
                         title={
-                            <div className="flex flex-col">
-                                <div className="font-semibold flex flex-row items-center gap-2">
-                                    <div className="text-lg">Top 10 sản phẩm (theo doanh số)</div>
-                                    <Tooltip title=""><TbInfoCircle /></Tooltip>
+                            <div className="flex flex-row gap-2 select-none items-center">
+                                <Image width={60} preview={false} src="https://cdn-icons-png.flaticon.com/512/9789/9789370.png" />
+                                <div className="flex flex-col">
+                                    <div className="font-semibold flex flex-row items-center gap-2">
+                                        <div className="text-lg">Top 10 sản phẩm (theo doanh số)</div>
+                                        <Tooltip title="Doanh số bằng tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn."><TbInfoCircle /></Tooltip>
+                                    </div>
+                                    <div className="text-sm">{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                                 </div>
-                                <div className="text-sm">{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                             </div>
                         }>
                         <div className="w-[100%] mb-10 flex flex-col gap-5">
@@ -415,12 +418,15 @@ export default function BusinessPerformancePage() {
                     </Card>
                     <Card className="bg-white py-4 px-10 mt-5 flex flex-col lg:mb-20"
                         title={
-                            <div className="flex flex-col">
-                                <div className="font-semibold flex flex-row items-center gap-2">
-                                    <div className="text-lg">Top 10 thành phố (theo doanh số)</div>
-                                    <Tooltip title=""><TbInfoCircle /></Tooltip>
+                            <div className="flex flex-row gap-2 select-none items-center">
+                                <Image width={60} preview={false} src="https://cdn-icons-png.flaticon.com/512/7719/7719611.png" />
+                                <div className="flex flex-col">
+                                    <div className="font-semibold flex flex-row items-center gap-2">
+                                        <div className="text-lg">Top 10 thành phố (theo doanh số)</div>
+                                        <Tooltip title="Doanh số bằng tổng giá trị của các đơn hàng được xác nhận trong khoảng thời gian đã chọn."><TbInfoCircle /></Tooltip>
+                                    </div>
+                                    <div className="text-sm">{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                                 </div>
-                                <div className="text-sm">{convertPeriodLabel(selectedReportPeriod)}: {dateRangeToString(selectedDates)}</div>
                             </div>
                         }>
                         <div className="w-[100%] mb-10 flex flex-col gap-5">

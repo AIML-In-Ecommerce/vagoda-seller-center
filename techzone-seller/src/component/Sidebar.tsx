@@ -104,8 +104,8 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       label: "Đơn hàng",
       children: [
         { key: "2-1", label: "Danh sách đơn hàng", url: "/order" },
-        { key: "2-2", label: "Đổi trả bảo hành", url: "/order/return-order" },
-        { key: "2-3", label: "Quản lý hóa đơn", url: "/order/invoice" },
+        // { key: "2-2", label: "Đổi trả bảo hành", url: "/order/return-order" },
+        // { key: "2-3", label: "Quản lý hóa đơn", url: "/order/invoice" },
       ],
       url: null,
     },
@@ -126,12 +126,12 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       ],
       url: null,
     },
-    {
-      key: "4",
-      icon: <BsShop />,
-      label: "Kho & hàng tồn",
-      url: "/warehouse-management",
-    },
+    // {
+    //   key: "4",
+    //   icon: <BsShop />,
+    //   label: "Kho & hàng tồn",
+    //   url: "/warehouse-management",
+    // },
     {
       key: "5",
       icon: <AiOutlineLineChart />,
@@ -147,11 +147,11 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
           label: "Chỉ số sản phẩm",
           url: "/report/product-sale-traffic",
         },
-        {
-          key: "5-3",
-          label: "Chỉ số khuyến mãi",
-          url: "/report/coupon-insight",
-        },
+        // {
+        //   key: "5-3",
+        //   label: "Chỉ số khuyến mãi",
+        //   url: "/report/coupon-insight",
+        // },
         {
           key: "5-4",
           label: "Hiệu quả vận hành",
@@ -197,12 +197,12 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
       ],
       url: null,
     },
-    {
-      key: "9",
-      icon: <BsPersonVideo />,
-      label: "Thông tin nhà bán",
-      url: "/seller",
-    },
+    // {
+    //   key: "9",
+    //   icon: <BsPersonVideo />,
+    //   label: "Thông tin nhà bán",
+    //   url: "/seller",
+    // },
   ];
 
   const getNavigationUrl = (

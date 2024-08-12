@@ -43,7 +43,8 @@ interface TopProductsBarChartProps {
 export default function TopProductsBarChart(props: TopProductsBarChartProps) {
   const items = useMemo<ItemData[]>(() => {
     const items = props.items;
-    return items.sort((a,b) => a.value > b.value ? -1 : 1);
+    const sortByValue = items.sort((a,b) => a.value > b.value ? -1 : 1);
+    return sortByValue.slice(0,10);
   }, [props.items])
 
   const options = {

@@ -46,9 +46,10 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
   const provincesData = getProvince();
 
   const items = useMemo<ItemData[]>(() => {
-      const items = props.items;
-      return items.sort((a,b) => a.revenue > b.revenue ? -1 : 1);
-  },[props.items])
+    const items = props.items;
+    const sortByValue = items.sort((a, b) => a.revenue > b.revenue ? -1 : 1);
+    return sortByValue.slice(0, 10);
+  }, [props.items])
 
   const options = {
     indexAxis: 'y' as const,
@@ -69,7 +70,7 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
       datalabels: {
         display: true,
         color: "black",
-        formatter: (value: number) => formatCurrencyFromValue({value: value}),
+        formatter: (value: number) => formatCurrencyFromValue({ value: value }),
         anchor: 'end' as const,
         align: 'end' as const,
       },
@@ -79,7 +80,7 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
       x: {
         ticks: {
           callback: function (val: any, index: any) {
-            return formatCurrencyFromValue({value: val});
+            return formatCurrencyFromValue({ value: val });
           },
           maxTicksLimit: 6
         }
@@ -92,9 +93,9 @@ export default function TopCitiesBarChart(props: TopCitiesBarChartProps) {
 
   const data = {
     labels: items.map(current => {
-        const provinceItem = provincesData.find(province => province.idProvince === current.idProvince);
-        return provinceItem?.name;
-  }),
+      const provinceItem = provincesData.find(province => province.idProvince === current.idProvince);
+      return provinceItem?.name;
+    }),
     datasets: [
       {
         data: items.map(item => item.revenue),
