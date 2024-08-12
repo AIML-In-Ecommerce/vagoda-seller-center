@@ -344,13 +344,14 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
                                 defaultValue="transaction"
                                 onChange={handleChange}
                                 options={[
-                                    { value: 'order', label: 'Mã đơn hàng' },
+                                    // { value: 'order', label: 'Mã đơn hàng' },
                                     { value: 'transaction', label: 'Mã giao dịch' },
                                 ]}
                             />
                             <Input.Search size="large" style={{ width: '400px' }}
                                 onChange={(e) => setKeyword(e.target.value)}
-                                placeholder="Tìm kiếm theo mã đơn hàng/giao dịch" />
+                                // placeholder="Tìm kiếm theo mã đơn hàng/giao dịch" 
+                                placeholder="Tìm kiếm theo mã giao dịch" />
                         </Space.Compact>
                         <Select
                             size="large"

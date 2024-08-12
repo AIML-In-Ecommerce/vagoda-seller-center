@@ -135,7 +135,7 @@ export default function VirtualBalanceTab(props: VirtualBalanceTabProps) {
                     </Button>
                 </div> */}
                 <div className="flex flex-col space-y-5 mt-5 p-5">
-                    <div className="text-red-500">Bạn có thể thực hiện "Thanh toán ngay" tối đa 1 lần mỗi ngày.</div>
+                    {/* <div className="text-red-500">Bạn có thể thực hiện "Thanh toán ngay" tối đa 1 lần mỗi ngày.</div> */}
                     <div className="font-semibold">
                         Số dư khả dụng sẽ được chuyển tự động định kỳ vào
                         <span className="text-sky-500 cursor-pointer hover:text-blue-500"> tài khoản ngân hàng</span>. Ngày thanh toán định kỳ tiếp theo là: <span className="text-orange-500 font-semibold">{nextScheduledPaymentDate}</span>.</div>
