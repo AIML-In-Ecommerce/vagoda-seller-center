@@ -1,5 +1,5 @@
 import { Currency } from '@/component/util/CurrencyDisplay';
-import { Button, DatePicker, Divider, Empty, Input, Popover, Radio, RadioChangeEvent, Select, Space, Table, TableColumnsType, Tabs, TabsProps } from 'antd';
+import { Button, DatePicker, Divider, Empty, Input, Popover, Radio, RadioChangeEvent, Select, Space, Spin, Table, TableColumnsType, Tabs, TabsProps } from 'antd';
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { BsBoxArrowInRight, BsBoxArrowRight } from 'react-icons/bs'
 import { FaMinus, FaPlus } from 'react-icons/fa6';
@@ -59,7 +59,7 @@ const generateFileName = (filename?: string) => {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    
+
     return `${filename ? `${filename}_` : ""}${year}${month}${day}_${hours}${minutes}${seconds}`;
 };
 
@@ -218,6 +218,12 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
         if (selectedTransactionCategories.length !== 0) {
             data = data.filter(item => selectedTransactionCategories.includes(item.type))
         }
+        let totalMoneyIn = data.filter(item => item.type === TransactionCategoryType.INCOME)
+            .reduce((sum, item) => sum + item.money, 0);
+        let totalMoneyOut = data.filter(item => item.type === TransactionCategoryType.EXPENSE)
+            .reduce((sum, item) => sum + item.money, 0);
+        setTotalMoneyIn(totalMoneyIn);
+        setTotalMoneyOut(totalMoneyOut);
         setFilteredData(data);
         setLoading(false);
     };
@@ -289,24 +295,32 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
                                 <div className="text-lg"><BsBoxArrowInRight /></div>
                                 <div className="text-md">Tổng tiền vào</div>
                                 {
-                                    totalMoneyIn ? (
-                                        <div className="flex flex-row font-semibold text-lg text-green-500 items-center gap-1">
-                                            <div><FaPlus /></div>
-                                            <Currency value={totalMoneyIn} />
-                                        </div>
-                                    ) : <div className="text-lg text-green-500 font-semibold">{'--'}</div>
+                                    loading ? <Spin /> : <>
+                                        {
+                                            totalMoneyIn ? (
+                                                <div className="flex flex-row font-semibold text-lg text-green-500 items-center gap-1">
+                                                    <div><FaPlus /></div>
+                                                    <Currency value={totalMoneyIn} />
+                                                </div>
+                                            ) : <div className="text-lg text-green-500 font-semibold">{'--'}</div>
+                                        }
+                                    </>
                                 }
                             </div>
                             <div className="items-center flex-row flex gap-2">
                                 <div className="text-lg"><BsBoxArrowRight /></div>
                                 <div className="text-md">Tổng tiền ra</div>
                                 {
-                                    totalMoneyOut ? (
-                                        <div className="flex flex-row font-semibold text-lg text-gray-500 items-center gap-1">
-                                            <div><FaMinus /></div>
-                                            <Currency value={totalMoneyOut} />
-                                        </div>
-                                    ) : <div className="text-lg text-black font-semibold">{'--'}</div>
+                                    loading ? <Spin /> : <>
+                                        {
+                                            totalMoneyOut ? (
+                                                <div className="flex flex-row font-semibold text-lg text-gray-500 items-center gap-1">
+                                                    <div><FaMinus /></div>
+                                                    <Currency value={totalMoneyOut} />
+                                                </div>
+                                            ) : <div className="text-lg text-black font-semibold">{'--'}</div>
+                                        }
+                                    </>
                                 }
                             </div>
                         </div>
