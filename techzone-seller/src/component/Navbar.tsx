@@ -1,7 +1,9 @@
 "use client";
-import { Badge, Dropdown, Input, MenuProps } from "antd";
+import { AuthContext } from "@/context/AuthContext";
+import { Dropdown, Input, MenuProps } from "antd";
 import type { SearchProps } from "antd/es/input/Search";
 import Image from "next/image";
+import Link from "next/link";
 import { useContext, useState } from "react";
 import { AiOutlineEdit, AiOutlineLogout } from "react-icons/ai";
 import { GoSearch } from "react-icons/go";
@@ -12,11 +14,9 @@ import {
 } from "react-icons/io5";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { RxPerson } from "react-icons/rx";
-import logo from "../../public/asset/v_logo.png";
 import mall_logo from "../../public/asset/mall_logo.png";
+import logo from "../../public/asset/v_logo.png";
 import LanguageOption from "./LanguageOption";
-import Link from "next/link";
-import { AuthContext } from "@/context/AuthContext";
 
 const { Search } = Input;
 
@@ -202,16 +202,16 @@ export default function Navbar() {
               </div>
 
               <div className="flex items-center justify-center hover:text-sky-600 hover:bg-sky-200 p-1 rounded-lg m-1">
-                <Badge
+                {/* <Badge
                   className="site-badge-count-109"
                   count={countItemsCart > 100 ? 109 : 10}
                   style={{ backgroundColor: "#f32c2c" }}
-                >
-                  <IoNotificationsOutline
-                    size={40}
-                    className=" border rounded-full p-2 hover:text-sky-600"
-                  />
-                </Badge>
+                > */}
+                <IoNotificationsOutline
+                  size={40}
+                  className=" border rounded-full p-2 hover:text-sky-600"
+                />
+                {/* </Badge> */}
               </div>
               {authContext.shopInfo ? (
                 <>
