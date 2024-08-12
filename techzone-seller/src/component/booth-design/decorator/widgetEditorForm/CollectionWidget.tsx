@@ -63,6 +63,19 @@ export default function CollectionWidget(props: WidgetProps) {
     return temp;
   }, [props.widget.element, shopId]);
 
+  useEffect(() => {
+    if (collections && collections.length > 0) {
+      let ids: string[] = [];
+      collections.forEach((c) => {
+        ids.push(c._id);
+      });
+
+      let temp = proxyCollectionId.filter((id) => ids.includes(id));
+
+      setProxyCollectionId(temp);
+    }
+  }, [collections]);
+
   const [pattern, setPattern] = useState(element.pattern);
   const [searchText, setSearchText] = useState("");
   const handleSearch = (e: any) => {
@@ -223,7 +236,7 @@ export default function CollectionWidget(props: WidgetProps) {
                 </div>
               )}
 
-              <Card className="overflow-auto h-96">
+              <Card className="overflow-auto h-fit max-h-96 flex flex-col gap-10">
                 {collections.map((item, index) => {
                   return (
                     <div

@@ -2,12 +2,13 @@
 import { ShopInfoDesignType, ShopType } from "@/model/ShopType";
 import axios from "axios";
 import { POST_GetPath } from "../widget/WidgetAPI";
+import { WidgetType } from "@/model/WidgetType";
 
-const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
-const SHOP_PORT = process.env.NEXT_PUBLIC_SHOP_PORT;
+// const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
+// const SHOP_PORT = process.env.NEXT_PUBLIC_SHOP_PORT;
 
-// const publicAPIURL = `${BACKEND_PREFIX}:${SHOP_PORT}`
-const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+// const oldpublicAPIURL = `${BACKEND_PREFIX}:${SHOP_PORT}`;
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`;
 
 interface ShopResponse {
   status: number;
@@ -16,10 +17,7 @@ interface ShopResponse {
 }
 
 export async function GET_GetShop(id: string) {
-  const url = (publicAPIURL +
-    "/shop/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/shop/" + id).toString();
 
   try {
     // console.log(url);
@@ -54,10 +52,7 @@ export async function GET_GetShop(id: string) {
 
 // update widgets
 export async function PUT_UpdateShopDesign(id: string, design: string[]) {
-  const url = (publicAPIURL +
-    "/shop/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/shop/" + id).toString();
 
   try {
     // console.log(url);
@@ -99,10 +94,7 @@ export async function PUT_UpdateShopInfoDesign(
   id: string,
   shopInfoDesign: ShopInfoDesignType
 ) {
-  const url = (publicAPIURL +
-    "/shop/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/shop/" + id).toString();
 
   try {
     // console.log(url);
@@ -165,10 +157,7 @@ export async function PUT_UpdateShopInfoDesign(
 }
 
 export async function PUT_AddImageCollection(id: string, image_link: string) {
-  const URL = (publicAPIURL +
-    "/shop/addImgCollection/" +
-    id
-  ).toString();
+  const URL = (publicAPIURL + "/shop/addImgCollection/" + id).toString();
 
   try {
     const response = await axios.put(URL, { imageUrls: [image_link] });
@@ -183,15 +172,32 @@ export async function PUT_RemoveImageCollection(
   id: string,
   image_link: string
 ) {
-  const URL = (publicAPIURL +
-    "/shop/removeImgCollection/" +
-    id
-  ).toString();
+  const URL = (publicAPIURL + "/shop/removeImgCollection/" + id).toString();
 
   try {
     const response = await axios.put(URL, { imageUrls: [image_link] });
     console.log("RESULT", response);
     return response.data;
+  } catch (error) {
+    console.log("API_ERROR_ShopAPI_removeImageCollection: ", error);
+  }
+}
+
+export async function POST_UseTemplate(
+  shopId: string,
+  design: WidgetType[],
+  templateId: string
+) {
+  // const URL = (oldpublicAPIURL + "/shop/useTemplate").toString();
+  const URL = (publicAPIURL + "/shop/useTemplate").toString();
+
+  try {
+    const response = await axios.post(URL, {
+      shop: shopId,
+      design: design,
+      template: templateId,
+    });
+    return response.data.data.design;
   } catch (error) {
     console.log("API_ERROR_ShopAPI_removeImageCollection: ", error);
   }

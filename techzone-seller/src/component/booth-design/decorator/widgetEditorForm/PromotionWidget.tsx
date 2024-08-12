@@ -121,6 +121,19 @@ export default function PromotionWidget(props: WidgetProps) {
     return temp;
   }, [props.widget.element, shopId]);
 
+  useEffect(() => {
+    if (promotions && promotions.length > 0) {
+      let ids: string[] = [];
+      promotions.forEach((p) => {
+        ids.push(p._id);
+      });
+
+      let temp = proxyPromotionId.filter((id) => ids.includes(id));
+
+      setProxyPromotionId(temp);
+    }
+  }, [promotions]);
+
   const [title, setTitle] = useState(element.title);
 
   useEffect(() => {
@@ -231,7 +244,7 @@ export default function PromotionWidget(props: WidgetProps) {
                 </div>
               )}
 
-              <Card className="overflow-auto h-96">
+              <Card className="overflow-auto h-fit max-h-96">
                 {promotions &&
                   promotions.map((item, index) => {
                     return (
@@ -247,7 +260,7 @@ export default function PromotionWidget(props: WidgetProps) {
                             ? "hidden"
                             : ""
                         }
-                      `}
+                       flex flex-col gap-5`}
                       >
                         <PromotionCard
                           item={item}

@@ -26,7 +26,7 @@ export default function CollectionCard(props: CollectionCardProps) {
   return (
     <Card
       type="inner"
-      className={`mb-10 h-32 ${isSelected ? "border-2 border-blue-500" : ""}`}
+      className={`h-32 ${isSelected ? "border-2 border-blue-500" : ""}`}
       key={props.item._id}
     >
       <div className="grid grid-cols-3 grid-rows-3">
