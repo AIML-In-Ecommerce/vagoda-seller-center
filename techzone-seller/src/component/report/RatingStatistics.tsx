@@ -49,7 +49,7 @@ export default function RatingStatistics(props: RatingStatisticsProps) {
                             </div>
                         </div>
                         <ConfigProvider theme={{ components: { Progress: { defaultColor: `#fadb14` } } }}>
-                            <Progress percent={avgRatingScore} showInfo={false} />
+                            <Progress strokeColor={'#fadb14'} percent={avgRatingScore} showInfo={false} />
                         </ConfigProvider>
                     </div>
                 )
