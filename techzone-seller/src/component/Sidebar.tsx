@@ -4,7 +4,7 @@ import Sider from "antd/es/layout/Sider";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { AiOutlineLineChart } from "react-icons/ai";
-import { BsHouseHeart, BsPersonVideo, BsShop } from "react-icons/bs";
+import { BsHouseHeart } from "react-icons/bs";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { GoSearch } from "react-icons/go";
 import { HiOutlineHome } from "react-icons/hi2";
@@ -117,9 +117,9 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
         { key: "3-1", label: "Danh sách sản phẩm", url: "/product/list" },
         { key: "3-2", label: "Tạo sản phẩm", url: "/product/create" },
         { key: "3-3", label: "Quản lý đánh giá", url: "/product/review" },
-        { key: "3-4", label: "Lịch sử thay đổi", url: "/product/history" },
+        // { key: "3-4", label: "Lịch sử thay đổi", url: "/product/history" },
         {
-          key: "3-5",
+          key: "3-4",
           label: "Bộ sưu tập hình ảnh",
           url: "/product/image-collection",
         },
@@ -175,28 +175,29 @@ const Sidebar = ({ noticeCollapsingCallback }: SidebarProps) => {
     },
     {
       key: "7",
-      icon: <LiaWalletSolid />,
-      label: "Quản lý tài chính",
+      icon: <BsHouseHeart />,
+      label: "Thiết kế gian hàng",
       children: [
-        { key: "7-1", label: "Quản lý tài sản", url: "/settlement/my-balance" },
-        { key: "7-2", label: "Sao kê", url: "/settlement/statement" },
+        {
+          key: "7-1",
+          label: "Trang trí gian hàng",
+          url: "/booth-design/decorator",
+        },
+        { key: "7-2", label: "Bộ sưu tập", url: "/booth-design/collection" },
       ],
       url: null,
     },
     {
       key: "8",
-      icon: <BsHouseHeart />,
-      label: "Thiết kế gian hàng",
+      icon: <LiaWalletSolid />,
+      label: "Quản lý tài chính",
       children: [
-        {
-          key: "8-1",
-          label: "Trang trí gian hàng",
-          url: "/booth-design/decorator",
-        },
-        { key: "8-2", label: "Bộ sưu tập", url: "/booth-design/collection" },
+        { key: "8-1", label: "Quản lý tài sản", url: "/settlement/my-balance" },
+        { key: "8-2", label: "Sao kê", url: "/settlement/statement" },
       ],
       url: null,
     },
+
     // {
     //   key: "9",
     //   icon: <BsPersonVideo />,
