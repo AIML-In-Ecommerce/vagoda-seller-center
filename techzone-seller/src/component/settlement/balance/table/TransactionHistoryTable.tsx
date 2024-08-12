@@ -117,7 +117,10 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
 
     const onRangeChange = (dates: null | (Dayjs | null)[], dateStrings: string[]) => {
         if (dates) {
+            // console.log("onRangeChange", dates);
             setSelectedDates([dates[0], dates[1]]);
+            // Reset the selected report period when a date range is selected
+            setSelectedReportPeriod("");
         } else {
             console.log('Clear');
         }
@@ -206,7 +209,18 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
         //     return false;
         // };
 
+        // filtered by date
+        const [startDate, endDate] = DayjsToDate(selectedDates);
+        
+        const isCurrentDateBetween = (current: Date, from: Date, to: Date) => {
+            return new Date(from) < new Date(current) && new Date(current) < new Date(to);
+        }
 
+        if (selectedDates) {
+            data = data.filter(item => isCurrentDateBetween(item.date, startDate!, endDate!));
+        }
+
+        //
         if (keyword && idType) {
             if (idType === 'order') {
                 data = data.filter(item => item.orderId.includes(keyword));
@@ -215,15 +229,23 @@ export default function TransactionHistoryTable(props: TransactionHistoryTablePr
                 data = data.filter(item => item._id.includes(keyword));
             }
         }
+
+        //
         if (selectedTransactionCategories.length !== 0) {
             data = data.filter(item => selectedTransactionCategories.includes(item.type))
         }
+
+        //
+
+
+        //Total money in/out on filtered
         let totalMoneyIn = data.filter(item => item.type === TransactionCategoryType.INCOME)
             .reduce((sum, item) => sum + item.money, 0);
         let totalMoneyOut = data.filter(item => item.type === TransactionCategoryType.EXPENSE)
             .reduce((sum, item) => sum + item.money, 0);
         setTotalMoneyIn(totalMoneyIn);
         setTotalMoneyOut(totalMoneyOut);
+        
         setFilteredData(data);
         setLoading(false);
     };
