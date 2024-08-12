@@ -1,13 +1,14 @@
 "use client";
 
+import { DesignTemplateType } from "@/model/DesignTemplateType";
 import { WidgetType } from "@/model/WidgetType";
 import axios from "axios";
 
-const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
-const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
+// const BACKEND_PREFIX = process.env.NEXT_PUBLIC_BACKEND_PREFIX;
+// const WIDGET_PORT = process.env.NEXT_PUBLIC_WIDGET_PORT;
 
-// const publicAPIURL = `${BACKEND_PREFIX}:${WIDGET_PORT}`
-const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`
+// const oldpublicAPIURL = `${BACKEND_PREFIX}:${WIDGET_PORT}`;
+const publicAPIURL = `${process.env.NEXT_PUBLIC_GATEWAY_PREFIX}`;
 
 interface WidgetListResponse {
   status: number;
@@ -16,9 +17,7 @@ interface WidgetListResponse {
 }
 
 export async function POST_GetWidgetList(ids: string[]) {
-  const url = (publicAPIURL +
-    "/widgets/list"
-  ).toString();
+  const url = (publicAPIURL + "/widgets/list").toString();
 
   try {
     // console.log(url);
@@ -61,10 +60,7 @@ interface WidgetResponse {
 }
 
 export async function GET_GetWidget(id: string) {
-  const url = (publicAPIURL +
-    "/widget/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/widget/" + id).toString();
 
   try {
     // console.log(url);
@@ -98,9 +94,7 @@ export async function GET_GetWidget(id: string) {
 }
 
 export async function POST_CreateWidget(props: WidgetType) {
-  const url = (publicAPIURL +
-    "/widget"
-  ).toString();
+  const url = (publicAPIURL + "/widget").toString();
 
   try {
     // console.log(url);
@@ -155,10 +149,7 @@ export async function POST_CreateWidget(props: WidgetType) {
 }
 
 export async function DELETE_DeleteWidget(id: string) {
-  const url = (publicAPIURL +
-    "/widget/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/widget/" + id).toString();
 
   try {
     // console.log(url);
@@ -192,10 +183,7 @@ export async function DELETE_DeleteWidget(id: string) {
 }
 
 export async function PUT_UpdateWidgetOrder(id: string, order: number) {
-  const url = (publicAPIURL +
-    "/widget/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/widget/" + id).toString();
 
   try {
     // console.log(url);
@@ -235,10 +223,7 @@ export async function PUT_UpdateWidgetVisibility(
   id: string,
   visibility: boolean
 ) {
-  const url = (publicAPIURL +
-    "/widget/" +
-    id
-  ).toString();
+  const url = (publicAPIURL + "/widget/" + id).toString();
 
   try {
     // console.log(url);
@@ -275,10 +260,7 @@ export async function PUT_UpdateWidgetVisibility(
 }
 
 export async function PUT_UpdateWidget(data: WidgetType) {
-  const url = (publicAPIURL +
-    "/widget/" +
-    data._id
-  ).toString();
+  const url = (publicAPIURL + "/widget/" + data._id).toString();
 
   try {
     // console.log(url);
@@ -331,9 +313,7 @@ export async function dataUrlToFile(
 }
 
 export async function POST_GetPath(image: string) {
-  const url = (publicAPIURL +
-    "/upload"
-  ).toString();
+  const url = (publicAPIURL + "/upload").toString();
 
   if (!image)
     return {
@@ -383,6 +363,48 @@ export async function POST_GetPath(image: string) {
     return {
       isDenied: true,
       message: "Failed to create link",
+      status: 500,
+      data: undefined,
+    };
+  }
+}
+
+interface TemplateResponse {
+  status: number;
+  data: DesignTemplateType[];
+  message: string;
+}
+
+export async function GET_GetTemplates() {
+  // const url = (oldpublicAPIURL + "/templates").toString();
+  const url = (publicAPIURL + "/templates").toString();
+
+  try {
+    // console.log(url);
+    const response = await axios.get(url);
+
+    const responseData: TemplateResponse = response.data;
+
+    if (responseData.status == 200) {
+      return {
+        isDenied: false,
+        message: "Get templates successfully",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    } else {
+      return {
+        isDenied: true,
+        message: "Failed to get templates",
+        status: responseData.status,
+        data: responseData.data,
+      };
+    }
+  } catch (err) {
+    console.error(err);
+    return {
+      isDenied: true,
+      message: "Failed to get templates",
       status: 500,
       data: undefined,
     };

@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { InfoCircleOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import BannerModal from "@/component/booth-design/decorator/BannerModal";
+import BannerModal from "@/component/booth-design/decorator/modal/BannerModal";
 import { FaRegHandPointer } from "react-icons/fa6";
 import { ShopInfoDesignType } from "@/model/ShopType";
 import { SaveStatusEnum } from "../WidgetEditorBar";

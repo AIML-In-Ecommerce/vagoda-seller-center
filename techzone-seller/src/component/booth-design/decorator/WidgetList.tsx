@@ -21,6 +21,129 @@ import { useMemo } from "react";
 import CollectionCarousel from "./boothPattern/CollectionCarousel";
 import CollectionGrid from "./boothPattern/CollectionGrid";
 
+interface WidgetListProps {
+  widgets: WidgetType[];
+}
+
+export default function WidgetList(props: WidgetListProps) {
+  return (
+    <div className="overflow-hidden">
+      {props.widgets
+        .sort((a, b) => a.order - b.order)
+        .map((item, index) => (
+          <div key={index}>
+            <section id={item._id}>
+              <div className="uppercase font-semibold text-gray-500">
+                widget {index + 1}
+              </div>
+              {item.visibility === true && <Widget widget={item} />}
+            </section>
+          </div>
+        ))}
+    </div>
+  );
+}
+
+interface WidgetProps {
+  widget: WidgetType;
+}
+
+// filtering types
+export function Widget(props: WidgetProps) {
+  return (
+    <div>
+      {props.widget.type === WidgetCategoryType.BANNER && (
+        <BannerWidget widget={props.widget} />
+      )}
+
+      {props.widget.type === WidgetCategoryType.PRODUCT && (
+        <ProductWidget widget={props.widget} />
+      )}
+
+      {props.widget.type === WidgetCategoryType.CATEGORY && (
+        <CategoryWidget widget={props.widget} />
+      )}
+
+      {props.widget.type === WidgetCategoryType.PROMOTION && (
+        <PromotionWidget widget={props.widget} />
+      )}
+
+      {props.widget.type === WidgetCategoryType.COLLECTION && (
+        <CollectionWidget widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
+function ProductWidget(props: WidgetProps) {
+  const element = useMemo(() => {
+    return props.widget.element as ProductElement;
+  }, [props.widget.element]);
+
+  return (
+    <div>
+      {element && element.pattern === ProductPatternType.CAROUSEL && (
+        <ProductCarousel widget={props.widget} />
+      )}
+      {element && element.pattern === ProductPatternType.GRID && (
+        <ProductGrid widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
+function BannerWidget(props: WidgetProps) {
+  const element = props.widget.element as BannerElement;
+
+  return (
+    <div>
+      {element && element.pattern === BannerPatternType.CAROUSEL && (
+        <BannerCarousel widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
+function CategoryWidget(props: WidgetProps) {
+  const element = props.widget.element as CategoryElement;
+
+  return (
+    <div>
+      {element && element.pattern === CategoryPatternType.GRID && (
+        <CategoryGrid widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
+function PromotionWidget(props: WidgetProps) {
+  const element = props.widget.element as PromotionElement;
+
+  return (
+    <div>
+      {element && element.pattern === PromotionPatternType.GRID && (
+        <PromotionGrid widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
+function CollectionWidget(props: WidgetProps) {
+  const element = props.widget.element as CollectionElement;
+
+  return (
+    <div>
+      {element && element.pattern === CollectionPatternType.GRID && (
+        <CollectionGrid widget={props.widget} />
+      )}
+
+      {element && element.pattern === CollectionPatternType.CAROUSEL && (
+        <CollectionCarousel widget={props.widget} />
+      )}
+    </div>
+  );
+}
+
 const MockData = [
   {
     _id: "sp-01",
@@ -167,126 +290,3 @@ const MockData = [
     category: "",
   },
 ];
-
-interface WidgetListProps {
-  widgets: WidgetType[];
-}
-
-export default function WidgetList(props: WidgetListProps) {
-  return (
-    <div className="overflow-hidden">
-      {props.widgets
-        .sort((a, b) => a.order - b.order)
-        .map((item, index) => (
-          <div key={index}>
-            <section id={item._id}>
-              <div className="uppercase font-semibold text-gray-500">
-                widget {index + 1}
-              </div>
-              {item.visibility === true && <Widget widget={item} />}
-            </section>
-          </div>
-        ))}
-    </div>
-  );
-}
-
-interface WidgetProps {
-  widget: WidgetType;
-}
-
-// filtering types
-export function Widget(props: WidgetProps) {
-  return (
-    <div>
-      {props.widget.type === WidgetCategoryType.BANNER && (
-        <BannerWidget widget={props.widget} />
-      )}
-
-      {props.widget.type === WidgetCategoryType.PRODUCT && (
-        <ProductWidget widget={props.widget} />
-      )}
-
-      {props.widget.type === WidgetCategoryType.CATEGORY && (
-        <CategoryWidget widget={props.widget} />
-      )}
-
-      {props.widget.type === WidgetCategoryType.PROMOTION && (
-        <PromotionWidget widget={props.widget} />
-      )}
-
-      {props.widget.type === WidgetCategoryType.COLLECTION && (
-        <CollectionWidget widget={props.widget} />
-      )}
-    </div>
-  );
-}
-
-function ProductWidget(props: WidgetProps) {
-  const element = useMemo(() => {
-    return props.widget.element as ProductElement;
-  }, [props.widget.element]);
-
-  return (
-    <div>
-      {element && element.pattern === ProductPatternType.CAROUSEL && (
-        <ProductCarousel widget={props.widget} />
-      )}
-      {element && element.pattern === ProductPatternType.GRID && (
-        <ProductGrid widget={props.widget} />
-      )}
-    </div>
-  );
-}
-
-function BannerWidget(props: WidgetProps) {
-  const element = props.widget.element as BannerElement;
-
-  return (
-    <div>
-      {element && element.pattern === BannerPatternType.CAROUSEL && (
-        <BannerCarousel widget={props.widget} />
-      )}
-    </div>
-  );
-}
-
-function CategoryWidget(props: WidgetProps) {
-  const element = props.widget.element as CategoryElement;
-
-  return (
-    <div>
-      {element && element.pattern === CategoryPatternType.GRID && (
-        <CategoryGrid widget={props.widget} />
-      )}
-    </div>
-  );
-}
-
-function PromotionWidget(props: WidgetProps) {
-  const element = props.widget.element as PromotionElement;
-
-  return (
-    <div>
-      {element && element.pattern === PromotionPatternType.GRID && (
-        <PromotionGrid widget={props.widget} />
-      )}
-    </div>
-  );
-}
-
-function CollectionWidget(props: WidgetProps) {
-  const element = props.widget.element as CollectionElement;
-
-  return (
-    <div>
-      {element && element.pattern === CollectionPatternType.GRID && (
-        <CollectionGrid widget={props.widget} />
-      )}
-
-      {element && element.pattern === CollectionPatternType.CAROUSEL && (
-        <CollectionCarousel widget={props.widget} />
-      )}
-    </div>
-  );
-}

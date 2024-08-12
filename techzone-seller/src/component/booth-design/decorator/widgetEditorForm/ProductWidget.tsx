@@ -111,6 +111,15 @@ export default function ProductWidget(props: WidgetProps) {
       if (response.data) {
         setCollections(response.data);
         // console.log("product", data);
+
+        let ids: string[] = [];
+        response.data.forEach((c) => {
+          ids.push(c._id);
+        });
+
+        if (!ids.includes(collectionId)) {
+          setCollectionId("");
+        }
       }
     }
   };

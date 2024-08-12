@@ -8,7 +8,7 @@ const PROMOTION_PORT = process.env.NEXT_PUBLIC_PROMOTION_PORT;
 const GATEWAY_PREFIX = process.env.NEXT_PUBLIC_GATEWAY_PREFIX;
 
 // const publicAPIURL = `${BACKEND_PREFIX}:${PROMOTION_PORT}`
-const publicAPIURL = `${GATEWAY_PREFIX}`
+const publicAPIURL = `${GATEWAY_PREFIX}`;
 
 interface PromotionListResponse {
   status: number;
@@ -23,9 +23,7 @@ interface PromotionSingleResponse {
 }
 
 export async function POST_GetPromotionList(ids: string[]) {
-  const url = (publicAPIURL +
-    "/promotions/list"
-  ).toString();
+  const url = (publicAPIURL + "/promotion/list").toString();
 
   try {
     // console.log(url);
@@ -63,9 +61,7 @@ export async function POST_GetPromotionList(ids: string[]) {
 }
 
 export async function GET_GetAllPromotions() {
-  const url = (publicAPIURL +
-    "/promotions"
-  ).toString();
+  const url = (publicAPIURL + "/promotions").toString();
 
   try {
     // console.log(url);
