@@ -251,17 +251,35 @@ export default function SellerPerformancePage() {
         )
 
         if (responseAllReviews) {
-            let ratings: RatingItem[] = [] as RatingItem[];
-            let starRate = 1;
+            let ratings: RatingItem[] = [
+                {
+                    stars: 1,
+                    count: 0,
+                },
+                {
+                    stars: 2,
+                    count: 0,
+                },
+                {
+                    stars: 3,
+                    count: 0,
+                },
+                {
+                    stars: 4,
+                    count: 0,
+                },
+                {
+                    stars: 5,
+                    count: 0,
+                }
+
+            ] as RatingItem[];
             const rangeReviews = responseAllReviews.data as ReviewRange[]
             // calculate totalScore and totalRatings
-            for (let range of rangeReviews) {
-                ratings.push({
-                    stars: starRate,
-                    count: range.totalReviews
-                } as RatingItem)
-                starRate += 1;
-            }
+            rangeReviews.forEach((range: ReviewRange) => {
+                let starRate = range.range[0];
+                ratings[starRate - 1].count = range.totalReviews;
+            });
             setRatingItems(ratings);
         }
     }
@@ -367,13 +385,13 @@ export default function SellerPerformancePage() {
                                         </List.Item>
                                     )} />
                             </div>
-                            <div className="flex flex-col lg:col-start-8 lg:col-span-1">
+                            {/* <div className="flex flex-col lg:col-start-8 lg:col-span-1">
                                 <Button className="cursor-pointer flex flex-row mx-auto items-center mb-5 gap-1"
                                     href={"/report/seller-operational-score"}>
                                     <span>Xem chi tiết</span>
                                     <span><SlArrowRight /></span>
                                 </Button>
-                            </div>
+                            </div> */}
                         </div>
                     </Card>
                 </div>
