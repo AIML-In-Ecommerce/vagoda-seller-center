@@ -1,6 +1,6 @@
 "use client";
 import { StatementInput } from "@/apis/SettlementAPI";
-import { formatPrice } from "@/component/utils/formatPrice";
+import { formatCurrencyFromValue } from "@/component/util/CurrencyDisplay";
 import { AuthContext } from "@/context/AuthContext";
 import { StatementType } from "@/model/StatementType";
 import { SettlementService } from "@/services/Settlement";
@@ -47,7 +47,7 @@ export default function StatementPage() {
     {
       title: "Doanh thu",
       dataIndex: "revenue",
-      render: (text: number) => formatPrice(text),
+      render: (text: number) => formatCurrencyFromValue({ value: text }),
       sorter: (a: StatementType, b: StatementType) => a.revenue - b.revenue,
       width: "20%",
     },
@@ -151,7 +151,9 @@ export default function StatementPage() {
             </Tooltip>
           </div>
           <div className="text-xl text-sky-500 font-bold">
-            {formatPrice(allStatements?.at(-1)?.revenue ?? 0)} đ
+            {formatCurrencyFromValue({
+              value: allStatements?.at(-1)?.revenue ?? 0,
+            })}
           </div>
         </div>
       </div>
