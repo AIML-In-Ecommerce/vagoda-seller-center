@@ -379,7 +379,7 @@ export default function HomePage() {
     const OEDataSources = useMemo<OEProps[]>(() => {
         const lateOrdersRatio = roundTo2DecimalPlaces(totalLateTimeOrders / totalReceivedOrders);
         const onTimeOrdersRatio = roundTo2DecimalPlaces(totalOnTimeOrders / totalReceivedOrders);
-        console.log('OEStats', totalLateTimeOrders, totalOnTimeOrders, totalReceivedOrders);
+        // console.log('OEStats', totalLateTimeOrders, totalOnTimeOrders, totalReceivedOrders);
 
         const data: OEProps[] = [
             {
