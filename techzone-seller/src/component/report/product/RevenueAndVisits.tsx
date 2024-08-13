@@ -507,6 +507,7 @@ export default function RevenueAndVisits(props: RevenueAndVisitsProps) {
                     {
                         <TableWrapper>
                             <Table columns={columns} scroll={{ x: "max-content" }}
+                                pagination={{pageSize: 5}}
                                 dataSource={filteredData}
                                 loading={loading}
                                 bordered />
