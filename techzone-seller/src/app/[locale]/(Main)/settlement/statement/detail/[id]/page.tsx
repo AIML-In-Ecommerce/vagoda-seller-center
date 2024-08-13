@@ -1,5 +1,6 @@
 "use client";
 import { ProductStatementInput } from "@/apis/SettlementAPI";
+import { formatCurrencyFromValue } from "@/component/util/CurrencyDisplay";
 import { formatPrice } from "@/component/utils/formatPrice";
 import { AuthContext } from "@/context/AuthContext";
 import { ProductStatementType } from "@/model/ProductStatementType";
@@ -173,8 +174,8 @@ export default function UpdateProductInfo({
         return (
           <p className={`${index == 0 ? "font-bold" : ""}`}>
             {index == 0
-              ? formatPrice(totalRevenue)
-              : formatPrice(record.revenue)}
+              ? formatCurrencyFromValue({value:totalRevenue})
+              : formatCurrencyFromValue({value:record.revenue})}
           </p>
         );
       },

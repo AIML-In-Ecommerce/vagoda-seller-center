@@ -197,7 +197,7 @@ export default function ReviewProductPage() {
   ];
 
   const fetchRecords = (page: number, pageSize: number) => {
-    const updatedQuery = new URLSearchParams(query);
+    const updatedQuery = new URLSearchParams(query.toString());
     updatedQuery.set("index", page.toString());
     updatedQuery.set("amount", pageSize.toString());
 
@@ -274,7 +274,7 @@ export default function ReviewProductPage() {
 
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
     if (value.length != 0) {
-      const updatedQuery = new URLSearchParams(query);
+      const updatedQuery = new URLSearchParams(query.toString());
       updatedQuery.set("product", value);
 
       window.history.pushState(
@@ -287,7 +287,7 @@ export default function ReviewProductPage() {
 
   const onStatusFilter = (value: string) => {
     setFilteredResponseStatus(value);
-    const updatedQuery = new URLSearchParams(query);
+    const updatedQuery = new URLSearchParams(query.toString());
 
     if (value.length != 0) {
       updatedQuery.set("isResponse", value == "Đã phản hồi" ? "true" : "false");
@@ -302,7 +302,7 @@ export default function ReviewProductPage() {
   };
 
   const onCategoryFilter = (value: string) => {
-    const updatedQuery = new URLSearchParams(query);
+    const updatedQuery = new URLSearchParams(query.toString());
 
     if (value.length != 0) {
       updatedQuery.set("category", value);
@@ -366,7 +366,7 @@ export default function ReviewProductPage() {
 
   const handleChangeTab = (activekey: string) => {
     setFilteredRating(activekey);
-    const updatedQuery = new URLSearchParams(query);
+    const updatedQuery = new URLSearchParams(query.toString());
 
     if (activekey != "0") {
       updatedQuery.set("rating", activekey);
